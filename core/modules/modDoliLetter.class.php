@@ -38,6 +38,13 @@ class modDoliLetter extends DolibarrModules {
 		global $langs, $conf;
 
 		$this->db = $db;
+		if (file_exists(__DIR__ . '/../../../saturne/lib/saturne_functions.lib.php')) {
+			require_once __DIR__ . '/../../../saturne/lib/saturne_functions.lib.php';
+			saturne_load_langs(['doliletter@doliletter']);
+		} else {
+			$this->error++;
+			$this->errors[] = $langs->trans('activateModuleDependNotSatisfied', 'Doliletter', 'Saturne');
+		}
 
 		$this->numero          = 436360;
 		$this->rights_class    = 'doliletter';
@@ -309,6 +316,8 @@ class modDoliLetter extends DolibarrModules {
 	 *  @return     int             	1 if OK, 0 if KO
 	 */
 	public function init($options = '') {
+		global $conf, $langs;
+
 		$this->_load_tables('/doliletter/sql/');
 
 		delDocumentModel('phobos', 'envelope');
@@ -324,6 +333,25 @@ class modDoliLetter extends DolibarrModules {
 		addDocumentModel('nerio','trackingnumber','','');
 
 		$sql = array();
+
+		$this->tabs   = [];
+		$pictoSpread = '<i class="fas fa-check-circle"></i> ';
+        $objectsMetadata = saturne_get_objects_metadata();
+
+        foreach($objectsMetadata as $objectType => $objectMetadata) {
+            if (preg_match('/_/', $objectType)) {
+                $splittedElementType = explode('_', $objectType);
+                $moduleName = $splittedElementType[0];
+                $objectName = dol_strtolower($objectMetadata['class_name']);
+                $objectType = $objectName . '@' . $moduleName;
+            } else {
+                $objectType = $objectMetadata['tab_type'];
+            }
+            $this->tabs[] = ['data' => $objectType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+
+            $this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
+            $this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
+        }
 
 		return $this->_init($sql, $options);
 	}
