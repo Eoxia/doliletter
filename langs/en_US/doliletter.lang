@@ -51,3 +51,16 @@ MyPageName = My page name
 #
 MyWidget = My widget
 MyWidgetDescription = My widget description
+
+#
+# Spread
+#
+AddLine                 = Ajouter une ligne
+signinsheet.odt         = Feuille d'émargement
+ThereIsNoSignatoryError = Il n'y a personne dans votre diffusion vous ne pouvez pas génerer le document
+Spread                  = Diffusion
+Recipients              = Destinataires
+SignedOn                = Signé le
+UserSignatureList       = Liste des utilisateurs et signatures
+ValidateSignature       = Valider la signature
+EnterNotePrivateHere    = Entrez votre note privée ici

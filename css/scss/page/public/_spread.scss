@@ -1,0 +1,484 @@
+.modal-canvas-signature {
+    display: block !important;
+    margin: 0 auto !important;
+    border: 2px solid #ddd !important;
+    border-radius: 6px !important;
+    background-color: #fff !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative;
+}
+
+.user-list-container {
+    width: 100%;
+}
+
+.user-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-signature-item {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #fff;
+}
+
+.user-signature-item.signature-validated {
+    border-color: #28a745;
+    background-color: #f8f9fa;
+}
+
+.form-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.form-element {
+    flex: 1;
+}
+
+.input-with-actions {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    align-items: center;
+}
+
+.user-status {
+    display: flex;
+    align-items: center;
+    min-width: 150px;
+    flex: 1;
+}
+
+.add-user-section {
+    text-align: center;
+    margin-top: 12px;
+    padding-top: 12px;
+}
+
+.form-element label {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.signature-image {
+    border: 2px solid #ddd;
+    border-radius: 3px;
+    background: #fff;
+    display: block;
+    margin: 0 auto;
+    max-width: 100px;
+    max-height: 40px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.signature-element {
+    position: relative;
+    text-align: center;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.canvas-container {
+    display: block !important;
+    margin: 0 auto !important;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    touch-action: none;
+    position: relative;
+}
+
+.signature-erase {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signature-erase:hover {
+    background-color: #5a6268;
+}
+
+.signature-date {
+    color: #666;
+    font-style: italic;
+    margin: 0;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    flex: 1;
+    max-width: 140px;
+}
+
+.private-note-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.private-note-header {
+    margin-bottom: 10px;
+}
+
+.private-note-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.private-note-content {
+    width: 100%;
+}
+
+.private-note-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    resize: vertical;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.private-note-textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.private-note-textarea::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.private-note-actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.user-signature-item.signature-validated .input-with-actions {
+    align-items: center;
+}
+
+.user-signature-item.signature-validated .remove-user-btn {
+    align-self: center;
+    margin-top: 0;
+}
+
+.user-select-small {
+    flex: 1;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 12px;
+    max-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .public-card__container {
+        padding: 6px;
+        margin: 0;
+    }
+    
+    .user-signature-item {
+        padding: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 6px;
+        align-items: stretch;
+    }
+    
+    .input-with-actions {
+        gap: 12px;
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .user-status {
+        min-width: 120px;
+        justify-content: flex-start;
+        flex: 1;
+    }
+    
+    .signature-element {
+        padding: 6px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .signature-image {
+        width: auto !important;
+        max-width: 80px !important;
+        max-height: 35px !important;
+        height: auto !important;
+        box-sizing: border-box;
+    }
+    
+    .signature-erase {
+        top: 8px;
+        right: 8px;
+        width: 26px;
+        height: 26px;
+    }
+    
+    .user-list-header h3 {
+        font-size: 15px;
+    }
+    
+    .signature-date {
+        margin: 0;
+        text-align: center;
+        flex-direction: column;
+        align-items: center;
+        font-size: 10px;
+        flex: 1;
+        max-width: 120px;
+    }
+    
+    .remove-user-btn {
+        margin-top: 0;
+        align-self: center;
+    }
+    
+    .sign-btn {
+        min-width: auto;
+        width: auto;
+        padding: 4px 6px;
+    }
+    
+    .private-note-section {
+        margin-top: 15px;
+        padding-top: 12px;
+    }
+    
+    .private-note-header h3 {
+        font-size: 15px;
+    }
+    
+    .private-note-textarea {
+        min-height: 100px;
+        padding: 8px;
+        font-size: 13px;
+    }
+    
+    .modal-canvas-signature {
+        width: calc(100% - 20px) !important;
+        max-width: calc(100vw - 60px) !important;
+        height: 150px !important;
+    }
+    
+    .canvas-container {
+        width: calc(100% - 20px) !important;
+        max-width: calc(100vw - 60px) !important;
+        height: 150px !important;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+    }
+}
+
+@media (max-width: 480px) {
+    .signature-image {
+        width: auto !important;
+        max-width: 65px !important;
+        max-height: 25px !important;
+        height: auto !important;
+    }
+    
+    .canvas-container {
+        width: 100% !important;
+        max-width: calc(100vw - 25px);
+        height: 140px !important;
+    }
+    
+    .signature-element {
+        padding: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .user-signature-item {
+        padding: 6px;
+    }
+    
+    .form-element label {
+        font-size: 11px;
+    }
+    
+    .signature-date {
+        margin: 0;
+        font-size: 9px;
+        max-width: 100px;
+    }
+    
+    .input-with-actions {
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .remove-user-btn {
+        margin-top: 0;
+        align-self: center;
+    }
+    
+    .sign-btn {
+        min-width: auto;
+        width: auto;
+        padding: 4px 6px;
+    }
+    
+    .private-note-section {
+        margin-top: 12px;
+        padding-top: 10px;
+    }
+    
+    .private-note-header h3 {
+        font-size: 14px;
+    }
+    
+    .private-note-textarea {
+        min-height: 80px;
+        padding: 6px;
+        font-size: 12px;
+    }
+    
+    .modal-canvas-signature {
+        width: calc(100% - 10px) !important;
+        max-width: calc(100vw - 40px) !important;
+        height: 120px !important;
+    }
+    
+    .canvas-container {
+        width: calc(100% - 10px) !important;
+        max-width: calc(100vw - 40px) !important;
+        height: 120px !important;
+    }
+}
+
+.modal-spread {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-spread-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border: 1px solid #888;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.modal-spread-header {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-spread-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-spread-body {
+    padding: 20px;
+}
+
+.modal-spread-footer {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.close-modal-spread {
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .modal-spread-content {
+        width: 95%;
+        margin: 2% auto;
+    }
+    
+    .modal-spread-header,
+    .modal-spread-footer {
+        padding: 12px 15px;
+    }
+    
+    .modal-spread-body {
+        padding: 15px;
+    }
+    
+    .modal-spread-footer {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .modal-spread-footer .btn {
+        width: 100%;
+    }
+}
