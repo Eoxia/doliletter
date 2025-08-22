@@ -55,4 +55,6 @@ MyWidgetDescription = My widget description
 #
 # Spread
 #
-signinsheet.odt = Feuille d'émargement
+AddLine                 = Ajouter une ligne
+signinsheet.odt         = Feuille d'émargement
+ThereIsNoSignatoryError = Il n'y a personne dans votre diffusion vous ne pouvez pas génerer le document

@@ -39,7 +39,7 @@ if (isModEnabled('categorie')) {
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs();
+saturne_load_langs(['doliletter@doliletter']);
 
 // Get parameters
 $action     = GETPOSTISSET('action') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
@@ -64,11 +64,14 @@ foreach ($paginationParameters as $paginationParameterKey => $paginationParamete
 }
 
 // Initialize technical objects
-include_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnedocuments/signinsheetdocument.class.php';
-include_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturneattendancesheet.class.php';
-$document = new SigninSheetDocument($db);
-$object   = new SaturneAttendanceSheet($db, 'doliletter');
+include_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterdocuments/signinsheetdocument.class.php';
+include_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
+require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+
+$document    = new SigninSheetDocument($db);
+$object      = new DoliletterAttendanceSheet($db, 'doliletter');
 $extrafields = new ExtraFields($db);
+$signatory   = new SaturneSignature($db);
 if (isModEnabled('categorie')) {
     $categorie = new Categorie($db);
 }
@@ -124,7 +127,7 @@ if ($mode == 'pwa') {
     $conf->dol_hide_leftmenu = 1;
 }
 
-$title = $langs->trans(ucfirst($object->element) . 'List');
+$title = $langs->trans('Signatories');
 saturne_header(0,'', $title, $helpUrl ?? '', '', 0, 0, [], [], '', 'mod-' . $object->module . '-' . $object->element . ' page-list bodyforlist');
 
 if (!empty($fromType)) {
@@ -149,7 +152,7 @@ if ($reshook > 0) {
 print '</div>';
 
 // Add link to public interface
-$publicUrl = dol_buildpath('/saturne/public/spread/add_spread.php', 1) . '?id=' . $fromId . '&object_type=' . $fromType;
+$publicUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $fromId . '&object_type=' . $fromType;
 print '<div class="tabsAction">';
 print '<a class="butAction" href="' . $publicUrl . '" target="_blank">' . $langs->trans('PublicInterface') . '</a>';
 print '</div>';
@@ -160,20 +163,21 @@ $modulePart = 'doliletter:SigninSheet';
 $objref     = dol_sanitizeFileName($object->ref);
 $dirFiles   = 'signinsheet' . '/' . $objref;
 $fileDir    = $upload_dir . '/' . $dirFiles;
-// Protocole (http ou https)
+
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
     || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-
-// Nom de domaine + port (si différent de 80/443)
 $host = $_SERVER['HTTP_HOST'];
-
-// URI + query string
 $requestUri = $_SERVER['REQUEST_URI'];
-
-// URL complète
 $urlSource = $protocol . $host . $requestUri;
 
-print saturne_show_documents($modulePart, $dirFiles, $fileDir, $urlSource, 1, 1, '', 1, 0, 0, 0, 0, '', '', $langs->defaultlang, 0, $object, 0, 'remove_file', !empty($object->id));
+$signatories = $signatory->fetchSignatory('', $object->id ?? 0, $object->element);
+if ($signatories <= 0) {
+    $signatories = [];
+} elseif (is_array($signatories)) {
+    $signatories = current($signatories);
+}
+
+print saturne_show_documents($modulePart, $dirFiles, $fileDir, $urlSource, 1, 1, '', 1, 0, 0, 0, 0, '', '', $langs->defaultlang, 0, $object, 0, 'remove_file', !empty($signatories), $langs->trans('ThereIsNoSignatoryError'));
 
 print '</div>';
 
