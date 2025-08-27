@@ -63,4 +63,4 @@ Recipients              = Destinataires
 SignedOn                = Signé le
 UserSignatureList       = Liste des utilisateurs et signatures
 ValidateSignature       = Valider la signature
-EnterNotePrivateHere    = Entrez votre note privée ici
+EnterNotePublicHere    = Entrez votre note publique ici

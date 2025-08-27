@@ -39,6 +39,21 @@ $form = new Form($db);
     <div class="public-card__header">
         <div class="public-card__content">
             <div class="user-list-container">
+
+                <div class="public-note-section">
+                    <div class="public-note-header">
+                        <h3><?php echo $langs->trans('NotePublic'); ?></h3>
+                    </div>
+                    <div class="public-note-content">
+                        <textarea class="public-note-textarea" placeholder="<?php echo $langs->trans('EnterNotePublicHere'); ?>"><?php echo $attendanceSheet->note_public ?? ''; ?></textarea>
+                        <div class="public-note-actions tabsAction">
+                            <button type="button" class="wpeo-button button-grey save-public-note-btn">
+                                <i class="fas fa-save"></i> <?php echo $langs->trans('Save'); ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="user-list-header">
                     <h3><?php echo $langs->trans('UserSignatureList'); ?></h3>
                 </div>
@@ -110,24 +125,10 @@ $form = new Form($db);
 
                 </div>
 
-                <div class="add-user-section">
+                <div class="add-user-section tabsAction">
                     <button type="button" class="wpeo-button button-blue add-user-btn">
                         <i class="fas fa-plus"></i> <?php echo $langs->trans('AddLine'); ?>
                     </button>
-                </div>
-
-                <div class="private-note-section">
-                    <div class="private-note-header">
-                        <h3><?php echo $langs->trans('NotePrivate'); ?></h3>
-                    </div>
-                    <div class="private-note-content">
-                        <textarea class="private-note-textarea" placeholder="<?php echo $langs->trans('EnterNotePrivateHere'); ?>"><?php echo $attendanceSheet->note_private ?? ''; ?></textarea>
-                        <div class="private-note-actions">
-                            <button type="button" class="wpeo-button save-private-note-btn">
-                                <i class="fas fa-save"></i> <?php echo $langs->trans('Save'); ?>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -296,8 +297,8 @@ function removeUser() {
     }
 }
 
-function savePrivateNote() {
-    const noteContent = $('.private-note-textarea').val();
+function savePublicNote() {
+    const noteContent = $('.public-note-textarea').val();
     const token       = window.saturne.toolbox.getToken();
     const button      = $(this);
 
@@ -305,9 +306,9 @@ function savePrivateNote() {
 
     $.ajax({
         method: 'POST',
-        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=save_private_note&token=' + token,
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=save_public_note&token=' + token,
         data: JSON.stringify({
-            note_private: noteContent
+            note_public: noteContent
         }),
         processData: false,
         success: function (resp) {
@@ -342,7 +343,12 @@ $(document).ready(function () {
 
     $(document).on('click', '.validate-sign-btn', validateSignature);
 
-    $(document).on('click', '.save-private-note-btn', savePrivateNote);
+    $(document).on('click', '.save-public-note-btn', savePublicNote);
+
+    $(document).on('input', '.public-note-textarea', function() {
+        $('.save-public-note-btn').prop('disabled', false);
+        $('.save-public-note-btn').removeClass('button-grey');
+    })
 });
 
 </script>
@@ -409,12 +415,6 @@ $(document).ready(function () {
     align-items: center;
     min-width: 150px;
     flex: 1;
-}
-
-.add-user-section {
-    text-align: center;
-    margin-top: 12px;
-    padding-top: 12px;
 }
 
 .form-element label {
@@ -493,28 +493,28 @@ $(document).ready(function () {
     max-width: 140px;
 }
 
-.private-note-section {
+.public-note-section {
     margin-top: 20px;
     padding-top: 15px;
     border-top: 1px solid #ddd;
 }
 
-.private-note-header {
+.public-note-header {
     margin-bottom: 10px;
 }
 
-.private-note-header h3 {
+.public-note-header h3 {
     margin: 0;
     color: #333;
     font-size: 16px;
     font-weight: bold;
 }
 
-.private-note-content {
+.public-note-content {
     width: 100%;
 }
 
-.private-note-textarea {
+.public-note-textarea {
     width: 100%;
     min-height: 120px;
     padding: 10px;
@@ -529,20 +529,15 @@ $(document).ready(function () {
     box-sizing: border-box;
 }
 
-.private-note-textarea:focus {
+.public-note-textarea:focus {
     border-color: #007bff;
     outline: none;
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-.private-note-textarea::placeholder {
+.public-note-textarea::placeholder {
     color: #999;
     font-style: italic;
-}
-
-.private-note-actions {
-    margin-top: 10px;
-    text-align: right;
 }
 
 .user-signature-item.signature-validated .input-with-actions {
@@ -641,16 +636,16 @@ $(document).ready(function () {
         padding: 4px 6px;
     }
     
-    .private-note-section {
+    .public-note-section {
         margin-top: 15px;
         padding-top: 12px;
     }
     
-    .private-note-header h3 {
+    .public-note-header h3 {
         font-size: 15px;
     }
     
-    .private-note-textarea {
+    .public-note-textarea {
         min-height: 100px;
         padding: 8px;
         font-size: 13px;
@@ -724,16 +719,16 @@ $(document).ready(function () {
         padding: 4px 6px;
     }
     
-    .private-note-section {
+    .public-note-section {
         margin-top: 12px;
         padding-top: 10px;
     }
     
-    .private-note-header h3 {
+    .public-note-header h3 {
         font-size: 14px;
     }
     
-    .private-note-textarea {
+    .public-note-textarea {
         min-height: 80px;
         padding: 6px;
         font-size: 12px;

@@ -184,12 +184,12 @@ if ($action == 'validate_signature') {
     $action = '';
 }
 
-if ($action == 'save_private_note') {
+if ($action == 'save_public_note') {
     if ($attendanceSheet->id > 0) {
         $data = json_decode(file_get_contents('php://input'), true);
-        $note = $data['note_private'] ?? '';
+        $note = $data['note_public'] ?? '';
 
-        $attendanceSheet->note_private = $note;
+        $attendanceSheet->note_public = $note;
         $attendanceSheet->update($user);
     }
     $action = '';
