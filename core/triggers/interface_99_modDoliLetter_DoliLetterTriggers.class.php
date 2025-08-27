@@ -85,7 +85,6 @@ class InterfaceDoliLetterTriggers extends DolibarrTriggers
 	 */
 	public function runTrigger($action, $object, User $user, Translate $langs, Conf $conf)
 	{
-		//echo '<pre>'; print_r( $conf ); echo '</pre>'; exit;
 		if (empty($conf->doliletter->enabled)) return 0; // If module is not enabled, we do nothing
 
 		// Data and type of action are stored into $object and $action
@@ -355,6 +354,31 @@ class InterfaceDoliLetterTriggers extends DolibarrTriggers
 				$actioncomm->percentage  = -1;
 
 				$actioncomm->create($user);
+				break;
+
+			case 'SPREAD_ADD_USER' : 
+
+				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
+				require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncomm.class.php';
+				$actioncomm = new ActionComm($this->db);
+
+				$actioncomm->elementtype = $object->element . '@doliletter';
+				$actioncomm->code        = 'AC_' . $action;
+				$actioncomm->type_code   = 'AC_OTH_AUTO';
+				if (empty($object->context['old_user'])) {
+					$actioncomm->label        = $langs->trans('SpreadAddUserTrigger');
+					$actioncomm->note_private = $langs->trans('SpreadAddUserTriggerContent', $object->context['user']);
+				} else {
+					$actioncomm->label        = $langs->trans('SpreadChangeUserTrigger');
+					$actioncomm->note_private = $langs->trans('SpreadChangeUserTriggerContent', $object->context['old_user'], $object->context['user']);
+				}
+				$actioncomm->datep       = dol_now();
+				$actioncomm->elementid   = $object->id;
+				$actioncomm->userownerid = $user->id;
+				$actioncomm->percentage  = -1;
+
+				$actioncomm->create($user);
+
 				break;
 
 
