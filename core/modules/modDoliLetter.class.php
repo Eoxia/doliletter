@@ -120,13 +120,18 @@ class modDoliLetter extends DolibarrModules {
 		// Example: $this->const=array(1 => array('DOLILETTER_MYNEWCONST1', 'chaine', 'myvalue', 'This is a constant to add', 1),
 		//                             2 => array('DOLILETTER_MYNEWCONST2', 'chaine', 'myvalue', 'This is another constant to add', 0, 'current', 1)
 		// );
+		$i = 0;
 		$this->const = array(
 			// CONST ENVELOPE
-			1 => array('DOLILETTER_ENVELOPE_ADDON','chaine', 'mod_envelope_standard','', $conf->entity),
-			2 => array('DOLILETTER_ENVELOPE_ADDON_PDF','chaine', 'phobos' ,'', $conf->entity),
-			3 => array('DOLILETTER_ACKNOWLEDGEMENTRECEIPT_ADDON_PDF','chaine', 'deimos' ,'', $conf->entity),
-			4 => array('DOLILETTER_SENDINGPROOF_ADDON_PDF','chaine', 'ares' ,'', $conf->entity),
-			4 => array('DOLILETTER_TRACKINGNUMBER_ADDON_PDF','chaine', 'nerio' ,'', $conf->entity),
+			$i++ => array('DOLILETTER_ENVELOPE_ADDON','chaine', 'mod_envelope_standard','', $conf->entity),
+			$i++ => array('DOLILETTER_ENVELOPE_ADDON_PDF','chaine', 'phobos' ,'', $conf->entity),
+			$i++ => array('DOLILETTER_ACKNOWLEDGEMENTRECEIPT_ADDON_PDF','chaine', 'deimos' ,'', $conf->entity),
+			$i++ => array('DOLILETTER_SENDINGPROOF_ADDON_PDF','chaine', 'ares' ,'', $conf->entity),
+			$i++ => array('DOLILETTER_TRACKINGNUMBER_ADDON_PDF','chaine', 'nerio' ,'', $conf->entity),
+
+			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
+            $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
+            $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
 		);
 
 		if (!isset($conf->doliletter) || !isset($conf->doliletter->enabled)) {
