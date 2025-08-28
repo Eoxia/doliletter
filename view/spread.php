@@ -177,7 +177,20 @@ if ($signatories <= 0) {
     $signatories = current($signatories);
 }
 
+print '<div class="fichecenter">';
+
+print '<div class="fichehalfleft">';
 print saturne_show_documents($modulePart, $dirFiles, $fileDir, $urlSource, 1, 1, '', 1, 0, 0, 0, 0, '', '', $langs->defaultlang, 0, $object, 0, 'remove_file', !empty($signatories), $langs->trans('ThereIsNoSignatoryError'));
+print '</div>';
+
+print '<div class="fichehalfright">';
+// List of actions on element
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
+$formActions = new FormActions($db);
+$formActions->showactions($object, $object->element . '@' . $object->module, 0, 1, '', 10, '', $moreHtmlCenter);
+print '</div>';
+
+print '</div>';
 
 print '</div>';
 

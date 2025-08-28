@@ -92,6 +92,12 @@ EnvelopeSignature = Signature
 EnvelopeLockTrigger = Verrouillage du courrier
 EnvelopeSendingProofTrigger = Preuve de dépôt ajoutée
 EnvelopeAcknowledgementReceiptTrigger = Accusé de réception ajouté
+
+SpreadAddUserTrigger           = Utilisateur ajouté
+SpreadAddUserTriggerContent    = %s a été ajouté a la diffusion
+SpreadChangeUserTrigger        = Utilisateur remplacé
+SpreadChangeUserTriggerContent = %s a été remplacé par %s dans la diffusion
+
 Sending = Envoi
 Sign = Signer
 Signatursender = Signataire

@@ -68,7 +68,7 @@ require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.p
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
 // Global variables definitions
-global $conf, $db, $hookmanager, $langs;
+global $conf, $db, $hookmanager, $langs, $user;
 
 if (!isset($_SESSION['dol_login'])) {
     $user->loadDefaultValues();
@@ -154,13 +154,18 @@ if ($action == 'update_spread_user') {
     $signatory->fetch($signatory_id);
     if ($signatory->id > 0) {
         $tmpUser = new User($db);
-        $user->fetch(GETPOSTINT('user_id'));
+        $tmpUser->fetch(GETPOSTINT('user_id'));
+        $attendanceSheet->context = [
+            'user' => $tmpUser->firstname . ' ' . $tmpUser->lastname,
+            'old_user' => $signatory->element_id ? $signatory->firstname . ' ' . $signatory->lastname : ''
+        ];
+        $attendanceSheet->call_trigger('SPREAD_ADD_USER', $user);
 
         $signatory->element_id   = GETPOSTINT('user_id');
         $signatory->element_type = 'user';
 
-        $signatory->firstname = $user->firstname;
-        $signatory->lastname  = $user->lastname;
+        $signatory->firstname = $tmpUser->firstname;
+        $signatory->lastname  = $tmpUser->lastname;
 
         $signatory->update($user);
     }
