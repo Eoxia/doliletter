@@ -90,7 +90,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_array_fields.tpl.ph
 
 $arrayfields    = dol_sort_array($arrayfields, 'position');
 
-$objectsMetadata    = saturne_get_objects_metadata();
+$objectsMetadata  = saturne_get_objects_metadata();
 
 // // Permissions
 // $permissiontoread   = $user->hasRight($object->module, $object->element, 'read');
