@@ -38,6 +38,9 @@ $form = new Form($db);
 <div class="public-card__container" data-public-interface="true">
     <div class="public-card__header">
         <div class="public-card__content">
+            <div class="object-title-section">
+                <?php echo $objectsMetadata[$objectType]['object']->getNomUrl(1) . (!empty($objectLabel) ? ' - ' . $objectLabel : '' ); ?>
+            </div>
             <div class="user-list-container">
 
                 <div class="public-note-section">
@@ -133,6 +136,59 @@ $form = new Form($db);
             </div>
         </div>
     </div>
+
+    <!-- Linked Files Section -->
+    <?php if (!empty($linkedFiles)) { ?>
+    <div class="linked-files-section">
+        <div class="linked-files-header">
+            <h3><i class="fas fa-paperclip"></i> <?php echo $langs->trans('LinkedFiles'); ?></h3>
+        </div>
+        <div class="linked-files-grid">
+            <?php foreach ($linkedFiles as $file) { 
+                $downloadUrl = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share);
+                $fileExtension = strtolower(pathinfo($file->filename, PATHINFO_EXTENSION));
+                $iconClass = getFileIcon($fileExtension);
+            ?>
+            <div class="file-box">
+                <div class="file-icon">
+                    <i class="<?php echo $iconClass; ?>"></i>
+                </div>
+                <div class="file-content">
+                    <div class="file-name" title="<?php echo htmlspecialchars($file->filename); ?>">
+                        <?php echo htmlspecialchars($file->filename); ?>
+                    </div>
+                    <a href="<?php echo $downloadUrl; ?>" target="_blank" class="wpeo-button">
+                        <i class="fas fa-download"></i> <?php echo $langs->trans('Download'); ?>
+                    </a>
+                </div>
+            </div>
+            <?php } ?>
+        </div>
+    </div>
+    <?php } ?>
+
+    <?php
+    function getFileIcon($extension) {
+        $icons = [
+            'pdf' => 'fas fa-file-pdf text-danger',
+            'doc' => 'fas fa-file-word text-primary',
+            'docx' => 'fas fa-file-word text-primary',
+            'xls' => 'fas fa-file-excel text-success',
+            'xlsx' => 'fas fa-file-excel text-success',
+            'ppt' => 'fas fa-file-powerpoint text-warning',
+            'pptx' => 'fas fa-file-powerpoint text-warning',
+            'txt' => 'fas fa-file-alt text-secondary',
+            'jpg' => 'fas fa-file-image text-info',
+            'jpeg' => 'fas fa-file-image text-info',
+            'png' => 'fas fa-file-image text-info',
+            'gif' => 'fas fa-file-image text-info',
+            'zip' => 'fas fa-file-archive text-dark',
+            'rar' => 'fas fa-file-archive text-dark',
+            '7z' => 'fas fa-file-archive text-dark',
+        ];
+        return isset($icons[$extension]) ? $icons[$extension] : 'fas fa-file text-muted';
+    }
+    ?>
 </div>
 
 <!-- Modal de signature -->
@@ -826,6 +882,156 @@ $(document).ready(function () {
     
     .modal-spread-footer .btn {
         width: 100%;
+    }
+}
+
+.linked-files-section {
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.linked-files-header i {
+    color: #6c757d;
+}
+
+.linked-files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.file-box {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: #007bff;
+}
+
+.file-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 24px;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Color classes for file type icons */
+.text-danger { color: #dc3545 !important; }
+.text-primary { color: #007bff !important; }
+.text-success { color: #28a745 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-info { color: #17a2b8 !important; }
+.text-secondary { color: #6c757d !important; }
+.text-dark { color: #343a40 !important; }
+.text-muted { color: #6c757d !important; }
+
+@media (max-width: 768px) {
+    .linked-files-section {
+        margin-top: 15px;
+        padding: 16px;
+        border-radius: 8px;
+    }
+    
+    .linked-files-header h3 {
+        font-size: 16px;
+    }
+    
+    .linked-files-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .file-box {
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .file-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    
+    .file-name {
+        font-size: 13px;
+    }
+    
+    .file-download-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .linked-files-section {
+        margin-top: 12px;
+        padding: 12px;
+    }
+    
+    .linked-files-header h3 {
+        font-size: 15px;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .file-box {
+        padding: 10px;
+        gap: 8px;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .file-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+        margin: 0 auto;
+    }
+    
+    .file-content {
+        width: 100%;
+    }
+    
+    .file-name {
+        font-size: 12px;
+        margin-bottom: 6px;
+        text-align: center;
+    }
+    
+    .file-download-btn {
+        padding: 4px 8px;
+        font-size: 10px;
+        width: 100%;
+        justify-content: center;
     }
 }
 </style>
