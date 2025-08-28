@@ -64,6 +64,8 @@ if (isModEnabled('societe')) {
     require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 }
 
+require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
@@ -96,11 +98,14 @@ $signatory       = new SaturneSignature($db, $moduleNameLowerCase, $objectType);
 $saturneMail     = new SaturneMail($db, $moduleNameLowerCase, $objectType);
 $usertmp         = new User($db);
 $attendanceSheet = new DoliletterAttendanceSheet($db, $moduleNameLowerCase);
-$form        = new Form($db);
+$form            = new Form($db);
+$ecmFiles        = new EcmFiles($db);
 if (isModEnabled('societe')) {
     $thirdparty = new Societe($db);
     $contact    = new Contact($db);
 }
+
+$objectsMetadata    = saturne_get_objects_metadata();
 
 $attendanceSheet->fetch(0, '', ' AND object_type = ' . "'" . $objectType  . "'" . ' AND fk_object = ' . $id);
 
@@ -195,6 +200,18 @@ if ($action == 'save_private_note') {
     $action = '';
 }
 
+
+$ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
+
+$linkedFiles = [];
+if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
+    $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id) {
+        return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id && $ecmFilesLine->share != null;
+    });
+}
+$objectsMetadata[$objectType]['object']->fetch($id);
+$objectRef = $objectsMetadata[$objectType]['object']->ref;
+$objectLabel = $objectsMetadata[$objectType]['object']->title ?? '';
 
 /*
  * View
