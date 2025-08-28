@@ -112,7 +112,9 @@ $attendanceSheet->fetch(0, '', ' AND object_type = ' . "'" . $objectType  . "'" 
 if ($action == 'add_spread_user') {
     if ($attendanceSheet->id <= 0 || $attendanceSheet->id == null) {
 
-        $attendanceSheet->ref           = $object->ref;
+        $objectsMetadata[$objectType]['object']->fetch($id);
+
+        $attendanceSheet->ref           = $objectsMetadata[$objectType]['object']->ref;
         $attendanceSheet->status        = $attendanceSheet::STATUS_DRAFT;
         $attendanceSheet->fk_object     = $id;
         $attendanceSheet->object_type   = $objectType;
