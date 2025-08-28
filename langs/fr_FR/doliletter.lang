@@ -54,6 +54,7 @@ PublicInterface = Interface publique
 EnablePublicInterface = Activer l'interface publique
 WithKindRegards = Cordialement,
 LinkedDocument = Document lié
+NumberOfPersons = Nombre de personnes
 
 #
 # Envelope - Enveloppe

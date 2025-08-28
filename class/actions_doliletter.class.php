@@ -20,7 +20,6 @@
  * \ingroup doliletter
  * \brief   Doliletter hook overload
  */
-
 /**
  * Class ActionsDoliletter
  */
@@ -97,7 +96,25 @@ class ActionsDoliletter
     {
         global $conf, $langs;
 
-        echo '<pre>'; print_r('HOLA'); echo '</pre>'; exit;
+        if (preg_match('/spreadlist/', $parameters['context'])) {
+            if ($parameters['key'] == 'number_of_users') {
 
+                require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+                $signatory = new SaturneSignature($this->db, 'doliletter', 'spread');
+
+                $signatories = $signatory->fetchSignatory('', $object->id, $object->element);
+                if ($signatories <= 0) {
+                    $signatories = [];
+                } elseif (is_array($signatories)) {
+                    $signatories = current($signatories);
+                }
+                $signatories = array_filter($signatories, function ($signatory) {
+                    return $signatory->element_id != 0;
+                });
+                print count($signatories);
+            }
+        }
+
+        return 0;
     }
 }
