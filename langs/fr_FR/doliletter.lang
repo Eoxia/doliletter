@@ -54,6 +54,7 @@ PublicInterface = Interface publique
 EnablePublicInterface = Activer l'interface publique
 WithKindRegards = Cordialement,
 LinkedDocument = Document lié
+NumberOfPersons = Nombre de personnes
 
 #
 # Envelope - Enveloppe
@@ -187,3 +188,8 @@ EnvelopeRecipientSignTrigger = Accusé de réception du courrier
 DocumentHasBeenSignedBy = Le document a été signé par %s
 ReceivedDocumentSignedSha = SHA du courrier reçu : %s
 SentDocumentSignedSha = SHA du courrier envoyé : %s
+
+#
+# Spread
+#
+SpreadList = Liste des diffusions
