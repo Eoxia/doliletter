@@ -64,7 +64,7 @@ $linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/module
 
 print load_fiche_titre($langs->trans($page_name), $linkback, 'object_doliletter@doliletter');
 // Configuration header
-$head = doliletterAdminPrepareHead();
+$head = doliletter_admin_prepare_head();
 print dol_get_fiche_head($head, 'settings', $langs->trans($page_name), -1, "doliletter@doliletter");
 
 print load_fiche_titre('<i class="fas fa-exclamation-circle"></i> ' . $langs->trans('PublicInterfaceConfig'), '', '');
