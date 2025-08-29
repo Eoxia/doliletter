@@ -96,8 +96,9 @@ class doc_signinsheet_odt extends SaturneDocumentModel
         complete_substitutions_array($tmpArray, $outputLangs, $objectDocument);
         $objectDocument->element = $previousObjectDocumentElement;
 
-		$tmpArray['Id'] 		  = $objectsMetadata[$object->object_type]['object']->id;
 		$tmpArray['Label'] 		  = $objectsMetadata[$object->object_type]['object']->ref;
+
+		$tmpArray['note_public'] = $object->note_public;
 
 		$moreParam['tmparray']         = $tmpArray;
 		$moreParam['hideTemplateName'] = 1;
