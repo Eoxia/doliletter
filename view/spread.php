@@ -134,7 +134,28 @@ if (!empty($fromType)) {
     $objectsMetadata[$fromType]['object']->fetch($fromId);
     saturne_get_fiche_head($objectsMetadata[$fromType]['object'], 'spread', '');
     $linkBack = '<a href="' . dol_buildpath($fromType . '/list.php?restore_lastsearch_values=1', 1) . '">' . $langs->trans('BackToList') . '</a>';
-    saturne_banner_tab($objectsMetadata[$fromType]['object'], 'fromtype=' . $fromType . '&fromid', $linkBack, 1, 'rowid', ($fromType == 'productlot' ? 'batch' : 'ref'));
+
+    $moreHtmlRef = '';
+
+    // Note privée
+    $moreHtmlRef .= '<div class=" opacitymedium">';
+    $moreHtmlRef .= '<strong>' . $langs->trans('NotePrivate') . ':</strong>';
+    $moreHtmlRef .= dol_string_nohtmltag($object->note_private, 1);
+    $moreHtmlRef .= '</div>';
+
+    // Note publique
+    $moreHtmlRef .= '<div class=" opacitymedium">';
+    $moreHtmlRef .= '<strong>' . $langs->trans('NotePublic') . ':</strong>';
+    $moreHtmlRef .= dol_string_nohtmltag($object->note_public, 1);
+    $moreHtmlRef .= '</div>';
+
+    // Lien vers l'interface publique sans CSS
+    $publicUrl    = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $fromId . '&object_type=' . $fromType;
+    $moreHtmlRef .= '<div class="">';
+    $moreHtmlRef .= '<a href="' . $publicUrl . '" target="_blank">' . $langs->trans('AccessPublicInterface') . '</a>';
+    $moreHtmlRef .= '</div>';
+
+    saturne_banner_tab($objectsMetadata[$fromType]['object'], 'fromtype=' . $fromType . '&fromid', $linkBack, 1, 'rowid', ($fromType == 'productlot' ? 'batch' : 'ref'), $moreHtmlRef);
 
     $moreUrlParameters = '&fromtype=' . $fromType . '&fromid=' . $fromId . '&mode=' . $mode;
 }
@@ -149,12 +170,6 @@ if ($reshook > 0) {
     $backtocard = $hookmanager->resPrint;
 }
 
-print '</div>';
-
-// Add link to public interface
-$publicUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $fromId . '&object_type=' . $fromType;
-print '<div class="tabsAction">';
-print '<a class="butAction" href="' . $publicUrl . '" target="_blank">' . $langs->trans('PublicInterface') . '</a>';
 print '</div>';
 
 print '<div class="spread-table-container">';
