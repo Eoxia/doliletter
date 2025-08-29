@@ -192,5 +192,18 @@ SentDocumentSignedSha = SHA du courrier envoyé : %s
 #
 # Spread
 #
-SpreadList            = Liste des diffusions
-AccessPublicInterface = Acceder a l'interface publique
+
+SpreadList              = Liste des diffusions
+AccessPublicInterface   = Acceder a l'interface publique
+AddLine                 = Ajouter une ligne
+signinsheet.odt         = Feuille d'émargement
+ThereIsNoSignatoryError = Il n'y a personne dans votre diffusion vous ne pouvez pas génerer le document
+Spread                  = Diffusion
+Recipients              = Destinataires
+SignedOn                = Signé le
+UserSignatureList       = Liste des utilisateurs et signatures
+ValidateSignature       = Valider la signature
+EnterNotePublicHere     = Entrez votre note publique ici
+3LastSpreadList         = Liste des 3 dernières diffusions
+NuberOfSpreads          = Nombre de diffusions
+NuberOfPersonsSpreaded  = Nombre de personnes concernés

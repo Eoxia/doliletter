@@ -131,9 +131,13 @@ class modDoliLetter extends DolibarrModules {
 			$i++ => array('DOLILETTER_SENDINGPROOF_ADDON_PDF','chaine', 'ares' ,'', $conf->entity),
 			$i++ => array('DOLILETTER_TRACKINGNUMBER_ADDON_PDF','chaine', 'nerio' ,'', $conf->entity),
 
+			// CONST SIGNIN SHEET
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
+
+			// Globals CONST
+            $i++ => ['DOLILETTER_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
 		);
 
 		if (!isset($conf->doliletter) || !isset($conf->doliletter->enabled)) {
@@ -212,6 +216,23 @@ class modDoliLetter extends DolibarrModules {
 		// Permissions provided by this module
 		$this->rights = array();
 		$r            = 0;
+
+		// Permissions provided by this module
+		$this->rights = [];
+		$r = 0;
+
+		/* Doliletter PERMISSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
+		$this->rights[$r][1] = $langs->trans('LireModule', 'Doliletter');
+		$this->rights[$r][4] = 'lire';
+		$this->rights[$r][5] = 1;
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
+		$this->rights[$r][1] = $langs->trans('ReadModule', 'Doliletter');
+		$this->rights[$r][4] = 'read';
+		$this->rights[$r][5] = 1;
+		$r++;
+
 		/* DoliLetter PERMISSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
 		$this->rights[$r][1] = $langs->trans('ReadEnvelope');
