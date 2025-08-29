@@ -192,4 +192,5 @@ SentDocumentSignedSha = SHA du courrier envoyé : %s
 #
 # Spread
 #
-SpreadList = Liste des diffusions
+SpreadList            = Liste des diffusions
+AccessPublicInterface = Acceder a l'interface publique
