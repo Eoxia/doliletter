@@ -72,6 +72,7 @@ $document    = new SigninSheetDocument($db);
 $object      = new DoliletterAttendanceSheet($db, 'doliletter');
 $extrafields = new ExtraFields($db);
 $signatory   = new SaturneSignature($db);
+$tmpUser     = new User($db);
 if (isModEnabled('categorie')) {
     $categorie = new Categorie($db);
 }
@@ -178,6 +179,49 @@ if ($signatories <= 0) {
 }
 
 print '<div class="fichecenter">';
+
+print '<table class="centpercent noborder">';
+
+print '<tr class="liste_titre">';
+print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user infobox-adherent" style=""></span> Utilisateur</td>';
+print '<td class="">Date de d\'ajout</td>';
+print '<td class="center">État</td>';
+print '<td class="center">Présence</td>';
+print '</tr>';
+
+foreach ($signatories as $signatory) {
+    if (empty($signatory->element_id)) {
+        continue;
+    }
+    print '<tr class="oddeven">';
+    print '<td>';
+    if (!empty($signatory->element_id)) {
+        $tmpUser->fetch($signatory->element_id);
+        print $tmpUser->getNomUrl(1);
+    } else {
+        print '-';
+    }
+    print '</td>';
+
+    print '<td>' . dol_print_date($signatory->date_creation, 'dayhour') . '</td>';
+
+    if ($signatory->status == SaturneSignature::STATUS_SIGNED) {
+        print '<td class="center"><span class="badge badge-status4 badge-status" title="Signé">Signé</span></td>';
+    } else {
+        print '<td class="center"><span class="badge badge-status1 badge-status" title="En attente de signature">En attente</span></td>';
+    }
+
+    print '<td class="center">';
+    if (!$signatory->attendance) {
+        print '<span class="fas fa-check" style="color:green;" title="' . $langs->trans('Present') . '"></span>';
+    } else {
+        print '<span class="fas fa-times" style="color:red;" title="' . $langs->trans('Absent') . '"></span>';
+    }
+    print '</td>';
+    print '</tr>';
+}
+
+print '</table>';
 
 print '<div class="fichehalfleft">';
 print saturne_show_documents($modulePart, $dirFiles, $fileDir, $urlSource, 1, 1, '', 1, 0, 0, 0, 0, '', '', $langs->defaultlang, 0, $object, 0, 'remove_file', !empty($signatories), $langs->trans('ThereIsNoSignatoryError'));
