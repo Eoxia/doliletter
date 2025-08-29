@@ -50,7 +50,7 @@ $form = new Form($db);
                     <div class="public-note-content">
                         <textarea class="public-note-textarea" placeholder="<?php echo $langs->trans('EnterNotePublicHere'); ?>"><?php echo $attendanceSheet->note_public ?? ''; ?></textarea>
                         <div class="public-note-actions tabsAction">
-                            <button type="button" class="wpeo-button button-grey save-public-note-btn">
+                            <button type="button" class="wpeo-button button-disable save-public-note-btn">
                                 <i class="fas fa-save"></i> <?php echo $langs->trans('Save'); ?>
                             </button>
                         </div>
@@ -81,7 +81,7 @@ $form = new Form($db);
                                                 ?>
                                             </div>
                                             <div class="signature-date">
-                                                <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'grey' : 'primary' ?> sign-btn">
+                                                <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> sign-btn">
                                                     <i class="fas fa-signature"></i>
                                                 </button>
                                             </div>
@@ -201,16 +201,16 @@ $form = new Form($db);
         <div class="modal-spread-body">
             <div class="signature-element">
                 <canvas id="signatureCanvas" class="canvas-container editable canvas-signature modal-canvas-signature" width="600" height="200" style="touch-action: none;"></canvas>
-                <div class="signature-erase wpeo-button button-square-40 button-rounded button-grey">
+                <div class="signature-erase wpeo-button button-square-40 button-rounded button-disable">
                     <span><i class="fas fa-eraser"></i></span>
                 </div>
             </div>
         </div>
         <div class="modal-spread-footer">
-            <button type="button" class="wpeo-button button-grey close-modal-spread">
+            <button type="button" class="wpeo-button button-disable close-modal-spread">
                 <?php echo $langs->trans('Cancel'); ?>
             </button>
-            <button type="button" class="wpeo-button button-grey validate-sign-btn" disabled>
+            <button type="button" class="wpeo-button button-disable validate-sign-btn" disabled>
                 <i class="fas fa-check"></i> <?php echo $langs->trans('ValidateSignature'); ?>
             </button>
         </div>
@@ -285,9 +285,9 @@ function updateValidateButtonState() {
         const isEmpty = isCanvasEmpty();
         validateBtn.prop('disabled', isEmpty);
         if (isEmpty) {
-            validateBtn.addClass('button-grey');
+            validateBtn.addClass('button-disable');
         } else {
-            validateBtn.removeClass('button-grey');
+            validateBtn.removeClass('button-disable');
         }
     }
 }
@@ -369,8 +369,7 @@ function savePublicNote() {
         processData: false,
         success: function (resp) {
             window.saturne.loader.remove(button);
-            button.prop('disabled', true);
-            button.addClass('button-grey');
+            button.addClass('button-disable');
         },
     });
 }
@@ -394,7 +393,7 @@ $(document).ready(function () {
     $(document).on('click', '.add-user-btn', addUser);
     $(document).on('click', '.remove-user-btn', removeUser);
 
-    $(document).on('click', '.sign-btn:not(.button-grey)', openSignatureModal);
+    $(document).on('click', '.sign-btn:not(.button-disable)', openSignatureModal);
 
     $(document).on('click', '.signature-erase', clearSignature);
 
@@ -403,8 +402,7 @@ $(document).ready(function () {
     $(document).on('click', '.save-public-note-btn', savePublicNote);
 
     $(document).on('input', '.public-note-textarea', function() {
-        $('.save-public-note-btn').prop('disabled', false);
-        $('.save-public-note-btn').removeClass('button-grey');
+        $('.save-public-note-btn').removeClass('button-disable');
     })
 });
 
