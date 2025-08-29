@@ -368,8 +368,9 @@ function savePublicNote() {
         }),
         processData: false,
         success: function (resp) {
-            console.log($(this));
             window.saturne.loader.remove(button);
+            button.prop('disabled', true);
+            button.addClass('button-grey');
         },
     });
 }
