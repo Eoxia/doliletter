@@ -68,7 +68,7 @@ class DoliletterAttendanceSheet extends SaturneObject
 	/**
 	 * @var string Name of icon for certificate. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'certificate@saturne' if picto is file 'img/object_certificate.png'.
 	 */
-	public string $picto = 'fontawesome_fa-list-ul_fas_#d35968';
+	public string $picto = 'fontawesome_fa-check-circle_fas_#63ACC9';
 
     public const STATUS_DELETED   = -1;
     public const STATUS_DRAFT     = 0;
@@ -295,4 +295,77 @@ class DoliletterAttendanceSheet extends SaturneObject
 
 		return $result;
     }
+
+    public function load_dashboard(): array
+    {
+        global $user, $langs;
+
+        require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+
+        $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
+        $dashboardConfig = property_exists($user->conf, $confName) ? json_decode($user->conf->$confName) : null;
+        $array           = ['graphs' => [], 'lists' => [], 'disabledGraphs' => []];
+
+        $listOfSpreads = $this->fetchAll('DESC', 'date_creation');
+        $signatory     = new SaturneSignature($this->db);
+        $signatories   = $signatory->fetchAll('', '', 0, 0, ['customsql' => 't.object_type = "' . $this->element . '" AND t.element_id <> 0']);
+
+        if (empty($dashboardConfig->graphs->LastSpreadList->hide)) {
+            $array['lists'][] = $this->getLastSpreadList($listOfSpreads, $signatories);
+        } else {
+            $array['disabledGraphs']['LastSpreadList'] = $langs->transnoentities('3LastSpreadList');
+        }
+
+        $array['widgets'] = [
+            'accident' => [
+                'title'      => $langs->transnoentities('Statistics'),
+                'picto'      => 'fas fa-chart-pie',
+                'pictoColor' => '#F39B1F',
+                'label'      => [$langs->trans('NuberOfSpreads'), $langs->trans('NuberOfPersonsSpreaded')],
+                'content'    => [count($listOfSpreads), count($signatories)],
+                'widgetName' => $langs->transnoentities('Statistics')
+            ]
+        ];
+
+        return $array;
+    }
+
+    public function getLastSpreadList($listOfSpreads, $signatories): array
+    {
+        global $langs;
+
+        // Graph Title parameters
+        $array['title'] = $langs->transnoentities('3LastSpreadList');
+        $array['name']  = '3LastSpreadList';
+        $array['picto'] = $this->picto;
+
+        // Graph parameters
+        $array['type']   = 'list';
+        $array['labels'] = ['Ref', 'NumberOfPersons', 'Object'];
+
+        $array['noFullSize'] = 1;
+
+        $arrayLastSpreadList = [];
+
+        $numberOfPersons = [];
+        foreach ($signatories as $signatory) {
+            if (empty($numberOfPersons[$signatory->fk_object])) {
+                $numberOfPersons[$signatory->fk_object] = 1;
+            } else {
+                $numberOfPersons[$signatory->fk_object]++;
+            }
+        }
+        foreach ($listOfSpreads as $spread) {
+            $arrayLastSpreadList[] = [
+                'Ref'             => ['value' => $spread->getNomUrl(1, '', 1, '', -1, 2)],
+                'NumberOfPersons' => ['value' => (empty($numberOfPersons[$spread->id]) ? 0 : $numberOfPersons[$spread->id])],
+                'Object'          => ['value' => $spread->object_type],
+           ];
+        }
+
+        $array['data'] = $arrayLastSpreadList;
+
+        return $array;
+    }
+
 }
