@@ -213,11 +213,17 @@ $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
 $linkedFiles = [];
 if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
     $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id) {
-        return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id && $ecmFilesLine->share != null;
+
+        if ($objectType == 'project') {
+            $objectType = 'projet';
+        }
+
+        return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id;
     });
 }
+
 $objectsMetadata[$objectType]['object']->fetch($id);
-$objectRef = $objectsMetadata[$objectType]['object']->ref;
+$objectRef   = $objectsMetadata[$objectType]['object']->ref;
 $objectLabel = $objectsMetadata[$objectType]['object']->title ?? '';
 
 /*
