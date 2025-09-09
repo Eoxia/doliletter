@@ -190,6 +190,7 @@ if ($action == 'validate_signature') {
             $signatory->signature      = $signature;
             $signatory->status         = $signatory::STATUS_SIGNED;
             $signatory->signature_date = dol_now();
+            $signatory->signature_url  = generate_random_id();
             $signatory->update($user);
         }
     }
@@ -206,7 +207,6 @@ if ($action == 'save_public_note') {
     }
     $action = '';
 }
-
 
 $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
 

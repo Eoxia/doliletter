@@ -532,7 +532,7 @@ body {
                                             <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> sign-btn">
                                                 <i class="fas fa-signature"></i>
                                             </button>
-                                            <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> send-email-btn" disabled>
+                                            <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> send-email-btn">
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
@@ -562,9 +562,10 @@ body {
                                                 <i class="fas fa-signature"></i>
                                                 <span><?php echo dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') ?></span>
                                             </div>
-                                            <button type="button" class="wpeo-button button-primary show-btn" disabled>
+                                            <a href="<?php echo DOL_URL_ROOT . '/custom/saturne/public/signature/add_signature.php?track_id=' . $signatoryItem->signature_url . '&entity=1&module_name=doliletter&object_type=doliletterattendancesheet'; ?>"
+                                                target="_blank" class="wpeo-button">
                                                 <i class="fas fa-eye"></i>
-                                            </button>
+                                            </a>
                                             <button type="button" class="wpeo-button button-disable send-email-btn" disabled>
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
@@ -793,6 +794,25 @@ function removeUser() {
     }
 }
 
+function sendMail() {
+    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+
+    const token       = window.saturne.toolbox.getToken();
+
+    const button      = $(this);
+
+    window.saturne.loader.display(button);
+
+    $.ajax({
+        method: 'POST',
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=send_signature_email&signatory_id=' + userIndex + '&token=' + token,
+        success: function (resp) {
+            console.log('Email sent successfully');
+            window.saturne.loader.remove(button);
+        }
+    })
+}
+
 function savePublicNote() {
     const noteContent = $('.public-note-textarea').val();
     const token       = window.saturne.toolbox.getToken();
@@ -846,6 +866,8 @@ $(document).ready(function () {
         $('.save-public-note-btn').removeClass('button-grey');
         $('.save-public-note-btn').addClass('button-green');
     })
+
+    $(document).on('click', '.send-email-btn:not(.button-disable)', sendMail);
 });
 
 </script>
