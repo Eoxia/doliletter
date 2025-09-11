@@ -207,3 +207,7 @@ EnterNotePublicHere     = Entrez votre note publique ici
 3LastSpreadList         = Liste des 3 dernières diffusions
 NuberOfSpreads          = Nombre de diffusions
 NuberOfPersonsSpreaded  = Nombre de personnes concernés
+
+EmailSpreadLabel         = DOLILETTER_Spread
+EmailSpreadTopic         = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEMENT__ __REF__
+EmailSpreadContent       = Bonjour,<br />Veuillez trouver ci-joint le lien de signature de la difusion du document.<br />__SATURNE_SIGNATORY_URL__

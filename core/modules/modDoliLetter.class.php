@@ -404,6 +404,40 @@ class modDoliLetter extends DolibarrModules {
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH', 'DOL_DOCUMENT_ROOT/custom/doliletter/documents/doctemplates/signinsheet/', 'chaine', 0, '', $conf->entity);
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON', 'mod_signinsheet_standard', 'chaine', 0, '', $conf->entity);
 
+		// Load Saturne libraries
+		require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+
+        $saturneMail = new SaturneMail($this->db);
+
+        $saturneMail->position = 1000;
+
+        $emailTemplates = [
+            'email_template_spread' => [
+                'type_template' => 'spread',
+                'label'         => 'EmailSpreadLabel',
+                'topic'         => 'EmailSpreadTopic',
+                'content'       => 'EmailSpreadContent'
+            ]
+        ];
+
+        foreach ($emailTemplates as $emailTemplate => $emailTemplateData) {
+            $saturneMail->entity        = 0;
+            $saturneMail->module        = 'doliletter';
+            $saturneMail->type_template = 'doliletter_' . $emailTemplateData['type_template'];
+            $saturneMail->lang          = 'fr_FR';
+            $saturneMail->datec         = $this->db->idate(dol_now());
+            $saturneMail->label         = $langs->transnoentities($emailTemplateData['label']);
+            $saturneMail->position++;
+            $saturneMail->enabled       = "isModEnabled('doliletter')";
+            $saturneMail->topic         = $langs->transnoentities($emailTemplateData['topic']);
+            $saturneMail->content       = $langs->transnoentities($emailTemplateData['content']);
+            $saturneMail->joinfiles     = 1;
+            if ($saturneMail->fetch(getDolGlobalInt('DOLILETTER_' . dol_strtoupper($emailTemplate))) == 0) {
+                $emailTemplateID = $saturneMail->create($user);
+                dolibarr_set_const($this->db, 'DOLILETTER_' . dol_strtoupper($emailTemplate), $emailTemplateID, 'integer', 0, '', $conf->entity);
+            }
+        }
+
 		return $this->_init($sql, $options);
 	}
 
