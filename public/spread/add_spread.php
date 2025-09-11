@@ -190,6 +190,7 @@ if ($action == 'validate_signature') {
             $signatory->signature      = $signature;
             $signatory->status         = $signatory::STATUS_SIGNED;
             $signatory->signature_date = dol_now();
+            $signatory->signature_url  = generate_random_id();
             $signatory->update($user);
         }
     }
@@ -207,17 +208,22 @@ if ($action == 'save_public_note') {
     $action = '';
 }
 
-
 $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
 
 $linkedFiles = [];
 if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
     $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id) {
-        return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id && $ecmFilesLine->share != null;
+
+        if ($objectType == 'project') {
+            $objectType = 'projet';
+        }
+
+        return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id;
     });
 }
+
 $objectsMetadata[$objectType]['object']->fetch($id);
-$objectRef = $objectsMetadata[$objectType]['object']->ref;
+$objectRef   = $objectsMetadata[$objectType]['object']->ref;
 $objectLabel = $objectsMetadata[$objectType]['object']->title ?? '';
 
 /*

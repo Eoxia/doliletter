@@ -24,16 +24,448 @@
 /**
  * The following vars must be defined :
  * Global     : $conf, $langs
- * Parameters : $objectType, $trackID
- * Objects    : $object, $signatory
- * Variable   : $fileExists, $moduleNameLowerCase, $moreParams
+ * Parameters : $objectType
+ * Objects    : $object, $$signatories
+ * Variable   : $moduleNameLowerCase, $moreParams
  */
 
 // Initialize Form object for user selection
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 $tmpUser = new User($db);
-$form = new Form($db);
+$form    = new Form($db);
 ?>
+
+<style>
+body {
+    background: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.public-card__container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0;
+    background: transparent;
+}
+
+.public-card__header {
+    background: transparent;
+    margin-bottom: 16px;
+    overflow: visible;
+}
+
+.public-card__content {
+    padding: 0;
+}
+
+.object-title-section {
+    padding: 20px 0px;
+    background: transparent;
+    border-bottom: 2px solid #e5e5e5;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    border-radius: 8px 8px 0 0;
+}
+
+.public-note-section {
+    background: transparent;
+    border-radius: 8px;
+}
+
+.public-note-header h3 {
+    margin: 0 0 12px 0;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.public-note-textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: white;
+}
+
+.public-note-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.public-note-actions {
+    margin-top: 12px;
+    text-align: right;
+}
+
+.user-list-container {
+    background: transparent;
+}
+
+.user-signature-item {
+    background: transparent;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    padding: 16px;
+    transition: all 0.2s ease;
+}
+
+.user-signature-item:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.user-signature-item.signature-validated {
+    border-color: #10b981;
+    border-width: 2px;
+}
+
+.user-signature-item.signature-not-validated {
+    border-color: #9ca3af;
+    border-width: 2px;
+}
+
+.form-element label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-with-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-status {
+    flex: 1;
+    min-width: 250px;
+}
+
+.user-status select,
+.user-status .select2-container {
+    width: 100% !important;
+}
+
+.signature-status {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    min-width: 120px;
+    width: 120px;
+    text-align: center;
+    justify-content: center;
+}
+
+.signature-status span:last-child {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.signature-status i {
+    font-size: 14px;
+}
+
+.signature-status .badge {
+    margin-right: 2px;
+}
+
+.linked-files-section {
+    background: transparent;
+    margin: 16px 0;
+}
+
+.linked-files-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.file-box {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    background: transparent;
+    gap: 12px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.file-box:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.file-icon {
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #666;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+}
+
+.file-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-actions-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-content .wpeo-button i {
+    color: white !important;
+}
+
+.file-name {
+    font-weight: 400;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: #333;
+    word-break: break-word;
+    line-height: 1.3;
+    text-align: center;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+}
+
+.modal-spread {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-spread-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    border: 1px solid #e5e5e5;
+}
+
+.modal-spread-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+}
+
+.modal-spread-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.close-modal-spread {
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    color: #666;
+    transition: color 0.2s ease;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 2px;
+}
+
+.close-modal-spread:hover {
+    color: #ef4444;
+}
+
+.modal-spread-body {
+    padding: 20px;
+    background: white;
+}
+
+.signature-element {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.canvas-signature {
+    border: 2px dashed #d1d5db;
+    border-radius: 6px;
+    cursor: crosshair;
+    background: white;
+}
+
+.signature-erase {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ef4444 !important;
+    border-color: #ef4444 !important;
+    padding: 6px !important;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.signature-erase:active {
+    transform: scale(0.95);
+}
+
+.signature-erase i,
+.remove-user-btn i {
+    color: white !important;
+}
+
+.modal-spread-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    background: transparent;
+}
+
+@media (max-width: 768px) {
+    .public-card__container {
+        margin: 10px;
+        overflow-x: hidden;
+    }
+
+    .user-signature-item {
+        padding: 8px;
+    }
+
+    .input-with-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .user-status {
+        flex: 1;
+        min-width: 140px;
+        max-width: calc(100% - 140px);
+        order: 1;
+    }
+
+    .user-status select,
+    .user-status .select2-container {
+        width: 100% !important;
+    }
+
+    .input-with-actions .wpeo-button {
+        order: 2;
+        flex-shrink: 0;
+        flex: 0 0 auto;
+        min-width: 35px;
+        padding: 8px !important;
+        font-size: 12px;
+    }
+
+    .signature-status {
+        order: 3;
+        width: 100%;
+        margin-top: 8px;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        gap: 8px !important;
+        min-width: auto !important;
+        text-align: left !important;
+    }
+    
+    .linked-files-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .file-box {
+        flex-direction: row;
+        width: 100%;
+        max-width: 100%;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .file-name {
+        flex: 1;
+        margin-bottom: 0;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: calc(100% - 120px);
+        margin-left: 0;
+        margin-right: 0;
+        order: 2;
+        min-width: 0;
+    }
+
+    .file-content {
+        flex-shrink: 0;
+        order: 3;
+        width: 40px;
+    }
+
+    .file-actions-container {
+        display: contents;
+    }
+
+    .file-icon {
+        flex-shrink: 0;
+        order: 1;
+        width: 40px;
+        height: 40px;
+    }
+}
+</style>
 
 <div class="public-card__container" data-public-interface="true">
     <div class="public-card__header">
@@ -41,25 +473,37 @@ $form = new Form($db);
             <div class="object-title-section">
                 <?php echo $objectsMetadata[$objectType]['object']->getNomUrl(1) . (!empty($objectLabel) ? ' - ' . $objectLabel : '' ); ?>
             </div>
-            <div class="user-list-container">
 
-                <div class="public-note-section">
-                    <div class="public-note-header">
-                        <h3><?php echo $langs->trans('NotePublic'); ?></h3>
-                    </div>
-                    <div class="public-note-content">
-                        <textarea class="public-note-textarea" placeholder="<?php echo $langs->trans('EnterNotePublicHere'); ?>"><?php echo $attendanceSheet->note_public ?? ''; ?></textarea>
-                        <div class="public-note-actions tabsAction">
-                            <button type="button" class="wpeo-button button-disable save-public-note-btn">
-                                <i class="fas fa-save"></i> <?php echo $langs->trans('Save'); ?>
-                            </button>
+            <!-- Linked Files Section -->
+            <?php if (!empty($linkedFiles)) { ?>
+            <div class="linked-files-section">
+                <div class="linked-files-grid">
+                    <?php foreach ($linkedFiles as $file) { 
+                        $downloadUrl = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share);
+                        $fileExtension = strtolower(pathinfo($file->filename, PATHINFO_EXTENSION));
+                        $iconClass = getFileIcon($fileExtension);
+                    ?>
+                    <div class="file-box">
+                        <div class="file-name" title="<?php echo htmlspecialchars($file->filename); ?>">
+                            <?php echo htmlspecialchars($file->filename); ?>
+                        </div>
+                        <div class="file-actions-container">
+                            <div class="file-icon">
+                                <i class="<?php echo $iconClass; ?>"></i>
+                            </div>
+                            <div class="file-content">
+                                <a href="<?php echo $downloadUrl; ?>" target="_blank" class="wpeo-button">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
+                    <?php } ?>
                 </div>
+            </div>
+            <?php } ?>
 
-                <div class="user-list-header">
-                    <h3><?php echo $langs->trans('UserSignatureList'); ?></h3>
-                </div>
+            <div class="user-list-container">
                 <div class="user-signatures-list" id="userSignaturesList">
                     <!-- Utilisateurs pré-signés par défaut -->
 
@@ -77,14 +521,20 @@ $form = new Form($db);
                                         <div class="input-with-actions">
                                             <div class="user-status">
                                                 <?php
-                                                print $form->select_dolusers($signatoryItem->element_id, 'attendant_user_' . $signatoryItem->id, 1, [], 0, '', '', $conf->entity, 0, 0, '', 0, '', 'minwidth200 widthcentpercentminusx user-select-small');
+                                                print $form->select_dolusers(empty($signatoryItem->element_id) ? -1 : $signatoryItem->element_id, 'attendant_user_' . $signatoryItem->id, 1, [], 0, '', '', $conf->entity, 0, 0, '', 0, '', 'minwidth150 widthcentpercentminusx user-select-small');
                                                 ?>
                                             </div>
-                                            <div class="signature-date">
-                                                <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> sign-btn">
-                                                    <i class="fas fa-signature"></i>
-                                                </button>
+                                            <div class="signature-status">
+                                                <span class="badge badge-dot badge-status<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? '0' : '1' ?> badge-status"></span>
+                                                <i class="fas fa-signature"></i>
+                                                <span>jj/mm/aaaa --:--</span>
                                             </div>
+                                            <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> sign-btn">
+                                                <i class="fas fa-signature"></i>
+                                            </button>
+                                            <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> send-email-btn">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -102,17 +552,23 @@ $form = new Form($db);
                                     <div class="form-element">
                                         <div class="input-with-actions">
                                             <div class="user-status">
-                                                <?php 
+                                                <?php
                                                 $tmpUser->fetch($signatoryItem->element_id);
                                                 echo $tmpUser->getNomUrl(1);
                                                 ?>
                                             </div>
-                                            <div class="signature-date">
-                                                <small><?php echo $langs->trans('SignedOn'); ?> <?php echo dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') ?></small>
-                                                <div class="signature-preview">
-                                                    <img src="<?php echo $signatoryItem->signature; ?>" alt="Signature" class="signature-image">
-                                                </div>
+                                            <div class="signature-status">
+                                                <span class="badge badge-dot badge-status4 badge-status"></span>
+                                                <i class="fas fa-signature"></i>
+                                                <span><?php echo dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') ?></span>
                                             </div>
+                                            <a href="<?php echo DOL_URL_ROOT . '/custom/saturne/public/signature/add_signature.php?track_id=' . $signatoryItem->signature_url . '&entity=1&module_name=doliletter&object_type=doliletterattendancesheet'; ?>"
+                                                target="_blank" class="wpeo-button">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button type="button" class="wpeo-button button-disable send-email-btn" disabled>
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -130,66 +586,51 @@ $form = new Form($db);
 
                 <div class="add-user-section tabsAction">
                     <button type="button" class="wpeo-button button-blue add-user-btn">
-                        <i class="fas fa-plus"></i> <?php echo $langs->trans('AddLine'); ?>
+                        <i class="fas fa-plus"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Linked Files Section -->
-    <?php if (!empty($linkedFiles)) { ?>
-    <div class="linked-files-section">
-        <div class="linked-files-header">
-            <h3><i class="fas fa-paperclip"></i> <?php echo $langs->trans('LinkedFiles'); ?></h3>
+    <!-- Public Note Section moved to bottom -->
+    <div class="public-note-section">
+        <div class="public-note-header">
+            <i class="fas fa-comment-dots"></i>
         </div>
-        <div class="linked-files-grid">
-            <?php foreach ($linkedFiles as $file) { 
-                $downloadUrl = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share);
-                $fileExtension = strtolower(pathinfo($file->filename, PATHINFO_EXTENSION));
-                $iconClass = getFileIcon($fileExtension);
-            ?>
-            <div class="file-box">
-                <div class="file-icon">
-                    <i class="<?php echo $iconClass; ?>"></i>
-                </div>
-                <div class="file-content">
-                    <div class="file-name" title="<?php echo htmlspecialchars($file->filename); ?>">
-                        <?php echo htmlspecialchars($file->filename); ?>
-                    </div>
-                    <a href="<?php echo $downloadUrl; ?>" target="_blank" class="wpeo-button">
-                        <i class="fas fa-download"></i> <?php echo $langs->trans('Download'); ?>
-                    </a>
-                </div>
+        <div class="public-note-content">
+            <textarea class="public-note-textarea" placeholder="<?php echo $langs->trans('EnterNotePublicHere'); ?>"><?php echo $attendanceSheet->note_public ?? ''; ?></textarea>
+            <div class="public-note-actions tabsAction">
+                <button type="button" class="wpeo-button button-grey save-public-note-btn">
+                    <i class="fas fa-save"></i>
+                </button>
             </div>
-            <?php } ?>
         </div>
     </div>
-    <?php } ?>
-
-    <?php
-    function getFileIcon($extension) {
-        $icons = [
-            'pdf' => 'fas fa-file-pdf text-danger',
-            'doc' => 'fas fa-file-word text-primary',
-            'docx' => 'fas fa-file-word text-primary',
-            'xls' => 'fas fa-file-excel text-success',
-            'xlsx' => 'fas fa-file-excel text-success',
-            'ppt' => 'fas fa-file-powerpoint text-warning',
-            'pptx' => 'fas fa-file-powerpoint text-warning',
-            'txt' => 'fas fa-file-alt text-secondary',
-            'jpg' => 'fas fa-file-image text-info',
-            'jpeg' => 'fas fa-file-image text-info',
-            'png' => 'fas fa-file-image text-info',
-            'gif' => 'fas fa-file-image text-info',
-            'zip' => 'fas fa-file-archive text-dark',
-            'rar' => 'fas fa-file-archive text-dark',
-            '7z' => 'fas fa-file-archive text-dark',
-        ];
-        return isset($icons[$extension]) ? $icons[$extension] : 'fas fa-file text-muted';
-    }
-    ?>
 </div>
+
+<?php
+function getFileIcon($extension) {
+    $icons = [
+        'pdf' => 'fas fa-file-pdf text-danger',
+        'doc' => 'fas fa-file-word text-primary',
+        'docx' => 'fas fa-file-word text-primary',
+        'xls' => 'fas fa-file-excel text-success',
+        'xlsx' => 'fas fa-file-excel text-success',
+        'ppt' => 'fas fa-file-powerpoint text-warning',
+        'pptx' => 'fas fa-file-powerpoint text-warning',
+        'txt' => 'fas fa-file-alt text-secondary',
+        'jpg' => 'fas fa-file-image text-info',
+        'jpeg' => 'fas fa-file-image text-info',
+        'png' => 'fas fa-file-image text-info',
+        'gif' => 'fas fa-file-image text-info',
+        'zip' => 'fas fa-file-archive text-dark',
+        'rar' => 'fas fa-file-archive text-dark',
+        '7z' => 'fas fa-file-archive text-dark',
+    ];
+    return isset($icons[$extension]) ? $icons[$extension] : 'fas fa-file text-muted';
+}
+?>
 
 <!-- Modal de signature -->
 <div id="signatureModal" class="modal-spread">
@@ -201,7 +642,7 @@ $form = new Form($db);
         <div class="modal-spread-body">
             <div class="signature-element">
                 <canvas id="signatureCanvas" class="canvas-container editable canvas-signature modal-canvas-signature" width="600" height="200" style="touch-action: none;"></canvas>
-                <div class="signature-erase wpeo-button button-square-40 button-rounded button-disable">
+                <div class="signature-erase wpeo-button button-square-40 button-rounded button-red">
                     <span><i class="fas fa-eraser"></i></span>
                 </div>
             </div>
@@ -353,6 +794,25 @@ function removeUser() {
     }
 }
 
+function sendMail() {
+    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+
+    const token       = window.saturne.toolbox.getToken();
+
+    const button      = $(this);
+
+    window.saturne.loader.display(button);
+
+    $.ajax({
+        method: 'POST',
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=send_signature_email&signatory_id=' + userIndex + '&token=' + token,
+        success: function (resp) {
+            console.log('Email sent successfully');
+            window.saturne.loader.remove(button);
+        }
+    })
+}
+
 function savePublicNote() {
     const noteContent = $('.public-note-textarea').val();
     const token       = window.saturne.toolbox.getToken();
@@ -402,635 +862,12 @@ $(document).ready(function () {
     $(document).on('click', '.save-public-note-btn', savePublicNote);
 
     $(document).on('input', '.public-note-textarea', function() {
-        $('.save-public-note-btn').removeClass('button-disable');
+        $('.save-public-note-btn').prop('disabled', false);
+        $('.save-public-note-btn').removeClass('button-grey');
+        $('.save-public-note-btn').addClass('button-green');
     })
+
+    $(document).on('click', '.send-email-btn:not(.button-disable)', sendMail);
 });
 
 </script>
-
-<style>
-
-.modal-canvas-signature {
-    display: block !important;
-    margin: 0 auto !important;
-    border: 2px solid #ddd !important;
-    border-radius: 6px !important;
-    background-color: #fff !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    position: relative;
-}
-
-.user-list-container {
-    width: 100%;
-}
-
-.user-list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #ddd;
-}
-
-.user-signature-item {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 10px;
-    background: #fff;
-}
-
-.user-signature-item.signature-validated {
-    border-color: #28a745;
-    background-color: #f8f9fa;
-}
-
-.form-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 8px;
-}
-
-.form-element {
-    flex: 1;
-}
-
-.input-with-actions {
-    display: flex;
-    gap: 15px;
-    width: 100%;
-    align-items: center;
-}
-
-.user-status {
-    display: flex;
-    align-items: center;
-    min-width: 150px;
-    flex: 1;
-}
-
-.form-element label {
-    display: block;
-    margin-bottom: 2px;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.signature-image {
-    border: 2px solid #ddd;
-    border-radius: 3px;
-    background: #fff;
-    display: block;
-    margin: 0 auto;
-    max-width: 100px;
-    max-height: 40px;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-}
-
-.signature-element {
-    position: relative;
-    text-align: center;
-    padding: 8px;
-    background: #f8f9fa;
-    border-radius: 3px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-.canvas-container {
-    display: block !important;
-    margin: 0 auto !important;
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    background: #fff;
-    touch-action: none;
-    position: relative;
-}
-
-.signature-erase {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.signature-erase:hover {
-    background-color: #5a6268;
-}
-
-.signature-date {
-    color: #666;
-    font-style: italic;
-    margin: 0;
-    white-space: nowrap;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    font-size: 11px;
-    flex: 1;
-    max-width: 140px;
-}
-
-.public-note-section {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #ddd;
-}
-
-.public-note-header {
-    margin-bottom: 10px;
-}
-
-.public-note-header h3 {
-    margin: 0;
-    color: #333;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.public-note-content {
-    width: 100%;
-}
-
-.public-note-textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.4;
-    resize: vertical;
-    background-color: #fff;
-    transition: border-color 0.3s ease;
-    box-sizing: border-box;
-}
-
-.public-note-textarea:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.public-note-textarea::placeholder {
-    color: #999;
-    font-style: italic;
-}
-
-.user-signature-item.signature-validated .input-with-actions {
-    align-items: center;
-}
-
-.user-signature-item.signature-validated .remove-user-btn {
-    align-self: center;
-    margin-top: 0;
-}
-
-.user-select-small {
-    flex: 1;
-    padding: 4px 6px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    font-size: 12px;
-    max-width: 200px;
-}
-
-@media (max-width: 768px) {
-    .public-card__container {
-        padding: 6px;
-        margin: 0;
-    }
-    
-    .user-signature-item {
-        padding: 8px;
-        margin-bottom: 8px;
-    }
-    
-    .form-row {
-        flex-direction: column;
-        gap: 6px;
-        align-items: stretch;
-    }
-    
-    .input-with-actions {
-        gap: 12px;
-        flex-direction: row;
-        align-items: center;
-    }
-    
-    .user-status {
-        min-width: 120px;
-        justify-content: flex-start;
-        flex: 1;
-    }
-    
-    .signature-element {
-        padding: 6px;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .signature-image {
-        width: auto !important;
-        max-width: 80px !important;
-        max-height: 35px !important;
-        height: auto !important;
-        box-sizing: border-box;
-    }
-    
-    .signature-erase {
-        top: 8px;
-        right: 8px;
-        width: 26px;
-        height: 26px;
-    }
-    
-    .user-list-header h3 {
-        font-size: 15px;
-    }
-    
-    .signature-date {
-        margin: 0;
-        text-align: center;
-        flex-direction: column;
-        align-items: center;
-        font-size: 10px;
-        flex: 1;
-        max-width: 120px;
-    }
-    
-    .remove-user-btn {
-        margin-top: 0;
-        align-self: center;
-    }
-    
-    .sign-btn {
-        min-width: auto;
-        width: auto;
-        padding: 4px 6px;
-    }
-    
-    .public-note-section {
-        margin-top: 15px;
-        padding-top: 12px;
-    }
-    
-    .public-note-header h3 {
-        font-size: 15px;
-    }
-    
-    .public-note-textarea {
-        min-height: 100px;
-        padding: 8px;
-        font-size: 13px;
-    }
-    
-    .modal-canvas-signature {
-        width: calc(100% - 20px) !important;
-        max-width: calc(100vw - 60px) !important;
-        height: 150px !important;
-    }
-    
-    .canvas-container {
-        width: calc(100% - 20px) !important;
-        max-width: calc(100vw - 60px) !important;
-        height: 150px !important;
-        border: 2px solid #ddd;
-        border-radius: 6px;
-        background: #fff;
-    }
-}
-
-@media (max-width: 480px) {
-    .signature-image {
-        width: auto !important;
-        max-width: 65px !important;
-        max-height: 25px !important;
-        height: auto !important;
-    }
-    
-    .canvas-container {
-        width: 100% !important;
-        max-width: calc(100vw - 25px);
-        height: 140px !important;
-    }
-    
-    .signature-element {
-        padding: 4px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .user-signature-item {
-        padding: 6px;
-    }
-    
-    .form-element label {
-        font-size: 11px;
-    }
-    
-    .signature-date {
-        margin: 0;
-        font-size: 9px;
-        max-width: 100px;
-    }
-    
-    .input-with-actions {
-        gap: 8px;
-        align-items: center;
-    }
-    
-    .remove-user-btn {
-        margin-top: 0;
-        align-self: center;
-    }
-    
-    .sign-btn {
-        min-width: auto;
-        width: auto;
-        padding: 4px 6px;
-    }
-    
-    .public-note-section {
-        margin-top: 12px;
-        padding-top: 10px;
-    }
-    
-    .public-note-header h3 {
-        font-size: 14px;
-    }
-    
-    .public-note-textarea {
-        min-height: 80px;
-        padding: 6px;
-        font-size: 12px;
-    }
-    
-    .modal-canvas-signature {
-        width: calc(100% - 10px) !important;
-        max-width: calc(100vw - 40px) !important;
-        height: 120px !important;
-    }
-    
-    .canvas-container {
-        width: calc(100% - 10px) !important;
-        max-width: calc(100vw - 40px) !important;
-        height: 120px !important;
-    }
-}
-
-.modal-spread {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.4);
-}
-
-.modal-spread-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 0;
-    border: 1px solid #888;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow: auto;
-}
-
-.modal-spread-header {
-    padding: 15px 20px;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #ddd;
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-spread-header h3 {
-    margin: 0;
-    font-size: 18px;
-}
-
-.modal-spread-body {
-    padding: 20px;
-}
-
-.modal-spread-footer {
-    padding: 15px 20px;
-    background-color: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-radius: 0 0 8px 8px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.close-modal-spread {
-    cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .modal-spread-content {
-        width: 95%;
-        margin: 2% auto;
-    }
-    
-    .modal-spread-header,
-    .modal-spread-footer {
-        padding: 12px 15px;
-    }
-    
-    .modal-spread-body {
-        padding: 15px;
-    }
-    
-    .modal-spread-footer {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .modal-spread-footer .btn {
-        width: 100%;
-    }
-}
-
-.linked-files-section {
-    margin-top: 20px;
-    padding: 20px;
-}
-
-.linked-files-header i {
-    color: #6c757d;
-}
-
-.linked-files-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.file-box {
-    background: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    padding: 16px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: relative;
-    overflow: hidden;
-}
-
-.file-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    border-color: #007bff;
-}
-
-.file-icon {
-    flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-    border-radius: 8px;
-    font-size: 24px;
-}
-
-.file-name {
-    font-weight: 500;
-    color: #495057;
-    margin-bottom: 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-/* Color classes for file type icons */
-.text-danger { color: #dc3545 !important; }
-.text-primary { color: #007bff !important; }
-.text-success { color: #28a745 !important; }
-.text-warning { color: #ffc107 !important; }
-.text-info { color: #17a2b8 !important; }
-.text-secondary { color: #6c757d !important; }
-.text-dark { color: #343a40 !important; }
-.text-muted { color: #6c757d !important; }
-
-@media (max-width: 768px) {
-    .linked-files-section {
-        margin-top: 15px;
-        padding: 16px;
-        border-radius: 8px;
-    }
-    
-    .linked-files-header h3 {
-        font-size: 16px;
-    }
-    
-    .linked-files-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .file-box {
-        padding: 12px;
-        gap: 10px;
-    }
-    
-    .file-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-    }
-    
-    .file-name {
-        font-size: 13px;
-    }
-    
-    .file-download-btn {
-        padding: 5px 10px;
-        font-size: 11px;
-        gap: 4px;
-    }
-}
-
-@media (max-width: 480px) {
-    .linked-files-section {
-        margin-top: 12px;
-        padding: 12px;
-    }
-    
-    .linked-files-header h3 {
-        font-size: 15px;
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .file-box {
-        padding: 10px;
-        gap: 8px;
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .file-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 18px;
-        margin: 0 auto;
-    }
-    
-    .file-content {
-        width: 100%;
-    }
-    
-    .file-name {
-        font-size: 12px;
-        margin-bottom: 6px;
-        text-align: center;
-    }
-    
-    .file-download-btn {
-        padding: 4px 8px;
-        font-size: 10px;
-        width: 100%;
-        justify-content: center;
-    }
-}
-</style>
