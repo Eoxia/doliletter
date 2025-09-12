@@ -805,9 +805,18 @@ function sendMail() {
 
     $.ajax({
         method: 'POST',
-        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=send_signature_email&signatory_id=' + userIndex + '&token=' + token,
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=send_email&signatory_id=' + userIndex + '&token=' + token,
         success: function (resp) {
-            console.log('Email sent successfully');
+
+            const message = $(resp).val();
+            const isError = $(resp).attr('id') === 'error';
+
+            if (isError) {
+                $.jnotify(message, {type: 'error'});
+            } else {
+                $.jnotify(message, {type: 'success'});
+            }
+
             window.saturne.loader.remove(button);
         }
     })

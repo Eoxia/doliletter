@@ -115,7 +115,7 @@ if ($action == 'add_spread_user') {
         $objectsMetadata[$objectType]['object']->fetch($id);
 
         $attendanceSheet->ref           = $objectsMetadata[$objectType]['object']->ref;
-        $attendanceSheet->status        = $attendanceSheet::STATUS_DRAFT;
+        $attendanceSheet->status        = $attendanceSheet::STATUS_VALIDATED;
         $attendanceSheet->fk_object     = $id;
         $attendanceSheet->object_type   = $objectType;
         $attendanceSheet->entity        = $conf->entity;
@@ -206,6 +206,57 @@ if ($action == 'save_public_note') {
         $attendanceSheet->update($user);
     }
     $action = '';
+}
+
+if ($action == 'send_email') {
+    $signatory_id = GETPOSTINT('signatory_id');
+
+    $signatory->fetch($signatory_id);
+    if ($signatory->id > 0) {
+        require_once DOL_DOCUMENT_ROOT . '/core/class/CMailFile.class.php';
+
+        $objectsMetadata[$objectType]['object']->fetch($id);
+
+        $tmpUser = new User($db);
+        $tmpUser->fetch($signatory->element_id);
+
+        $from = $conf->global->MAIN_MAIL_EMAIL_FROM;
+
+        // Make substitution in email content
+        $substitutionarray                       = getCommonSubstitutionArray($langs, 0, null, $objectsMetadata[$objectType]['object']);
+        $substitutionarray['__OBJECT_ELEMENT__'] = dol_strtolower($langs->transnoentities(ucfirst($objectsMetadata[$objectType]['object']->element)));
+        $substitutionarray['__REF__']            = $objectsMetadata[$objectType]['object']->ref;
+        $signatoryLink = dol_buildpath('/custom/saturne/public/signature/add_signature.php', 3) . '?track_id=' . $signatory->signature_url . '&entity=1&module_name=doliletter&object_type=doliletterattendancesheet';
+        $substitutionarray['__SATURNE_SIGNATORY_URL__'] = '<a href=' . $signatoryLink . ' target="_blank">' . $langs->transnoentities('SignatureEmailURL') . '</a>';
+        complete_substitutions_array($substitutionarray, $langs, $objectsMetadata[$objectType]['object'], $parameters);
+
+        $result  = $saturneMail->fetch(getDolGlobalInt('SATURNE_EMAIL_TEMPLATE_SPREAD'));
+        $subject = $result > 0 ? $saturneMail->topic : $langs->transnoentities('EmailSpreadTopic');
+        $message = $result > 0 ? $saturneMail->content : $langs->transnoentities('EmailSpreadContent');
+        $sendto  = $tmpUser->email;
+
+        $subject = make_substitutions($subject, $substitutionarray);
+        $message = make_substitutions($message, $substitutionarray);
+
+        // Create form object
+        // Send mail (substitutionarray must be done just before this)
+        $mailfile = new CMailFile($subject, $sendto, $from, $message, [], [], [], '', '', 0, -1, '', '', '', '', 'mail');
+        if ($mailfile->error) {
+            setEventMessages($mailfile->error, $mailfile->errors, 'errors');
+        } elseif (!empty($conf->global->MAIN_MAIL_SMTPS_ID) || $conf->global->SATURNE_USE_ALL_EMAIL_MODE > 0) {
+            $result = $mailfile->sendfile();
+            if ($result) {
+                $signatory->last_email_sent_date = dol_now();
+                $signatory->update($user, true);
+                $signatory->setPending($user, false);
+                echo '<input type="hidden" id="success" value="' . $langs->transnoentities('SendEmailAt', dol_escape_htmltag($sendto)) . '">';
+                exit;
+            } else {
+                echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto)) . '">';
+                exit;
+            }
+        }
+    }
 }
 
 $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
