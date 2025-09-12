@@ -871,8 +871,7 @@ $(document).ready(function () {
     $(document).on('click', '.save-public-note-btn', savePublicNote);
 
     $(document).on('input', '.public-note-textarea', function() {
-        $('.save-public-note-btn').prop('disabled', false);
-        $('.save-public-note-btn').removeClass('button-grey');
+        $('.save-public-note-btn').removeClass('button-disable');
         $('.save-public-note-btn').addClass('button-green');
     })
 
