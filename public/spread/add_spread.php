@@ -263,13 +263,15 @@ $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
 
 $linkedFiles = [];
 if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
-    $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id) {
+    $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id, $objectsMetadata) {
 
         if ($objectType == 'project') {
             $objectType = 'projet';
         } elseif ($objectType == 'project_task') {
             $objectType = 'projet_task';
         }
+
+        $objectType = $objectsMetadata[$objectType]['table_element'];
 
         return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id;
     });
