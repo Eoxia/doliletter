@@ -267,6 +267,8 @@ if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
 
         if ($objectType == 'project') {
             $objectType = 'projet';
+        } elseif ($objectType == 'project_task') {
+            $objectType = 'projet_task';
         }
 
         return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id;
