@@ -117,4 +117,55 @@ class ActionsDoliletter
 
         return 0;
     }
+
+    /**
+     * Overloading the completeTabsHead function : replacing the parent's function with the one below
+     *
+     * @param  array $parameters Hook metadata (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     */
+    function completeTabsHead(array $parameters, $object) : int
+    {
+        global $db;
+
+        require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
+        require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+
+        $attendanceSheet = new DoliletterAttendanceSheet($db, 'doliletter');
+        $signatory       = new SaturneSignature($db, 'doliletter', 'spread');
+
+        if (strpos($parameters['context'], 'main') !== false) {
+            if (!empty($parameters['head'])) {
+                foreach ($parameters['head'] as $headKey => $headTab) {
+                    if (is_array($headTab) && count($headTab) > 0) {
+                        if (isset($headTab[2]) && $headTab[2] == 'spread' && strpos($headTab[1], 'badge') === false) {
+
+                            $attendanceSheet->fetch(0, '', ' AND object_type = ' . "'" . $object->element . "'" . ' AND fk_object = ' . $object->id);
+
+                            if (empty($attendanceSheet->id)) {
+                                continue;
+                            }
+
+                            $signatories = $signatory->fetchSignatory('', $attendanceSheet->id ?? 0, $attendanceSheet->element);
+                            if ($signatories <= 0) {
+                                $signatories = [];
+                            } elseif (is_array($signatories)) {
+                                $signatories = current($signatories);
+                            }
+                            $totalNumberOfSignatories = count(array_filter($signatories, function ($signatory) {
+                                return $signatory->element_id != 0;
+                            }));
+                            $totalNumberOfSignedSignatories = count(array_filter($signatories, function ($signatory) {
+                                return !empty($signatory->signature);
+                            }));
+
+                            $parameters['head'][$headKey][1] .= '<span class="badge marginleftonlyshort">' . $totalNumberOfSignedSignatories . ' / ' . $totalNumberOfSignatories . '</span>';
+                        }
+                    }
+                }
+            }
+        }
+
+        return 0; // or return 1 to replace standard code
+    }
 }
