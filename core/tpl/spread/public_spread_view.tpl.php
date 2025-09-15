@@ -532,12 +532,14 @@ body {
                                             <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> sign-btn">
                                                 <i class="fas fa-signature"></i>
                                             </button>
-                                            <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> send-email-btn">
+                                            <button type="button" class="wpeo-button button-<?php echo (empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 || empty($permissiontoadd)) ? 'disable' : 'primary' ?> send-email-btn">
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
+                                            <?php if (!empty($permissiontoadd)) { ?>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
                                                 <i class="fas fa-trash"></i>
                                             </button>
+                                            <?php } ?>
                                         </div>
                                     </div>
                                 </div>
@@ -569,9 +571,11 @@ body {
                                             <button type="button" class="wpeo-button button-disable send-email-btn" disabled>
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
+                                            <?php if (!empty($permissiontoadd)) { ?>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
                                                 <i class="fas fa-trash"></i>
                                             </button>
+                                            <?php } ?>
                                         </div>
                                     </div>
                                 </div>
@@ -584,11 +588,13 @@ body {
 
                 </div>
 
+                <?php if (!empty($permissiontoadd)) { ?>
                 <div class="add-user-section tabsAction">
                     <button type="button" class="wpeo-button button-blue add-user-btn">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
+                <?php } ?>
             </div>
         </div>
     </div>

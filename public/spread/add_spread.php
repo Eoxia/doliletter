@@ -76,8 +76,11 @@ if (!isset($_SESSION['dol_login'])) {
     $user->loadDefaultValues();
 } else {
     $user->fetch('', $_SESSION['dol_login'], '', 1);
-    $user->getrights();
+    $user->loadRights();
 }
+
+$permissiontoadd  = $user->hasRight('doliletter', 'spread', 'write');
+
 
 // Load translation files required by the page
 saturne_load_langs(['doliletter@doliletter']);
