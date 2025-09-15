@@ -214,10 +214,6 @@ class modDoliLetter extends DolibarrModules {
 		$this->cronjobs = array();
 
 		// Permissions provided by this module
-		$this->rights = array();
-		$r            = 0;
-
-		// Permissions provided by this module
 		$this->rights = [];
 		$r = 0;
 
@@ -253,6 +249,14 @@ class modDoliLetter extends DolibarrModules {
 		$this->rights[$r][1] = $langs->trans('ReadAdminPage');
 		$this->rights[$r][4] = 'adminpage';
 		$this->rights[$r][5] = 'read';
+		$r++;
+
+		/* Manage public spreading PERMISSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][1] = $langs->trans('ManageUserSpread');
+		$this->rights[$r][4] = 'spread';
+		$this->rights[$r][5] = 'write';
+		$r++;
 
 		// Main menu entries to add
 		$this->menu = array();
