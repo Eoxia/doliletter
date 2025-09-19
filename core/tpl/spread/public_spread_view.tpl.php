@@ -478,7 +478,7 @@ body {
                 foreach ($linkedFilesFavorite as $key => $file) {
                     $modulepart   =  basename(dirname($file->filepath));
                     $relativepath = explode('/', $file->filepath, 2)[1] . '/' . $file->filename;
-                    $filePath     = DOL_URL_ROOT.'/document.php?modulepart='.urlencode($modulepart).'&attachment=0&file='.urlencode($relativepath).'&entity='.urlencode($file->entity);
+                    $filePath     = DOL_URL_ROOT.'/document.php?modulepart='.urlencode($modulepart).'&attachment=0&file='.urlencode($relativepath).'&entity='.urlencode($file->entity).'#toolbar=0&navpanes=0&scrollbar=0';
                     ?>
                     <object
                         name="objectpreview"
