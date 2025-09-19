@@ -65,12 +65,13 @@ if (isModEnabled('societe')) {
 }
 
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
 
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
 // Global variables definitions
-global $conf, $db, $hookmanager, $langs, $user;
+global $conf, $db, $hookmanager, $langs, $user, $modulepart;
 
 if (!isset($_SESSION['dol_login'])) {
     $user->loadDefaultValues();
@@ -143,7 +144,6 @@ if ($action == 'add_spread_user') {
     $result = $tmpSignatory->create($user);
     if ($result < 0) {
         setEventMessages($signatory->error, $signatory->errors, 'errors');
-        echo '<pre>'; print_r($signatory->db->lasterror()); echo '</pre>'; exit;
         exit;
     }
     $action = '';
@@ -263,16 +263,36 @@ if ($action == 'send_email') {
 }
 
 $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
-
 $linkedFiles = [];
 if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
-    $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id, $objectsMetadata) {
+    $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id, $objectsMetadata, $ecmFiles) {
 
         $objectType = $objectsMetadata[$objectType]['table_element'];
+
+        $ecmFilesLine->table_element = $ecmFiles->table_element;
+        $ecmFilesLine->fetch_optionals();
 
         return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id;
     });
 }
+$linkedFilesFavorite = array_filter($linkedFiles, function ($ecmFilesLine) {
+    return $ecmFilesLine->array_options['options_favorite'] == 1;
+});
+$linkedFiles = array_filter($linkedFiles, function ($ecmFilesLine) {
+    return $ecmFilesLine->array_options['options_favorite'] != 1;
+});
+
+$link  = new Link($db);
+$linkedLinks = [];
+$link->fetchAll($linkedLinks, $objectType, $id);
+array_walk($linkedLinks, fn ($linkedItem) => $linkedItem->fetch_optionals());
+$linkedLinksFavorite = array_filter($linkedLinks, function ($linkedItem) {
+    return $linkedItem->array_options['options_favorite'] == 1;
+});
+$linkedLinks = array_filter($linkedLinks, function ($linkedItem) {
+    return $linkedItem->array_options['options_favorite'] != 1;
+});
+
 
 $objectsMetadata[$objectType]['object']->fetch($id);
 $objectRef   = $objectsMetadata[$objectType]['object']->ref;
