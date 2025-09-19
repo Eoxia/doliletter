@@ -476,7 +476,7 @@ body {
 
             <?php if (!empty($linkedFilesFavorite)) {
                 foreach ($linkedFilesFavorite as $key => $file) {
-                    $modulepart   =  basename(dirname($file->filepath));
+                    $modulepart   =  explode('/', $file->filepath, 2)[0];
                     $relativepath = explode('/', $file->filepath, 2)[1] . '/' . $file->filename;
                     $filePath     = DOL_URL_ROOT.'/document.php?modulepart='.urlencode($modulepart).'&attachment=0&file='.urlencode($relativepath).'&entity='.urlencode($file->entity).'#toolbar=0&navpanes=0&scrollbar=0';
                     ?>
@@ -818,6 +818,7 @@ function validateSignature() {
         $.ajax({
             method: 'POST',
             url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=validate_signature&signatory_id=' + currentUserIndex,
+            contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({
                 signature
             }),
@@ -839,7 +840,7 @@ function addUser() {
         method: 'POST',
         url: document.URL + querySeparator + 'action=add_spread_user' + '&token=' + token,
         processData: false,
-        contentType: false,
+        contentType: 'application/json charset=utf-8',
         success: function (resp) {
             $(document).find('.user-signatures-list').append($(resp).find('.user-signature-item').last());
         }
@@ -854,6 +855,7 @@ function removeUser() {
     if (userItem) {
         $.ajax({
             method: 'POST',
+            contentType: 'application/json; charset=utf-8',
             url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=remove_spread_user&signatory_id=' + userIndex + '&token=' + token,
             success: function (resp) {
                 userItem.remove();
@@ -874,6 +876,7 @@ function sendMail() {
     $.ajax({
         method: 'POST',
         url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=send_email&signatory_id=' + userIndex + '&token=' + token,
+        contentType: 'application/json charset=utf-8',
         success: function (resp) {
 
             const message = $(resp).val();
@@ -904,6 +907,7 @@ function savePublicNote() {
             note_public: noteContent
         }),
         processData: false,
+        contentType: 'application/json; charset=utf-8',
         success: function (resp) {
             window.saturne.loader.remove(button);
             button.addClass('button-disable');
@@ -920,6 +924,7 @@ $(document).ready(function () {
         $.ajax({
             method: 'POST',
             url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=update_spread_user&signatory_id=' + signatoryId + '&user_id=' + val + '&token=' + token,
+            contentType: 'application/json; charset=utf-8',
             success: function (resp) {
                 $('.user-signature-item[data-user-index="' + signatoryId + '"]').replaceWith($(resp).find('.user-signature-item[data-user-index="' + signatoryId + '"]'));
             }
