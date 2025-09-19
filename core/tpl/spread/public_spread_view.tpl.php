@@ -474,6 +474,44 @@ body {
                 <?php echo $objectsMetadata[$objectType]['object']->getNomUrl(1) . (!empty($objectLabel) ? ' - ' . $objectLabel : '' ); ?>
             </div>
 
+            <?php if (!empty($linkedFilesFavorite)) {
+                foreach ($linkedFilesFavorite as $key => $file) {
+                    $modulepart   =  basename(dirname($file->filepath));
+                    $relativepath = explode('/', $file->filepath, 2)[1] . '/' . $file->filename;
+                    $filePath     = DOL_URL_ROOT.'/document.php?modulepart='.urlencode($modulepart).'&attachment=0&file='.urlencode($relativepath).'&entity='.urlencode($file->entity).'#toolbar=0&navpanes=0&scrollbar=0';
+                    ?>
+                    <object
+                        name="objectpreview"
+                        data="<?php echo $filePath; ?>"
+                        type="<?php echo dol_mimetype($file->filename); ?>"
+                        width="100%"
+                        height="600px"
+                        param="noparam">
+                    </object>
+            <?php }} ?>
+
+            <?php if (!empty($linkedLinksFavorite)) { ?>
+                <div class="linked-links-section">
+                    <?php foreach ($linkedLinksFavorite as $link) { 
+                        if (strpos($link->url, "youtube.com/watch?v=") !== false) { ?>
+                            <?php
+                            $videoId = preg_replace('/.*v=([^&]+).*/', '$1', $link->url);
+                            ?>
+                            <iframe width="100%" height="600px" src="https://www.youtube.com/embed/<?php echo htmlspecialchars($videoId); ?>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        <?php } else { ?>
+                            <object
+                                name="objectpreview"
+                                data="<?php echo htmlspecialchars($link->url); ?>"
+                                type="<?php echo dol_mimetype($link->url); ?>"
+                                width="100%"
+                                height="600px"
+                                param="noparam">
+                            </object>
+                        <?php } ?>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+
             <!-- Linked Files Section -->
             <?php if (!empty($linkedFiles)) { ?>
             <div class="linked-files-section">
@@ -502,10 +540,34 @@ body {
                 </div>
             </div>
             <?php } ?>
+            <?php if (!empty($linkedLinks)) { ?>
+                <div class="linked-files-section">
+                    <div class="linked-files-grid">
+                        <?php foreach ($linkedLinks as $link) { ?>
+                        <div class="file-box">
+                            <div class="file-name" title="<?php echo htmlspecialchars($link->label); ?>">
+                                <?php echo htmlspecialchars($link->label); ?>
+                            </div>
+                            <div class="file-actions-container">
+                                <div class="file-icon">
+                                    <i class="fas fa-link"></i>
+                                </div>
+                                <div class="file-content">
+                                    <a href="<?php echo htmlspecialchars($link->url); ?>" target="_blank" class="wpeo-button">
+                                        <i class="fas fa-external-link-alt" style="text-decoration: none;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
 
             <div class="user-list-container">
                 <div class="user-signatures-list" id="userSignaturesList">
                     <!-- Utilisateurs pré-signés par défaut -->
+
 
                     <?php
 
