@@ -296,7 +296,7 @@ $linkedLinks = array_filter($linkedLinks, function ($linkedItem) {
 
 $objectsMetadata[$objectType]['object']->fetch($id);
 $objectRef   = $objectsMetadata[$objectType]['object']->ref;
-$objectLabel = $objectsMetadata[$objectType]['object']->title ?? '';
+$objectLabel = $objectsMetadata[$objectType]['object']->{$objectsMetadata[$objectType]['label_field']} ?? '';
 
 /*
  * View
