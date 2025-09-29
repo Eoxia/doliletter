@@ -334,6 +334,10 @@ class DoliletterAttendanceSheet extends SaturneObject
     {
         global $langs;
 
+        require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/saturne.lib.php';
+
+        $objectsMetadata    = saturne_get_objects_metadata();
+
         // Graph Title parameters
         $array['title'] = $langs->transnoentities('3LastSpreadList');
         $array['name']  = '3LastSpreadList';
@@ -341,7 +345,7 @@ class DoliletterAttendanceSheet extends SaturneObject
 
         // Graph parameters
         $array['type']   = 'list';
-        $array['labels'] = ['Ref', 'NumberOfPersons', 'Object'];
+        $array['labels'] = ['Ref', 'Label', 'Object', 'NumberOfPersons'];
 
         $array['noFullSize'] = 1;
 
@@ -356,10 +360,15 @@ class DoliletterAttendanceSheet extends SaturneObject
             }
         }
         foreach ($listOfSpreads as $spread) {
+
+            $objectsMetadata[$spread->object_type]['object']->fetch($spread->id);
+            $objectLabel = $objectsMetadata[$spread->object_type]['object']->{$objectsMetadata[$spread->object_type]['label_field']} ?? '';
+
             $arrayLastSpreadList[] = [
                 'Ref'             => ['value' => $spread->getNomUrl(1, '', 1, '', -1, 2)],
+                'Libelle'         => ['value' => $objectLabel],
+                'Object'          => ['value' => $langs->trans($objectsMetadata[$spread->object_type]['langs'])],
                 'NumberOfPersons' => ['value' => (empty($numberOfPersons[$spread->id]) ? 0 : $numberOfPersons[$spread->id])],
-                'Object'          => ['value' => $spread->object_type],
            ];
         }
 
