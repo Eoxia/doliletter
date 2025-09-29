@@ -213,3 +213,8 @@ EmailSpreadTopic         = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEM
 EmailSpreadContent       = Bonjour,<br />Veuillez trouver ci-joint le lien de signature de la difusion du document.<br />__SATURNE_SIGNATORY_URL__
 
 ManageUserSpread         = Gérer les utilisateur dans la diffusion
+
+ObjectType               = Type d'objet
+
+Doliletter_attendance_sheetList = Liste des diffusions
+Doliletter_attendance_sheet     = Diffusion
