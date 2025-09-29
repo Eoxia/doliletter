@@ -128,7 +128,7 @@ class DoliletterAttendanceSheet extends SaturneObject
         'status'            => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 240, 'notnull' => 1, 'visible' => 2, 'default' => 0, 'index' => 1, 'validate' => 1, 'arrayofkeyval' => [0 => 'StatusDraft', 1 => 'ValidatePendingSignature', 2 => 'Expired', 3 => 'Archived']],
         'note_public'       => ['type' => 'text',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 100, 'notnull' => 0, 'visible' => 2, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusx', 'cssview' => 'wordbreak'],
         'note_private'      => ['type' => 'text',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusx', 'cssview' => 'wordbreak'],
-        'object_type'       => ['type' => 'varchar(64)',  'label' => 'ObjectType',       'enabled' => 1, 'position' => 200, 'notnull' => 1, 'visible' => 1],
+        'object_type'       => ['type' => 'varchar(64)',  'label' => 'ObjectType',       'enabled' => 1, 'position' => 23, 'notnull' => 1, 'visible' => 1],
         'fk_object'         => ['type' => 'integer',      'label' => 'ObjectID',         'enabled' => 1, 'position' => 210, 'notnull' => 0, 'visible' => 0],
         'fk_user_creat'     => ['type' => 'integer:User:user/class/user.class.php',            'label' => 'UserAuthor', 'picto' => 'user',    'enabled' => 1,                         'position' => 220, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
     ];

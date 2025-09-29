@@ -133,8 +133,10 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
 }
 
 $object->fields['number_of_users'] = ['label' => 'NumberOfPersons',      'enabled' => 1, 'position' => 66,  'visible' => 2, 'csslist' => 'center'];
+$object->fields['label']           = ['label' => 'Label',                'enabled' => 1, 'position' => 11,  'visible' => 2, 'csslist' => 'minwidth300 maxwidth500'];
+$object->fields['public_url']      = ['label' => 'PublicUrl',            'enabled' => 1, 'position' => 121, 'visible' => 2, 'csslist' => 'minwidth300 maxwidth500'];
 
-$excludeFields = array_merge($excludeFields, ['number_of_users']);
+$excludeFields = array_merge($excludeFields, ['number_of_users', 'label', 'public_url']);
 
 // Initialize array of search criterias
 $searchAll = trim(GETPOST('search_all'));

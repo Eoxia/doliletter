@@ -112,6 +112,26 @@ class ActionsDoliletter
                     return $signatory->element_id != 0;
                 });
                 print count($signatories);
+            } elseif ($parameters['key'] == 'label') {
+
+                require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/saturne.lib.php';
+
+                $objectsMetadata    = saturne_get_objects_metadata();
+
+                $objectsMetadata[$object->object_type]['object']->fetch($object->id);
+                $objectLabel = $objectsMetadata[$object->object_type]['object']->{$objectsMetadata[$object->object_type]['label_field']} ?? '';
+                print $objectLabel;
+
+            } elseif ($parameters['key'] == 'object_type') {
+                require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/saturne.lib.php';
+
+                $objectsMetadata    = saturne_get_objects_metadata();
+
+                $this->results['object_type'] = $langs->trans($objectsMetadata[$object->object_type]['langs']);
+                return 1;
+            } elseif ($parameters['key'] == 'public_url') {
+                $url = DOL_URL_ROOT . '/custom/doliletter/public/spread/add_spread.php?id=' . $object->fk_object . '&object_type=' . $object->object_type;
+                print '<a href="' . $url . '" target="_blank">' . $url . '</a>';
             }
         }
 
