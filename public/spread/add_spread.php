@@ -233,7 +233,7 @@ if ($action == 'send_email') {
         $substitutionarray['__SATURNE_SIGNATORY_URL__'] = '<a href=' . $signatoryLink . ' target="_blank">' . $langs->transnoentities('SignatureEmailURL') . '</a>';
         complete_substitutions_array($substitutionarray, $langs, $objectsMetadata[$objectType]['object'], $parameters);
 
-        $result  = $saturneMail->fetch(getDolGlobalInt('SATURNE_EMAIL_TEMPLATE_SPREAD'));
+        $result  = $saturneMail->fetch(getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'));
         $subject = $result > 0 ? $saturneMail->topic : $langs->transnoentities('EmailSpreadTopic');
         $message = $result > 0 ? $saturneMail->content : $langs->transnoentities('EmailSpreadContent');
         $sendto  = $tmpUser->email;
