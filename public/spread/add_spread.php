@@ -81,6 +81,7 @@ if (!isset($_SESSION['dol_login'])) {
 }
 
 $permissiontoadd  = $user->hasRight('doliletter', 'spread', 'write');
+$isLogged         = !empty($_SESSION['dol_login']);
 
 
 // Load translation files required by the page
