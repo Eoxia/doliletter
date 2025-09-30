@@ -594,10 +594,10 @@ body {
                                             <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> sign-btn">
                                                 <i class="fas fa-signature"></i>
                                             </button>
-                                            <button type="button" class="wpeo-button button-<?php echo (empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 || empty($permissiontoadd)) ? 'disable' : 'primary' ?> send-email-btn">
+                                            <?php if (!empty($permissiontoadd)) { ?>
+                                            <button type="button" class="wpeo-button button-<?php echo (empty($signatoryItem->element_id) || $signatoryItem->element_id == -1) ? 'disable' : 'primary' ?> send-email-btn">
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
-                                            <?php if (!empty($permissiontoadd)) { ?>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -626,17 +626,19 @@ body {
                                                 <i class="fas fa-signature"></i>
                                                 <span><?php echo dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') ?></span>
                                             </div>
-                                            <a href="<?php echo DOL_URL_ROOT . '/custom/saturne/public/signature/add_signature.php?track_id=' . $signatoryItem->signature_url . '&entity=1&module_name=doliletter&object_type=doliletterattendancesheet'; ?>"
-                                                target="_blank" class="wpeo-button">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <button type="button" class="wpeo-button button-disable send-email-btn" disabled>
-                                                <i class="fas fa-paper-plane"></i>
-                                            </button>
-                                            <?php if (!empty($permissiontoadd)) { ?>
-                                            <button type="button" class="wpeo-button button-red remove-user-btn">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <?php if ($permissiontoadd) { ?>
+                                                <?php if (!empty($permissiontoshowsignature) && getDolGlobalInt('DOLILETTER_SPREAD_SHOW_SIGNATURE')) { ?>
+                                                <a href="<?php echo DOL_URL_ROOT . '/custom/saturne/public/signature/add_signature.php?track_id=' . $signatoryItem->signature_url . '&entity=1&module_name=doliletter&object_type=doliletterattendancesheet'; ?>"
+                                                    target="_blank" class="wpeo-button">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <?php } ?>
+                                                <button type="button" class="wpeo-button button-disable send-email-btn" disabled>
+                                                    <i class="fas fa-paper-plane"></i>
+                                                </button>
+                                                <button type="button" class="wpeo-button button-red remove-user-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             <?php } ?>
                                         </div>
                                     </div>

@@ -135,6 +135,7 @@ class modDoliLetter extends DolibarrModules {
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLILETTER_SPREAD_SHOW_SIGNATURE', 'integer', 1, '', 0, 'current'],
 
 			// Globals CONST
             $i++ => ['DOLILETTER_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
@@ -256,6 +257,12 @@ class modDoliLetter extends DolibarrModules {
 		$this->rights[$r][1] = $langs->trans('ManageUserSpread');
 		$this->rights[$r][4] = 'spread';
 		$this->rights[$r][5] = 'write';
+		$r++;
+
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][1] = $langs->trans('ShowSpreadSignature');
+		$this->rights[$r][4] = 'spreadsignature';
+		$this->rights[$r][5] = 'read';
 		$r++;
 
 		// Main menu entries to add

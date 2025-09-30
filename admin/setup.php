@@ -111,6 +111,31 @@ print '</tr>';
 
 
 print '</table>';
+
+print load_fiche_titre('<i class="fas fa-exclamation-circle"></i> ' . $langs->trans('PublicInterfaceConfig'), '', '');
+
+print '<table class="noborder centpercent">';
+
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="center">' . $langs->trans("Status") . '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowSpreadSignature');
+print "</td><td>";
+print $langs->trans('ShowSpreadSignatureDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLILETTER_SPREAD_SHOW_SIGNATURE');
+print '</td>';
+print '</tr>';
+
+print '</table>';
+
+
 print '<hr>';
 
 
