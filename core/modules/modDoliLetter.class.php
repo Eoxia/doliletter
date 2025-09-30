@@ -371,7 +371,7 @@ class modDoliLetter extends DolibarrModules {
 	 *  @return     int             	1 if OK, 0 if KO
 	 */
 	public function init($options = '') {
-		global $conf, $langs;
+		global $conf, $langs, $user;
 
 		$this->_load_tables('/doliletter/sql/');
 
@@ -443,7 +443,7 @@ class modDoliLetter extends DolibarrModules {
             $saturneMail->topic         = $langs->transnoentities($emailTemplateData['topic']);
             $saturneMail->content       = $langs->transnoentities($emailTemplateData['content']);
             $saturneMail->joinfiles     = 1;
-            if ($saturneMail->fetch(getDolGlobalInt('DOLILETTER_' . dol_strtoupper($emailTemplate))) == 0) {
+            if ($saturneMail->fetch(getDolGlobalInt('DOLILETTER_' . dol_strtoupper($emailTemplate))) == -1) {
                 $emailTemplateID = $saturneMail->create($user);
                 dolibarr_set_const($this->db, 'DOLILETTER_' . dol_strtoupper($emailTemplate), $emailTemplateID, 'integer', 0, '', $conf->entity);
             }
