@@ -491,17 +491,14 @@ body {
 
             <?php if (!empty($linkedFilesFavorite)) {
                 foreach ($linkedFilesFavorite as $key => $file) {
-                    $modulepart   =  explode('/', $file->filepath, 2)[0];
-                    $relativepath = explode('/', $file->filepath, 2)[1] . '/' . $file->filename;
-                    $filePath     = DOL_URL_ROOT.'/document.php?modulepart='.urlencode($modulepart).'&attachment=0&file='.urlencode($relativepath).'&entity='.urlencode($file->entity).'#toolbar=0&navpanes=0&scrollbar=0';
                     ?>
                     <object
                         name="objectpreview"
-                        data="<?php echo $filePath; ?>"
                         type="<?php echo dol_mimetype($file->filename); ?>"
                         width="100%"
                         height="600px"
-                        param="noparam">
+                        param="noparam"
+                        data-src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>">
                     </object>
             <?php }} ?>
 
@@ -973,6 +970,21 @@ $(document).ready(function () {
     })
 
     $(document).on('click', '.send-email-btn:not(.button-disable)', sendMail);
+
+    $('object[data-src]').each(function() {
+        let $this = $(this);
+        let src   = $this.data('src');
+
+         fetch(src)
+            .then(res => res.blob())
+            .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+                $this.attr('data', blobUrl + '#toolbar=0');
+            })
+            .catch(err => {
+                console.error('Error loading object:', err);
+            });
+    });
 });
 
 </script>
