@@ -40,15 +40,47 @@ global $db, $langs, $user;
 
 // Libraries
 require_once '../lib/doliletter.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 
 // Translations
 $langs->loadLangs(array("admin", "doliletter@doliletter"));
 
 // Parameters
 $backtopage = GETPOST('backtopage', 'alpha');
+$action = GETPOST('action', 'alpha');
 
 // Access control
 if (!$user->admin) accessforbidden();
+
+/*
+ * Actions
+ */
+
+if ($action == 'save') {
+    require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+
+    $emailSubject = GETPOST('DOLILETTER_EMAIL_SPREAD_SUBJECT', 'alphanohtml');
+    $emailContent = GETPOST('DOLILETTER_EMAIL_SPREAD_CONTENT', 'restricthtml');
+
+    $saturneMail = new SaturneMail($db);
+    $result = $saturneMail->fetch(getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'));
+
+    if ($result > 0) {
+        if (!empty($emailSubject)) {
+            $saturneMail->topic = $emailSubject;
+        }
+
+        if (!empty($emailContent)) {
+            $saturneMail->content = $emailContent;
+        }
+
+        $saturneMail->update($user);
+    }
+
+    setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
+    header('Location: ' . $_SERVER["PHP_SELF"]);
+    exit;
+}
 
 /*
  * View
@@ -109,8 +141,73 @@ print ajax_constantonoff('DOLILETTER_DELETE_PUBLIC_DOWNLOAD_LINKS_AFTER_SIGNATUR
 print '</td>';
 print '</tr>';
 
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowSpreadSignature');
+print "</td><td>";
+print $langs->trans('ShowSpreadSignatureDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLILETTER_SPREAD_SHOW_SIGNATURE');
+print '</td>';
+print '</tr>';
 
 print '</table>';
+
+require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+
+$saturneMail = new SaturneMail($db);
+$result      = $saturneMail->fetch(getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'));
+
+if ($result > 0) {
+
+    $subject = $saturneMail->topic;
+    $content = $saturneMail->content;
+
+    print load_fiche_titre('<i class="fas fa-exclamation-circle"></i> ' . $langs->trans('EmailConfig'), '', '');
+    
+    print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+    print '<input type="hidden" name="action" value="save">';
+    print '<input type="hidden" name="token" value="'.newToken().'">';
+    
+    print '<table class="noborder centpercent">';
+    print '<tr class="liste_titre">';
+    print '<td>' . $langs->trans("Name") . '</td>';
+    print '<td>' . $langs->trans("Description") . '</td>';
+    print '<td class="center">' . $langs->trans("Value") . '</td>';
+    print '</tr>';
+    
+    // Email Subject Configuration
+    print '<tr class="oddeven"><td>';
+    print $langs->trans('ConfigEmailSpreadSubject');
+    print "</td><td>";
+    print $langs->trans('ConfigEmailSpreadSubjectDescription');
+    print '</td>';
+    print '<td class="center">';
+    print '<input type="text" name="DOLILETTER_EMAIL_SPREAD_SUBJECT" value="' . dol_escape_htmltag($subject) . '" size="80" class="flat">';
+    print '</td>';
+    print '</tr>';
+    
+    // Email Content Configuration
+    print '<tr class="oddeven"><td>';
+    print $langs->trans('ConfigEmailSpreadContent');
+    print "</td><td>";
+    print $langs->trans('ConfigEmailSpreadContentDescription');
+    print '</td>';
+    print '<td class="center">';
+    $doleditor = new DolEditor('DOLILETTER_EMAIL_SPREAD_CONTENT', $content, '', 200, 'dolibarr_details', 'In', true, true, true, 20, 70);
+    $doleditor->Create();
+    print '</td>';
+    print '</tr>';
+    
+    print '</table>';
+    
+    print '<div class="tabsAction">';
+    print '<input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+    print '</div>';
+    print '</form>';
+}
+
 print '<hr>';
 
 

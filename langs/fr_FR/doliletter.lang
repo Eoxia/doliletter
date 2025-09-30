@@ -24,9 +24,12 @@ DoliLetterDescriptionLong = Création de courrier sur les différents objets de 
 #
 # Admin page
 #
-Settings = Réglages
-DoliLetterSetup = Configuration du module DoliLetter
-
+Settings                            = Réglages
+DoliLetterSetup                     = Configuration du module DoliLetter
+ConfigEmailSpreadSubject            = Sujet de l'email de diffusion
+ConfigEmailSpreadSubjectDescription = Configurez le sujet des emails envoyés pour les diffusions
+ConfigEmailSpreadContent            = Contenu de l'email de diffusion
+ConfigEmailSpreadContentDescription = Configurez le contenu des emails envoyés pour les diffusions
 
 #
 # About page
@@ -193,26 +196,28 @@ SentDocumentSignedSha = SHA du courrier envoyé : %s
 # Spread
 #
 
-SpreadList               = Liste des diffusions
-AccessPublicInterface    = Acceder a l'interface publique
-AddLine                  = Ajouter une ligne
-signinsheet.odt          = Feuille d'émargement
-ThereIsNoSignatoryError  = Il n'y a personne dans votre diffusion vous ne pouvez pas génerer le document
-Spread                   = Diffusion
-Recipients               = Destinataires
-SignedOn                 = Signé le
-UserSignatureList        = Liste des utilisateurs et signatures
-ValidateSignature        = Valider la signature
-EnterNotePublicHere      = Entrez votre note publique ici
-3LastSpreadList          = Liste des 3 dernières diffusions
-NuberOfSpreads           = Nombre de diffusions
-NuberOfPersonsSpreaded   = Nombre de personnes concernés
+SpreadList                     = Liste des diffusions
+AccessPublicInterface          = Acceder a l'interface publique
+AddLine                        = Ajouter une ligne
+signinsheet.odt                = Feuille d'émargement
+ThereIsNoSignatoryError        = Il n'y a personne dans votre diffusion vous ne pouvez pas génerer le document
+Spread                         = Diffusion
+Recipients                     = Destinataires
+SignedOn                       = Signé le
+UserSignatureList              = Liste des utilisateurs et signatures
+ValidateSignature              = Valider la signature
+EnterNotePublicHere            = Entrez votre note publique ici
+3LastSpreadList                = Liste des 3 dernières diffusions
+NuberOfSpreads                 = Nombre de diffusions
+NuberOfPersonsSpreaded         = Nombre de personnes concernés
 
-EmailSpreadLabel         = DOLILETTER_Spread
-EmailSpreadTopic         = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEMENT__ __REF__
-EmailSpreadContent       = Bonjour,<br />Veuillez trouver ci-joint le lien de signature de la difusion du document.<br />__SATURNE_SIGNATORY_URL__
+EmailSpreadLabel               = DOLILETTER_Spread
+EmailSpreadTopic               = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEMENT__ __REF__
+EmailSpreadContent             = Bonjour,<br />Veuillez trouver ci-joint le lien de signature de la difusion du document.<br />__SATURNE_SIGNATORY_URL__
 
-ManageUserSpread         = Gérer les utilisateur dans la diffusion
+ManageUserSpread               = Gérer les utilisateur dans la diffusion
+ShowSpreadSignature            = Voir les signatures dans la diffusion
+ShowSpreadSignatureDescription = Pouvoir regarder les signatures dans la page de diffusion
 
 ObjectType               = Type d'objet
 

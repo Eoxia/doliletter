@@ -135,6 +135,7 @@ class modDoliLetter extends DolibarrModules {
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLILETTER_SPREAD_SHOW_SIGNATURE', 'integer', 1, '', 0, 'current'],
 
 			// Globals CONST
             $i++ => ['DOLILETTER_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
@@ -258,6 +259,12 @@ class modDoliLetter extends DolibarrModules {
 		$this->rights[$r][5] = 'write';
 		$r++;
 
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][1] = $langs->trans('ShowSpreadSignature');
+		$this->rights[$r][4] = 'spreadsignature';
+		$this->rights[$r][5] = 'read';
+		$r++;
+
 		// Main menu entries to add
 		$this->menu = array();
 		$r          = 0;
@@ -364,7 +371,7 @@ class modDoliLetter extends DolibarrModules {
 	 *  @return     int             	1 if OK, 0 if KO
 	 */
 	public function init($options = '') {
-		global $conf, $langs;
+		global $conf, $langs, $user;
 
 		$this->_load_tables('/doliletter/sql/');
 
@@ -436,7 +443,7 @@ class modDoliLetter extends DolibarrModules {
             $saturneMail->topic         = $langs->transnoentities($emailTemplateData['topic']);
             $saturneMail->content       = $langs->transnoentities($emailTemplateData['content']);
             $saturneMail->joinfiles     = 1;
-            if ($saturneMail->fetch(getDolGlobalInt('DOLILETTER_' . dol_strtoupper($emailTemplate))) == 0) {
+            if ($saturneMail->fetch(getDolGlobalInt('DOLILETTER_' . dol_strtoupper($emailTemplate))) == -1) {
                 $emailTemplateID = $saturneMail->create($user);
                 dolibarr_set_const($this->db, 'DOLILETTER_' . dol_strtoupper($emailTemplate), $emailTemplateID, 'integer', 0, '', $conf->entity);
             }
