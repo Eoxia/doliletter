@@ -465,6 +465,21 @@ body {
         height: 40px;
     }
 }
+
+.login-message {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.login-message p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 16px;
+}
 </style>
 
 <div class="public-card__container" data-public-interface="true">
@@ -678,6 +693,11 @@ body {
             </div>
         </div>
     </div>
+
+    <?php if (!$isLogged) { ?>
+        <div class="login-message">
+            <p>Connectez-vous pour avoir d'autres informations</p>
+        </div>
     <?php } ?>
 </div>
 
