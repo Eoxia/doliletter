@@ -663,6 +663,7 @@ body {
         </div>
     </div>
 
+    <?php if (!empty($isLogged)) { ?>
     <!-- Public Note Section moved to bottom -->
     <div class="public-note-section">
         <div class="public-note-header">
@@ -677,6 +678,7 @@ body {
             </div>
         </div>
     </div>
+    <?php } ?>
 </div>
 
 <?php
