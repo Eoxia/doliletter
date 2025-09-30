@@ -141,6 +141,16 @@ print ajax_constantonoff('DOLILETTER_DELETE_PUBLIC_DOWNLOAD_LINKS_AFTER_SIGNATUR
 print '</td>';
 print '</tr>';
 
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowSpreadSignature');
+print "</td><td>";
+print $langs->trans('ShowSpreadSignatureDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLILETTER_SPREAD_SHOW_SIGNATURE');
+print '</td>';
+print '</tr>';
 
 print '</table>';
 
@@ -197,7 +207,6 @@ if ($result > 0) {
     print '</div>';
     print '</form>';
 }
-
 
 print '<hr>';
 

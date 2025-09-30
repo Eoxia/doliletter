@@ -80,7 +80,8 @@ if (!isset($_SESSION['dol_login'])) {
     $user->loadRights();
 }
 
-$permissiontoadd  = $user->hasRight('doliletter', 'spread', 'write');
+$permissiontoadd           = $user->hasRight('doliletter', 'spread', 'write');
+$permissiontoshowsignature = $user->hasRight('doliletter', 'spreadsignature', 'read');
 
 
 // Load translation files required by the page
