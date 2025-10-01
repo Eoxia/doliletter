@@ -26,10 +26,10 @@ DoliLetterDescriptionLong = Création de courrier sur les différents objets de 
 #
 Settings                            = Réglages
 DoliLetterSetup                     = Configuration du module DoliLetter
-ConfigEmailSpreadSubject            = Sujet de l'email de diffusion
-ConfigEmailSpreadSubjectDescription = Configurez le sujet des emails envoyés pour les diffusions
-ConfigEmailSpreadContent            = Contenu de l'email de diffusion
-ConfigEmailSpreadContentDescription = Configurez le contenu des emails envoyés pour les diffusions
+EmailConfig                         = Configuration des emails
+ConfigEmailSpread                   = Template d'email de diffusion
+ConfigEmailSpreadDescription        = Template d'email utilisé lors de la diffusion de document
+
 
 #
 # About page

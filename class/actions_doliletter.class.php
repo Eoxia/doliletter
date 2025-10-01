@@ -188,4 +188,26 @@ class ActionsDoliletter
 
         return 0; // or return 1 to replace standard code
     }
+
+    /**
+	 *  Overloading the doActions function : replacing the parent's function with the one below
+	 *
+	 * @param $parameters
+	 * @return int
+	 */
+	public function emailElementlist($parameters)
+    {
+        global $user, $langs;
+
+		$value = [];
+
+		if (isModEnabled('doliletter') && strpos($parameters['context'], 'emailtemplates') !== false) {
+			if ($user->hasRight('doliletter', 'spread', 'write')) {
+				$value['doliletter_spread'] = '<i class="fas fa-check-circle" style="color: #63ACC9;"></i>  ' . dol_escape_htmltag($langs->trans('Spread'));
+			}
+		}
+
+        $this->results = $value;
+        return 0;
+    }
 }
