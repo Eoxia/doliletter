@@ -41,6 +41,7 @@ global $db, $langs, $user;
 // Libraries
 require_once '../lib/doliletter.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
 // Translations
 $langs->loadLangs(array("admin", "doliletter@doliletter"));
@@ -57,24 +58,9 @@ if (!$user->admin) accessforbidden();
  */
 
 if ($action == 'save') {
-    require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
 
-    $emailSubject = GETPOST('DOLILETTER_EMAIL_SPREAD_SUBJECT', 'alphanohtml');
-    $emailContent = GETPOST('DOLILETTER_EMAIL_SPREAD_CONTENT', 'restricthtml');
-
-    $saturneMail = new SaturneMail($db);
-    $result = $saturneMail->fetch(getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'));
-
-    if ($result > 0) {
-        if (!empty($emailSubject)) {
-            $saturneMail->topic = $emailSubject;
-        }
-
-        if (!empty($emailContent)) {
-            $saturneMail->content = $emailContent;
-        }
-
-        $saturneMail->update($user);
+    if (!empty($_POST['email_template'])) {
+        dolibarr_set_const($db, 'DOLILETTER_EMAIL_TEMPLATE_SPREAD', $_POST['email_template'], 'chaine', 0, '', $conf->entity);
     }
 
     setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
@@ -154,59 +140,50 @@ print '</tr>';
 
 print '</table>';
 
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.form.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
 
+$form        = new Form($db);
 $saturneMail = new SaturneMail($db);
-$result      = $saturneMail->fetch(getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'));
+$result      = $saturneMail->fetchAll('', '', 0, 0, ['customsql' => 't.type_template = "doliletter_spread"']);
 
-if ($result > 0) {
-
-    $subject = $saturneMail->topic;
-    $content = $saturneMail->content;
-
-    print load_fiche_titre('<i class="fas fa-exclamation-circle"></i> ' . $langs->trans('EmailConfig'), '', '');
-    
-    print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-    print '<input type="hidden" name="action" value="save">';
-    print '<input type="hidden" name="token" value="'.newToken().'">';
-    
-    print '<table class="noborder centpercent">';
-    print '<tr class="liste_titre">';
-    print '<td>' . $langs->trans("Name") . '</td>';
-    print '<td>' . $langs->trans("Description") . '</td>';
-    print '<td class="center">' . $langs->trans("Value") . '</td>';
-    print '</tr>';
-    
-    // Email Subject Configuration
-    print '<tr class="oddeven"><td>';
-    print $langs->trans('ConfigEmailSpreadSubject');
-    print "</td><td>";
-    print $langs->trans('ConfigEmailSpreadSubjectDescription');
-    print '</td>';
-    print '<td class="center">';
-    print '<input type="text" name="DOLILETTER_EMAIL_SPREAD_SUBJECT" value="' . dol_escape_htmltag($subject) . '" size="80" class="flat">';
-    print '</td>';
-    print '</tr>';
-    
-    // Email Content Configuration
-    print '<tr class="oddeven"><td>';
-    print $langs->trans('ConfigEmailSpreadContent');
-    print "</td><td>";
-    print $langs->trans('ConfigEmailSpreadContentDescription');
-    print '</td>';
-    print '<td class="center">';
-    $doleditor = new DolEditor('DOLILETTER_EMAIL_SPREAD_CONTENT', $content, '', 200, 'dolibarr_details', 'In', true, true, true, 20, 70);
-    $doleditor->Create();
-    print '</td>';
-    print '</tr>';
-    
-    print '</table>';
-    
-    print '<div class="tabsAction">';
-    print '<input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
-    print '</div>';
-    print '</form>';
+$options = [];
+foreach ($result as $item) {
+    $options[$item->id] = $item->label;
 }
+
+
+print load_fiche_titre('<i class="fas fa-exclamation-circle"></i> ' . $langs->trans('EmailConfig'), '', '');
+
+print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+print '<input type="hidden" name="action" value="save">';
+print '<input type="hidden" name="token" value="'.newToken().'">';
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="center">' . $langs->trans("Value") . '</td>';
+print '</tr>';
+
+// Email Subject Configuration
+print '<tr class="oddeven"><td>';
+print $langs->trans('ConfigEmailSpread');
+print "</td><td>";
+print $langs->trans('ConfigEmailSpreadDescription');
+print '</td>';
+print '<td class="center">';
+print $form->selectarray('email_template', $options, getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'), 1);
+print '</td>';
+print '</tr>';
+
+print '</table>';
+
+print '<div class="tabsAction">';
+print '<input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+print '</div>';
+print '</form>';
+
 
 print '<hr>';
 
