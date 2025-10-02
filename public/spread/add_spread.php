@@ -99,7 +99,7 @@ $subaction          = GETPOST('subaction', 'alpha');
 
 // Initialize technical objects
 $className       = ucfirst($objectType);
-$signatory       = new SaturneSignature($db, $moduleNameLowerCase, $objectType);
+$signatory       = new SaturneSignature($db);
 $saturneMail     = new SaturneMail($db, $moduleNameLowerCase, $objectType);
 $usertmp         = new User($db);
 $attendanceSheet = new DoliletterAttendanceSheet($db, $moduleNameLowerCase);
