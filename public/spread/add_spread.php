@@ -97,6 +97,8 @@ $backtopage         = GETPOST('backtopage', 'alpha');
 $attendantTableMode = (GETPOSTISSET('attendant_table_mode') ? GETPOST('attendant_table_mode', 'alpha') : 'advanced');
 $subaction          = GETPOST('subaction', 'alpha');
 
+$sign               = GETPOST('sign', 'alpha');
+
 // Initialize technical objects
 $className       = ucfirst($objectType);
 $signatory       = new SaturneSignature($db);
@@ -141,6 +143,7 @@ if ($action == 'add_spread_user') {
     $tmpSignatory->fk_object      = $attendanceSheet->id;
     $tmpSignatory->module_name    = $moduleNameLowerCase;
     $tmpSignatory->status         = $tmpSignatory::STATUS_PENDING_SIGNATURE;
+    $tmpSignatory->signature_url  = generate_random_id();
 
     $result = $tmpSignatory->create($user);
     if ($result < 0) {
@@ -227,10 +230,10 @@ if ($action == 'send_email') {
         $from = $conf->global->MAIN_MAIL_EMAIL_FROM;
 
         // Make substitution in email content
-        $substitutionarray                       = getCommonSubstitutionArray($langs, 0, null, $objectsMetadata[$objectType]['object']);
-        $substitutionarray['__OBJECT_ELEMENT__'] = dol_strtolower($langs->transnoentities(ucfirst($objectsMetadata[$objectType]['object']->element)));
-        $substitutionarray['__REF__']            = $objectsMetadata[$objectType]['object']->ref;
-        $signatoryLink = dol_buildpath('/custom/saturne/public/signature/add_signature.php', 3) . '?track_id=' . $signatory->signature_url . '&entity=1&module_name=doliletter&object_type=doliletterattendancesheet';
+        $substitutionarray                              = getCommonSubstitutionArray($langs, 0, null, $objectsMetadata[$objectType]['object']);
+        $substitutionarray['__OBJECT_ELEMENT__']        = dol_strtolower($langs->transnoentities(ucfirst($objectsMetadata[$objectType]['object']->element)));
+        $substitutionarray['__REF__']                   = $objectsMetadata[$objectType]['object']->ref;
+        $signatoryLink                                  = dol_buildpath('/custom/doliletter/public/spread/add_spread.php', 3) . '?sign=' . $signatory->signature_url . '&id=' . $objectsMetadata[$objectType]['object']->id . '&object_type=' . $objectType;
         $substitutionarray['__SATURNE_SIGNATORY_URL__'] = '<a href=' . $signatoryLink . ' target="_blank">' . $langs->transnoentities('SignatureEmailURL') . '</a>';
         complete_substitutions_array($substitutionarray, $langs, $objectsMetadata[$objectType]['object'], $parameters);
 
@@ -298,6 +301,14 @@ $linkedLinks = array_filter($linkedLinks, function ($linkedItem) {
 $objectsMetadata[$objectType]['object']->fetch($id);
 $objectRef   = $objectsMetadata[$objectType]['object']->ref;
 $objectLabel = $objectsMetadata[$objectType]['object']->{$objectsMetadata[$objectType]['label_field']} ?? '';
+
+if (!empty($sign)) {
+    $tmpSignatory = new SaturneSignature($db);
+    $directSignatoryId = $tmpSignatory->fetch(0, '', ' AND t.signature_url = "' . $sign . '"');
+    if (!empty($tmpSignatory->signature)) {
+        $directSignatoryId = 0;
+    }
+}
 
 /*
  * View
