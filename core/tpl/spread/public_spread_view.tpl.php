@@ -367,6 +367,11 @@ body {
     background: transparent;
 }
 
+.modal-spread-footer .wpeo-button {
+    font-size: 14px;
+    padding: 8px 16px;
+}
+
 @media (max-width: 768px) {
     .public-card__container {
         margin: 10px;
@@ -576,6 +581,7 @@ body {
                 </div>
             <?php } ?>
 
+            <?php if (!empty($permissiontoadd)) { ?>
             <div class="user-list-container">
                 <div class="user-signatures-list" id="userSignaturesList">
                     <!-- Utilisateurs pré-signés par défaut -->
@@ -664,14 +670,13 @@ body {
 
                 </div>
 
-                <?php if (!empty($permissiontoadd)) { ?>
                 <div class="add-user-section tabsAction">
                     <button type="button" class="wpeo-button button-blue add-user-btn">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
-                <?php } ?>
             </div>
+            <?php } ?>
         </div>
     </div>
 
@@ -738,7 +743,7 @@ function getFileIcon($extension) {
             </div>
         </div>
         <div class="modal-spread-footer">
-            <button type="button" class="wpeo-button button-disable close-modal-spread">
+            <button type="button" class="wpeo-button button-grey cancel-signature-btn">
                 <?php echo $langs->trans('Cancel'); ?>
             </button>
             <button type="button" class="wpeo-button button-disable validate-sign-btn" disabled>
@@ -751,8 +756,10 @@ function getFileIcon($extension) {
 <script>
 let currentUserIndex = null;
 
-function openSignatureModal() {
-    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+function openSignatureModal(userIndex = null) {
+    if (userIndex !== null) {
+        const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    }
     currentUserIndex = userIndex;
     const modal = document.getElementById('signatureModal');
     modal.style.display = 'block';
@@ -763,10 +770,10 @@ function openSignatureModal() {
         const containerWidth = modalBody.clientWidth - 40; // 40px pour le padding
         const canvasWidth = Math.min(containerWidth, 600);
         const canvasHeight = 200;
-        
+
         window.saturne.signature.canvas.width = canvasWidth;
         window.saturne.signature.canvas.height = canvasHeight;
-        
+
         // Centrer le canvas
         const canvas = document.getElementById('signatureCanvas');
         canvas.style.width = canvasWidth + 'px';
@@ -788,6 +795,9 @@ function closeSignatureModal() {
     const modal = document.getElementById('signatureModal');
     modal.style.display = 'none';
     currentUserIndex = null;
+    
+    // Clear the canvas when closing
+    clearSignature();
 }
 
 function isCanvasEmpty() {
@@ -849,6 +859,9 @@ function validateSignature() {
                 $('.user-signature-item[data-user-index="' + currentUserIndex + '"]').replaceWith($(response).find('.user-signature-item[data-user-index="' + currentUserIndex + '"]'));
 
                 closeSignatureModal();
+                
+                // Add success notification
+                $.jnotify('<?php echo $langs->trans("SignatureValidatedSuccessfully"); ?>', {type: 'success'});
             },
         });
     }
@@ -953,7 +966,7 @@ $(document).ready(function () {
         })
     })
 
-    $(document).on('click', '.close-modal-spread', closeSignatureModal);
+    $(document).on('click', '.close-modal-spread, .cancel-signature-btn', closeSignatureModal);
     $(document).on('click', '.add-user-btn', addUser);
     $(document).on('click', '.remove-user-btn', removeUser);
 
@@ -986,6 +999,10 @@ $(document).ready(function () {
                 console.error('Error loading object:', err);
             });
     });
+
+    <?php if (!empty($directSignatoryId)) { ?>
+    openSignatureModal(<?php echo (int) $directSignatoryId; ?>);
+    <?php } ?>
 });
 
 </script>
