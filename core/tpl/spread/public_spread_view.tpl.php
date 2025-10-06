@@ -496,6 +496,7 @@ body {
 
             <?php if (!empty($linkedFilesFavorite)) {
                 foreach ($linkedFilesFavorite as $key => $file) {
+                    if (dol_mimetype($file->filename) != 'video/mp4') {
                     ?>
                     <object
                         name="objectpreview"
@@ -505,6 +506,11 @@ body {
                         param="noparam"
                         data-src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>">
                     </object>
+                    <?php } else { ?>
+                        <video src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>" controls width="100%" height="600px">
+                            Your browser does not support the video tag.
+                        </video>
+                    <?php } ?>
             <?php }} ?>
 
             <?php if (!empty($linkedLinksFavorite)) { ?>
