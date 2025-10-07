@@ -872,12 +872,9 @@ function getFileIcon($extension) {
 let currentUserIndex = null;
 
 function openSignatureModal(userIndex = null) {
-    if (userIndex === null) {
-        const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    if (typeof userIndex == 'object') {
+        userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
     }
-
-    console.log($(this).parents('.user-signature-item').eq(0).data('user-index'));
-    return;
 
     currentUserIndex = userIndex;
     const modal = document.getElementById('signatureModal');
