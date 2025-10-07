@@ -215,8 +215,51 @@ if ($action == 'save_public_note') {
     $action = '';
 }
 
+if ($action == 'send_quick_sign_email') {
+    if (empty($conf->global->DOLILETTER_SPREAD_QUICK_SIGN)) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
+        exit;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFieldRequired', $langs->transnoentities('Email')) . '">';
+        exit;
+    }
+
+    $tmpUser = new User($db);
+    $tmpUser->fetch(0, '', '', 0, -1, $data['email']);
+    if ($tmpUser->id <= 0) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorUserNotFound') . '">';
+        exit;
+    }
+
+    $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
+    $tmpSignatory->element_id     = $tmpUser->id;
+    $tmpSignatory->firstname      = $tmpUser->firstname;
+    $tmpSignatory->lastname       = $tmpUser->lastname;
+    $tmpSignatory->element_type   = 'user';
+    $tmpSignatory->role           = '';
+    $tmpSignatory->object_type    = $attendanceSheet->element;
+    $tmpSignatory->fk_object      = $attendanceSheet->id;
+    $tmpSignatory->module_name    = $moduleNameLowerCase;
+    $tmpSignatory->status         = $tmpSignatory::STATUS_PENDING_SIGNATURE;
+    $tmpSignatory->signature_url  = generate_random_id();
+
+    $result = $tmpSignatory->create($user);
+    if ($result < 0) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('Error') . '">';
+        exit;
+    }
+    $signatory_id = $result;
+
+    $action = 'send_email';
+}
+
 if ($action == 'send_email') {
-    $signatory_id = GETPOSTINT('signatory_id');
+    if (empty($signatory_id)) {
+        $signatory_id = GETPOSTINT('signatory_id');
+    }
 
     $signatory->fetch($signatory_id);
     if ($signatory->id > 0) {

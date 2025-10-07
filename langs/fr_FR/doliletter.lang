@@ -30,6 +30,10 @@ EmailConfig                         = Configuration des emails
 ConfigEmailSpread                   = Template d'email de diffusion
 ConfigEmailSpreadDescription        = Template d'email utilisé lors de la diffusion de document
 
+SpreadConfig                        = Configuration des diffusions
+
+ConfigSpreadQuickSign               = Signature rapide
+ConfigSpreadQuickSignDescription    = Les utilisateurs peuvent signer rapidement les diffusions en rentrant leurs emails
 
 #
 # About page
@@ -224,4 +228,12 @@ ObjectType               = Type d'objet
 Doliletter_attendance_sheetList = Liste des diffusions
 Doliletter_attendance_sheet     = Diffusion
 
+
 SignatureValidatedSuccessfully  = Signature validée
+
+QuickSignature                  = Signature rapide
+SpreadQuickSignatureInfo        = Rentrez votre mail pour recevoir un lien de signature
+
+PleaseEnterValidEmail           = Entrez un email valide
+EmailSentSuccessfully           = Email envoyé avec succès
+ErrorUserNotFound               = Utilisateur non trouvé, contactez votre administrateur.
