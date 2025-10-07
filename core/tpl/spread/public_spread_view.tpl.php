@@ -485,6 +485,91 @@ body {
     color: #6c757d;
     font-size: 16px;
 }
+
+.quick-sign {
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.quick-sign h3 {
+    margin: 0 0 12px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quick-sign p {
+    margin: 0 0 16px 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.quick-sign-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quick-sign-email-group {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.quick-sign-email-field {
+    flex: 1;
+}
+
+.quick-sign-email-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-sign-email-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: white;
+}
+
+.quick-sign-email-field input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.quick-sign-send-btn {
+    flex-shrink: 0;
+    min-width: 100px;
+}
+
+@media (max-width: 768px) {
+    .quick-sign-email-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .quick-sign-send-btn {
+        min-width: auto;
+    }
+}
 </style>
 
 <div class="public-card__container" data-public-interface="true">
@@ -704,6 +789,30 @@ body {
     <?php } ?>
 
     <?php if (!$isLogged) { ?>
+
+        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
+
+        <div class="quick-sign">
+            <h3>
+                <i class="fas fa-paper-plane"></i>
+                <?php echo $langs->trans('QuickSignature'); ?>
+            </h3>
+            <p><?php echo $langs->trans('SpreadQuickSignatureInfo') ?></p>
+            <div class="quick-sign-form">
+                <div class="quick-sign-email-group">
+                    <div class="quick-sign-email-field">
+                        <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
+                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
+                    </div>
+                    <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <?php echo $langs->trans('Send'); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+
         <div class="login-message">
             <p>Connectez-vous pour avoir d'autres informations</p>
         </div>
@@ -763,9 +872,10 @@ function getFileIcon($extension) {
 let currentUserIndex = null;
 
 function openSignatureModal(userIndex = null) {
-    if (userIndex !== null) {
-        const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    if (typeof userIndex == 'object') {
+        userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
     }
+
     currentUserIndex = userIndex;
     const modal = document.getElementById('signatureModal');
     modal.style.display = 'block';
@@ -801,7 +911,7 @@ function closeSignatureModal() {
     const modal = document.getElementById('signatureModal');
     modal.style.display = 'none';
     currentUserIndex = null;
-    
+
     // Clear the canvas when closing
     clearSignature();
 }
@@ -956,6 +1066,46 @@ function savePublicNote() {
     });
 }
 
+function sendQuickSignEmail() {
+    const email = $('#quick-sign-email').val();
+    const token = window.saturne.toolbox.getToken();
+    const button = $(this);
+
+    if (!email || !email.includes('@')) {
+        $.jnotify('<?php echo $langs->trans('PleaseEnterValidEmail'); ?>', {type: 'error'});
+        return;
+    }
+
+    window.saturne.loader.display(button);
+
+    $.ajax({
+        method: 'POST',
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=send_quick_sign_email&token=' + token,
+        data: JSON.stringify({
+            email: email
+        }),
+        processData: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (resp) {
+            const message = $(resp).val();
+            const isError = $(resp).attr('id') === 'error';
+
+            if (isError) {
+                $.jnotify(message, {type: 'error'});
+            } else {
+                $.jnotify('<?php echo $langs->trans('EmailSentSuccessfully'); ?>', {type: 'success'});
+                $('#quick-sign-email').val('');
+            }
+
+            window.saturne.loader.remove(button);
+        },
+        error: function() {
+            $.jnotify('<?php echo $langs->trans('ErrorSendingEmail'); ?>', {type: 'error'});
+            window.saturne.loader.remove(button);
+        }
+    });
+}
+
 $(document).ready(function () {
     $(document).on('change', '.user-select-small', function () {
         let signatoryId = $(this).parents('.user-signature-item').eq(0).data('user-index');
@@ -990,6 +1140,8 @@ $(document).ready(function () {
     })
 
     $(document).on('click', '.send-email-btn:not(.button-disable)', sendMail);
+
+    $(document).on('click', '.quick-sign-send-btn', sendQuickSignEmail);
 
     $('object[data-src]').each(function() {
         let $this = $(this);

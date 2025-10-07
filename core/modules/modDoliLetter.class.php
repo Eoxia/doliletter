@@ -137,6 +137,8 @@ class modDoliLetter extends DolibarrModules {
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLILETTER_SPREAD_SHOW_SIGNATURE', 'integer', 1, '', 0, 'current'],
 
+			$i++ => ['DOLILETTER_SPREAD_QUICK_SIGN', 'integer', 0, '', 0, 'current'],
+
 			// Globals CONST
             $i++ => ['DOLILETTER_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
 		);
