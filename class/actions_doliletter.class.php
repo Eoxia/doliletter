@@ -210,4 +210,31 @@ class ActionsDoliletter
         $this->results = $value;
         return 0;
     }
+
+    /**
+	 *  Overloading the doActions function : replacing the parent's function with the one below
+	 *
+	 * @param $parameters
+	 * @return int
+	 */
+	public function redirectAfterConnection($parameters)
+	{
+		global $conf;
+
+		$value = '';
+
+		if (strpos($parameters['context'], 'mainloginpage') !== false) {	    // do something only for the context 'somecontext1' or 'somecontext2'
+			if (!empty($_COOKIE['doliletter_login_backtopage'])) {
+                $value = dol_buildpath('/custom/doliletter/public/spread/add_spread_login.php', 1);
+            }
+		}
+
+		if (true) {
+			$this->resprints = $value;
+			return 0; // or return 1 to replace standard code
+		} else {
+			$this->errors[] = 'Error message';
+			return -1;
+		}
+    }
 }

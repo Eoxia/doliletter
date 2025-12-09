@@ -814,7 +814,7 @@ body {
         <?php } ?>
 
         <div class="login-message">
-            <p>Connectez-vous pour avoir d'autres informations</p>
+            <p><?= $langs->transnoentities('ConnectForMoreInfo', '?' . http_build_query($_GET + ['action' => 'login'])); ?></p>
         </div>
     <?php } ?>
 </div>
