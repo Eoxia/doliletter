@@ -141,6 +141,9 @@ class modDoliLetter extends DolibarrModules {
 
 			// Globals CONST
             $i++ => ['DOLILETTER_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
+
+			$i++ => ['DOLILETTER_VERSION','chaine', $this->version, '', 0, 'current'],
+			$i++ => ['DOLILETTER_DB_VERSION', 'chaine', $this->version, '', 0, 'current'],
 		);
 
 		if (!isset($conf->doliletter) || !isset($conf->doliletter->enabled)) {
@@ -413,6 +416,9 @@ class modDoliLetter extends DolibarrModules {
 		delDocumentModel('signinsheet_odt', 'signinsheet');
 
 		addDocumentModel('signinsheet_odt', 'signinsheet', 'ODT templates', 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH');
+
+		dolibarr_set_const($this->db, 'DOLILETTER_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($this->db, 'DOLILETTER_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH', 'DOL_DOCUMENT_ROOT/custom/doliletter/documents/doctemplates/signinsheet/', 'chaine', 0, '', $conf->entity);
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON', 'mod_signinsheet_standard', 'chaine', 0, '', $conf->entity);
