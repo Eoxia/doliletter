@@ -309,6 +309,19 @@ if ($action == 'send_email') {
     }
 }
 
+if ($action == 'login') {
+    $url  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+    $url .= "://".$_SERVER['HTTP_HOST'] . $_SERVER["PHP_SELF"] . '?' . http_build_query(array_filter($_GET, fn($item) => $item !== 'login'));
+    setcookie(
+        "doliletter_login_backtopage",
+        $url,
+        time() + (60 * 5),
+        "/",
+        "",
+    );
+    header("Location: " . dol_buildpath('', 3));
+}
+
 $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
 $linkedFiles = [];
 if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {

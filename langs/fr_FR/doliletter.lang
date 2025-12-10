@@ -237,3 +237,5 @@ SpreadQuickSignatureInfo        = Rentrez votre mail pour recevoir un lien de si
 PleaseEnterValidEmail           = Entrez un email valide
 EmailSentSuccessfully           = Email envoyé avec succès
 ErrorUserNotFound               = Utilisateur non trouvé, contactez votre administrateur.
+
+ConnectForMoreInfo              = <a href="%s">Connectez-vous</a> pour avoir d'autres informations
