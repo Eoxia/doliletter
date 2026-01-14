@@ -362,7 +362,8 @@ class DoliletterAttendanceSheet extends SaturneObject
         foreach ($listOfSpreads as $spread) {
 
             $objectsMetadata[$spread->object_type]['object']->fetch($spread->id);
-            $objectLabel = $objectsMetadata[$spread->object_type]['object']->{$objectsMetadata[$spread->object_type]['label_field']} ?? '';
+            $namefield = trim(end(explode(',', $objectsMetadata[$spread->object_type]['name_field'])));
+            $objectLabel = $objectsMetadata[$spread->object_type]['object']->$namefield;
 
             $arrayLastSpreadList[] = [
                 'Ref'             => ['value' => $spread->getNomUrl(1, '', 1, '', -1, 2)],
