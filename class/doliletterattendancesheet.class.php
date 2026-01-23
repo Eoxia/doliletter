@@ -377,5 +377,4 @@ class DoliletterAttendanceSheet extends SaturneObject
 
         return $array;
     }
-
 }
