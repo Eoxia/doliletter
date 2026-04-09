@@ -43,7 +43,7 @@ require_once __DIR__ . '/../modules_acknowledgementreceipt.php';
 class pdf_deimos extends ModelePDFAcknowledgementReceipt
 {
 	/**
-	 * @var DoliDb Database handler
+	 * @var DoliDB Database handler
 	 */
 	public $db;
 

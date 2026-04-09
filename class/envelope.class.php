@@ -147,7 +147,7 @@ class Envelope extends CommonObject
 	/**
 	 * Constructor
 	 *
-	 * @param DoliDb $db Database handler
+	 * @param DoliDB $db Database handler
 	 */
 	public function __construct(DoliDB $db) {
 		global $conf, $langs;
@@ -569,7 +569,7 @@ class EnvelopeSignature extends DoliletterSignature
 	/**
 	 * Constructor
 	 *
-	 * @param DoliDb $db Database handler
+	 * @param DoliDB $db Database handler
 	 */
 	public function __construct(DoliDB $db)
 	{

@@ -42,7 +42,7 @@ require_once __DIR__ . '/../modules_envelope.php';
 class pdf_phobos extends ModelePDFEnvelope
 {
 	/**
-	 * @var DoliDb Database handler
+	 * @var DoliDB Database handler
 	 */
 	public $db;
 
