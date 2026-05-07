@@ -26,7 +26,7 @@
  *
  * @return array
  */
-function doliletterAdminPrepareHead()
+function doliletter_admin_prepare_head()
 {
 	global $langs, $conf;
 
@@ -51,6 +51,11 @@ function doliletterAdminPrepareHead()
 	$head[$h][1] = $langs->trans("About");
 	$head[$h][2] = 'about';
 	$h++;
+
+	$head[$h][0] = dol_buildpath('saturne/admin/documents.php?module_name=Doliletter', 1);
+    $head[$h][1] = $conf->browser->layout == 'classic' ? '<i class="fas fa-file-alt pictofixedwidth"></i>' . $langs->trans('YourDocuments') : '<i class="fas fa-file-alt"></i>';
+    $head[$h][2] = 'documents';
+    $h++;
 
 	// Show more tabs from modules
 	// Entries must be declared in modules descriptor with line

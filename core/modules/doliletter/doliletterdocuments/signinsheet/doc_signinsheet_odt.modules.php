@@ -96,8 +96,9 @@ class doc_signinsheet_odt extends SaturneDocumentModel
         complete_substitutions_array($tmpArray, $outputLangs, $objectDocument);
         $objectDocument->element = $previousObjectDocumentElement;
 
-		$tmpArray['Id'] 		  = $objectsMetadata[$object->object_type]['object']->id;
 		$tmpArray['Label'] 		  = $objectsMetadata[$object->object_type]['object']->ref;
+
+		$tmpArray['note_public'] = $object->note_public;
 
 		$moreParam['tmparray']         = $tmpArray;
 		$moreParam['hideTemplateName'] = 1;
@@ -130,11 +131,12 @@ class doc_signinsheet_odt extends SaturneDocumentModel
 
         if ($foundTagForLines) {
 			$tmpArray = [
-				'sessiontrainer_number'     => '',
-				'sessiontrainer_lastname'   => '',
-				'sessiontrainer_firstname'  => '',
-				'sessiontrainer_attendance' => '',
-				'sessiontrainer_signature'  => '',
+				'sessiontrainer_number'         => '',
+				'sessiontrainer_lastname'       => '',
+				'sessiontrainer_firstname'      => '',
+				'sessiontrainer_attendance'     => '',
+				'sessiontrainer_signature'      => '',
+				'sessiontrainer_signature_date' => '',
 			];
 
             if (empty($signatories)) {
@@ -164,6 +166,7 @@ class doc_signinsheet_odt extends SaturneDocumentModel
 				$tmpArray['sessiontrainer_lastname']   = $signatory->lastname;
 				$tmpArray['sessiontrainer_firstname']  = $signatory->firstname;
 				$tmpArray['sessiontrainer_attendance'] = $signatory->attendance == 0 ? $langs->trans('Present') : $langs->trans('Absent');
+				$tmpArray['sessiontrainer_signature_date'] = !empty($signatory->signature_date) ? dol_print_date($signatory->signature_date, 'dayhour') : $langs->trans('NoSignature');
 
                 static::setTmpArrayVars($tmpArray, $listLines, $outputLangs);
             }

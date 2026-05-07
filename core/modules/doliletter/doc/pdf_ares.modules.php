@@ -42,7 +42,7 @@ require_once __DIR__ . '/../modules_sendingproof.php';
 class pdf_ares extends ModelePDFSendingProof
 {
 	/**
-	 * @var DoliDb Database handler
+	 * @var DoliDB Database handler
 	 */
 	public $db;
 

@@ -42,7 +42,7 @@ require_once __DIR__ . '/../modules_trackingnumber.php';
 class pdf_nerio extends ModelePDFTrackingNumber
 {
 	/**
-	 * @var DoliDb Database handler
+	 * @var DoliDB Database handler
 	 */
 	public $db;
 

@@ -68,7 +68,7 @@ class DoliletterAttendanceSheet extends SaturneObject
 	/**
 	 * @var string Name of icon for certificate. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'certificate@saturne' if picto is file 'img/object_certificate.png'.
 	 */
-	public string $picto = 'fontawesome_fa-list-ul_fas_#d35968';
+	public string $picto = 'fontawesome_fa-check-circle_fas_#63ACC9';
 
     public const STATUS_DELETED   = -1;
     public const STATUS_DRAFT     = 0;
@@ -126,9 +126,9 @@ class DoliletterAttendanceSheet extends SaturneObject
         'date_creation'     => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0],
         'tms'               => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0],
         'status'            => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 240, 'notnull' => 1, 'visible' => 2, 'default' => 0, 'index' => 1, 'validate' => 1, 'arrayofkeyval' => [0 => 'StatusDraft', 1 => 'ValidatePendingSignature', 2 => 'Expired', 3 => 'Archived']],
-        'note_public'       => ['type' => 'text',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 100, 'notnull' => 0, 'visible' => 0, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusx', 'cssview' => 'wordbreak'],
+        'note_public'       => ['type' => 'text',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 100, 'notnull' => 0, 'visible' => 2, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusx', 'cssview' => 'wordbreak'],
         'note_private'      => ['type' => 'text',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusx', 'cssview' => 'wordbreak'],
-        'object_type'       => ['type' => 'varchar(64)',  'label' => 'ObjectType',       'enabled' => 1, 'position' => 200, 'notnull' => 1, 'visible' => 0],
+        'object_type'       => ['type' => 'varchar(64)',  'label' => 'ObjectType',       'enabled' => 1, 'position' => 23, 'notnull' => 1, 'visible' => 1],
         'fk_object'         => ['type' => 'integer',      'label' => 'ObjectID',         'enabled' => 1, 'position' => 210, 'notnull' => 0, 'visible' => 0],
         'fk_user_creat'     => ['type' => 'integer:User:user/class/user.class.php',            'label' => 'UserAuthor', 'picto' => 'user',    'enabled' => 1,                         'position' => 220, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
     ];
@@ -196,12 +196,186 @@ class DoliletterAttendanceSheet extends SaturneObject
     /**
      * Constructor.
      *
-     * @param DoliDb $db                  Database handler.
+     * @param DoliDB $db                  Database handler.
      * @param string $moduleNameLowerCase Module name.
      * @param string $objectType          Object element type.
      */
-    public function __construct(DoliDB $db, string $moduleNameLowerCase = 'saturne', string $objectType = 'saturne_attendance_sheet')
+    public function __construct(DoliDB $db, string $moduleNameLowerCase = 'doliletter', string $objectType = 'doliletter_attendance_sheet')
     {
         parent::__construct($db, $moduleNameLowerCase, $objectType);
     }
+
+    public function getNomUrl(int $withpicto = 0, string $option = '', int $notooltip = 0, string $morecss = '', int $save_lastsearch_value = -1, int $addLabel = 0): string
+    {
+        global $action, $conf, $hookmanager, $langs;
+
+		if (!empty($conf->dol_no_mouse_hover)) {
+			$notooltip = 1; // Force disable tooltips
+		}
+
+		$result = '';
+
+		$label = img_picto('', $this->picto) . ' <u>' . $langs->trans(ucfirst($this->element)) . '</u>';
+		if (isset($this->status)) {
+			$label .= ' ' . $this->getLibStatut(5);
+		}
+		$label .= '<br>';
+		$label .= '<b>' . $langs->trans('Ref') . ' : </b> ' . $this->ref;
+        if (property_exists($this, 'label')) {
+            $label .= '<br><b>' . $langs->transnoentities('Label') . ' : </b> ' . $this->label;
+        }
+
+		$url = dol_buildpath('/doliletter/view/spread.php', 1) . '?fromid=' . $this->fk_object . '&fromtype=' . $this->object_type;
+
+		if ($option != 'nolink') {
+			// Add param to save lastsearch_values or not
+			$add_save_lastsearch_values = ($save_lastsearch_value == 1 ? 1 : 0);
+			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER['PHP_SELF'])) {
+				$add_save_lastsearch_values = 1;
+			}
+			if ($add_save_lastsearch_values) {
+				$url .= '&save_lastsearch_values=1';
+			}
+		}
+
+		$linkclose = '';
+		if (empty($notooltip)) {
+			if (!empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
+				$label = $langs->trans('Show' . ucfirst($this->element));
+				$linkclose .= ' alt="' . dol_escape_htmltag($label, 1) . '"';
+			}
+			$linkclose .= ' title="' . dol_escape_htmltag($label, 1) . '"';
+			$linkclose .= ' class="classfortooltip' . ($morecss ? ' ' . $morecss : '') . '"';
+		} else {
+			$linkclose = ($morecss ? ' class="' . $morecss . '"' : '');
+		}
+
+		if ($option == 'nolink') {
+			$linkstart = '<span';
+		} else {
+			$linkstart = '<a href="' . $url . '"';
+		}
+        if ($option == 'blank') {
+            $linkstart .= 'target=_blank';
+        }
+		$linkstart .= $linkclose . '>';
+		if ($option == 'nolink' || empty($url)) {
+			$linkend = '</span>';
+		} else {
+			$linkend = '</a>';
+		}
+
+        $result .= $linkstart;
+
+        if ($withpicto > 0) {
+            $result .= img_picto('', $this->picto) . ' ';
+        }
+
+        if ($withpicto != 2) {
+			$result .= $this->ref;
+		}
+
+		$result .= $linkend;
+
+        if ($withpicto != 2) {
+            if ($withpicto == 3) {
+                $addLabel = 1;
+            }
+            $result .= (($addLabel && property_exists($this, 'label')) ? '<span class="opacitymedium"> - <span contenteditable="true" data-field="label">' . dol_trunc($this->label, ($addLabel > 1 ? $addLabel : 0)) . '</span></span>' : '');
+        }
+
+		$hookmanager->initHooks([$this->element . 'dao']);
+		$parameters = ['id' => $this->id, 'getnomurl' => $result];
+		$reshook = $hookmanager->executeHooks('getNomUrl', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks.
+		if ($reshook > 0) {
+			$result = $hookmanager->resPrint;
+		} else {
+			$result .= $hookmanager->resPrint;
+		}
+
+		return $result;
+    }
+
+    public function load_dashboard(): array
+    {
+        global $user, $langs;
+
+        require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+
+        $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
+        $dashboardConfig = property_exists($user->conf, $confName) ? json_decode($user->conf->$confName) : null;
+        $array           = ['graphs' => [], 'lists' => [], 'disabledGraphs' => []];
+
+        $listOfSpreads = $this->fetchAll('DESC', 'date_creation');
+        $signatory     = new SaturneSignature($this->db);
+        $signatories   = $signatory->fetchAll('', '', 0, 0, ['customsql' => 't.object_type = "' . $this->element . '" AND t.element_id <> 0']);
+
+        if (empty($dashboardConfig->graphs->LastSpreadList->hide)) {
+            $array['lists'][] = $this->getLastSpreadList($listOfSpreads, $signatories);
+        } else {
+            $array['disabledGraphs']['LastSpreadList'] = $langs->transnoentities('3LastSpreadList');
+        }
+
+        $array['widgets'] = [
+            'accident' => [
+                'title'      => $langs->transnoentities('Statistics'),
+                'picto'      => 'fas fa-chart-pie',
+                'pictoColor' => '#F39B1F',
+                'label'      => [$langs->trans('NuberOfSpreads'), $langs->trans('NuberOfPersonsSpreaded')],
+                'content'    => [count($listOfSpreads), count($signatories)],
+                'widgetName' => $langs->transnoentities('Statistics')
+            ]
+        ];
+
+        return $array;
+    }
+
+    public function getLastSpreadList($listOfSpreads, $signatories): array
+    {
+        global $langs;
+
+        require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/saturne.lib.php';
+
+        $objectsMetadata    = saturne_get_objects_metadata();
+
+        // Graph Title parameters
+        $array['title'] = $langs->transnoentities('3LastSpreadList');
+        $array['name']  = '3LastSpreadList';
+        $array['picto'] = $this->picto;
+
+        // Graph parameters
+        $array['type']   = 'list';
+        $array['labels'] = ['Ref', 'Label', 'Object', 'NumberOfPersons'];
+
+        $array['noFullSize'] = 1;
+
+        $arrayLastSpreadList = [];
+
+        $numberOfPersons = [];
+        foreach ($signatories as $signatory) {
+            if (empty($numberOfPersons[$signatory->fk_object])) {
+                $numberOfPersons[$signatory->fk_object] = 1;
+            } else {
+                $numberOfPersons[$signatory->fk_object]++;
+            }
+        }
+        foreach ($listOfSpreads as $spread) {
+
+            $objectsMetadata[$spread->object_type]['object']->fetch($spread->id);
+            $namefield = trim(end(explode(',', $objectsMetadata[$spread->object_type]['name_field'])));
+            $objectLabel = $objectsMetadata[$spread->object_type]['object']->$namefield;
+
+            $arrayLastSpreadList[] = [
+                'Ref'             => ['value' => $spread->getNomUrl(1, '', 1, '', -1, 2)],
+                'Libelle'         => ['value' => $objectLabel],
+                'Object'          => ['value' => $langs->trans($objectsMetadata[$spread->object_type]['langs'])],
+                'NumberOfPersons' => ['value' => (empty($numberOfPersons[$spread->id]) ? 0 : $numberOfPersons[$spread->id])],
+           ];
+        }
+
+        $array['data'] = $arrayLastSpreadList;
+
+        return $array;
+    }
+
 }

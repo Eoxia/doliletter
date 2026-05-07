@@ -64,18 +64,25 @@ if (isModEnabled('societe')) {
     require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 }
 
+require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
+
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
 // Global variables definitions
-global $conf, $db, $hookmanager, $langs;
+global $conf, $db, $hookmanager, $langs, $user, $modulepart;
 
 if (!isset($_SESSION['dol_login'])) {
     $user->loadDefaultValues();
 } else {
     $user->fetch('', $_SESSION['dol_login'], '', 1);
-    $user->getrights();
+    $user->loadRights();
 }
+
+$permissiontoadd           = $user->hasRight('doliletter', 'spread', 'write');
+$permissiontoshowsignature = $user->hasRight('doliletter', 'spreadsignature', 'read');
+$isLogged                  = !empty($_SESSION['dol_login']);
 
 // Load translation files required by the page
 saturne_load_langs(['doliletter@doliletter']);
@@ -90,25 +97,32 @@ $backtopage         = GETPOST('backtopage', 'alpha');
 $attendantTableMode = (GETPOSTISSET('attendant_table_mode') ? GETPOST('attendant_table_mode', 'alpha') : 'advanced');
 $subaction          = GETPOST('subaction', 'alpha');
 
+$sign               = GETPOST('sign', 'alpha');
+
 // Initialize technical objects
 $className       = ucfirst($objectType);
-$signatory       = new SaturneSignature($db, $moduleNameLowerCase, $objectType);
+$signatory       = new SaturneSignature($db);
 $saturneMail     = new SaturneMail($db, $moduleNameLowerCase, $objectType);
 $usertmp         = new User($db);
 $attendanceSheet = new DoliletterAttendanceSheet($db, $moduleNameLowerCase);
-$form        = new Form($db);
+$form            = new Form($db);
+$ecmFiles        = new EcmFiles($db);
 if (isModEnabled('societe')) {
     $thirdparty = new Societe($db);
     $contact    = new Contact($db);
 }
+
+$objectsMetadata    = saturne_get_objects_metadata();
 
 $attendanceSheet->fetch(0, '', ' AND object_type = ' . "'" . $objectType  . "'" . ' AND fk_object = ' . $id);
 
 if ($action == 'add_spread_user') {
     if ($attendanceSheet->id <= 0 || $attendanceSheet->id == null) {
 
-        $attendanceSheet->ref           = $object->ref;
-        $attendanceSheet->status        = $attendanceSheet::STATUS_DRAFT;
+        $objectsMetadata[$objectType]['object']->fetch($id);
+
+        $attendanceSheet->ref           = $objectsMetadata[$objectType]['object']->ref;
+        $attendanceSheet->status        = $attendanceSheet::STATUS_VALIDATED;
         $attendanceSheet->fk_object     = $id;
         $attendanceSheet->object_type   = $objectType;
         $attendanceSheet->entity        = $conf->entity;
@@ -129,11 +143,11 @@ if ($action == 'add_spread_user') {
     $tmpSignatory->fk_object      = $attendanceSheet->id;
     $tmpSignatory->module_name    = $moduleNameLowerCase;
     $tmpSignatory->status         = $tmpSignatory::STATUS_PENDING_SIGNATURE;
+    $tmpSignatory->signature_url  = generate_random_id();
 
     $result = $tmpSignatory->create($user);
     if ($result < 0) {
         setEventMessages($signatory->error, $signatory->errors, 'errors');
-        echo '<pre>'; print_r($signatory->db->lasterror()); echo '</pre>'; exit;
         exit;
     }
     $action = '';
@@ -154,13 +168,18 @@ if ($action == 'update_spread_user') {
     $signatory->fetch($signatory_id);
     if ($signatory->id > 0) {
         $tmpUser = new User($db);
-        $user->fetch(GETPOSTINT('user_id'));
+        $tmpUser->fetch(GETPOSTINT('user_id'));
+        $attendanceSheet->context = [
+            'user' => $tmpUser->firstname . ' ' . $tmpUser->lastname,
+            'old_user' => $signatory->element_id ? $signatory->firstname . ' ' . $signatory->lastname : ''
+        ];
+        $attendanceSheet->call_trigger('SPREAD_ADD_USER', $user);
 
         $signatory->element_id   = GETPOSTINT('user_id');
         $signatory->element_type = 'user';
 
-        $signatory->firstname = $user->firstname;
-        $signatory->lastname  = $user->lastname;
+        $signatory->firstname = $tmpUser->firstname;
+        $signatory->lastname  = $tmpUser->lastname;
 
         $signatory->update($user);
     }
@@ -178,23 +197,174 @@ if ($action == 'validate_signature') {
             $signatory->signature      = $signature;
             $signatory->status         = $signatory::STATUS_SIGNED;
             $signatory->signature_date = dol_now();
+            $signatory->signature_url  = generate_random_id();
             $signatory->update($user);
         }
     }
     $action = '';
 }
 
-if ($action == 'save_private_note') {
+if ($action == 'save_public_note') {
     if ($attendanceSheet->id > 0) {
         $data = json_decode(file_get_contents('php://input'), true);
-        $note = $data['note_private'] ?? '';
+        $note = $data['note_public'] ?? '';
 
-        $attendanceSheet->note_private = $note;
+        $attendanceSheet->note_public = $note;
         $attendanceSheet->update($user);
     }
     $action = '';
 }
 
+if ($action == 'send_quick_sign_email') {
+    if (empty($conf->global->DOLILETTER_SPREAD_QUICK_SIGN)) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
+        exit;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFieldRequired', $langs->transnoentities('Email')) . '">';
+        exit;
+    }
+
+    $tmpUser = new User($db);
+    $tmpUser->fetch(0, '', '', 0, -1, $data['email']);
+    if ($tmpUser->id <= 0) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorUserNotFound') . '">';
+        exit;
+    }
+
+    $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
+    $tmpSignatory->element_id     = $tmpUser->id;
+    $tmpSignatory->firstname      = $tmpUser->firstname;
+    $tmpSignatory->lastname       = $tmpUser->lastname;
+    $tmpSignatory->element_type   = 'user';
+    $tmpSignatory->role           = '';
+    $tmpSignatory->object_type    = $attendanceSheet->element;
+    $tmpSignatory->fk_object      = $attendanceSheet->id;
+    $tmpSignatory->module_name    = $moduleNameLowerCase;
+    $tmpSignatory->status         = $tmpSignatory::STATUS_PENDING_SIGNATURE;
+    $tmpSignatory->signature_url  = generate_random_id();
+
+    $result = $tmpSignatory->create($user);
+    if ($result < 0) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('Error') . '">';
+        exit;
+    }
+    $signatory_id = $result;
+
+    $action = 'send_email';
+}
+
+if ($action == 'send_email') {
+    if (empty($signatory_id)) {
+        $signatory_id = GETPOSTINT('signatory_id');
+    }
+
+    $signatory->fetch($signatory_id);
+    if ($signatory->id > 0) {
+        require_once DOL_DOCUMENT_ROOT . '/core/class/CMailFile.class.php';
+
+        $objectsMetadata[$objectType]['object']->fetch($id);
+
+        $tmpUser = new User($db);
+        $tmpUser->fetch($signatory->element_id);
+
+        $from = $conf->global->MAIN_MAIL_EMAIL_FROM;
+
+        // Make substitution in email content
+        $substitutionarray                              = getCommonSubstitutionArray($langs, 0, null, $objectsMetadata[$objectType]['object']);
+        $substitutionarray['__OBJECT_ELEMENT__']        = dol_strtolower($langs->transnoentities(ucfirst($objectsMetadata[$objectType]['object']->element)));
+        $substitutionarray['__REF__']                   = $objectsMetadata[$objectType]['object']->ref;
+        $signatoryLink                                  = dol_buildpath('/custom/doliletter/public/spread/add_spread.php', 3) . '?sign=' . $signatory->signature_url . '&id=' . $objectsMetadata[$objectType]['object']->id . '&object_type=' . $objectType;
+        $substitutionarray['__SATURNE_SIGNATORY_URL__'] = '<a href=' . $signatoryLink . ' target="_blank">' . $langs->transnoentities('SignatureEmailURL') . '</a>';
+        complete_substitutions_array($substitutionarray, $langs, $objectsMetadata[$objectType]['object'], $parameters);
+
+        $result  = $saturneMail->fetch(getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'));
+        $subject = $result > 0 ? $saturneMail->topic : $langs->transnoentities('EmailSpreadTopic');
+        $message = $result > 0 ? $saturneMail->content : $langs->transnoentities('EmailSpreadContent');
+        $sendto  = $tmpUser->email;
+
+        $subject = make_substitutions($subject, $substitutionarray);
+        $message = make_substitutions($message, $substitutionarray);
+
+        // Create form object
+        // Send mail (substitutionarray must be done just before this)
+        $mailfile = new CMailFile($subject, $sendto, $from, $message, [], [], [], '', '', 0, -1, '', '', '', '', 'mail');
+        if ($mailfile->error) {
+            setEventMessages($mailfile->error, $mailfile->errors, 'errors');
+        } elseif (!empty($conf->global->MAIN_MAIL_SMTPS_ID) || $conf->global->SATURNE_USE_ALL_EMAIL_MODE > 0) {
+            $result = $mailfile->sendfile();
+            if ($result) {
+                $signatory->last_email_sent_date = dol_now();
+                $signatory->update($user, true);
+                $signatory->setPending($user, false);
+                echo '<input type="hidden" id="success" value="' . $langs->transnoentities('SendEmailAt', dol_escape_htmltag($sendto)) . '">';
+                exit;
+            } else {
+                echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto)) . '">';
+                exit;
+            }
+        }
+    }
+}
+
+if ($action == 'login') {
+    $url  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+    $url .= "://".$_SERVER['HTTP_HOST'] . $_SERVER["PHP_SELF"] . '?' . http_build_query(array_filter($_GET, fn($item) => $item !== 'login'));
+    setcookie(
+        "doliletter_login_backtopage",
+        $url,
+        time() + (60 * 5),
+        "/",
+        "",
+    );
+    header("Location: " . dol_buildpath('', 3));
+}
+
+$ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
+$linkedFiles = [];
+if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
+    $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id, $objectsMetadata, $ecmFiles) {
+
+        $objectType = $objectsMetadata[$objectType]['table_element'];
+
+        $ecmFilesLine->table_element = $ecmFiles->table_element;
+        $ecmFilesLine->fetch_optionals();
+
+        return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id;
+    });
+}
+$linkedFilesFavorite = array_filter($linkedFiles, function ($ecmFilesLine) {
+    return $ecmFilesLine->array_options['options_favorite'] == 1;
+});
+$linkedFiles = array_filter($linkedFiles, function ($ecmFilesLine) {
+    return $ecmFilesLine->array_options['options_favorite'] != 1;
+});
+
+$link  = new Link($db);
+$linkedLinks = [];
+$link->fetchAll($linkedLinks, $objectType, $id);
+array_walk($linkedLinks, fn ($linkedItem) => $linkedItem->fetch_optionals());
+$linkedLinksFavorite = array_filter($linkedLinks, function ($linkedItem) {
+    return $linkedItem->array_options['options_favorite'] == 1;
+});
+$linkedLinks = array_filter($linkedLinks, function ($linkedItem) {
+    return $linkedItem->array_options['options_favorite'] != 1;
+});
+
+
+$objectsMetadata[$objectType]['object']->fetch($id);
+$objectRef   = $objectsMetadata[$objectType]['object']->ref;
+$objectLabel = $objectsMetadata[$objectType]['object']->{$objectsMetadata[$objectType]['label_field']} ?? '';
+
+if (!empty($sign)) {
+    $tmpSignatory = new SaturneSignature($db);
+    $directSignatoryId = $tmpSignatory->fetch(0, '', ' AND t.signature_url = "' . $sign . '"');
+    if (!empty($tmpSignatory->signature)) {
+        $directSignatoryId = 0;
+    }
+}
 
 /*
  * View

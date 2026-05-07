@@ -72,6 +72,7 @@ $document    = new SigninSheetDocument($db);
 $object      = new DoliletterAttendanceSheet($db, 'doliletter');
 $extrafields = new ExtraFields($db);
 $signatory   = new SaturneSignature($db);
+$tmpUser     = new User($db);
 if (isModEnabled('categorie')) {
     $categorie = new Categorie($db);
 }
@@ -90,7 +91,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_array_fields.tpl.ph
 
 $arrayfields    = dol_sort_array($arrayfields, 'position');
 
-$objectsMetadata    = saturne_get_objects_metadata();
+$objectsMetadata  = saturne_get_objects_metadata();
 
 // // Permissions
 // $permissiontoread   = $user->hasRight($object->module, $object->element, 'read');
@@ -134,7 +135,28 @@ if (!empty($fromType)) {
     $objectsMetadata[$fromType]['object']->fetch($fromId);
     saturne_get_fiche_head($objectsMetadata[$fromType]['object'], 'spread', '');
     $linkBack = '<a href="' . dol_buildpath($fromType . '/list.php?restore_lastsearch_values=1', 1) . '">' . $langs->trans('BackToList') . '</a>';
-    saturne_banner_tab($objectsMetadata[$fromType]['object'], 'fromtype=' . $fromType . '&fromid', $linkBack, 1, 'rowid', ($fromType == 'productlot' ? 'batch' : 'ref'));
+
+    $moreHtmlRef = '';
+
+    // Note privée
+    $moreHtmlRef .= '<div class=" opacitymedium">';
+    $moreHtmlRef .= '<strong>' . $langs->trans('NotePrivate') . ':</strong>';
+    $moreHtmlRef .= dol_string_nohtmltag($object->note_private, 1);
+    $moreHtmlRef .= '</div>';
+
+    // Note publique
+    $moreHtmlRef .= '<div class=" opacitymedium">';
+    $moreHtmlRef .= '<strong>' . $langs->trans('NotePublic') . ':</strong>';
+    $moreHtmlRef .= dol_string_nohtmltag($object->note_public, 1);
+    $moreHtmlRef .= '</div>';
+
+    // Lien vers l'interface publique sans CSS
+    $publicUrl    = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $fromId . '&object_type=' . $fromType;
+    $moreHtmlRef .= '<div class="">';
+    $moreHtmlRef .= '<a href="' . $publicUrl . '" target="_blank">' . $langs->trans('AccessPublicInterface') . '</a>';
+    $moreHtmlRef .= '</div>';
+
+    saturne_banner_tab($objectsMetadata[$fromType]['object'], 'fromtype=' . $fromType . '&fromid', $linkBack, 1, 'rowid', ($fromType == 'productlot' ? 'batch' : 'ref'), $moreHtmlRef);
 
     $moreUrlParameters = '&fromtype=' . $fromType . '&fromid=' . $fromId . '&mode=' . $mode;
 }
@@ -149,12 +171,6 @@ if ($reshook > 0) {
     $backtocard = $hookmanager->resPrint;
 }
 
-print '</div>';
-
-// Add link to public interface
-$publicUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $fromId . '&object_type=' . $fromType;
-print '<div class="tabsAction">';
-print '<a class="butAction" href="' . $publicUrl . '" target="_blank">' . $langs->trans('PublicInterface') . '</a>';
 print '</div>';
 
 print '<div class="spread-table-container">';
@@ -177,7 +193,63 @@ if ($signatories <= 0) {
     $signatories = current($signatories);
 }
 
+print '<div class="fichecenter">';
+
+print '<table class="centpercent noborder">';
+
+print '<tr class="liste_titre">';
+print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user infobox-adherent" style=""></span> Utilisateur</td>';
+print '<td class="">Date de d\'ajout</td>';
+print '<td class="center">État</td>';
+print '<td class="center">Présence</td>';
+print '</tr>';
+
+foreach ($signatories as $signatory) {
+    if (empty($signatory->element_id)) {
+        continue;
+    }
+    print '<tr class="oddeven">';
+    print '<td>';
+    if (!empty($signatory->element_id)) {
+        $tmpUser->fetch($signatory->element_id);
+        print $tmpUser->getNomUrl(1);
+    } else {
+        print '-';
+    }
+    print '</td>';
+
+    print '<td>' . dol_print_date($signatory->date_creation, 'dayhour') . '</td>';
+
+    if ($signatory->status == SaturneSignature::STATUS_SIGNED) {
+        print '<td class="center"><span class="badge badge-status4 badge-status" title="Signé">Signé</span></td>';
+    } else {
+        print '<td class="center"><span class="badge badge-status1 badge-status" title="En attente de signature">En attente</span></td>';
+    }
+
+    print '<td class="center">';
+    if (!$signatory->attendance) {
+        print '<span class="fas fa-check" style="color:green;" title="' . $langs->trans('Present') . '"></span>';
+    } else {
+        print '<span class="fas fa-times" style="color:red;" title="' . $langs->trans('Absent') . '"></span>';
+    }
+    print '</td>';
+    print '</tr>';
+}
+
+print '</table>';
+
+print '<div class="fichehalfleft">';
 print saturne_show_documents($modulePart, $dirFiles, $fileDir, $urlSource, 1, 1, '', 1, 0, 0, 0, 0, '', '', $langs->defaultlang, 0, $object, 0, 'remove_file', !empty($signatories), $langs->trans('ThereIsNoSignatoryError'));
+print '</div>';
+
+print '<div class="fichehalfright">';
+// List of actions on element
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
+$formActions = new FormActions($db);
+$formActions->showactions($object, $object->element . '@' . $object->module, 0, 1, '', 10, '', $moreHtmlCenter);
+print '</div>';
+
+print '</div>';
 
 print '</div>';
 

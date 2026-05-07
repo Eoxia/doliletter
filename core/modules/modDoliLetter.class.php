@@ -56,7 +56,7 @@ class modDoliLetter extends DolibarrModules {
 		$this->descriptionlong = $langs->trans('DoliLetterDescriptionLong');
 		$this->editor_name     = 'Eoxia';
 		$this->editor_url      = 'https://eoxia.com/';
-		$this->version         = '1.0.1';
+		$this->version         = '23.0.0';
 		$this->const_name      = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto           = 'doliletter256px@doliletter';
 
@@ -84,7 +84,10 @@ class modDoliLetter extends DolibarrModules {
 			// Set this to relative path of js file if module must load a js on all pages
 			'js' => array(),
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
-			'hooks' => array(),
+			'hooks' => array(
+				'main',
+				'mainloginpage'
+			),
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
 		);
@@ -120,13 +123,28 @@ class modDoliLetter extends DolibarrModules {
 		// Example: $this->const=array(1 => array('DOLILETTER_MYNEWCONST1', 'chaine', 'myvalue', 'This is a constant to add', 1),
 		//                             2 => array('DOLILETTER_MYNEWCONST2', 'chaine', 'myvalue', 'This is another constant to add', 0, 'current', 1)
 		// );
+		$i = 0;
 		$this->const = array(
 			// CONST ENVELOPE
-			1 => array('DOLILETTER_ENVELOPE_ADDON','chaine', 'mod_envelope_standard','', $conf->entity),
-			2 => array('DOLILETTER_ENVELOPE_ADDON_PDF','chaine', 'phobos' ,'', $conf->entity),
-			3 => array('DOLILETTER_ACKNOWLEDGEMENTRECEIPT_ADDON_PDF','chaine', 'deimos' ,'', $conf->entity),
-			4 => array('DOLILETTER_SENDINGPROOF_ADDON_PDF','chaine', 'ares' ,'', $conf->entity),
-			4 => array('DOLILETTER_TRACKINGNUMBER_ADDON_PDF','chaine', 'nerio' ,'', $conf->entity),
+			$i++ => array('DOLILETTER_ENVELOPE_ADDON','chaine', 'mod_envelope_standard','', $conf->entity),
+			$i++ => array('DOLILETTER_ENVELOPE_ADDON_PDF','chaine', 'phobos' ,'', $conf->entity),
+			$i++ => array('DOLILETTER_ACKNOWLEDGEMENTRECEIPT_ADDON_PDF','chaine', 'deimos' ,'', $conf->entity),
+			$i++ => array('DOLILETTER_SENDINGPROOF_ADDON_PDF','chaine', 'ares' ,'', $conf->entity),
+			$i++ => array('DOLILETTER_TRACKINGNUMBER_ADDON_PDF','chaine', 'nerio' ,'', $conf->entity),
+
+			// CONST SIGNIN SHEET
+			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
+            $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
+            $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLILETTER_SPREAD_SHOW_SIGNATURE', 'integer', 1, '', 0, 'current'],
+
+			$i++ => ['DOLILETTER_SPREAD_QUICK_SIGN', 'integer', 0, '', 0, 'current'],
+
+			// Globals CONST
+            $i++ => ['DOLILETTER_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
+
+			$i++ => ['DOLILETTER_VERSION','chaine', $this->version, '', 0, 'current'],
+			$i++ => ['DOLILETTER_DB_VERSION', 'chaine', $this->version, '', 0, 'current'],
 		);
 
 		if (!isset($conf->doliletter) || !isset($conf->doliletter->enabled)) {
@@ -203,8 +221,21 @@ class modDoliLetter extends DolibarrModules {
 		$this->cronjobs = array();
 
 		// Permissions provided by this module
-		$this->rights = array();
-		$r            = 0;
+		$this->rights = [];
+		$r = 0;
+
+		/* Doliletter PERMISSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
+		$this->rights[$r][1] = $langs->trans('LireModule', 'Doliletter');
+		$this->rights[$r][4] = 'lire';
+		$this->rights[$r][5] = 1;
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
+		$this->rights[$r][1] = $langs->trans('ReadModule', 'Doliletter');
+		$this->rights[$r][4] = 'read';
+		$this->rights[$r][5] = 1;
+		$r++;
+
 		/* DoliLetter PERMISSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
 		$this->rights[$r][1] = $langs->trans('ReadEnvelope');
@@ -225,6 +256,20 @@ class modDoliLetter extends DolibarrModules {
 		$this->rights[$r][1] = $langs->trans('ReadAdminPage');
 		$this->rights[$r][4] = 'adminpage';
 		$this->rights[$r][5] = 'read';
+		$r++;
+
+		/* Manage public spreading PERMISSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][1] = $langs->trans('ManageUserSpread');
+		$this->rights[$r][4] = 'spread';
+		$this->rights[$r][5] = 'write';
+		$r++;
+
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][1] = $langs->trans('ShowSpreadSignature');
+		$this->rights[$r][4] = 'spreadsignature';
+		$this->rights[$r][5] = 'read';
+		$r++;
 
 		// Main menu entries to add
 		$this->menu = array();
@@ -291,6 +336,22 @@ class modDoliLetter extends DolibarrModules {
 			'target'=>'',
 			'user'=>0, // 0=Menu for internal users, 1=external users, 2=both
 		);
+
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=doliletter',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left', // This is a Left menu entry
+			'titre'=>'<i class="fas fa-list"></i> '. $langs->trans('SpreadList'),
+			'mainmenu'=>'doliletter',
+			'leftmenu'=>'spread_list',
+			'url'=>'/doliletter/view/spread/spread_list.php',
+			'langs'=>'doliletter@doliletter', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1100+$r,
+			'enabled'=>'$conf->doliletter->enabled',  // Define condition to show or hide menu entry. Use '$conf->doliletter->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=>'1', // Use 'perms'=>'$user->rights->doliletter->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>0, // 0=Menu for internal users, 1=external users, 2=both
+		);
+
 		$this->menu[$r++] = array(
 			'fk_menu' => 'fk_mainmenu=doliletter',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type' => 'left',			                // This is a Left menu entry
@@ -316,7 +377,7 @@ class modDoliLetter extends DolibarrModules {
 	 *  @return     int             	1 if OK, 0 if KO
 	 */
 	public function init($options = '') {
-		global $conf, $langs;
+		global $conf, $langs, $user;
 
 		$this->_load_tables('/doliletter/sql/');
 
@@ -357,8 +418,45 @@ class modDoliLetter extends DolibarrModules {
 
 		addDocumentModel('signinsheet_odt', 'signinsheet', 'ODT templates', 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH');
 
+		dolibarr_set_const($this->db, 'DOLILETTER_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($this->db, 'DOLILETTER_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
+
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH', 'DOL_DOCUMENT_ROOT/custom/doliletter/documents/doctemplates/signinsheet/', 'chaine', 0, '', $conf->entity);
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON', 'mod_signinsheet_standard', 'chaine', 0, '', $conf->entity);
+
+		// Load Saturne libraries
+		require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+
+        $saturneMail = new SaturneMail($this->db);
+
+        $saturneMail->position = 1000;
+
+        $emailTemplates = [
+            'email_template_spread' => [
+                'type_template' => 'spread',
+                'label'         => 'EmailSpreadLabel',
+                'topic'         => 'EmailSpreadTopic',
+                'content'       => 'EmailSpreadContent'
+            ]
+        ];
+
+        foreach ($emailTemplates as $emailTemplate => $emailTemplateData) {
+            $saturneMail->entity        = 0;
+            $saturneMail->module        = 'doliletter';
+            $saturneMail->type_template = 'doliletter_' . $emailTemplateData['type_template'];
+            $saturneMail->lang          = 'fr_FR';
+            $saturneMail->datec         = $this->db->idate(dol_now());
+            $saturneMail->label         = $langs->transnoentities($emailTemplateData['label']);
+            $saturneMail->position++;
+            $saturneMail->enabled       = "isModEnabled('doliletter')";
+            $saturneMail->topic         = $langs->transnoentities($emailTemplateData['topic']);
+            $saturneMail->content       = $langs->transnoentities($emailTemplateData['content']);
+            $saturneMail->joinfiles     = 1;
+            if ($saturneMail->fetch(getDolGlobalInt('DOLILETTER_' . dol_strtoupper($emailTemplate))) == -1) {
+                $emailTemplateID = $saturneMail->create($user);
+                dolibarr_set_const($this->db, 'DOLILETTER_' . dol_strtoupper($emailTemplate), $emailTemplateID, 'integer', 0, '', $conf->entity);
+            }
+        }
 
 		return $this->_init($sql, $options);
 	}

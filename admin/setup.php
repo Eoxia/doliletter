@@ -40,15 +40,33 @@ global $db, $langs, $user;
 
 // Libraries
 require_once '../lib/doliletter.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
 // Translations
 $langs->loadLangs(array("admin", "doliletter@doliletter"));
 
 // Parameters
 $backtopage = GETPOST('backtopage', 'alpha');
+$action = GETPOST('action', 'alpha');
 
 // Access control
 if (!$user->admin) accessforbidden();
+
+/*
+ * Actions
+ */
+
+if ($action == 'save') {
+
+    if (!empty($_POST['email_template'])) {
+        dolibarr_set_const($db, 'DOLILETTER_EMAIL_TEMPLATE_SPREAD', $_POST['email_template'], 'chaine', 0, '', $conf->entity);
+    }
+
+    setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
+    header('Location: ' . $_SERVER["PHP_SELF"]);
+    exit;
+}
 
 /*
  * View
@@ -64,7 +82,7 @@ $linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/module
 
 print load_fiche_titre($langs->trans($page_name), $linkback, 'object_doliletter@doliletter');
 // Configuration header
-$head = doliletterAdminPrepareHead();
+$head = doliletter_admin_prepare_head();
 print dol_get_fiche_head($head, 'settings', $langs->trans($page_name), -1, "doliletter@doliletter");
 
 print load_fiche_titre('<i class="fas fa-exclamation-circle"></i> ' . $langs->trans('PublicInterfaceConfig'), '', '');
@@ -109,8 +127,85 @@ print ajax_constantonoff('DOLILETTER_DELETE_PUBLIC_DOWNLOAD_LINKS_AFTER_SIGNATUR
 print '</td>';
 print '</tr>';
 
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowSpreadSignature');
+print "</td><td>";
+print $langs->trans('ShowSpreadSignatureDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLILETTER_SPREAD_SHOW_SIGNATURE');
+print '</td>';
+print '</tr>';
 
 print '</table>';
+
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.form.class.php';
+require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+
+$form        = new Form($db);
+$saturneMail = new SaturneMail($db);
+$result      = $saturneMail->fetchAll('', '', 0, 0, ['customsql' => 't.type_template = "doliletter_spread"']);
+
+$options = [];
+foreach ($result as $item) {
+    $options[$item->id] = $item->label;
+}
+
+
+print load_fiche_titre('<i class="fas fa-exclamation-circle"></i> ' . $langs->trans('EmailConfig'), '', '');
+
+print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+print '<input type="hidden" name="action" value="save">';
+print '<input type="hidden" name="token" value="'.newToken().'">';
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="center">' . $langs->trans("Value") . '</td>';
+print '</tr>';
+
+// Email Subject Configuration
+print '<tr class="oddeven"><td>';
+print $langs->trans('ConfigEmailSpread');
+print "</td><td>";
+print $langs->trans('ConfigEmailSpreadDescription');
+print '</td>';
+print '<td class="center">';
+print $form->selectarray('email_template', $options, getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'), 1);
+print '</td>';
+print '</tr>';
+
+print '</table>';
+
+print '<div class="tabsAction">';
+print '<input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+print '</div>';
+print '</form>';
+
+print load_fiche_titre('<i class="fas fa-exclamation-circle"></i> ' . $langs->trans('SpreadConfig'), '', '');
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="center">' . $langs->trans("Status") . '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ConfigSpreadQuickSign');
+print "</td><td>";
+print $langs->trans('ConfigSpreadQuickSignDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLILETTER_SPREAD_QUICK_SIGN');
+print '</td>';
+print '</tr>';
+
+print '</table>';
+
 print '<hr>';
 
 

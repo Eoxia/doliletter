@@ -16,18 +16,21 @@
  */
 
 /**
- * \file    doliletterindex.php
- * \ingroup doliletter
- * \brief   Home page of digiquali top menu
+ *  \file       public/spread/add_spread_login.php
+ *  \ingroup    saturne
  */
 
-// Load DigiQuali environment
-if (file_exists('doliletter.main.inc.php')) {
-    require_once __DIR__ . '/doliletter.main.inc.php';
-} elseif (file_exists('../doliletter.main.inc.php')) {
-    require_once __DIR__ . '/../doliletter.main.inc.php';
+// Load Saturne environment
+if (file_exists('../../../saturne/saturne.main.inc.php')) {
+    require_once __DIR__ . '/../../../saturne/saturne.main.inc.php';
+} elseif (file_exists('../../../saturne.main.inc.php')) {
+    require_once __DIR__ . '/../../../../saturne/saturne.main.inc.php';
 } else {
-    die('Include of doliletter main fails');
+    die('Include of saturne main fails');
 }
 
-require_once __DIR__ . '/../saturne/core/tpl/index/index_view.tpl.php';
+if (!empty($_COOKIE['doliletter_login_backtopage'])) {
+    header("Location: " . $_COOKIE['doliletter_login_backtopage']);
+} else {
+    header("Location: " . dol_buildpath('', 3));
+}
