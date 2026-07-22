@@ -131,7 +131,7 @@ if ($mode == 'pwa') {
 $title = $langs->trans('Signatories');
 saturne_header(0,'', $title, $helpUrl ?? '', '', 0, 0, [], [], '', 'mod-' . $object->module . '-' . $object->element . ' page-list bodyforlist');
 
-if (!empty($fromType)) {
+if (!empty($fromType) && isset($objectsMetadata[$fromType]['object'])) {
     $objectsMetadata[$fromType]['object']->fetch($fromId);
     saturne_get_fiche_head($objectsMetadata[$fromType]['object'], 'spread', '');
     $linkBack = '<a href="' . dol_buildpath($fromType . '/list.php?restore_lastsearch_values=1', 1) . '">' . $langs->trans('BackToList') . '</a>';
@@ -163,7 +163,7 @@ if (!empty($fromType)) {
 
 print '<div class="fichecenter">';
 
-$backtocard = dol_buildpath('/custom/' . $moduleNameLowerCase . '/view/' . $object->element . '/' . $object->element . '_card.php?id=' . $id, 1);
+$backtocard = dol_buildpath('/custom/' . $moduleNameLowerCase . '/view/' . $object->element . '/' . $object->element . '_card.php?id=' . $object->id, 1);
 
 $parameters = ['backtocard' => $backtocard];
 $reshook    = $hookmanager->executeHooks('saturneAttendantsBackToCard', $parameters, $object); // Note that $action and $object may have been modified by some hooks
@@ -202,6 +202,7 @@ print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user i
 print '<td class="">Date de d\'ajout</td>';
 print '<td class="center">État</td>';
 print '<td class="center">Présence</td>';
+print '<td class="center">Lien individuel</td>';
 print '</tr>';
 
 foreach ($signatories as $signatory) {
@@ -233,6 +234,19 @@ foreach ($signatories as $signatory) {
         print '<span class="fas fa-times" style="color:red;" title="' . $langs->trans('Absent') . '"></span>';
     }
     print '</td>';
+
+    // Direct link to this signatory's own public page (signature + certification photos)
+    print '<td class="center nowraponall">';
+    if (dol_strlen($signatory->signature_url)) {
+        $individualUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $fromId . '&object_type=' . $fromType . '&sign=' . urlencode($signatory->signature_url);
+        $isSigned = ($signatory->status == SaturneSignature::STATUS_SIGNED);
+        print '<a href="' . $individualUrl . '" target="_blank" title="' . dol_escape_htmltag($individualUrl) . '">';
+        print '<div class="wpeo-button button-blue doliletter-signature-link"><i class="fas' . ($isSigned ? ' fa-eye' : ' fa-signature') . '"></i></div>';
+        print '</a>';
+    } else {
+        print '-';
+    }
+    print '</td>';
     print '</tr>';
 }
 
@@ -246,6 +260,9 @@ print '<div class="fichehalfright">';
 // List of actions on element
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
 $formActions = new FormActions($db);
+// No "see all" link here: saturne_agenda.php expects {module}/class/{object_type}.class.php and
+// a matching lib, which do not exist for the attendance sheet (class is doliletterattendancesheet).
+$moreHtmlCenter = '';
 $formActions->showactions($object, $object->element . '@' . $object->module, 0, 1, '', 10, '', $moreHtmlCenter);
 print '</div>';
 
