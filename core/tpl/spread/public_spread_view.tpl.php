@@ -579,6 +579,59 @@ body {
                 <?php echo $objectsMetadata[$objectType]['object']->getNomUrl(1) . (!empty($objectLabel) ? ' - ' . $objectLabel : '' ); ?>
             </div>
 
+            <?php if (!empty($isPreventionPlan)) {
+                require __DIR__ . '/preventionplan_public_info.tpl.php';
+            } ?>
+
+            <?php if (!empty($signSignatory)) { ?>
+            <!-- Single-person view: only this signatory's signature + their certification photos -->
+            <div class="pp-single-person">
+                <div class="user-signature-item <?php echo empty($signSignatory->signature) ? 'signature-not-validated' : 'signature-validated'; ?>" data-user-index="<?php echo $signSignatory->id; ?>">
+                    <div class="user-info">
+                        <div class="form-element">
+                            <div class="input-with-actions">
+                                <div class="user-status"><?php echo dol_escape_htmltag(trim($signSignatory->firstname . ' ' . $signSignatory->lastname)); ?></div>
+                                <div class="signature-status">
+                                    <?php if (empty($signSignatory->signature)) { ?>
+                                        <span class="badge badge-dot badge-status1 badge-status"></span>
+                                        <i class="fas fa-signature"></i>
+                                        <span>jj/mm/aaaa --:--</span>
+                                    <?php } else { ?>
+                                        <span class="badge badge-dot badge-status4 badge-status"></span>
+                                        <i class="fas fa-signature"></i>
+                                        <span><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y %H:%M'); ?></span>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php if (empty($signSignatory->signature)) { ?>
+                <!-- Inline signature panel: no modal, the person signs directly on the page -->
+                <div class="pp-inline-signature">
+                    <div class="pp-inline-signature__title"><i class="fas fa-signature"></i> <?php echo $langs->trans('Signature'); ?></div>
+                    <div class="signature-element">
+                        <canvas id="signatureCanvas" class="canvas-container editable canvas-signature pp-inline-canvas" width="600" height="200"></canvas>
+                        <div class="signature-erase wpeo-button button-square-40 button-rounded button-red">
+                            <span><i class="fas fa-eraser"></i></span>
+                        </div>
+                    </div>
+                    <div class="pp-inline-signature__actions">
+                        <button type="button" class="wpeo-button button-disable validate-sign-btn" disabled>
+                            <i class="fas fa-check"></i> <?php echo $langs->trans('ValidateSignature'); ?>
+                        </button>
+                    </div>
+                </div>
+                <?php } ?>
+
+                <?php if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
+                    $certSignatoryId = $signSignatory->id;
+                    require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
+                } ?>
+            </div>
+            <?php } ?>
+
             <?php if (!empty($linkedFilesFavorite)) {
                 foreach ($linkedFilesFavorite as $key => $file) {
                     if (dol_mimetype($file->filename) != 'video/mp4') {
@@ -672,7 +725,15 @@ body {
                 </div>
             <?php } ?>
 
-            <?php if (!empty($permissiontoadd)) { ?>
+            <?php if (!empty($sign) && empty($signSignatory)) { ?>
+            <!-- A sign token was provided but does not resolve: never fall back to the global list -->
+            <div class="pp-invalid-link">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><?php echo $langs->trans('ErrorInvalidSignatureLink'); ?></span>
+            </div>
+            <?php } ?>
+
+            <?php if (!empty($permissiontoadd) && empty($sign)) { ?>
             <div class="user-list-container">
                 <div class="user-signatures-list" id="userSignaturesList">
                     <!-- Utilisateurs pré-signés par défaut -->
@@ -756,6 +817,15 @@ body {
                         </div>
                     <?php
                     }
+
+                    // Prevention plan: one photo per required certification (document) for this signatory
+                    if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
+                        print '<div class="pp-signatory-media-row">';
+                        print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> ' . $langs->trans('MobilePPUploadCertPhoto') . '</div>';
+                        $certSignatoryId = $signatoryItem->id;
+                        require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
+                        print '</div>';
+                    }
                     }
                     ?>
 
@@ -813,9 +883,11 @@ body {
         </div>
         <?php } ?>
 
+        <?php if (empty($sign)) { ?>
         <div class="login-message">
             <p><?= $langs->transnoentities('ConnectForMoreInfo', '?' . http_build_query($_GET + ['action' => 'login'])); ?></p>
         </div>
+        <?php } ?>
     <?php } ?>
 </div>
 
@@ -842,7 +914,8 @@ function getFileIcon($extension) {
 }
 ?>
 
-<!-- Modal de signature -->
+<!-- Modal de signature (not rendered when a sign token is used: the signature panel is inline there) -->
+<?php if (empty($sign)) { ?>
 <div id="signatureModal" class="modal-spread">
     <div class="modal-spread-content">
         <div class="modal-spread-header">
@@ -867,6 +940,7 @@ function getFileIcon($extension) {
         </div>
     </div>
 </div>
+<?php } ?>
 
 <script>
 let currentUserIndex = null;
@@ -909,7 +983,9 @@ function openSignatureModal(userIndex = null) {
 
 function closeSignatureModal() {
     const modal = document.getElementById('signatureModal');
-    modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+    }
     currentUserIndex = null;
 
     // Clear the canvas when closing
@@ -971,11 +1047,24 @@ function validateSignature() {
                 signature
             }),
             success: function (response) {
+                // Inline (single-person) mode: refresh this person's block in place, no page reload.
+                // The ?sign= token stays valid, so the response already holds the signed state.
+                if ($('.pp-inline-signature').length) {
+                    var $updatedPerson = $(response).find('.pp-single-person');
+                    if ($updatedPerson.length) {
+                        $('.pp-single-person').replaceWith($updatedPerson);
+                    } else {
+                        $('.pp-inline-signature').remove();
+                    }
+                    currentUserIndex = null;
+                    $.jnotify('<?php echo $langs->trans("SignatureValidatedSuccessfully"); ?>', {type: 'success'});
+                    return;
+                }
 
                 $('.user-signature-item[data-user-index="' + currentUserIndex + '"]').replaceWith($(response).find('.user-signature-item[data-user-index="' + currentUserIndex + '"]'));
 
                 closeSignatureModal();
-                
+
                 // Add success notification
                 $.jnotify('<?php echo $langs->trans("SignatureValidatedSuccessfully"); ?>', {type: 'success'});
             },
@@ -1158,7 +1247,18 @@ $(document).ready(function () {
             });
     });
 
-    <?php if (!empty($directSignatoryId)) { ?>
+    <?php if (!empty($signSignatory) && empty($signSignatory->signature)) { ?>
+    // Single-person view: the signature panel is inline, bind it straight to this signatory (no modal)
+    currentUserIndex = <?php echo (int) $signSignatory->id; ?>;
+    (function () {
+        const inlineCanvas = document.getElementById('signatureCanvas');
+        if (inlineCanvas) {
+            inlineCanvas.addEventListener('mouseup', updateValidateButtonState);
+            inlineCanvas.addEventListener('touchend', updateValidateButtonState);
+        }
+        updateValidateButtonState();
+    })();
+    <?php } elseif (!empty($directSignatoryId)) { ?>
     openSignatureModal(<?php echo (int) $directSignatoryId; ?>);
     <?php } ?>
 });
