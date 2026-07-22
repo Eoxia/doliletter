@@ -52,7 +52,9 @@ if (file_exists('../../../saturne/saturne.main.inc.php')) {
 }
 
 // Get module parameters
-$moduleName   = GETPOST('module_name', 'alpha');
+// The Saturne media block posts its own module_name with the photo upload; it must not be taken
+// as this page's module context (the upload handler reads it into its own variable instead).
+$moduleName   = (GETPOST('action', 'aZ09') == 'uploadPhoto') ? '' : GETPOST('module_name', 'alpha');
 $objectType   = GETPOST('object_type', 'alpha');
 $documentType = GETPOST('document_type', 'alpha');
 
@@ -69,6 +71,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
 
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/medias.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user, $modulepart;
@@ -197,7 +200,8 @@ if ($action == 'validate_signature') {
             $signatory->signature      = $signature;
             $signatory->status         = $signatory::STATUS_SIGNED;
             $signatory->signature_date = dol_now();
-            $signatory->signature_url  = generate_random_id();
+            // Keep signature_url unchanged: the ?sign= link must stay valid so the signatory
+            // still lands on their own single-person page (signed state) after signing.
             $signatory->update($user);
         }
     }
@@ -211,6 +215,54 @@ if ($action == 'save_public_note') {
 
         $attendanceSheet->note_public = $note;
         $attendanceSheet->update($user);
+    }
+    $action = '';
+}
+
+
+// Photo upload posted by the Saturne media block — same contract as saturne/admin/media.php.
+// Note: the media JS posts its own "module_name", which would otherwise clobber this page's
+// $moduleName/$moduleNameLowerCase, so it is read into a dedicated variable here.
+if ($action == 'uploadPhoto' && !empty($conf->global->MAIN_UPLOAD_DOC)) {
+    require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+    $mediaModuleName = dol_strtolower(GETPOST('module_name', 'alpha'));
+    $mediaSubDir     = GETPOST('sub_dir', 'alpha');
+
+    if (!empty($mediaModuleName) && strpos($mediaSubDir, '..') === false) {
+        $uploadDir = !empty($conf->$mediaModuleName->dir_output)
+            ? $conf->$mediaModuleName->dir_output
+            : $conf->ecm->dir_output . '/' . $mediaModuleName;
+        if (!empty($mediaSubDir)) {
+            $uploadDir .= '/' . $mediaSubDir;
+        }
+
+        if (!dol_is_dir($uploadDir)) {
+            dol_mkdir($uploadDir);
+        }
+
+        // Validate that every uploaded file is a real image via MIME type
+        $uploadedFiles = isset($_FILES['userfile']) ? $_FILES['userfile'] : [];
+        $invalidFile   = false;
+        if (!empty($uploadedFiles['tmp_name'])) {
+            $tmpNames = is_array($uploadedFiles['tmp_name']) ? $uploadedFiles['tmp_name'] : [$uploadedFiles['tmp_name']];
+            foreach ($tmpNames as $tmpName) {
+                if (empty($tmpName)) {
+                    continue;
+                }
+                $finfo    = new finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($tmpName);
+                if (strpos($mimeType, 'image/') !== 0) {
+                    $invalidFile = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$invalidFile) {
+            $allowOverwrite = GETPOSTINT('overwrite') ? 1 : 0;
+            dol_add_file_process($uploadDir, $allowOverwrite, 1, 'userfile', '', null, '', 1);
+        }
     }
     $action = '';
 }
@@ -358,9 +410,63 @@ $objectsMetadata[$objectType]['object']->fetch($id);
 $objectRef   = $objectsMetadata[$objectType]['object']->ref;
 $objectLabel = $objectsMetadata[$objectType]['object']->{$objectsMetadata[$objectType]['label_field']} ?? '';
 
+// Prevention plan specifics: risks, protections, required certifications + uploaded certification photos
+$isPreventionPlan     = ($objectType === 'digiriskdolibarr_preventionplan');
+$ppRisks              = [];
+$ppProtections        = [];
+$ppCertifications     = [];
+$certificationOptions = [];
+$ppCertBaseDir        = '';
+if ($isPreventionPlan) {
+    saturne_load_langs(['digiriskdolibarr@digiriskdolibarr']);
+    dol_include_once('/digiriskdolibarr/class/preventionplan.class.php');
+    dol_include_once('/digiriskdolibarr/class/riskanalysis/risk.class.php');
+    dol_include_once('/digiriskdolibarr/lib/digiriskdolibarr_mobile.lib.php');
+
+    $ppObject             = $objectsMetadata[$objectType]['object'];
+    $certificationOptions = digiriskGetCertificationOptions();
+
+    // Risks (prevention plan lines)
+    $ppLine  = new PreventionPlanLine($db);
+    $ppRisk  = new Risk($db);
+    $ppLines = $ppLine->fetchAll('', '', 0, 0, ['fk_preventionplan' => $ppObject->id]);
+    if (is_array($ppLines)) {
+        foreach ($ppLines as $ppLineItem) {
+            $thumb      = $ppRisk->getDangerCategory($ppLineItem);
+            $ppRisks[] = [
+                'thumb'   => ($thumb != -1) ? DOL_URL_ROOT . '/custom/digiriskdolibarr/img/categorieDangers/' . $thumb . '.png' : '',
+                'name'    => $ppRisk->getDangerCategoryName($ppLineItem),
+                'comment' => $ppLineItem->description,
+            ];
+        }
+    }
+
+    // Protections + certifications from the extrafields
+    $ppObject->fetch_optionals();
+    $ppProtections    = !empty($ppObject->array_options['options_mobile_protections'])   ? json_decode($ppObject->array_options['options_mobile_protections'], true)   : [];
+    $ppCertifications = !empty($ppObject->array_options['options_mobile_certifications']) ? json_decode($ppObject->array_options['options_mobile_certifications'], true) : [];
+
+    // Map protection position -> signalisation picto/name
+    $signalisationFile = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/js/json/signalisationCategories.json';
+    $ppProtectionMap   = [];
+    if (file_exists($signalisationFile)) {
+        foreach ((json_decode(file_get_contents($signalisationFile), true) ?: []) as $signalisationCategory) {
+            $ppProtectionMap[$signalisationCategory['position']] = $signalisationCategory;
+        }
+    }
+
+    // Base directory of uploaded certification photos
+    $ppUploadBase  = !empty($conf->digiriskdolibarr->multidir_output[$conf->entity]) ? $conf->digiriskdolibarr->multidir_output[$conf->entity] : DOL_DATA_ROOT . '/digiriskdolibarr';
+    $ppCertBaseDir = $ppUploadBase . '/preventionplan/' . dol_sanitizeFileName($ppObject->ref) . '/certifications';
+}
+
+$signSignatory = null;
 if (!empty($sign)) {
     $tmpSignatory = new SaturneSignature($db);
     $directSignatoryId = $tmpSignatory->fetch(0, '', ' AND t.signature_url = "' . $sign . '"');
+    if ($tmpSignatory->id > 0) {
+        $signSignatory = $tmpSignatory; // Single-person view: only this signatory's signature + certification photos
+    }
     if (!empty($tmpSignatory->signature)) {
         $directSignatoryId = 0;
     }
@@ -376,7 +482,7 @@ $moreJS = ['/saturne/js/includes/signature-pad.min.js'];
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(0,'', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card');
+saturne_header(0, '', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card');
 
 $signatories = $signatory->fetchSignatory('', $attendanceSheet->id ?? 0, $attendanceSheet->element);
 if ($signatories <= 0) {
@@ -386,6 +492,11 @@ if ($signatories <= 0) {
 }
 
 require_once __DIR__ . '/../../core/tpl/spread/public_spread_view.tpl.php';
+
+// Photo editor modal required by the Saturne media blocks (mediaBlock.js -> saturne.photoEditor.openFile)
+if ($isPreventionPlan) {
+    include dol_buildpath('/saturne/core/tpl/medias/photo_editor_modal.tpl.php');
+}
 
 llxFooter('', 'public');
 $db->close();

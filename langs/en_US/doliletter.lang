@@ -51,3 +51,5 @@ MyPageName = My page name
 #
 MyWidget = My widget
 MyWidgetDescription = My widget description
+
+ErrorInvalidSignatureLink = This signature link is no longer valid or has expired.
