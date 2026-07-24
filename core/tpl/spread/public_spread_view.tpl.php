@@ -486,6 +486,23 @@ body {
     font-size: 16px;
 }
 
+.external-signatory {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.external-signatory__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.external-signatory__contact {
+    font-size: 12px;
+    color: #666;
+}
+
 .quick-sign {
     background: white;
     border: 1px solid #e5e5e5;
@@ -607,6 +624,26 @@ body {
                     </div>
                 </div>
 
+                <?php if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
+                    $certSignatoryId = $signSignatory->id;
+                    require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
+                } ?>
+
+                <?php if (empty($signSignatory->signature) && !empty($ppPendingCertifications)) { ?>
+                <!-- Mandatory documents block signing until they are uploaded or waived -->
+                <div class="pp-mandatory-pending">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <?php echo $langs->trans('SpreadMandatoryCertificationsPending'); ?>
+                        <ul class="pp-mandatory-pending__list">
+                            <?php foreach ($ppPendingCertifications as $pendingCertification) { ?>
+                            <li data-cert-code="<?php echo dol_escape_htmltag($pendingCertification['code']); ?>"><?php echo dol_escape_htmltag($pendingCertification['label']); ?></li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                </div>
+                <?php } ?>
+
                 <?php if (empty($signSignatory->signature)) { ?>
                 <!-- Inline signature panel: no modal, the person signs directly on the page -->
                 <div class="pp-inline-signature">
@@ -624,11 +661,6 @@ body {
                     </div>
                 </div>
                 <?php } ?>
-
-                <?php if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
-                    $certSignatoryId = $signSignatory->id;
-                    require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
-                } ?>
             </div>
             <?php } ?>
 
@@ -743,6 +775,9 @@ body {
 
                     // If there are already added signatories, display them
                     foreach ($signatories as $index => $signatoryItem) {
+                        // A signatory registered from the public page carries their own identity, no Dolibarr user behind it
+                        $isExternalSignatory = ($signatoryItem->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
+                        $isSignatoryReady    = $isExternalSignatory || (!empty($signatoryItem->element_id) && $signatoryItem->element_id != -1);
                         if (empty($signatoryItem->signature)) {
                         ?>
                         <div class="user-signature-item signature-not-validated" data-user-index="<?php echo $signatoryItem->id; ?>">
@@ -752,20 +787,25 @@ body {
                                         <label for="attendant_user"><?php echo $langs->trans('User'); ?></label>
                                         <div class="input-with-actions">
                                             <div class="user-status">
-                                                <?php
-                                                print $form->select_dolusers(empty($signatoryItem->element_id) ? -1 : $signatoryItem->element_id, 'attendant_user_' . $signatoryItem->id, 1, [], 0, '', '', $conf->entity, 0, 0, '', 0, '', 'minwidth150 widthcentpercentminusx user-select-small', 1);
-                                                ?>
+                                                <?php if ($isExternalSignatory) { ?>
+                                                    <div class="external-signatory">
+                                                        <span class="external-signatory__name"><?php echo dol_escape_htmltag(doliletter_spread_get_signatory_name($signatoryItem)); ?></span>
+                                                        <span class="external-signatory__contact"><?php echo dol_escape_htmltag($signatoryItem->email); ?><?php echo dol_strlen($signatoryItem->phone) ? ' - ' . dol_escape_htmltag($signatoryItem->phone) : ''; ?></span>
+                                                    </div>
+                                                <?php } else {
+                                                    print $form->select_dolusers(empty($signatoryItem->element_id) ? -1 : $signatoryItem->element_id, 'attendant_user_' . $signatoryItem->id, 1, [], 0, '', '', $conf->entity, 0, 0, '', 0, '', 'minwidth150 widthcentpercentminusx user-select-small', 1);
+                                                } ?>
                                             </div>
                                             <div class="signature-status">
-                                                <span class="badge badge-dot badge-status<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? '0' : '1' ?> badge-status"></span>
+                                                <span class="badge badge-dot badge-status<?php echo $isSignatoryReady ? '1' : '0' ?> badge-status"></span>
                                                 <i class="fas fa-signature"></i>
                                                 <span>jj/mm/aaaa --:--</span>
                                             </div>
-                                            <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> sign-btn">
+                                            <button type="button" class="wpeo-button button-<?php echo $isSignatoryReady ? 'primary' : 'disable' ?> sign-btn">
                                                 <i class="fas fa-signature"></i>
                                             </button>
                                             <?php if (!empty($permissiontoadd)) { ?>
-                                            <button type="button" class="wpeo-button button-<?php echo (empty($signatoryItem->element_id) || $signatoryItem->element_id == -1) ? 'disable' : 'primary' ?> send-email-btn">
+                                            <button type="button" class="wpeo-button button-<?php echo $isSignatoryReady ? 'primary' : 'disable' ?> send-email-btn">
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
@@ -786,10 +826,15 @@ body {
                                     <div class="form-element">
                                         <div class="input-with-actions">
                                             <div class="user-status">
-                                                <?php
-                                                $tmpUser->fetch($signatoryItem->element_id);
-                                                echo $tmpUser->getNomUrl(1);
-                                                ?>
+                                                <?php if ($isExternalSignatory) { ?>
+                                                    <div class="external-signatory">
+                                                        <span class="external-signatory__name"><?php echo dol_escape_htmltag(doliletter_spread_get_signatory_name($signatoryItem)); ?></span>
+                                                        <span class="external-signatory__contact"><?php echo dol_escape_htmltag($signatoryItem->email); ?><?php echo dol_strlen($signatoryItem->phone) ? ' - ' . dol_escape_htmltag($signatoryItem->phone) : ''; ?></span>
+                                                    </div>
+                                                <?php } else {
+                                                    $tmpUser->fetch($signatoryItem->element_id);
+                                                    echo $tmpUser->getNomUrl(1);
+                                                } ?>
                                             </div>
                                             <div class="signature-status">
                                                 <span class="badge badge-dot badge-status4 badge-status"></span>
@@ -859,6 +904,10 @@ body {
     <?php } ?>
 
     <?php if (!$isLogged) { ?>
+
+        <?php if (!empty($publicRegisterEnabled) && empty($sign)) {
+            require __DIR__ . '/public_spread_register.tpl.php';
+        } ?>
 
         <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
 
@@ -1034,6 +1083,10 @@ function clearSignature() {
     updateValidateButtonState();
 }
 
+function getResponseMessage(response, id) {
+    return $('<div></div>').append(response).find('#' + id);
+}
+
 function validateSignature() {
     if (currentUserIndex !== null && !isCanvasEmpty()) {
 
@@ -1047,6 +1100,13 @@ function validateSignature() {
                 signature
             }),
             success: function (response) {
+                // Signature refused server-side, typically a mandatory document still waiting for an answer
+                const error = getResponseMessage(response, 'error');
+                if (error.length) {
+                    $.jnotify(error.val(), {type: 'error'});
+                    return;
+                }
+
                 // Inline (single-person) mode: refresh this person's block in place, no page reload.
                 // The ?sign= token stays valid, so the response already holds the signed state.
                 if ($('.pp-inline-signature').length) {
@@ -1195,7 +1255,97 @@ function sendQuickSignEmail() {
     });
 }
 
+function registerPublicSignatory() {
+    const button = $(this);
+    const token  = window.saturne.toolbox.getToken();
+    const fields = {
+        firstname: $('#public-register-firstname').val(),
+        lastname:  $('#public-register-lastname').val(),
+        email:     $('#public-register-email').val(),
+        phone:     $('#public-register-phone').val()
+    };
+
+    if (!fields.firstname || !fields.lastname || !fields.phone) {
+        $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SpreadPublicRegisterMissingFields')); ?>', {type: 'error'});
+        return;
+    }
+
+    if (!fields.email || !fields.email.includes('@')) {
+        $.jnotify('<?php echo dol_escape_js($langs->transnoentities('PleaseEnterValidEmail')); ?>', {type: 'error'});
+        return;
+    }
+
+    window.saturne.loader.display(button);
+
+    $.ajax({
+        method: 'POST',
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=register_public_signatory&token=' + token,
+        data: JSON.stringify(fields),
+        processData: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+            const error = getResponseMessage(response, 'error');
+            if (error.length) {
+                $.jnotify(error.val(), {type: 'error'});
+                window.saturne.loader.remove(button);
+                return;
+            }
+
+            // Land straight on the personal page: signature and required documents live there
+            const redirect = getResponseMessage(response, 'redirect');
+            if (redirect.length) {
+                window.location.href = redirect.val();
+            } else {
+                window.saturne.loader.remove(button);
+            }
+        },
+        error: function () {
+            $.jnotify('<?php echo dol_escape_js($langs->transnoentities('Error')); ?>', {type: 'error'});
+            window.saturne.loader.remove(button);
+        }
+    });
+}
+
+function toggleCertNotConcerned() {
+    const button       = $(this);
+    const certItem     = button.parents('.pp-cert-upload').eq(0);
+    const notConcerned = !certItem.hasClass('pp-cert-upload--not-concerned');
+    const token        = window.saturne.toolbox.getToken();
+
+    $.ajax({
+        method: 'POST',
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=set_cert_not_concerned&token=' + token,
+        data: JSON.stringify({
+            signatory_id:  certItem.data('cert-signatory-id'),
+            cert_code:     certItem.data('cert-code'),
+            not_concerned: notConcerned
+        }),
+        processData: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+            const error = getResponseMessage(response, 'error');
+            if (error.length) {
+                $.jnotify(error.val(), {type: 'error'});
+                return;
+            }
+
+            certItem.toggleClass('pp-cert-upload--not-concerned', notConcerned);
+            button.toggleClass('pp-cert-not-concerned-btn--active', notConcerned);
+            button.find('i').attr('class', notConcerned ? 'fas fa-undo' : 'fas fa-ban');
+            button.find('span').text(notConcerned ? '<?php echo dol_escape_js($langs->transnoentities('SpreadIAmConcerned')); ?>' : '<?php echo dol_escape_js($langs->transnoentities('SpreadIAmNotConcerned')); ?>');
+
+            // The pending list is rebuilt server-side on the next load; keep it truthful meanwhile
+            $('.pp-mandatory-pending__list li[data-cert-code="' + certItem.data('cert-code') + '"]').toggle(!notConcerned);
+            $('.pp-mandatory-pending').toggle($('.pp-mandatory-pending__list li:visible').length > 0);
+        }
+    });
+}
+
 $(document).ready(function () {
+    $(document).on('click', '.public-register-btn', registerPublicSignatory);
+
+    $(document).on('click', '.pp-cert-not-concerned-btn', toggleCertNotConcerned);
+
     $(document).on('change', '.user-select-small', function () {
         let signatoryId = $(this).parents('.user-signature-item').eq(0).data('user-index');
         let val         = $(this).val();

@@ -19,20 +19,30 @@
  * \file    core/tpl/spread/preventionplan_signatory_certs.tpl.php
  * \ingroup doliletter
  * \brief   One Saturne media block per required certification (document) for a given signatory.
- *          Expects: $langs, $objectRef, $certSignatoryId, $ppCertifications, $certificationOptions.
+ *          A mandatory certification can be waived by declaring the signatory is not concerned by it.
+ *          Expects: $langs, $objectRef, $certSignatoryId, $ppCertifications, $certificationOptions, $ppCertificationStates.
  */
 
 if (!empty($ppCertifications)) { ?>
 <div class="pp-cert-uploads">
-    <?php foreach ($ppCertifications as $ppCertItem) {
-        $certCode  = $ppCertItem['code'];
-        $certLabel = $certificationOptions[$certCode] ?? $certCode;
-        $certSubDir = 'preventionplan/' . dol_sanitizeFileName($objectRef) . '/certifications/' . ((int) $certSignatoryId) . '/' . dol_sanitizeFileName($certCode);
+    <?php foreach ($ppCertificationStates[$certSignatoryId] ?? [] as $certState) {
+        $certCode     = $certState['code'];
+        $certSubDir   = 'preventionplan/' . dol_sanitizeFileName($objectRef) . '/certifications/' . ((int) $certSignatoryId) . '/' . dol_sanitizeFileName($certCode);
+        $notConcerned = !empty($certState['not_concerned']);
     ?>
-    <div class="pp-cert-upload">
+    <div class="pp-cert-upload<?php echo $notConcerned ? ' pp-cert-upload--not-concerned' : ''; ?>" data-cert-code="<?php echo dol_escape_htmltag($certCode); ?>" data-cert-signatory-id="<?php echo (int) $certSignatoryId; ?>">
         <div class="pp-cert-upload__label">
-            <i class="fas fa-id-badge"></i> <?php echo dol_escape_htmltag($certLabel); ?>
-            <?php if (!empty($ppCertItem['mandatory'])) { ?><span class="pp-public-badge"><?php echo $langs->trans('MobilePPMandatory'); ?></span><?php } ?>
+            <i class="fas fa-id-badge"></i> <span class="pp-cert-upload__name"><?php echo dol_escape_htmltag($certState['label']); ?></span>
+            <?php if (!empty($certState['mandatory'])) { ?>
+            <span class="pp-public-badge pp-cert-badge-mandatory"><?php echo $langs->trans('MobilePPMandatory'); ?></span>
+            <span class="pp-public-badge pp-public-badge--muted pp-cert-badge-not-concerned"><?php echo $langs->trans('SpreadNotConcerned'); ?></span>
+            <?php } ?>
+            <?php if (!empty($certState['mandatory'])) { ?>
+            <button type="button" class="pp-cert-not-concerned-btn<?php echo $notConcerned ? ' pp-cert-not-concerned-btn--active' : ''; ?>">
+                <i class="fas <?php echo $notConcerned ? 'fa-undo' : 'fa-ban'; ?>"></i>
+                <span><?php echo $notConcerned ? $langs->trans('SpreadIAmConcerned') : $langs->trans('SpreadIAmNotConcerned'); ?></span>
+            </button>
+            <?php } ?>
         </div>
         <div class="pp-cert-upload__row">
         <?php

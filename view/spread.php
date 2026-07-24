@@ -67,6 +67,7 @@ foreach ($paginationParameters as $paginationParameterKey => $paginationParamete
 include_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterdocuments/signinsheetdocument.class.php';
 include_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/lib/doliletter_spread.lib.php';
 
 $document    = new SigninSheetDocument($db);
 $object      = new DoliletterAttendanceSheet($db, 'doliletter');
@@ -206,12 +207,21 @@ print '<td class="center">Lien individuel</td>';
 print '</tr>';
 
 foreach ($signatories as $signatory) {
-    if (empty($signatory->element_id)) {
+    $isExternalSignatory = ($signatory->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
+    // Rows with neither a user nor a public registration are placeholders waiting for a user to be picked
+    if (empty($signatory->element_id) && !$isExternalSignatory) {
         continue;
     }
     print '<tr class="oddeven">';
     print '<td>';
-    if (!empty($signatory->element_id)) {
+    if ($isExternalSignatory) {
+        print '<span class="fas fa-user-tag paddingright" title="' . dol_escape_htmltag($langs->trans('SpreadExternalSignatory')) . '"></span>';
+        print dol_escape_htmltag(doliletter_spread_get_signatory_name($signatory));
+        $externalContact = trim($signatory->email . (dol_strlen($signatory->phone) ? ' - ' . $signatory->phone : ''));
+        if (dol_strlen($externalContact)) {
+            print '<br><span class="opacitymedium small">' . dol_escape_htmltag($externalContact) . '</span>';
+        }
+    } elseif (!empty($signatory->element_id)) {
         $tmpUser->fetch($signatory->element_id);
         print $tmpUser->getNomUrl(1);
     } else {

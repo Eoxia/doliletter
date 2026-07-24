@@ -34,6 +34,8 @@ SpreadConfig                        = Configuration des diffusions
 
 ConfigSpreadQuickSign               = Signature rapide
 ConfigSpreadQuickSignDescription    = Les utilisateurs peuvent signer rapidement les diffusions en rentrant leurs emails
+ConfigSpreadPublicRegister             = Inscription libre
+ConfigSpreadPublicRegisterDescription  = Toute personne disposant du lien public peut rejoindre la diffusion en renseignant son nom, prénom, email et téléphone, sans être connectée
 
 #
 # About page
@@ -240,3 +242,18 @@ ErrorUserNotFound               = Utilisateur non trouvé, contactez votre admin
 
 ConnectForMoreInfo              = <a href="%s">Connectez-vous</a> pour avoir d'autres informations
 ErrorInvalidSignatureLink       = Ce lien de signature n'est plus valide ou a expiré.
+ErrorNotAllowed                 = Action non autorisée
+
+# Public registration
+SpreadPublicRegister              = Rejoindre la diffusion
+SpreadPublicRegisterInfo          = Renseignez vos coordonnées pour accéder à votre page personnelle de signature et de dépôt de documents.
+SpreadPublicRegisterSubmit        = Valider mon inscription
+SpreadPublicRegisterMissingFields = Renseignez vos nom, prénom, email et téléphone
+SpreadExternalSignatory           = Inscrit depuis le lien public
+
+# Mandatory documents
+SpreadNotConcerned                    = Non concerné
+SpreadIAmNotConcerned                 = Je ne suis pas concerné
+SpreadIAmConcerned                    = Je suis concerné
+SpreadMandatoryCertificationsPending  = Documents obligatoires à fournir avant de signer. Indiquez « Je ne suis pas concerné » pour ceux qui ne vous concernent pas :
+ErrorMandatoryCertificationsMissing   = Documents obligatoires manquants : %s

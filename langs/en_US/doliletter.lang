@@ -53,3 +53,24 @@ MyWidget = My widget
 MyWidgetDescription = My widget description
 
 ErrorInvalidSignatureLink = This signature link is no longer valid or has expired.
+ErrorNotAllowed = Action not allowed
+
+#
+# Public registration
+#
+ConfigSpreadPublicRegister = Free registration
+ConfigSpreadPublicRegisterDescription = Anyone holding the public link can join the spread with their lastname, firstname, email and phone, without being logged in
+SpreadPublicRegister = Join the spread
+SpreadPublicRegisterInfo = Fill in your details to reach your own signature and document page.
+SpreadPublicRegisterSubmit = Confirm my registration
+SpreadPublicRegisterMissingFields = Please fill in your lastname, firstname, email and phone
+SpreadExternalSignatory = Registered from the public link
+
+#
+# Mandatory documents
+#
+SpreadNotConcerned = Not concerned
+SpreadIAmNotConcerned = I am not concerned
+SpreadIAmConcerned = I am concerned
+SpreadMandatoryCertificationsPending = Mandatory documents to provide before signing. Use "I am not concerned" for those that do not apply to you:
+ErrorMandatoryCertificationsMissing = Missing mandatory documents: %s

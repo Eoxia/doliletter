@@ -204,6 +204,17 @@ print ajax_constantonoff('DOLILETTER_SPREAD_QUICK_SIGN');
 print '</td>';
 print '</tr>';
 
+print '<tr class="oddeven"><td>';
+print $langs->trans('ConfigSpreadPublicRegister');
+print "</td><td>";
+print $langs->trans('ConfigSpreadPublicRegisterDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLILETTER_SPREAD_PUBLIC_REGISTER');
+print '</td>';
+print '</tr>';
+
 print '</table>';
 
 print '<hr>';
