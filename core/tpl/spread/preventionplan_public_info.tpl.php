@@ -43,6 +43,19 @@
 .pp-cert-upload__row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .pp-cert-upload__row .linked-medias { margin: 0; }
 .pp-cert-upload__row .photo { border-radius: 6px; }
+.pp-public-badge--muted { background: #6b7280; }
+.pp-cert-upload .pp-cert-badge-not-concerned { display: none; }
+.pp-cert-upload--not-concerned .pp-cert-badge-mandatory { display: none; }
+.pp-cert-upload--not-concerned .pp-cert-badge-not-concerned { display: inline-block; }
+.pp-cert-not-concerned-btn { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 10px; font-size: 12px; font-weight: 600; color: #4b5563; background: #fff; border: 1px solid #d1d5db; border-radius: 14px; cursor: pointer; }
+.pp-cert-not-concerned-btn:hover { border-color: #9ca3af; background: #f9fafb; }
+.pp-cert-not-concerned-btn--active { color: #fff; background: #6b7280; border-color: #6b7280; }
+.pp-cert-upload--not-concerned { background: #f9fafb; }
+.pp-cert-upload--not-concerned .pp-cert-upload__label { color: #6b7280; }
+.pp-cert-upload--not-concerned .pp-cert-upload__row { display: none; }
+.pp-mandatory-pending { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; padding: 12px 14px; font-size: 13px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; }
+.pp-mandatory-pending i { margin-top: 2px; }
+.pp-mandatory-pending__list { margin: 4px 0 0; padding-left: 18px; font-weight: 600; }
 .pp-single-person { margin-top: 16px; }
 .pp-inline-signature { margin: 12px 0; padding: 14px; background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; }
 .pp-inline-signature__title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
