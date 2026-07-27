@@ -48,6 +48,14 @@ body {
     background: transparent;
 }
 
+/* Saturne pose width:100% + padding:2em sur ce conteneur, sans box-sizing et avec une
+   specificite superieure a la regle ci-dessus : sur mobile il deborde et rogne tout ce qu'il
+   contient (photos des risques, champs du formulaire d'inscription) */
+.page-public-card .public-card__container {
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
 .public-card__header {
     background: transparent;
     margin-bottom: 16px;
@@ -628,6 +636,18 @@ body {
                     $certSignatoryId = $signSignatory->id;
                     require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
                 } ?>
+
+                <?php if (empty($signSignatory->signature) && !empty($ppRisks)) { ?>
+                <!-- Every risk has to be acknowledged before signing. The count is kept up to date
+                     client side as the visitor validates each risk block. -->
+                <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <?php echo $langs->trans('SpreadRisksPending'); ?>
+                        <strong class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></strong>
+                    </div>
+                </div>
+                <?php } ?>
 
                 <?php if (empty($signSignatory->signature) && !empty($ppPendingCertifications)) { ?>
                 <!-- Mandatory documents block signing until they are uploaded or waived -->

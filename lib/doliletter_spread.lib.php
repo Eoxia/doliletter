@@ -137,6 +137,63 @@ function doliletter_spread_set_not_concerned_certification(SaturneSignature $sig
 }
 
 /**
+ * Danger categories a signatory declared having taken note of.
+ *
+ * @param  SaturneSignature $signatory Signatory to read
+ * @return int[]                       Danger category positions
+ */
+function doliletter_spread_get_acknowledged_risks(SaturneSignature $signatory): array
+{
+    $data = doliletter_spread_get_signatory_data($signatory);
+
+    return (!empty($data['acknowledged_risks']) && is_array($data['acknowledged_risks'])) ? array_map('intval', $data['acknowledged_risks']) : [];
+}
+
+/**
+ * Record that a signatory has taken note of one risk, with its protections and its photos.
+ *
+ * The signatory must be a DoliletterSpreadSignature, otherwise the `json` column is not saved.
+ *
+ * @param  SaturneSignature $signatory    Signatory answering
+ * @param  int              $riskCategory Danger category position of the risk
+ * @param  User             $user         User doing the update
+ * @return int                            < 0 if KO, > 0 if OK
+ */
+function doliletter_spread_acknowledge_risk(SaturneSignature $signatory, int $riskCategory, User $user): int
+{
+    $data         = doliletter_spread_get_signatory_data($signatory);
+    $acknowledged = doliletter_spread_get_acknowledged_risks($signatory);
+
+    if (!in_array($riskCategory, $acknowledged, true)) {
+        $acknowledged[] = $riskCategory;
+    }
+
+    $data['acknowledged_risks'] = $acknowledged;
+    $signatory->json            = json_encode($data);
+
+    return $signatory->update($user, 1);
+}
+
+/**
+ * Risks the signatory still has to take note of before being allowed to sign.
+ *
+ * @param  array $risks        Risks of the plan, each holding a 'category' and a 'name'
+ * @param  int[] $acknowledged Danger category positions already acknowledged
+ * @return array               Risks left, same shape as the input
+ */
+function doliletter_spread_get_pending_risks(array $risks, array $acknowledged): array
+{
+    $pending = [];
+    foreach ($risks as $risk) {
+        if (!in_array((int) $risk['category'], $acknowledged, true)) {
+            $pending[] = $risk;
+        }
+    }
+
+    return $pending;
+}
+
+/**
  * Directory holding the photos uploaded for one certification of one signatory.
  *
  * Must stay aligned with the sub directory given to saturne_render_media_block().

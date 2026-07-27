@@ -74,3 +74,12 @@ SpreadIAmNotConcerned = I am not concerned
 SpreadIAmConcerned = I am concerned
 SpreadMandatoryCertificationsPending = Mandatory documents to provide before signing. Use "I am not concerned" for those that do not apply to you:
 ErrorMandatoryCertificationsMissing = Missing mandatory documents: %s
+
+# Risk acknowledgement
+SpreadRiskPhotos = Risk photos
+SpreadRiskAcknowledgeText = I have taken note of this risk, of the protections to wear and of the site photos.
+SpreadRiskAcknowledgeButton = OK
+SpreadRiskAcknowledged = Acknowledged
+SpreadRiskSeeAllPhotos = Scroll through every photo to validate
+SpreadRisksPending = Take note of every risk before signing. Risks left:
+ErrorRisksNotAcknowledged = Risks you have not taken note of: %s
