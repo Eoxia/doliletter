@@ -257,3 +257,12 @@ SpreadIAmNotConcerned                 = Je ne suis pas concerné
 SpreadIAmConcerned                    = Je suis concerné
 SpreadMandatoryCertificationsPending  = Documents obligatoires à fournir avant de signer. Indiquez « Je ne suis pas concerné » pour ceux qui ne vous concernent pas :
 ErrorMandatoryCertificationsMissing   = Documents obligatoires manquants : %s
+
+# Prise de connaissance des risques
+SpreadRiskPhotos                      = Photos du risque
+SpreadRiskAcknowledgeText             = J'ai pris connaissance de ce risque, des protections à porter et des photos du site.
+SpreadRiskAcknowledgeButton           = OK
+SpreadRiskAcknowledged                = Pris connaissance
+SpreadRiskSeeAllPhotos                = Faites défiler toutes les photos pour valider
+SpreadRisksPending                    = Prenez connaissance de tous les risques avant de signer. Risques restants :
+ErrorRisksNotAcknowledged             = Risques dont vous n'avez pas pris connaissance : %s

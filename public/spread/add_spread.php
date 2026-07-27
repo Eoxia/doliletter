@@ -134,6 +134,7 @@ $isPreventionPlan     = ($objectType === 'digiriskdolibarr_preventionplan');
 $ppRisks              = [];
 $ppProtections        = [];
 $ppCertifications     = [];
+$ppOrphanProtections  = [];
 $certificationOptions = [];
 $ppCertBaseDir        = '';
 if ($isPreventionPlan) {
@@ -145,25 +146,13 @@ if ($isPreventionPlan) {
     $ppObject             = $objectsMetadata[$objectType]['object'];
     $certificationOptions = digiriskGetCertificationOptions();
 
-    // Risks (prevention plan lines)
-    $ppLine  = new PreventionPlanLine($db);
-    $ppRisk  = new Risk($db);
-    $ppLines = $ppLine->fetchAll('', '', 0, 0, ['fk_preventionplan' => $ppObject->id]);
-    if (is_array($ppLines)) {
-        foreach ($ppLines as $ppLineItem) {
-            $thumb      = $ppRisk->getDangerCategory($ppLineItem);
-            $ppRisks[] = [
-                'thumb'   => ($thumb != -1) ? DOL_URL_ROOT . '/custom/digiriskdolibarr/img/categorieDangers/' . $thumb . '.png' : '',
-                'name'    => $ppRisk->getDangerCategoryName($ppLineItem),
-                'comment' => $ppLineItem->description,
-            ];
-        }
-    }
-
     // Protections + certifications from the extrafields
     $ppObject->fetch_optionals();
     $ppProtections    = !empty($ppObject->array_options['options_mobile_protections'])   ? json_decode($ppObject->array_options['options_mobile_protections'], true)   : [];
     $ppCertifications = !empty($ppObject->array_options['options_mobile_certifications']) ? json_decode($ppObject->array_options['options_mobile_certifications'], true) : [];
+    if (!is_array($ppProtections)) {
+        $ppProtections = [];
+    }
 
     // Map protection position -> signalisation picto/name
     $signalisationFile = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/js/json/signalisationCategories.json';
@@ -171,6 +160,63 @@ if ($isPreventionPlan) {
     if (file_exists($signalisationFile)) {
         foreach ((json_decode(file_get_contents($signalisationFile), true) ?: []) as $signalisationCategory) {
             $ppProtectionMap[$signalisationCategory['position']] = $signalisationCategory;
+        }
+    }
+
+    // Risks (prevention plan lines), each carrying the protections that apply to it and the
+    // photos taken on site from the mobile interface
+    $ppLine  = new PreventionPlanLine($db);
+    $ppRisk  = new Risk($db);
+    $ppLines = $ppLine->fetchAll('', '', 0, 0, ['fk_preventionplan' => $ppObject->id]);
+    if (is_array($ppLines)) {
+        foreach ($ppLines as $ppLineItem) {
+            $thumb        = $ppRisk->getDangerCategory($ppLineItem);
+            $riskCategory = (int) $ppLineItem->category;
+
+            $riskProtections = [];
+            foreach ($ppProtections as $ppProtectionItem) {
+                if (!isset($ppProtectionItem['risk_category']) || (int) $ppProtectionItem['risk_category'] !== $riskCategory || !isset($ppProtectionMap[$ppProtectionItem['position']])) {
+                    continue;
+                }
+                $riskProtections[] = [
+                    'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
+                    'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
+                    'comment' => $ppProtectionItem['comment'] ?? '',
+                ];
+            }
+
+            // Public page: the photos go through the Saturne image wrapper, document.php would
+            // ask the anonymous visitor to log in
+            $riskPhotos    = [];
+            $riskPhotoDir  = digiriskMobileRiskPhotoDir('preventionplan', $ppObject->ref, $riskCategory);
+            $riskPhotoPath = 'preventionplan/' . dol_sanitizeFileName($ppObject->ref) . '/risks/' . $riskCategory . '/';
+            if (dol_is_dir($riskPhotoDir)) {
+                foreach (dol_dir_list($riskPhotoDir, 'files', 0, '', '(\.meta|_preview.*\.png)$', 'name') as $riskPhotoFile) {
+                    $riskPhotos[] = DOL_URL_ROOT . '/custom/saturne/utils/viewimage.php?modulepart=digiriskdolibarr&entity=' . $conf->entity . '&file=' . urlencode($riskPhotoPath . $riskPhotoFile['name']);
+                }
+            }
+
+            $ppRisks[] = [
+                'category'    => $riskCategory,
+                'thumb'       => ($thumb != -1) ? DOL_URL_ROOT . '/custom/digiriskdolibarr/img/categorieDangers/' . $thumb . '.png' : '',
+                'name'        => $ppRisk->getDangerCategoryName($ppLineItem),
+                'comment'     => $ppLineItem->description,
+                'protections' => $riskProtections,
+                'photos'      => $riskPhotos,
+            ];
+        }
+    }
+
+    // Protections of plans created before they were attached to a risk: nothing links them to a
+    // block, they would silently disappear from the public page
+    $ppOrphanProtections = [];
+    foreach ($ppProtections as $ppProtectionItem) {
+        if (empty($ppProtectionItem['risk_category']) && isset($ppProtectionMap[$ppProtectionItem['position']])) {
+            $ppOrphanProtections[] = [
+                'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
+                'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
+                'comment' => $ppProtectionItem['comment'] ?? '',
+            ];
         }
     }
 
@@ -343,10 +389,47 @@ if ($action == 'set_cert_not_concerned') {
     exit;
 }
 
+// Record that the visitor has taken note of one risk, its protections and its photos
+if ($action == 'acknowledge_risk') {
+    $data         = json_decode(file_get_contents('php://input'), true);
+    $signatoryId  = (int) ($data['signatory_id'] ?? 0);
+    $riskCategory = (int) ($data['risk_category'] ?? 0);
+
+    $tmpSignatory = new DoliletterSpreadSignature($db);
+    $tmpSignatory->fetch($signatoryId);
+
+    $belongsToSpread = $tmpSignatory->id > 0 && $tmpSignatory->fk_object == $attendanceSheet->id && $tmpSignatory->object_type == $attendanceSheet->element;
+    // Without a session the ?sign= token is the only proof of identity: answer for yourself only
+    $isOwnAnswer = $isLogged || ($signTokenSignatoryId > 0 && $signTokenSignatoryId == $tmpSignatory->id);
+    $isKnownRisk = in_array($riskCategory, array_map('intval', array_column($ppRisks, 'category')), true);
+
+    if (!$belongsToSpread || !$isOwnAnswer || !$isKnownRisk) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
+        exit;
+    }
+
+    if (doliletter_spread_acknowledge_risk($tmpSignatory, $riskCategory, $user) < 0) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('Error') . '">';
+        exit;
+    }
+
+    echo '<input type="hidden" id="success" value="' . $langs->transnoentities('RecordSaved') . '">';
+    exit;
+}
+
 if ($action == 'validate_signature') {
     $signatory_id = GETPOSTINT('signatory_id');
     $signatory->fetch($signatory_id);
     if ($signatory->id > 0) {
+        // Every risk must have been acknowledged before signing
+        if ($isPreventionPlan && !empty($ppRisks)) {
+            $pendingRisks = doliletter_spread_get_pending_risks($ppRisks, doliletter_spread_get_acknowledged_risks($signatory));
+            if (!empty($pendingRisks)) {
+                echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorRisksNotAcknowledged', implode(', ', array_column($pendingRisks, 'name')))) . '">';
+                exit;
+            }
+        }
+
         // Mandatory documents must be either uploaded or declared not applicable before signing
         if ($isPreventionPlan && !empty($ppCertifications)) {
             $certificationStates   = doliletter_spread_get_certification_states($ppCertifications, $certificationOptions, $ppCertBaseDir, $signatory->id, doliletter_spread_get_not_concerned_certifications($signatory));
@@ -607,6 +690,10 @@ if ($isPreventionPlan && !empty($ppCertifications)) {
         $ppPendingCertifications = doliletter_spread_get_pending_certifications($ppCertificationStates[$signSignatory->id]);
     }
 }
+
+// Risks the identified visitor has already taken note of, so a reload does not undo their reading
+$ppAcknowledgedRisks = (!empty($signSignatory)) ? doliletter_spread_get_acknowledged_risks($signSignatory) : [];
+$ppPendingRisks      = ($isPreventionPlan && !empty($signSignatory)) ? doliletter_spread_get_pending_risks($ppRisks, $ppAcknowledgedRisks) : [];
 
 /*
  * View

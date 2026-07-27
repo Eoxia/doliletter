@@ -18,9 +18,11 @@
 /**
  * \file    core/tpl/spread/preventionplan_public_info.tpl.php
  * \ingroup doliletter
- * \brief   Read-only public display of a prevention plan (risks / protections / required certifications).
+ * \brief   Read-only public display of a prevention plan: one block per risk, holding its picto,
+ *          its description, the protections that apply to it and a carousel of the photos taken on site.
  *          Certification photos are uploaded per signatory (Saturne media block) in the signatories list.
- *          Expects: $langs, $ppRisks, $ppProtections, $ppProtectionMap, $ppCertifications, $certificationOptions.
+ *          Each block ends with an acknowledgement the visitor must give before being able to sign.
+ *          Expects: $langs, $ppRisks, $ppOrphanProtections, $signSignatory, $ppAcknowledgedRisks.
  */
 ?>
 <style>
@@ -33,6 +35,55 @@
 .pp-public-item__name { font-size: 13px; font-weight: 600; color: #333; }
 .pp-public-item__comment { font-size: 12px; color: #666; }
 .pp-public-badge { display: inline-block; margin-top: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; color: #fff; background: #ef4444; border-radius: 10px; }
+.pp-risk-block { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 14px; margin: 12px 0; }
+.pp-risk-block__header { display: flex; align-items: center; gap: 12px; }
+.pp-risk-block__picto { width: 56px; height: 56px; object-fit: contain; flex: 0 0 auto; }
+.pp-risk-block__name { font-size: 15px; font-weight: 600; color: #333; }
+.pp-risk-block__comment { margin-top: 4px; font-size: 13px; color: #666; white-space: pre-line; }
+.pp-risk-block__section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+.pp-risk-block__label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.pp-risk-block__label i { color: #3b82f6; }
+.pp-risk-protections { display: flex; flex-wrap: wrap; gap: 10px; }
+.pp-risk-protection { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 76px; text-align: center; }
+.pp-risk-protection img { width: 52px; height: 52px; object-fit: contain; }
+.pp-risk-protection__name { font-size: 11px; line-height: 1.25; color: #4b5563; }
+.pp-carousel { position: relative; }
+.pp-carousel__track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.pp-carousel__track::-webkit-scrollbar { display: none; }
+.pp-carousel__slide { flex: 0 0 100%; scroll-snap-align: center; }
+/* contain, pas cover : une photo de terrain doit se lire en entier, quitte a laisser des bandes */
+.pp-carousel__slide img { display: block; width: 100%; height: 260px; object-fit: contain; border-radius: 6px; background: #f3f4f6; }
+.pp-carousel__nav { position: absolute; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; font-size: 15px; color: #fff; background: rgba(17, 24, 39, 0.55); border: none; border-radius: 50%; cursor: pointer; transition: opacity .2s; }
+.pp-carousel__nav:hover { background: rgba(17, 24, 39, 0.75); }
+.pp-carousel__nav--prev { left: 8px; }
+.pp-carousel__nav--next { right: 8px; }
+.pp-carousel__nav--idle { opacity: 0.3; }
+/* La fleche droite bat tant qu'il reste des photos a voir */
+.pp-carousel__nav--pulse { animation: pp-carousel-pulse 2.4s ease-in-out infinite; }
+@keyframes pp-carousel-pulse {
+  0%, 100% { transform: translateY(-50%) scale(1); }
+  50%      { transform: translateY(-50%) scale(1.07); }
+}
+@media (prefers-reduced-motion: reduce) { .pp-carousel__nav--pulse { animation: none; } }
+.pp-carousel__counter { position: absolute; top: 8px; right: 8px; padding: 3px 9px; font-size: 12px; font-weight: 600; color: #fff; background: rgba(17, 24, 39, 0.65); border-radius: 12px; pointer-events: none; }
+.pp-carousel--single .pp-carousel__counter { display: none; }
+.pp-carousel__dots { display: flex; justify-content: center; gap: 6px; margin-top: 8px; }
+.pp-carousel__dot { width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%; background: #d1d5db; cursor: pointer; }
+.pp-carousel__dot--active { background: #3b82f6; }
+.pp-carousel--single .pp-carousel__nav, .pp-carousel--single .pp-carousel__dots { display: none; }
+.pp-risk-ack { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+.pp-risk-ack__text { flex: 1; min-width: 180px; font-size: 13px; color: #4b5563; }
+.pp-risk-ack__btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: #fff; background: #3b82f6; border: none; border-radius: 6px; cursor: pointer; }
+.pp-risk-ack__btn[disabled] { background: #d1d5db; color: #6b7280; cursor: not-allowed; }
+.pp-risk-ack__done { display: none; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #047857; }
+.pp-risk-ack__hint { display: none; align-items: center; gap: 6px; font-size: 12px; color: #92400e; }
+/* Tant que toutes les photos ne sont pas vues : bouton verrouille, on explique pourquoi */
+.pp-risk-ack--locked .pp-risk-ack__hint { display: inline-flex; }
+.pp-risk-ack--done .pp-risk-ack__btn, .pp-risk-ack--done .pp-risk-ack__hint { display: none; }
+.pp-risk-ack--done .pp-risk-ack__done { display: inline-flex; }
+.pp-risk-ack--done { border-top-color: #a7f3d0; }
+/* Le theme ne definit pas .hidden sur cette page publique */
+.pp-risks-pending.hidden, .pp-inline-signature.hidden { display: none; }
 .pp-signatory-media-row { margin: 6px 0 12px; padding: 10px 12px; border: 1px dashed #d1d5db; border-radius: 6px; background: #fafafa; }
 .pp-signatory-media-row__label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 .pp-signatory-media-row__label i { color: #3b82f6; }
@@ -68,62 +119,198 @@
 </style>
 
 <div class="pp-public-info">
-    <?php if (!empty($ppRisks)) { ?>
-    <div class="pp-public-block">
-        <div class="pp-public-block__title"><i class="fas fa-exclamation-triangle"></i> <?php echo $langs->trans('MobilePPRisks'); ?></div>
-        <div class="pp-public-grid">
-            <?php foreach ($ppRisks as $ppRiskItem) { ?>
-            <div class="pp-public-item">
-                <?php if (!empty($ppRiskItem['thumb'])) { ?><img src="<?php echo $ppRiskItem['thumb']; ?>" alt=""><?php } ?>
-                <div>
-                    <div class="pp-public-item__name"><?php echo dol_escape_htmltag(($ppRiskItem['name'] != -1) ? $ppRiskItem['name'] : ''); ?></div>
-                    <?php if (dol_strlen($ppRiskItem['comment'])) { ?><div class="pp-public-item__comment"><?php echo dol_escape_htmltag($ppRiskItem['comment']); ?></div><?php } ?>
+    <?php foreach ($ppRisks as $ppRiskIndex => $ppRiskItem) { ?>
+    <div class="pp-risk-block">
+        <div class="pp-risk-block__header">
+            <?php if (!empty($ppRiskItem['thumb'])) { ?><img class="pp-risk-block__picto" src="<?php echo $ppRiskItem['thumb']; ?>" alt=""><?php } ?>
+            <div>
+                <div class="pp-risk-block__name"><?php echo dol_escape_htmltag(($ppRiskItem['name'] != -1) ? $ppRiskItem['name'] : ''); ?></div>
+                <?php if (dol_strlen($ppRiskItem['comment'])) { ?><div class="pp-risk-block__comment"><?php echo dol_escape_htmltag($ppRiskItem['comment']); ?></div><?php } ?>
+            </div>
+        </div>
+
+        <?php if (!empty($ppRiskItem['protections'])) { ?>
+        <div class="pp-risk-block__section">
+            <div class="pp-risk-block__label"><i class="fas fa-hard-hat"></i> <?php echo $langs->trans('MobilePPProtections'); ?></div>
+            <div class="pp-risk-protections">
+                <?php foreach ($ppRiskItem['protections'] as $ppRiskProtection) { ?>
+                <div class="pp-risk-protection" title="<?php echo dol_escape_htmltag($ppRiskProtection['name'] . (dol_strlen($ppRiskProtection['comment']) ? ' - ' . $ppRiskProtection['comment'] : '')); ?>">
+                    <img src="<?php echo $ppRiskProtection['thumb']; ?>" alt="">
+                    <span class="pp-risk-protection__name"><?php echo dol_escape_htmltag($ppRiskProtection['name']); ?></span>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if (!empty($ppRiskItem['photos'])) { ?>
+        <div class="pp-risk-block__section">
+            <div class="pp-risk-block__label"><i class="fas fa-camera"></i> <?php echo $langs->trans('SpreadRiskPhotos'); ?></div>
+            <div class="pp-carousel <?php echo (count($ppRiskItem['photos']) < 2) ? 'pp-carousel--single' : ''; ?>" data-carousel="<?php echo (int) $ppRiskIndex; ?>">
+                <div class="pp-carousel__track">
+                    <?php foreach ($ppRiskItem['photos'] as $ppRiskPhoto) { ?>
+                    <div class="pp-carousel__slide"><img src="<?php echo $ppRiskPhoto; ?>" alt="" loading="lazy"></div>
+                    <?php } ?>
+                </div>
+                <div class="pp-carousel__counter">1 / <?php echo count($ppRiskItem['photos']); ?></div>
+                <button type="button" class="pp-carousel__nav pp-carousel__nav--prev" aria-label="<?php echo dol_escape_htmltag($langs->trans('Previous')); ?>"><i class="fas fa-chevron-left"></i></button>
+                <button type="button" class="pp-carousel__nav pp-carousel__nav--next" aria-label="<?php echo dol_escape_htmltag($langs->trans('Next')); ?>"><i class="fas fa-chevron-right"></i></button>
+                <div class="pp-carousel__dots">
+                    <?php foreach ($ppRiskItem['photos'] as $ppRiskPhotoIndex => $ppRiskPhoto) { ?>
+                    <button type="button" class="pp-carousel__dot <?php echo empty($ppRiskPhotoIndex) ? 'pp-carousel__dot--active' : ''; ?>" data-slide="<?php echo (int) $ppRiskPhotoIndex; ?>" aria-label="<?php echo (int) $ppRiskPhotoIndex + 1; ?>"></button>
+                    <?php } ?>
                 </div>
             </div>
-            <?php } ?>
+        </div>
+        <?php } ?>
+
+        <?php
+        // Acknowledgement: unlocked once every photo of the risk has been seen, and required
+        // before signing. Persisted per signatory so a reload does not undo the reading.
+        $riskAcknowledged = in_array((int) $ppRiskItem['category'], $ppAcknowledgedRisks, true);
+        ?>
+        <div class="pp-risk-ack <?php echo $riskAcknowledged ? 'pp-risk-ack--done' : ''; ?>" data-risk-category="<?php echo (int) $ppRiskItem['category']; ?>" data-photos="<?php echo count($ppRiskItem['photos']); ?>">
+            <span class="pp-risk-ack__text"><?php echo $langs->trans('SpreadRiskAcknowledgeText'); ?></span>
+            <button type="button" class="pp-risk-ack__btn wpeo-button"<?php echo $riskAcknowledged ? ' disabled' : ''; ?>>
+                <i class="fas fa-check"></i> <?php echo $langs->trans('SpreadRiskAcknowledgeButton'); ?>
+            </button>
+            <span class="pp-risk-ack__done"><i class="fas fa-check-circle"></i> <?php echo $langs->trans('SpreadRiskAcknowledged'); ?></span>
+            <span class="pp-risk-ack__hint"><i class="fas fa-images"></i> <?php echo $langs->trans('SpreadRiskSeeAllPhotos'); ?></span>
         </div>
     </div>
     <?php } ?>
 
-    <?php if (!empty($ppProtections)) { ?>
+    <?php if (!empty($ppOrphanProtections)) { ?>
     <div class="pp-public-block">
         <div class="pp-public-block__title"><i class="fas fa-hard-hat"></i> <?php echo $langs->trans('MobilePPProtections'); ?></div>
-        <div class="pp-public-grid">
-            <?php foreach ($ppProtections as $ppProtectionItem) {
-                $protectionCategory = $ppProtectionMap[$ppProtectionItem['position']] ?? null;
-                if (empty($protectionCategory)) {
-                    continue;
-                }
-                $protectionThumb = DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $protectionCategory['name_thumbnail'];
-            ?>
-            <div class="pp-public-item">
-                <img src="<?php echo $protectionThumb; ?>" alt="">
-                <div>
-                    <div class="pp-public-item__name"><?php echo dol_escape_htmltag($protectionCategory['name']); ?></div>
-                    <?php if (!empty($ppProtectionItem['comment'])) { ?><div class="pp-public-item__comment"><?php echo dol_escape_htmltag($ppProtectionItem['comment']); ?></div><?php } ?>
-                    <?php if (!empty($ppProtectionItem['mandatory'])) { ?><span class="pp-public-badge"><?php echo $langs->trans('MobilePPMandatory'); ?></span><?php } ?>
-                </div>
-            </div>
-            <?php } ?>
-        </div>
-    </div>
-    <?php } ?>
-
-    <?php if (!empty($ppCertifications)) { ?>
-    <div class="pp-public-block">
-        <div class="pp-public-block__title"><i class="fas fa-id-badge"></i> <?php echo $langs->trans('MobilePPCertifications'); ?></div>
-        <div class="pp-public-grid">
-            <?php foreach ($ppCertifications as $ppCertItem) {
-                $certLabel = $certificationOptions[$ppCertItem['code']] ?? $ppCertItem['code'];
-            ?>
-            <div class="pp-public-item">
-                <div>
-                    <div class="pp-public-item__name"><?php echo dol_escape_htmltag($certLabel); ?></div>
-                    <?php if (!empty($ppCertItem['mandatory'])) { ?><span class="pp-public-badge"><?php echo $langs->trans('MobilePPMandatory'); ?></span><?php } ?>
-                </div>
+        <div class="pp-risk-protections">
+            <?php foreach ($ppOrphanProtections as $ppOrphanProtection) { ?>
+            <div class="pp-risk-protection" title="<?php echo dol_escape_htmltag($ppOrphanProtection['name'] . (dol_strlen($ppOrphanProtection['comment']) ? ' - ' . $ppOrphanProtection['comment'] : '')); ?>">
+                <img src="<?php echo $ppOrphanProtection['thumb']; ?>" alt="">
+                <span class="pp-risk-protection__name"><?php echo dol_escape_htmltag($ppOrphanProtection['name']); ?></span>
             </div>
             <?php } ?>
         </div>
     </div>
     <?php } ?>
 </div>
+
+<script>
+// Carousel: horizontal scroll-snap driven by the arrows and the dots, one instance per risk block
+$(document).ready(function() {
+    $('.pp-carousel').each(function() {
+        var carousel = $(this);
+        var track    = carousel.find('.pp-carousel__track');
+        var slides   = carousel.find('.pp-carousel__slide');
+
+        var currentIndex = function() {
+            return track.width() ? Math.round(track.scrollLeft() / track.width()) : 0;
+        };
+
+        // The right arrow beats as long as there is something left to see, and both arrows fade
+        // out once they cannot go any further
+        var refresh = function() {
+            var index = currentIndex();
+            carousel.find('.pp-carousel__counter').text((index + 1) + ' / ' + slides.length);
+            window.ppRiskAck.markSeen(carousel.closest('.pp-risk-block').find('.pp-risk-ack').data('risk-category'), index);
+            carousel.find('.pp-carousel__dot').removeClass('pp-carousel__dot--active').eq(index).addClass('pp-carousel__dot--active');
+            carousel.find('.pp-carousel__nav--prev').toggleClass('pp-carousel__nav--idle', index <= 0);
+            carousel.find('.pp-carousel__nav--next')
+                .toggleClass('pp-carousel__nav--idle', index >= slides.length - 1)
+                .toggleClass('pp-carousel__nav--pulse', index < slides.length - 1);
+        };
+
+        var goTo = function(index) {
+            index = Math.max(0, Math.min(index, slides.length - 1));
+            track.animate({ scrollLeft: index * track.width() }, 200, refresh);
+        };
+
+        carousel.find('.pp-carousel__nav--prev').on('click', function() { goTo(currentIndex() - 1); });
+        carousel.find('.pp-carousel__nav--next').on('click', function() { goTo(currentIndex() + 1); });
+        carousel.find('.pp-carousel__dot').on('click', function() { goTo(parseInt($(this).data('slide'), 10) || 0); });
+
+        // Keep everything in sync when the visitor swipes the track directly
+        track.on('scroll', refresh);
+        refresh();
+    });
+
+    window.ppRiskAck.init();
+});
+
+/**
+ * Acknowledgement of the risks: the OK button of a risk unlocks once every one of its photos has
+ * been seen, and the signature stays locked until every risk has been acknowledged.
+ */
+window.ppRiskAck = {
+    signatoryId: <?php echo !empty($signSignatory) ? (int) $signSignatory->id : 0; ?>,
+
+    // Photos already displayed, per risk block
+    seen: {},
+
+    init: function() {
+        $('.pp-risk-ack').each(function() {
+            var block = $(this);
+            window.ppRiskAck.seen[block.data('risk-category')] = {};
+            // A risk without photo has nothing to scroll through, its button is available at once
+            window.ppRiskAck.markSeen(block.data('risk-category'), 0);
+        });
+
+        $('.pp-risk-ack__btn').on('click', window.ppRiskAck.acknowledge);
+        window.ppRiskAck.refreshSignature();
+    },
+
+    /**
+     * Record a photo as seen and unlock the button once the visitor has been through them all.
+     */
+    markSeen: function(riskCategory, slideIndex) {
+        var block = $('.pp-risk-ack[data-risk-category="' + riskCategory + '"]');
+        if (!block.length || block.hasClass('pp-risk-ack--done')) {
+            return;
+        }
+
+        window.ppRiskAck.seen[riskCategory] = window.ppRiskAck.seen[riskCategory] || {};
+        window.ppRiskAck.seen[riskCategory][slideIndex] = true;
+
+        var total   = parseInt(block.data('photos'), 10) || 0;
+        var allSeen = Object.keys(window.ppRiskAck.seen[riskCategory]).length >= total;
+
+        block.toggleClass('pp-risk-ack--locked', !allSeen);
+        block.find('.pp-risk-ack__btn').prop('disabled', !allSeen);
+    },
+
+    /**
+     * Send the acknowledgement, and keep it client side only for a visitor with no signature link.
+     */
+    acknowledge: function() {
+        var block        = $(this).closest('.pp-risk-ack');
+        var riskCategory = block.data('risk-category');
+
+        block.addClass('pp-risk-ack--done').removeClass('pp-risk-ack--locked');
+        block.find('.pp-risk-ack__btn').prop('disabled', true);
+        window.ppRiskAck.refreshSignature();
+
+        if (!window.ppRiskAck.signatoryId) {
+            return;
+        }
+
+        $.ajax({
+            url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=acknowledge_risk&token=' + window.saturne.toolbox.getToken(),
+            type: 'POST',
+            processData: false,
+            contentType: 'application/json',
+            data: JSON.stringify({ signatory_id: window.ppRiskAck.signatoryId, risk_category: riskCategory })
+        });
+    },
+
+    /**
+     * The signature block only opens once every risk has been acknowledged.
+     */
+    refreshSignature: function() {
+        var blocks  = $('.pp-risk-ack');
+        var pending = blocks.length - blocks.filter('.pp-risk-ack--done').length;
+
+        $('.pp-risks-pending').toggleClass('hidden', pending === 0).find('.pp-risks-pending__count').text(pending);
+        $('.pp-inline-signature').toggleClass('hidden', pending > 0);
+    }
+};
+</script>
