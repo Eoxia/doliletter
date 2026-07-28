@@ -48,15 +48,13 @@
 .pp-risk-protections { display: flex; flex-wrap: wrap; gap: 10px; }
 .pp-risk-protection { display: flex; align-items: center; justify-content: center; width: 56px; }
 .pp-risk-protection img { width: 52px; height: 52px; object-fit: contain; }
-/* Recapitulatif de fin de page : uniquement des pictogrammes, un risque par ligne suivi des
-   moyens de prevention qui le concernent. Les noms restent en infobulle et en texte alternatif. */
-.pp-recap__risks { display: flex; flex-direction: column; }
-.pp-recap__row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 0; border-top: 1px solid #eee; }
-.pp-recap__row:first-child { border-top: none; padding-top: 0; }
-.pp-recap__risk-picto { width: 46px; height: 46px; object-fit: contain; flex: 0 0 auto; }
-.pp-recap__sep { flex: 0 0 auto; width: 1px; height: 30px; background: #e5e5e5; }
-.pp-recap__protections { display: flex; flex-wrap: wrap; gap: 8px; }
-.pp-recap__protections img { width: 40px; height: 40px; object-fit: contain; }
+/* Recapitulatif de fin de page : uniquement des pictogrammes, tous les risques a la suite puis
+   tous les moyens de prevention. Les noms restent en infobulle et en texte alternatif. */
+.pp-recap__line { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.pp-recap__line--protections { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+.pp-recap__line img { object-fit: contain; flex: 0 0 auto; }
+.pp-recap__line--risks img { width: 46px; height: 46px; }
+.pp-recap__line--protections img { width: 44px; height: 44px; }
 .pp-carousel { position: relative; }
 .pp-carousel__track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .pp-carousel__track::-webkit-scrollbar { display: none; }
@@ -208,25 +206,24 @@
     if (!empty($ppRisks)) { ?>
     <div class="pp-public-block">
         <div class="pp-public-block__title"><i class="fas fa-clipboard-list"></i> <?php echo $langs->trans('SpreadRecapTitle'); ?></div>
-        <div class="pp-recap__risks">
+        <div class="pp-recap__line pp-recap__line--risks">
             <?php foreach ($ppRisks as $ppRecapRisk) {
+                if (empty($ppRecapRisk['thumb'])) {
+                    continue;
+                }
                 $ppRecapRiskName = ($ppRecapRisk['name'] != -1) ? $ppRecapRisk['name'] : '';
             ?>
-            <div class="pp-recap__row">
-                <?php if (!empty($ppRecapRisk['thumb'])) { ?>
-                <img class="pp-recap__risk-picto" src="<?php echo $ppRecapRisk['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>" alt="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>">
-                <?php } ?>
-                <?php if (!empty($ppRecapRisk['protections'])) { ?>
-                <span class="pp-recap__sep"></span>
-                <div class="pp-recap__protections">
-                    <?php foreach ($ppRecapRisk['protections'] as $ppRecapProtection) { ?>
-                    <img src="<?php echo $ppRecapProtection['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>" alt="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
-                    <?php } ?>
-                </div>
-                <?php } ?>
-            </div>
+            <img src="<?php echo $ppRecapRisk['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>" alt="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>">
             <?php } ?>
         </div>
+
+        <?php if (!empty($ppRecapProtections)) { ?>
+        <div class="pp-recap__line pp-recap__line--protections">
+            <?php foreach ($ppRecapProtections as $ppRecapProtection) { ?>
+            <img src="<?php echo $ppRecapProtection['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>" alt="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
+            <?php } ?>
+        </div>
+        <?php } ?>
     </div>
     <?php } ?>
 </div>
