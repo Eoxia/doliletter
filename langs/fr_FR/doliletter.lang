@@ -268,3 +268,5 @@ SpreadRisksPending                    = Prenez connaissance de tous les risques 
 ErrorRisksNotAcknowledged             = Risques dont vous n'avez pas pris connaissance : %s
 SpreadRiskStep                        = Étape %s / %s
 SpreadRecapTitle                      = Récapitulatif
+SpreadRecapRisks                      = Risques identifiés
+SpreadRecapProtections                = Protections nécessaires
