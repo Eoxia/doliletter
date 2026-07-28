@@ -39,6 +39,8 @@
 .pp-risk-block__header { display: flex; align-items: center; gap: 12px; }
 .pp-risk-block__picto { width: 56px; height: 56px; object-fit: contain; flex: 0 0 auto; }
 .pp-risk-block__name { font-size: 15px; font-weight: 600; color: #333; }
+/* Reste en haut a droite du bloc, quelle que soit la hauteur du nom et de la description */
+.pp-risk-block__step { flex: 0 0 auto; align-self: flex-start; margin-left: auto; padding: 3px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; }
 .pp-risk-block__comment { margin-top: 4px; font-size: 13px; color: #666; white-space: pre-line; }
 .pp-risk-block__section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
 .pp-risk-block__label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -46,6 +48,27 @@
 .pp-risk-protections { display: flex; flex-wrap: wrap; gap: 10px; }
 .pp-risk-protection { display: flex; align-items: center; justify-content: center; width: 56px; }
 .pp-risk-protection img { width: 52px; height: 52px; object-fit: contain; }
+/* Recapitulatif de fin de page */
+.pp-recap__table { width: 100%; border-collapse: collapse; }
+.pp-recap__table td { padding: 10px 8px; border-top: 1px solid #eee; vertical-align: middle; }
+.pp-recap__table tr:first-child td { border-top: none; }
+.pp-recap__step { width: 28px; font-size: 12px; font-weight: 600; color: #6b7280; text-align: center; }
+.pp-recap__risk { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #333; }
+.pp-recap__risk img { width: 34px; height: 34px; object-fit: contain; flex: 0 0 auto; }
+/* Les pictos passent a la ligne : un risque qui en porte beaucoup elargirait sinon le tableau */
+.pp-recap__protections { text-align: right; }
+.pp-recap__protections img { width: 34px; height: 34px; object-fit: contain; margin-left: 6px; vertical-align: middle; }
+.pp-recap__none { font-size: 12px; font-style: italic; color: #9ca3af; }
+.pp-recap__needed { margin-top: 14px; padding-top: 12px; border-top: 1px solid #eee; }
+/* Sous 600px la ligne ne tient plus : les protections passent sous le nom du risque */
+@media (max-width: 600px) {
+  .pp-recap__table, .pp-recap__table tbody, .pp-recap__table tr, .pp-recap__table td { display: block; width: auto; }
+  .pp-recap__table td { border-top: none; padding: 4px 0; }
+  .pp-recap__table tr { padding: 10px 0; border-top: 1px solid #eee; }
+  .pp-recap__step { text-align: left; }
+  .pp-recap__protections { text-align: left; }
+  .pp-recap__protections img { margin: 0 6px 0 0; }
+}
 .pp-carousel { position: relative; }
 .pp-carousel__track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .pp-carousel__track::-webkit-scrollbar { display: none; }
@@ -128,6 +151,7 @@
                 <div class="pp-risk-block__name"><?php echo dol_escape_htmltag(($ppRiskItem['name'] != -1) ? $ppRiskItem['name'] : ''); ?></div>
                 <?php if (dol_strlen($ppRiskItem['comment'])) { ?><div class="pp-risk-block__comment"><?php echo dol_escape_htmltag($ppRiskItem['comment']); ?></div><?php } ?>
             </div>
+            <span class="pp-risk-block__step"><?php echo $langs->trans('SpreadRiskStep', $ppRiskIndex + 1, count($ppRisks)); ?></span>
         </div>
 
         <?php if (!empty($ppRiskItem['protections'])) { ?>
@@ -136,7 +160,7 @@
             <div class="pp-risk-protections">
                 <?php foreach ($ppRiskItem['protections'] as $ppRiskProtection) { ?>
                 <div class="pp-risk-protection" title="<?php echo dol_escape_htmltag($ppRiskProtection['name'] . (dol_strlen($ppRiskProtection['comment']) ? ' - ' . $ppRiskProtection['comment'] : '')); ?>">
-                    <img src="<?php echo $ppRiskProtection['thumb']; ?>" alt="">
+                    <img src="<?php echo $ppRiskProtection['thumb']; ?>" alt="<?php echo dol_escape_htmltag($ppRiskProtection['name']); ?>">
                 </div>
                 <?php } ?>
             </div>
@@ -183,10 +207,56 @@
         <div class="pp-risk-protections">
             <?php foreach ($ppOrphanProtections as $ppOrphanProtection) { ?>
             <div class="pp-risk-protection" title="<?php echo dol_escape_htmltag($ppOrphanProtection['name'] . (dol_strlen($ppOrphanProtection['comment']) ? ' - ' . $ppOrphanProtection['comment'] : '')); ?>">
-                <img src="<?php echo $ppOrphanProtection['thumb']; ?>" alt="">
+                <img src="<?php echo $ppOrphanProtection['thumb']; ?>" alt="<?php echo dol_escape_htmltag($ppOrphanProtection['name']); ?>">
             </div>
             <?php } ?>
         </div>
+    </div>
+    <?php } ?>
+
+    <?php
+    // Recapitulatif : de quoi retrouver d'un coup d'oeil, apres avoir fait defiler tous les blocs,
+    // ce a quoi on s'expose et ce qu'il faut porter
+    if (!empty($ppRisks)) { ?>
+    <div class="pp-public-block">
+        <div class="pp-public-block__title"><i class="fas fa-clipboard-list"></i> <?php echo $langs->trans('SpreadRecapTitle'); ?></div>
+        <table class="pp-recap__table">
+            <tbody>
+            <?php foreach ($ppRisks as $ppRecapIndex => $ppRecapRisk) { ?>
+            <tr>
+                <td class="pp-recap__step"><?php echo (int) $ppRecapIndex + 1; ?></td>
+                <td>
+                    <div class="pp-recap__risk">
+                        <?php if (!empty($ppRecapRisk['thumb'])) { ?><img src="<?php echo $ppRecapRisk['thumb']; ?>" alt=""><?php } ?>
+                        <span><?php echo dol_escape_htmltag(($ppRecapRisk['name'] != -1) ? $ppRecapRisk['name'] : ''); ?></span>
+                    </div>
+                </td>
+                <td class="pp-recap__protections">
+                    <?php if (!empty($ppRecapRisk['protections'])) {
+                        foreach ($ppRecapRisk['protections'] as $ppRecapProtection) { ?>
+                        <img src="<?php echo $ppRecapProtection['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>" alt="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
+                    <?php }
+                    } else { ?>
+                        <span class="pp-recap__none"><?php echo $langs->trans('SpreadRecapNoProtection'); ?></span>
+                    <?php } ?>
+                </td>
+            </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+
+        <?php if (!empty($ppRecapProtections)) { ?>
+        <div class="pp-recap__needed">
+            <div class="pp-risk-block__label"><i class="fas fa-hard-hat"></i> <?php echo $langs->trans('SpreadRecapProtectionsNeeded'); ?></div>
+            <div class="pp-risk-protections">
+                <?php foreach ($ppRecapProtections as $ppRecapNeeded) { ?>
+                <div class="pp-risk-protection" title="<?php echo dol_escape_htmltag($ppRecapNeeded['name']); ?>">
+                    <img src="<?php echo $ppRecapNeeded['thumb']; ?>" alt="<?php echo dol_escape_htmltag($ppRecapNeeded['name']); ?>">
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+        <?php } ?>
     </div>
     <?php } ?>
 </div>
