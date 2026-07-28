@@ -85,5 +85,3 @@ SpreadRisksPending = Take note of every risk before signing. Risks left:
 ErrorRisksNotAcknowledged = Risks you have not taken note of: %s
 SpreadRiskStep = Step %s / %s
 SpreadRecapTitle = Summary
-SpreadRecapProtectionsNeeded = Protections to bring for the operation
-SpreadRecapNoProtection = No specific protection

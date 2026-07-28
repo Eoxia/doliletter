@@ -135,7 +135,6 @@ $ppRisks              = [];
 $ppProtections        = [];
 $ppCertifications     = [];
 $ppOrphanProtections  = [];
-$ppRecapProtections   = [];
 $certificationOptions = [];
 $ppCertBaseDir        = '';
 if ($isPreventionPlan) {
@@ -219,17 +218,6 @@ if ($isPreventionPlan) {
                 'comment' => $ppProtectionItem['comment'] ?? '',
             ];
         }
-    }
-
-    // Recapitulatif de fin de page : l'equipement a prevoir pour l'intervention, une seule fois
-    // chacun, un meme moyen de prevention revenant sur plusieurs risques
-    foreach ($ppRisks as $ppRiskItem) {
-        foreach ($ppRiskItem['protections'] as $ppRiskProtection) {
-            $ppRecapProtections[$ppRiskProtection['name']] = $ppRiskProtection;
-        }
-    }
-    foreach ($ppOrphanProtections as $ppOrphanProtection) {
-        $ppRecapProtections[$ppOrphanProtection['name']] = $ppOrphanProtection;
     }
 
     // Base directory of uploaded certification photos, same resolution as saturne_render_media_block()
