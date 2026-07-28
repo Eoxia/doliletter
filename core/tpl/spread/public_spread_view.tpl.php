@@ -604,6 +604,33 @@ body {
                 <?php echo $objectsMetadata[$objectType]['object']->getNomUrl(1) . (!empty($objectLabel) ? ' - ' . $objectLabel : '' ); ?>
             </div>
 
+            <?php
+            // Documents mis en avant : affiches en premier, avant le detail de l'objet, pour que
+            // la personne diffusee tombe dessus sans avoir a faire defiler la page
+            if (!empty($linkedFilesFavorite)) {
+                foreach ($linkedFilesFavorite as $key => $file) {
+                    if (dol_mimetype($file->filename) != 'video/mp4') {
+                        // L'URL d'un <object> se donne dans data : avec data-src le navigateur
+                        // n'appelle jamais le document et le cadre reste vide.
+                        // attachment=0 : sans lui document.php repond Content-Disposition: attachment
+                        // et le navigateur telecharge le fichier au lieu de l'afficher dans le cadre.
+                        $filePreviewUrl = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share) . '&attachment=0';
+                    ?>
+                    <object
+                        name="objectpreview"
+                        type="<?php echo dol_mimetype($file->filename); ?>"
+                        width="100%"
+                        height="600px"
+                        data="<?php echo $filePreviewUrl; ?>">
+                        <a href="<?php echo $filePreviewUrl; ?>" target="_blank"><?php echo dol_escape_htmltag($file->filename); ?></a>
+                    </object>
+                    <?php } else { ?>
+                        <video src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>" controls width="100%" height="600px">
+                            Your browser does not support the video tag.
+                        </video>
+                    <?php } ?>
+            <?php }} ?>
+
             <?php if (!empty($isPreventionPlan)) {
                 require __DIR__ . '/preventionplan_public_info.tpl.php';
             } ?>
@@ -683,25 +710,6 @@ body {
                 <?php } ?>
             </div>
             <?php } ?>
-
-            <?php if (!empty($linkedFilesFavorite)) {
-                foreach ($linkedFilesFavorite as $key => $file) {
-                    if (dol_mimetype($file->filename) != 'video/mp4') {
-                    ?>
-                    <object
-                        name="objectpreview"
-                        type="<?php echo dol_mimetype($file->filename); ?>"
-                        width="100%"
-                        height="600px"
-                        param="noparam"
-                        data-src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>">
-                    </object>
-                    <?php } else { ?>
-                        <video src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>" controls width="100%" height="600px">
-                            Your browser does not support the video tag.
-                        </video>
-                    <?php } ?>
-            <?php }} ?>
 
             <?php if (!empty($linkedLinksFavorite)) { ?>
                 <div class="linked-links-section">

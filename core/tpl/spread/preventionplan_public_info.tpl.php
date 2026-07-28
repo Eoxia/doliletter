@@ -44,9 +44,8 @@
 .pp-risk-block__label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 .pp-risk-block__label i { color: #3b82f6; }
 .pp-risk-protections { display: flex; flex-wrap: wrap; gap: 10px; }
-.pp-risk-protection { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 76px; text-align: center; }
+.pp-risk-protection { display: flex; align-items: center; justify-content: center; width: 56px; }
 .pp-risk-protection img { width: 52px; height: 52px; object-fit: contain; }
-.pp-risk-protection__name { font-size: 11px; line-height: 1.25; color: #4b5563; }
 .pp-carousel { position: relative; }
 .pp-carousel__track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .pp-carousel__track::-webkit-scrollbar { display: none; }
@@ -71,16 +70,18 @@
 .pp-carousel__dot { width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%; background: #d1d5db; cursor: pointer; }
 .pp-carousel__dot--active { background: #3b82f6; }
 .pp-carousel--single .pp-carousel__nav, .pp-carousel--single .pp-carousel__dots { display: none; }
-.pp-risk-ack { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+.pp-risk-ack { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
 .pp-risk-ack__text { flex: 1; min-width: 180px; font-size: 13px; color: #4b5563; }
-.pp-risk-ack__btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: #fff; background: #3b82f6; border: none; border-radius: 6px; cursor: pointer; }
-.pp-risk-ack__btn[disabled] { background: #d1d5db; color: #6b7280; cursor: not-allowed; }
-.pp-risk-ack__done { display: none; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #047857; }
-.pp-risk-ack__hint { display: none; align-items: center; gap: 6px; font-size: 12px; color: #92400e; }
+.pp-risk-ack__input { width: 20px; height: 20px; margin: 0; flex: 0 0 auto; cursor: pointer; accent-color: #3b82f6; }
+.pp-risk-ack__input:disabled { cursor: default; }
+/* :checked plutot que la classe --done : la coche est verte des qu'elle est cochee, qu'on vienne
+   de cliquer ou que le serveur l'ait pre-cochee */
+.pp-risk-ack__input:checked { accent-color: #047857; pointer-events: none; }
+/* flex-basis 100% : la consigne passe sur sa propre ligne, sous le texte de prise de connaissance */
+.pp-risk-ack__hint { display: none; align-items: center; gap: 5px; flex-basis: 100%; font-size: 11px; color: #92400e; }
 /* Tant que toutes les photos ne sont pas vues : bouton verrouille, on explique pourquoi */
-.pp-risk-ack--locked .pp-risk-ack__hint { display: inline-flex; }
-.pp-risk-ack--done .pp-risk-ack__btn, .pp-risk-ack--done .pp-risk-ack__hint { display: none; }
-.pp-risk-ack--done .pp-risk-ack__done { display: inline-flex; }
+.pp-risk-ack--locked .pp-risk-ack__hint { display: flex; }
+.pp-risk-ack--done .pp-risk-ack__hint { display: none; }
 .pp-risk-ack--done { border-top-color: #a7f3d0; }
 /* Le theme ne definit pas .hidden sur cette page publique */
 .pp-risks-pending.hidden, .pp-inline-signature.hidden { display: none; }
@@ -136,7 +137,6 @@
                 <?php foreach ($ppRiskItem['protections'] as $ppRiskProtection) { ?>
                 <div class="pp-risk-protection" title="<?php echo dol_escape_htmltag($ppRiskProtection['name'] . (dol_strlen($ppRiskProtection['comment']) ? ' - ' . $ppRiskProtection['comment'] : '')); ?>">
                     <img src="<?php echo $ppRiskProtection['thumb']; ?>" alt="">
-                    <span class="pp-risk-protection__name"><?php echo dol_escape_htmltag($ppRiskProtection['name']); ?></span>
                 </div>
                 <?php } ?>
             </div>
@@ -171,10 +171,7 @@
         ?>
         <div class="pp-risk-ack <?php echo $riskAcknowledged ? 'pp-risk-ack--done' : ''; ?>" data-risk-category="<?php echo (int) $ppRiskItem['category']; ?>" data-photos="<?php echo count($ppRiskItem['photos']); ?>">
             <span class="pp-risk-ack__text"><?php echo $langs->trans('SpreadRiskAcknowledgeText'); ?></span>
-            <button type="button" class="pp-risk-ack__btn wpeo-button"<?php echo $riskAcknowledged ? ' disabled' : ''; ?>>
-                <i class="fas fa-check"></i> <?php echo $langs->trans('SpreadRiskAcknowledgeButton'); ?>
-            </button>
-            <span class="pp-risk-ack__done"><i class="fas fa-check-circle"></i> <?php echo $langs->trans('SpreadRiskAcknowledged'); ?></span>
+            <input type="checkbox" class="pp-risk-ack__input" title="<?php echo dol_escape_htmltag($langs->trans('SpreadRiskAcknowledgeButton')); ?>"<?php echo $riskAcknowledged ? ' checked' : ''; ?>>
             <span class="pp-risk-ack__hint"><i class="fas fa-images"></i> <?php echo $langs->trans('SpreadRiskSeeAllPhotos'); ?></span>
         </div>
     </div>
@@ -187,7 +184,6 @@
             <?php foreach ($ppOrphanProtections as $ppOrphanProtection) { ?>
             <div class="pp-risk-protection" title="<?php echo dol_escape_htmltag($ppOrphanProtection['name'] . (dol_strlen($ppOrphanProtection['comment']) ? ' - ' . $ppOrphanProtection['comment'] : '')); ?>">
                 <img src="<?php echo $ppOrphanProtection['thumb']; ?>" alt="">
-                <span class="pp-risk-protection__name"><?php echo dol_escape_htmltag($ppOrphanProtection['name']); ?></span>
             </div>
             <?php } ?>
         </div>
@@ -255,7 +251,7 @@ window.ppRiskAck = {
             window.ppRiskAck.markSeen(block.data('risk-category'), 0);
         });
 
-        $('.pp-risk-ack__btn').on('click', window.ppRiskAck.acknowledge);
+        $('.pp-risk-ack__input').on('change', window.ppRiskAck.acknowledge);
         window.ppRiskAck.refreshSignature();
     },
 
@@ -275,18 +271,26 @@ window.ppRiskAck = {
         var allSeen = Object.keys(window.ppRiskAck.seen[riskCategory]).length >= total;
 
         block.toggleClass('pp-risk-ack--locked', !allSeen);
-        block.find('.pp-risk-ack__btn').prop('disabled', !allSeen);
+        block.find('.pp-risk-ack__input').prop('disabled', !allSeen);
     },
 
     /**
      * Send the acknowledgement, and keep it client side only for a visitor with no signature link.
      */
     acknowledge: function() {
+        // On n'enregistre que la coche, jamais la decoche : au clavier la case reste cochee
+        if (!$(this).is(':checked')) {
+            $(this).prop('checked', true);
+            return;
+        }
+
         var block        = $(this).closest('.pp-risk-ack');
         var riskCategory = block.data('risk-category');
 
         block.addClass('pp-risk-ack--done').removeClass('pp-risk-ack--locked');
-        block.find('.pp-risk-ack__btn').prop('disabled', true);
+        // On force la coche plutot que de desactiver le champ : un input disabled est grise par
+        // le navigateur, qui ignore alors accent-color
+        block.find('.pp-risk-ack__input').prop('checked', true);
         window.ppRiskAck.refreshSignature();
 
         if (!window.ppRiskAck.signatoryId) {
