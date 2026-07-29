@@ -180,7 +180,7 @@
         // before signing. Persisted per signatory so a reload does not undo the reading.
         $riskAcknowledged = in_array((int) $ppRiskItem['category'], $ppAcknowledgedRisks, true);
         ?>
-        <div class="pp-risk-ack <?php echo $riskAcknowledged ? 'pp-risk-ack--done' : ''; ?>" data-risk-category="<?php echo (int) $ppRiskItem['category']; ?>" data-photos="<?php echo count($ppRiskItem['photos']); ?>">
+        <div class="pp-risk-ack <?php echo $riskAcknowledged ? 'pp-risk-ack--done' : ''; ?>" data-risk-index="<?php echo (int) $ppRiskIndex; ?>" data-risk-category="<?php echo (int) $ppRiskItem['category']; ?>" data-photos="<?php echo count($ppRiskItem['photos']); ?>">
             <span class="pp-risk-ack__text"><?php echo $langs->trans('SpreadRiskAcknowledgeText'); ?></span>
             <input type="checkbox" class="pp-risk-ack__input" title="<?php echo dol_escape_htmltag($langs->trans('SpreadRiskAcknowledgeButton')); ?>"<?php echo $riskAcknowledged ? ' checked' : ''; ?>>
             <span class="pp-risk-ack__hint"><i class="fas fa-images"></i> <?php echo $langs->trans('SpreadRiskSeeAllPhotos'); ?></span>
@@ -248,7 +248,7 @@ $(document).ready(function() {
         var refresh = function() {
             var index = currentIndex();
             carousel.find('.pp-carousel__counter').text((index + 1) + ' / ' + slides.length);
-            window.ppRiskAck.markSeen(carousel.closest('.pp-risk-block').find('.pp-risk-ack').data('risk-category'), index);
+            window.ppRiskAck.markSeen(carousel.closest('.pp-risk-block').find('.pp-risk-ack'), index);
             carousel.find('.pp-carousel__dot').removeClass('pp-carousel__dot--active').eq(index).addClass('pp-carousel__dot--active');
             carousel.find('.pp-carousel__nav--prev').toggleClass('pp-carousel__nav--idle', index <= 0);
             carousel.find('.pp-carousel__nav--next')
@@ -280,15 +280,16 @@ $(document).ready(function() {
 window.ppRiskAck = {
     signatoryId: <?php echo !empty($signSignatory) ? (int) $signSignatory->id : 0; ?>,
 
-    // Photos already displayed, per risk block
+    // Photos already displayed, per risk block. Keyed by block index and not by danger category:
+    // a plan can hold several risks of the same category, they each have their own photos to read.
     seen: {},
 
     init: function() {
         $('.pp-risk-ack').each(function() {
             var block = $(this);
-            window.ppRiskAck.seen[block.data('risk-category')] = {};
+            window.ppRiskAck.seen[block.data('risk-index')] = {};
             // A risk without photo has nothing to scroll through, its button is available at once
-            window.ppRiskAck.markSeen(block.data('risk-category'), 0);
+            window.ppRiskAck.markSeen(block, 0);
         });
 
         $('.pp-risk-ack__input').on('change', window.ppRiskAck.acknowledge);
@@ -298,17 +299,18 @@ window.ppRiskAck = {
     /**
      * Record a photo as seen and unlock the button once the visitor has been through them all.
      */
-    markSeen: function(riskCategory, slideIndex) {
-        var block = $('.pp-risk-ack[data-risk-category="' + riskCategory + '"]');
+    markSeen: function(block, slideIndex) {
         if (!block.length || block.hasClass('pp-risk-ack--done')) {
             return;
         }
 
-        window.ppRiskAck.seen[riskCategory] = window.ppRiskAck.seen[riskCategory] || {};
-        window.ppRiskAck.seen[riskCategory][slideIndex] = true;
+        var riskIndex = block.data('risk-index');
+
+        window.ppRiskAck.seen[riskIndex] = window.ppRiskAck.seen[riskIndex] || {};
+        window.ppRiskAck.seen[riskIndex][slideIndex] = true;
 
         var total   = parseInt(block.data('photos'), 10) || 0;
-        var allSeen = Object.keys(window.ppRiskAck.seen[riskCategory]).length >= total;
+        var allSeen = Object.keys(window.ppRiskAck.seen[riskIndex]).length >= total;
 
         block.toggleClass('pp-risk-ack--locked', !allSeen);
         block.find('.pp-risk-ack__input').prop('disabled', !allSeen);
@@ -344,6 +346,39 @@ window.ppRiskAck = {
             contentType: 'application/json',
             data: JSON.stringify({ signatory_id: window.ppRiskAck.signatoryId, risk_category: riskCategory })
         });
+    },
+
+    /**
+     * Clear the reading of the page. Called after a signature given from the attendee table: the
+     * device is passed to the next person, who has to go through the risks themselves.
+     */
+    reset: function() {
+        window.ppRiskAck.seen = {};
+
+        $('.pp-risk-ack').removeClass('pp-risk-ack--done').find('.pp-risk-ack__input').prop('checked', false);
+        $('.pp-risk-ack').each(function() {
+            window.ppRiskAck.markSeen($(this), 0);
+        });
+
+        window.ppRiskAck.refreshSignature();
+    },
+
+    /**
+     * Danger categories read on this page. Sent along with the signature: a visitor coming from the
+     * attendee table has no ?sign= link, so nothing could be recorded while they were ticking.
+     */
+    getAcknowledgedCategories: function() {
+        var categories = [];
+
+        $('.pp-risk-ack--done').each(function() {
+            // 0 is the position of a real danger category (chute de plain-pied), never a missing value
+            var category = parseInt($(this).data('risk-category'), 10);
+            if (!isNaN(category) && categories.indexOf(category) === -1) {
+                categories.push(category);
+            }
+        });
+
+        return categories;
     },
 
     /**

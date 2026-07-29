@@ -433,6 +433,19 @@ if ($action == 'validate_signature') {
     $signatory_id = GETPOSTINT('signatory_id');
     $signatory->fetch($signatory_id);
     if ($signatory->id > 0) {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Risks read on the page and sent with the signature: a visitor signing from the attendee
+        // table has no ?sign= link, nothing could be recorded while they were ticking the blocks
+        if ($isPreventionPlan && !empty($ppRisks) && !empty($data['acknowledged_risks']) && is_array($data['acknowledged_risks'])) {
+            $knownRiskCategories = array_map('intval', array_column($ppRisks, 'category'));
+            foreach ($data['acknowledged_risks'] as $acknowledgedRisk) {
+                if (in_array((int) $acknowledgedRisk, $knownRiskCategories, true)) {
+                    doliletter_spread_acknowledge_risk($signatory, (int) $acknowledgedRisk, $user);
+                }
+            }
+        }
+
         // Every risk must have been acknowledged before signing
         if ($isPreventionPlan && !empty($ppRisks)) {
             $pendingRisks = doliletter_spread_get_pending_risks($ppRisks, doliletter_spread_get_acknowledged_risks($signatory));
@@ -452,7 +465,6 @@ if ($action == 'validate_signature') {
             }
         }
 
-        $data      = json_decode(file_get_contents('php://input'), true);
         $signature = $data['signature'] ?? '';
 
         if (!empty($signature)) {

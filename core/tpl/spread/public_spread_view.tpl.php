@@ -1120,12 +1120,17 @@ function validateSignature() {
 
         var signature = window.saturne.signature.canvas.toDataURL();
 
+        // Risks read on the page: without a ?sign= link nothing could be recorded while the visitor
+        // was ticking them, so they travel with the signature and are saved just before it
+        var acknowledgedRisks = window.ppRiskAck ? window.ppRiskAck.getAcknowledgedCategories() : [];
+
         $.ajax({
             method: 'POST',
             url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=validate_signature&signatory_id=' + currentUserIndex,
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({
-                signature
+                signature,
+                acknowledged_risks: acknowledgedRisks
             }),
             success: function (response) {
                 // Signature refused server-side, typically a mandatory document still waiting for an answer
@@ -1150,6 +1155,11 @@ function validateSignature() {
                 }
 
                 $('.user-signature-item[data-user-index="' + currentUserIndex + '"]').replaceWith($(response).find('.user-signature-item[data-user-index="' + currentUserIndex + '"]'));
+
+                // The device goes to the next attendee: they have to go through the risks themselves
+                if (window.ppRiskAck) {
+                    window.ppRiskAck.reset();
+                }
 
                 closeSignatureModal();
 
