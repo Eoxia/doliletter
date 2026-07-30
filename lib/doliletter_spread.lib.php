@@ -106,6 +106,96 @@ function doliletter_spread_get_object_error(CommonObject $object, Translate $lan
 }
 
 /**
+ * Situated error message for the public page.
+ *
+ * A bare "Error" on a page nobody can debug from is a dead end: the visitor cannot say what they
+ * were doing and the support cannot tell where it broke. The message carries a stable code, the
+ * subject, the script and line it comes from, and the raw reason, so that a screenshot is enough.
+ *
+ * @param  string    $code    Stable code of the failure point, quoted in support requests
+ * @param  string    $subject Translation key naming what the visitor was doing
+ * @param  string    $reason  Raw reason, already readable
+ * @param  string    $file    __FILE__ of the failure point
+ * @param  int       $line    __LINE__ of the failure point
+ * @param  Translate $langs   Translation handler
+ * @return string             Message to show to the visitor
+ */
+function doliletter_spread_public_error(string $code, string $subject, string $reason, string $file, int $line, Translate $langs): string
+{
+    if (!dol_strlen($reason)) {
+        $reason = $langs->transnoentities('ErrorSpreadUnknown');
+    }
+
+    $location = basename($file) . ':' . $line;
+
+    dol_syslog('doliletter_spread: [' . $code . '] ' . $location . ' - ' . $reason, LOG_ERR);
+
+    return $langs->transnoentities('ErrorSpreadContext', $code, $langs->transnoentities($subject), $location, $reason);
+}
+
+/**
+ * Make the images of a Saturne media block reachable by an anonymous visitor.
+ *
+ * The block serves its gallery through document.php, which requires a session: on the public page
+ * the visitor received the login page instead of the photo they had just uploaded. The Saturne
+ * image wrapper takes exactly the same parameters and is the one already used for the risk photos
+ * of this page. Only the anonymous rendering goes through it, a logged-in user keeps document.php
+ * and its access control.
+ *
+ * @param  string $mediaBlockHtml HTML returned by saturne_render_media_block()
+ * @return string                 Same block, its image URLs served publicly
+ */
+function doliletter_spread_public_media_block(string $mediaBlockHtml): string
+{
+    // Les URL apparaissent en clair dans le src et echappees dans le data-json de la galerie :
+    // couper avant le nom de script couvre les deux formes
+    return str_replace('document.php?modulepart=', 'custom/saturne/utils/viewimage.php?modulepart=', $mediaBlockHtml);
+}
+
+/**
+ * Signatures of the prevention plan itself that are still missing.
+ *
+ * A prevention plan is an agreement between the user company and the exterior company: spreading it
+ * to the people working on site before both have signed circulates a document that does not yet
+ * commit anybody.
+ *
+ * @param  DoliDB    $db       Database handler
+ * @param  int       $planId   ID of the prevention plan
+ * @param  Translate $langs    Translation handler
+ * @return array               Labels of the parties that have not signed, empty when the plan is ready
+ */
+function doliletter_spread_get_pending_parties(DoliDB $db, int $planId, Translate $langs): array
+{
+    require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+
+    $pending      = [];
+    $planSignatory = new SaturneSignature($db, 'digiriskdolibarr', 'preventionplan');
+
+    foreach (['MasterWorker', 'ExtSocietyResponsible'] as $role) {
+        $roleSignatories = $planSignatory->fetchSignatory($role, $planId, 'preventionplan');
+        if (!is_array($roleSignatories) || empty($roleSignatories)) {
+            $pending[] = $langs->transnoentities('SpreadParty' . $role);
+            continue;
+        }
+
+        // Interroge sur un role precis, fetchSignatory rend une liste plate de signataires
+        $hasSigned = false;
+        foreach ($roleSignatories as $roleSignatory) {
+            if (!empty($roleSignatory->signature)) {
+                $hasSigned = true;
+                break;
+            }
+        }
+
+        if (!$hasSigned) {
+            $pending[] = $langs->transnoentities('SpreadParty' . $role);
+        }
+    }
+
+    return $pending;
+}
+
+/**
  * Full name of a signatory registered from the public page.
  *
  * @param  SaturneSignature $signatory Signatory to name
