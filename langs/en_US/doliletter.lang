@@ -54,6 +54,47 @@ MyWidgetDescription = My widget description
 
 ErrorInvalidSignatureLink = This signature link is no longer valid or has expired.
 ErrorNotAllowed = Action not allowed
+ErrorSendingEmail = The email could not be sent.
+ErrorUserNotFound = User not found, please contact your administrator.
+PleaseEnterValidEmail = Please enter a valid email
+EmailSentSuccessfully = Email sent successfully
+
+#
+# Spread
+#
+ValidateSignature = Validate the signature
+EnterNotePublicHere = Enter your public note here
+QuickSignature = Quick signature
+SpreadQuickSignatureInfo = Enter your email to receive a signature link
+ConnectForMoreInfo = <a href="%s">Log in</a> for more information
+EmailSpreadLabel = DOLILETTER_Spread
+EmailSpreadTopic = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEMENT__ __REF__
+EmailSpreadContent = Hello,<br />Please find the signature link of the spread document below.<br />__SATURNE_SIGNATORY_URL__
+
+# Situated error messages: code, subject, script and line, then the raw reason, so that a user
+# report is enough to find the failure point without reproducing the problem
+ErrorSpreadContext = [%s] %s — %s: %s
+ErrorSpreadSubjectRegister = Spread registration
+ErrorSpreadSubjectCertification = Mandatory document recording
+ErrorSpreadSubjectRiskAck = Risk acknowledgement
+ErrorSpreadSubjectQuickSign = Quick signature request
+ErrorSpreadSubjectEmail = Signature link sending
+
+# Back to the application
+SpreadBackToDolibarr = Back to Dolibarr
+SpreadBackToMobile = Mobile interface
+
+# Spread signatories
+SpreadSignatoriesTitle = Spread signatories
+SpreadSignatoriesCount = %s signature(s) out of %s
+SpreadNoSignatoryYet = Nobody has joined this spread yet.
+SpreadSignatoryPending = Waiting for signature
+
+# Spread gated on both parties having signed
+SpreadWaitingForPartiesTitle = Spread not open yet
+SpreadWaitingForParties = This prevention plan must be signed by the user company and by the exterior company before being spread. Missing signatures: %s
+SpreadPartyMasterWorker = user company
+SpreadPartyExtSocietyResponsible = exterior company
 
 #
 # Public registration
