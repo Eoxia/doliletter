@@ -653,13 +653,15 @@ body {
     margin-left: auto;
 }
 
+/* Boutons sans libelle : la cible tactile doit rester tenable au doigt, d'ou le carre de 38px */
 .spread-back-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
-    font-size: 13px;
-    font-weight: 600;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
     color: #334155;
     text-decoration: none;
     background: #fff;
@@ -759,17 +761,8 @@ body {
     color: #64748b;
 }
 
-@media (max-width: 768px) {
-    .spread-brand__actions {
-        width: 100%;
-        margin-left: 0;
-    }
-
-    .spread-back-link {
-        flex: 1 1 auto;
-        justify-content: center;
-    }
-}
+/* Deux carres de 38px tiennent a cote du logo meme sur un telephone : plus besoin de les passer
+   sur une ligne a eux comme le faisaient les boutons avec libelle */
 </style>
 
 <div class="public-card__container" data-public-interface="true">
@@ -782,15 +775,23 @@ body {
                 <span class="spread-brand__name"><?php echo dol_escape_htmltag($mysoc->name); ?></span>
 
                 <?php if (dol_strlen($spreadCardUrl) || dol_strlen($spreadMobileUrl)) { ?>
+                <!-- Deux icones sans texte : le crayon pour modifier le plan, la fleche pour
+                     revenir dans Dolibarr. Sans libelle visible, l'intitule doit rester porte par
+                     title et aria-label, sinon le bouton ne dit plus rien au survol ni au lecteur
+                     d'ecran -->
                 <div class="spread-brand__actions">
-                    <?php if (dol_strlen($spreadMobileUrl)) { ?>
-                    <a class="spread-back-link" href="<?php echo $spreadMobileUrl; ?>">
-                        <i class="fas fa-mobile-alt"></i> <span><?php echo $langs->trans('SpreadBackToMobile'); ?></span>
+                    <?php if (dol_strlen($spreadMobileUrl)) {
+                        $spreadEditLabel = $langs->trans('SpreadEditPlan');
+                    ?>
+                    <a class="spread-back-link" href="<?php echo $spreadMobileUrl; ?>" title="<?php echo dol_escape_htmltag($spreadEditLabel); ?>" aria-label="<?php echo dol_escape_htmltag($spreadEditLabel); ?>">
+                        <i class="fas fa-edit"></i>
                     </a>
                     <?php } ?>
-                    <?php if (dol_strlen($spreadCardUrl)) { ?>
-                    <a class="spread-back-link" href="<?php echo $spreadCardUrl; ?>">
-                        <i class="fas fa-arrow-left"></i> <span><?php echo $langs->trans('SpreadBackToDolibarr'); ?></span>
+                    <?php if (dol_strlen($spreadCardUrl)) {
+                        $spreadBackLabel = $langs->trans('SpreadBackToDolibarr');
+                    ?>
+                    <a class="spread-back-link" href="<?php echo $spreadCardUrl; ?>" title="<?php echo dol_escape_htmltag($spreadBackLabel); ?>" aria-label="<?php echo dol_escape_htmltag($spreadBackLabel); ?>">
+                        <i class="fas fa-arrow-left"></i>
                     </a>
                     <?php } ?>
                 </div>
