@@ -79,10 +79,11 @@ ErrorSpreadSubjectCertification = Mandatory document recording
 ErrorSpreadSubjectRiskAck = Risk acknowledgement
 ErrorSpreadSubjectQuickSign = Quick signature request
 ErrorSpreadSubjectEmail = Signature link sending
+ErrorSpreadMailNotConfigured = email sending is not configured on this Dolibarr
 
-# Back to the application
+# Back to the application: icon-only buttons, these labels are the tooltips
 SpreadBackToDolibarr = Back to Dolibarr
-SpreadBackToMobile = Mobile interface
+SpreadEditPlan = Edit the plan
 
 # Spread signatories
 SpreadSignatoriesTitle = Spread signatories
