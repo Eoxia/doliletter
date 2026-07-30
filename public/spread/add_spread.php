@@ -625,7 +625,7 @@ if ($action == 'send_email') {
         }
 
         if (!dol_strlen(getDolGlobalString('MAIN_MAIL_SMTPS_ID')) && getDolGlobalInt('SATURNE_USE_ALL_EMAIL_MODE') <= 0) {
-            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-05', 'ErrorSpreadSubjectEmail', $langs->transnoentities('WarningMailSendSetupIs', $langs->transnoentities('MAIN_MAIL_SENDMODE')), __FILE__, __LINE__, $langs)) . '">';
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-05', 'ErrorSpreadSubjectEmail', $langs->transnoentities('ErrorSpreadMailNotConfigured'), __FILE__, __LINE__, $langs)) . '">';
             exit;
         }
 

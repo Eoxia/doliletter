@@ -253,10 +253,11 @@ ErrorSpreadSubjectCertification = Enregistrement d'un document obligatoire
 ErrorSpreadSubjectRiskAck       = Prise de connaissance d'un risque
 ErrorSpreadSubjectQuickSign     = Demande de signature rapide
 ErrorSpreadSubjectEmail         = Envoi du lien de signature
+ErrorSpreadMailNotConfigured    = la messagerie n'est pas configurée sur ce Dolibarr
 
-# Retours vers l'application
+# Retours vers l'application : boutons sans libelle, ces textes servent d'infobulle
 SpreadBackToDolibarr            = Retour à Dolibarr
-SpreadBackToMobile              = Interface mobile
+SpreadEditPlan                  = Modifier le plan
 
 # Signataires de la diffusion
 SpreadSignatoriesTitle          = Signataires de la diffusion
