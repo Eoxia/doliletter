@@ -106,6 +106,53 @@ function doliletter_spread_get_object_error(CommonObject $object, Translate $lan
 }
 
 /**
+ * Situated error message for the public page.
+ *
+ * A bare "Error" on a page nobody can debug from is a dead end: the visitor cannot say what they
+ * were doing and the support cannot tell where it broke. The message carries a stable code, the
+ * subject, the script and line it comes from, and the raw reason, so that a screenshot is enough.
+ *
+ * @param  string    $code    Stable code of the failure point, quoted in support requests
+ * @param  string    $subject Translation key naming what the visitor was doing
+ * @param  string    $reason  Raw reason, already readable
+ * @param  string    $file    __FILE__ of the failure point
+ * @param  int       $line    __LINE__ of the failure point
+ * @param  Translate $langs   Translation handler
+ * @return string             Message to show to the visitor
+ */
+function doliletter_spread_public_error(string $code, string $subject, string $reason, string $file, int $line, Translate $langs): string
+{
+    if (!dol_strlen($reason)) {
+        $reason = $langs->transnoentities('ErrorSpreadUnknown');
+    }
+
+    $location = basename($file) . ':' . $line;
+
+    dol_syslog('doliletter_spread: [' . $code . '] ' . $location . ' - ' . $reason, LOG_ERR);
+
+    return $langs->transnoentities('ErrorSpreadContext', $code, $langs->transnoentities($subject), $location, $reason);
+}
+
+/**
+ * Make the images of a Saturne media block reachable by an anonymous visitor.
+ *
+ * The block serves its gallery through document.php, which requires a session: on the public page
+ * the visitor received the login page instead of the photo they had just uploaded. The Saturne
+ * image wrapper takes exactly the same parameters and is the one already used for the risk photos
+ * of this page. Only the anonymous rendering goes through it, a logged-in user keeps document.php
+ * and its access control.
+ *
+ * @param  string $mediaBlockHtml HTML returned by saturne_render_media_block()
+ * @return string                 Same block, its image URLs served publicly
+ */
+function doliletter_spread_public_media_block(string $mediaBlockHtml): string
+{
+    // Les URL apparaissent en clair dans le src et echappees dans le data-json de la galerie :
+    // couper avant le nom de script couvre les deux formes
+    return str_replace('document.php?modulepart=', 'custom/saturne/utils/viewimage.php?modulepart=', $mediaBlockHtml);
+}
+
+/**
  * Full name of a signatory registered from the public page.
  *
  * @param  SaturneSignature $signatory Signatory to name

@@ -33,6 +33,34 @@
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 $tmpUser = new User($db);
 $form    = new Form($db);
+
+// Logo de l'entreprise : la page arrive par un lien brut, sans rien qui dise de qui elle vient.
+// Le wrapper public de Saturne sert l'image sans session, contrairement a viewimage.php natif.
+$spreadLogoFile = '';
+if (!empty($mysoc->logo_squarred_small)) {
+    $spreadLogoFile = 'logos/thumbs/' . $mysoc->logo_squarred_small;
+} elseif (!empty($mysoc->logo_squarred)) {
+    $spreadLogoFile = 'logos/thumbs/' . $mysoc->logo_squarred;
+} elseif (!empty($mysoc->logo_small)) {
+    $spreadLogoFile = 'logos/thumbs/' . $mysoc->logo_small;
+} elseif (!empty($mysoc->logo)) {
+    $spreadLogoFile = 'logos/' . $mysoc->logo;
+}
+$spreadLogoUrl = dol_strlen($spreadLogoFile)
+    ? DOL_URL_ROOT . '/custom/saturne/utils/viewimage.php?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode($spreadLogoFile)
+    : '';
+
+// Retours vers l'application, reserves aux personnes connectees : un visiteur anonyme n'aurait
+// qu'un ecran de connexion au bout du lien
+$spreadCardUrl   = '';
+$spreadMobileUrl = '';
+if ($isLogged && !empty($objectsMetadata[$objectType]['create_url'])) {
+    $spreadCardUrl = dol_buildpath(str_replace('?action=create', '', $objectsMetadata[$objectType]['create_url']), 1) . '?id=' . $id;
+
+    if (!empty($isPreventionPlan)) {
+        $spreadMobileUrl = dol_buildpath('/custom/digiriskdolibarr/view/preventionplan/preventionplan_mobile_create.php', 1) . '?id=' . $id;
+    }
+}
 ?>
 
 <style>
@@ -590,9 +618,156 @@ body {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .quick-sign-send-btn {
         min-width: auto;
+    }
+}
+
+/* En-tete : la page arrive par un lien brut, le logo et la raison sociale disent de qui elle vient */
+.spread-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.spread-brand__logo {
+    flex-shrink: 0;
+    max-height: 44px;
+    max-width: 140px;
+    object-fit: contain;
+}
+
+.spread-brand__name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.spread-brand__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.spread-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+}
+
+.spread-back-link:hover {
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+/* Qui d'autre a pris connaissance du document : c'est le sujet meme de la diffusion */
+.spread-signatories {
+    margin-top: 16px;
+    padding: 16px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.spread-signatories__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.spread-signatories__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.spread-signatories__title i {
+    color: #3b82f6;
+}
+
+.spread-signatories__count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.spread-signatories__empty {
+    padding-top: 12px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.spread-signatories__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.spread-signatories__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    font-size: 13px;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.spread-signatories__item:last-child {
+    border-bottom: none;
+}
+
+.spread-signatories__item i {
+    flex-shrink: 0;
+    color: #cbd5e1;
+}
+
+.spread-signatories__item--signed i {
+    color: #16a34a;
+}
+
+.spread-signatories__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 600;
+    color: #334155;
+    overflow-wrap: anywhere;
+}
+
+.spread-signatories__status {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+@media (max-width: 768px) {
+    .spread-brand__actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .spread-back-link {
+        flex: 1 1 auto;
+        justify-content: center;
     }
 }
 </style>
@@ -600,8 +775,33 @@ body {
 <div class="public-card__container" data-public-interface="true">
     <div class="public-card__header">
         <div class="public-card__content">
+            <div class="spread-brand">
+                <?php if (dol_strlen($spreadLogoUrl)) { ?>
+                <img class="spread-brand__logo" src="<?php echo $spreadLogoUrl; ?>" alt="<?php echo dol_escape_htmltag($mysoc->name); ?>">
+                <?php } ?>
+                <span class="spread-brand__name"><?php echo dol_escape_htmltag($mysoc->name); ?></span>
+
+                <?php if (dol_strlen($spreadCardUrl) || dol_strlen($spreadMobileUrl)) { ?>
+                <div class="spread-brand__actions">
+                    <?php if (dol_strlen($spreadMobileUrl)) { ?>
+                    <a class="spread-back-link" href="<?php echo $spreadMobileUrl; ?>">
+                        <i class="fas fa-mobile-alt"></i> <span><?php echo $langs->trans('SpreadBackToMobile'); ?></span>
+                    </a>
+                    <?php } ?>
+                    <?php if (dol_strlen($spreadCardUrl)) { ?>
+                    <a class="spread-back-link" href="<?php echo $spreadCardUrl; ?>">
+                        <i class="fas fa-arrow-left"></i> <span><?php echo $langs->trans('SpreadBackToDolibarr'); ?></span>
+                    </a>
+                    <?php } ?>
+                </div>
+                <?php } ?>
+            </div>
+
             <div class="object-title-section">
-                <?php echo $objectsMetadata[$objectType]['object']->getNomUrl(1) . (!empty($objectLabel) ? ' - ' . $objectLabel : '' ); ?>
+                <?php
+                // Un visiteur anonyme n'a rien a faire d'un lien vers la fiche : il n'y accede pas
+                echo ($isLogged ? $objectsMetadata[$objectType]['object']->getNomUrl(1) : dol_escape_htmltag($objectRef)) . (!empty($objectLabel) ? ' - ' . dol_escape_htmltag($objectLabel) : '');
+                ?>
             </div>
 
             <?php
@@ -930,6 +1130,14 @@ body {
         </div>
     </div>
     <?php } ?>
+
+    <?php
+    // Une personne diffusee doit pouvoir voir qui d'autre a pris connaissance du document. La liste
+    // modifiable ci-dessus est reservee aux gestionnaires : celle-ci est en lecture seule.
+    if (!$isLogged && !empty($signSignatory)) {
+        require __DIR__ . '/public_spread_signatories.tpl.php';
+    }
+    ?>
 
     <?php if (!$isLogged) { ?>
 

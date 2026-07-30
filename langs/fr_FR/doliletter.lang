@@ -243,6 +243,26 @@ ErrorUserNotFound               = Utilisateur non trouvé, contactez votre admin
 ConnectForMoreInfo              = <a href="%s">Connectez-vous</a> pour avoir d'autres informations
 ErrorInvalidSignatureLink       = Ce lien de signature n'est plus valide ou a expiré.
 ErrorNotAllowed                 = Action non autorisée
+ErrorSendingEmail               = L'email n'a pas pu être envoyé.
+
+# Messages d'erreur situes : code, sujet, script et ligne, puis la raison brute, pour qu'un retour
+# utilisateur suffise a retrouver le point de defaillance sans reproduire le probleme
+ErrorSpreadContext              = [%s] %s — %s : %s
+ErrorSpreadSubjectRegister      = Inscription à la diffusion
+ErrorSpreadSubjectCertification = Enregistrement d'un document obligatoire
+ErrorSpreadSubjectRiskAck       = Prise de connaissance d'un risque
+ErrorSpreadSubjectQuickSign     = Demande de signature rapide
+ErrorSpreadSubjectEmail         = Envoi du lien de signature
+
+# Retours vers l'application
+SpreadBackToDolibarr            = Retour à Dolibarr
+SpreadBackToMobile              = Interface mobile
+
+# Signataires de la diffusion
+SpreadSignatoriesTitle          = Signataires de la diffusion
+SpreadSignatoriesCount          = %s signature(s) sur %s
+SpreadNoSignatoryYet            = Personne n'a encore rejoint cette diffusion.
+SpreadSignatoryPending          = En attente de signature
 
 # Public registration
 SpreadPublicRegister              = Rejoindre la diffusion

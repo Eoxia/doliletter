@@ -394,7 +394,7 @@ if ($action == 'set_cert_not_concerned') {
 
     $result = doliletter_spread_set_not_concerned_certification($tmpSignatory, $certCode, $notConcerned, $user);
     if ($result < 0) {
-        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('Error') . '">';
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-01', 'ErrorSpreadSubjectCertification', doliletter_spread_get_object_error($tmpSignatory, $langs), __FILE__, __LINE__, $langs)) . '">';
         exit;
     }
 
@@ -422,7 +422,7 @@ if ($action == 'acknowledge_risk') {
     }
 
     if (doliletter_spread_acknowledge_risk($tmpSignatory, $riskCategory, $user) < 0) {
-        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('Error') . '">';
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-02', 'ErrorSpreadSubjectRiskAck', doliletter_spread_get_object_error($tmpSignatory, $langs), __FILE__, __LINE__, $langs)) . '">';
         exit;
     }
 
@@ -572,7 +572,7 @@ if ($action == 'send_quick_sign_email') {
 
     $result = $tmpSignatory->create($user);
     if ($result < 0) {
-        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('Error') . '">';
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-03', 'ErrorSpreadSubjectQuickSign', doliletter_spread_get_object_error($tmpSignatory, $langs), __FILE__, __LINE__, $langs)) . '">';
         exit;
     }
     $signatory_id = $result;
@@ -615,22 +615,30 @@ if ($action == 'send_email') {
 
         // Create form object
         // Send mail (substitutionarray must be done just before this)
+        // Chaque issue repond quelque chose : une construction en echec et une messagerie non
+        // configuree laissaient la page se recharger sans rien dire, et personne ne savait si le
+        // lien de signature etait parti.
         $mailfile = new CMailFile($subject, $sendto, $from, $message, [], [], [], '', '', 0, -1, '', '', '', '', 'mail');
         if ($mailfile->error) {
-            setEventMessages($mailfile->error, $mailfile->errors, 'errors');
-        } elseif (!empty($conf->global->MAIN_MAIL_SMTPS_ID) || $conf->global->SATURNE_USE_ALL_EMAIL_MODE > 0) {
-            $result = $mailfile->sendfile();
-            if ($result) {
-                $signatory->last_email_sent_date = dol_now();
-                $signatory->update($user, true);
-                $signatory->setPending($user, false);
-                echo '<input type="hidden" id="success" value="' . $langs->transnoentities('SendEmailAt', dol_escape_htmltag($sendto)) . '">';
-                exit;
-            } else {
-                echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto)) . '">';
-                exit;
-            }
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-04', 'ErrorSpreadSubjectEmail', $mailfile->error, __FILE__, __LINE__, $langs)) . '">';
+            exit;
         }
+
+        if (!dol_strlen(getDolGlobalString('MAIN_MAIL_SMTPS_ID')) && getDolGlobalInt('SATURNE_USE_ALL_EMAIL_MODE') <= 0) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-05', 'ErrorSpreadSubjectEmail', $langs->transnoentities('WarningMailSendSetupIs', $langs->transnoentities('MAIN_MAIL_SENDMODE')), __FILE__, __LINE__, $langs)) . '">';
+            exit;
+        }
+
+        if ($mailfile->sendfile()) {
+            $signatory->last_email_sent_date = dol_now();
+            $signatory->update($user, true);
+            $signatory->setPending($user, false);
+            echo '<input type="hidden" id="success" value="' . $langs->transnoentities('SendEmailAt', dol_escape_htmltag($sendto)) . '">';
+            exit;
+        }
+
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-06', 'ErrorSpreadSubjectEmail', $langs->transnoentities('ErrorFailedToSendMail', $from, $sendto) . ($mailfile->error ? ' - ' . $mailfile->error : ''), __FILE__, __LINE__, $langs)) . '">';
+        exit;
     }
 }
 
