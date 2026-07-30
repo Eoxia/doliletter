@@ -237,12 +237,6 @@ if ($isPreventionPlan) {
     $ppCertBaseDir = $ppUploadBase . '/preventionplan/' . dol_sanitizeFileName($ppObject->ref) . '/certifications';
 }
 
-// Un plan de prevention engage l'entreprise utilisatrice et l'entreprise exterieure : tant que les
-// deux n'ont pas signe, il n'y a rien a diffuser aux intervenants. La page l'annonce au lieu de
-// laisser rejoindre une diffusion qui ne repose sur rien.
-$ppPendingParties = ($isPreventionPlan && $id > 0) ? doliletter_spread_get_pending_parties($db, $id, $langs) : [];
-$spreadIsOpen     = empty($ppPendingParties);
-
 // Signatory the ?sign= token points to, resolved before the actions so a visitor can only answer for themselves
 $signTokenSignatoryId = 0;
 if (!empty($sign)) {
@@ -281,12 +275,6 @@ if ($action == 'add_spread_user') {
 if ($action == 'register_public_signatory') {
     if (!$publicRegisterEnabled) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
-        exit;
-    }
-
-    // Le blocage vaut aussi cote serveur : le formulaire est masque, le lien reste appelable
-    if (!$spreadIsOpen) {
-        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('SpreadWaitingForParties', implode(', ', $ppPendingParties))) . '">';
         exit;
     }
 

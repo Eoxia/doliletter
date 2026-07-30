@@ -672,37 +672,6 @@ body {
     border-color: #94a3b8;
 }
 
-/* Diffusion pas encore ouverte : les deux entreprises n'ont pas toutes les deux signe le plan */
-.spread-closed {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-top: 16px;
-    padding: 14px;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
-    border-radius: 8px;
-}
-
-.spread-closed i {
-    flex-shrink: 0;
-    margin-top: 3px;
-    color: #d97706;
-}
-
-.spread-closed__title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #78350f;
-}
-
-.spread-closed__text {
-    margin-top: 4px;
-    font-size: 13px;
-    line-height: 1.45;
-    color: #92400e;
-}
-
 /* Qui d'autre a pris connaissance du document : c'est le sujet meme de la diffusion */
 .spread-signatories {
     margin-top: 16px;
@@ -834,19 +803,6 @@ body {
                 echo ($isLogged ? $objectsMetadata[$objectType]['object']->getNomUrl(1) : dol_escape_htmltag($objectRef)) . (!empty($objectLabel) ? ' - ' . dol_escape_htmltag($objectLabel) : '');
                 ?>
             </div>
-
-            <?php if (!$spreadIsOpen) { ?>
-            <!-- Un plan de prevention n'engage personne tant que les deux entreprises ne l'ont pas
-                 signe : la diffusion reste fermee et le dit, plutot que de laisser des intervenants
-                 prendre connaissance d'un document provisoire -->
-            <div class="spread-closed">
-                <i class="fas fa-lock"></i>
-                <div>
-                    <div class="spread-closed__title"><?php echo $langs->trans('SpreadWaitingForPartiesTitle'); ?></div>
-                    <div class="spread-closed__text"><?php echo dol_escape_htmltag($langs->trans('SpreadWaitingForParties', implode(', ', $ppPendingParties))); ?></div>
-                </div>
-            </div>
-            <?php } ?>
 
             <?php
             // Documents mis en avant : affiches en premier, avant le detail de l'objet, pour que
@@ -1185,11 +1141,11 @@ body {
 
     <?php if (!$isLogged) { ?>
 
-        <?php if (!empty($publicRegisterEnabled) && empty($sign) && $spreadIsOpen) {
+        <?php if (!empty($publicRegisterEnabled) && empty($sign)) {
             require __DIR__ . '/public_spread_register.tpl.php';
         } ?>
 
-        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign) && $spreadIsOpen) { ?>
+        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
 
         <div class="quick-sign">
             <h3>

@@ -153,49 +153,6 @@ function doliletter_spread_public_media_block(string $mediaBlockHtml): string
 }
 
 /**
- * Signatures of the prevention plan itself that are still missing.
- *
- * A prevention plan is an agreement between the user company and the exterior company: spreading it
- * to the people working on site before both have signed circulates a document that does not yet
- * commit anybody.
- *
- * @param  DoliDB    $db       Database handler
- * @param  int       $planId   ID of the prevention plan
- * @param  Translate $langs    Translation handler
- * @return array               Labels of the parties that have not signed, empty when the plan is ready
- */
-function doliletter_spread_get_pending_parties(DoliDB $db, int $planId, Translate $langs): array
-{
-    require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
-
-    $pending      = [];
-    $planSignatory = new SaturneSignature($db, 'digiriskdolibarr', 'preventionplan');
-
-    foreach (['MasterWorker', 'ExtSocietyResponsible'] as $role) {
-        $roleSignatories = $planSignatory->fetchSignatory($role, $planId, 'preventionplan');
-        if (!is_array($roleSignatories) || empty($roleSignatories)) {
-            $pending[] = $langs->transnoentities('SpreadParty' . $role);
-            continue;
-        }
-
-        // Interroge sur un role precis, fetchSignatory rend une liste plate de signataires
-        $hasSigned = false;
-        foreach ($roleSignatories as $roleSignatory) {
-            if (!empty($roleSignatory->signature)) {
-                $hasSigned = true;
-                break;
-            }
-        }
-
-        if (!$hasSigned) {
-            $pending[] = $langs->transnoentities('SpreadParty' . $role);
-        }
-    }
-
-    return $pending;
-}
-
-/**
  * Full name of a signatory registered from the public page.
  *
  * @param  SaturneSignature $signatory Signatory to name

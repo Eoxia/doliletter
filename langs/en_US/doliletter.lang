@@ -90,12 +90,6 @@ SpreadSignatoriesCount = %s signature(s) out of %s
 SpreadNoSignatoryYet = Nobody has joined this spread yet.
 SpreadSignatoryPending = Waiting for signature
 
-# Spread gated on both parties having signed
-SpreadWaitingForPartiesTitle = Spread not open yet
-SpreadWaitingForParties = This prevention plan must be signed by the user company and by the exterior company before being spread. Missing signatures: %s
-SpreadPartyMasterWorker = user company
-SpreadPartyExtSocietyResponsible = exterior company
-
 #
 # Public registration
 #

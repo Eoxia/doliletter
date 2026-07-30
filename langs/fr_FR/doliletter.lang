@@ -264,12 +264,6 @@ SpreadSignatoriesCount          = %s signature(s) sur %s
 SpreadNoSignatoryYet            = Personne n'a encore rejoint cette diffusion.
 SpreadSignatoryPending          = En attente de signature
 
-# Diffusion conditionnee a la signature des deux parties
-SpreadWaitingForPartiesTitle    = Diffusion pas encore ouverte
-SpreadWaitingForParties         = Ce plan de prévention doit être signé par l'entreprise utilisatrice et par l'entreprise extérieure avant d'être diffusé. Signatures manquantes : %s
-SpreadPartyMasterWorker         = entreprise utilisatrice
-SpreadPartyExtSocietyResponsible = entreprise extérieure
-
 # Public registration
 SpreadPublicRegister              = Rejoindre la diffusion
 SpreadPublicRegisterInfo          = Renseignez vos coordonnées pour accéder à votre page personnelle de signature et de dépôt de documents.
