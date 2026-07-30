@@ -20,7 +20,7 @@
  * \ingroup doliletter
  * \brief   One Saturne media block per required certification (document) for a given signatory.
  *          A mandatory certification can be waived by declaring the signatory is not concerned by it.
- *          Expects: $langs, $objectRef, $certSignatoryId, $ppCertifications, $certificationOptions, $ppCertificationStates.
+ *          Expects: $isLogged, $langs, $objectRef, $certSignatoryId, $ppCertifications, $certificationOptions, $ppCertificationStates.
  */
 
 if (!empty($ppCertifications)) { ?>
@@ -48,7 +48,8 @@ if (!empty($ppCertifications)) { ?>
         <?php
         // Saturne media block only (upload buttons + photo editor + gallery), as documented in
         // saturne/admin/media.php. The page implements the action=uploadPhoto contract.
-        echo saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . ((int) $certSignatoryId) . '-' . $certCode, '', ['show_photo' => true, 'show_audio' => false]);
+        $certMediaBlock = saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . ((int) $certSignatoryId) . '-' . $certCode, '', ['show_photo' => true, 'show_audio' => false]);
+        echo empty($isLogged) ? doliletter_spread_public_media_block($certMediaBlock) : $certMediaBlock;
         ?>
         </div>
     </div>
