@@ -1359,7 +1359,7 @@ function validateSignature() {
                         $('.pp-inline-signature').remove();
                     }
                     currentUserIndex = null;
-                    $.jnotify('<?php echo $langs->trans("SignatureValidatedSuccessfully"); ?>', {type: 'success'});
+                    $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SignatureValidatedSuccessfully')); ?>', {type: 'success'});
                     return;
                 }
 
@@ -1373,7 +1373,7 @@ function validateSignature() {
                 closeSignatureModal();
 
                 // Add success notification
-                $.jnotify('<?php echo $langs->trans("SignatureValidatedSuccessfully"); ?>', {type: 'success'});
+                $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SignatureValidatedSuccessfully')); ?>', {type: 'success'});
             },
         });
     }
@@ -1468,7 +1468,7 @@ function sendQuickSignEmail() {
     const button = $(this);
 
     if (!email || !email.includes('@')) {
-        $.jnotify('<?php echo $langs->trans('PleaseEnterValidEmail'); ?>', {type: 'error'});
+        $.jnotify('<?php echo dol_escape_js($langs->transnoentities('PleaseEnterValidEmail')); ?>', {type: 'error'});
         return;
     }
 
@@ -1489,14 +1489,14 @@ function sendQuickSignEmail() {
             if (isError) {
                 $.jnotify(message, {type: 'error'});
             } else {
-                $.jnotify('<?php echo $langs->trans('EmailSentSuccessfully'); ?>', {type: 'success'});
+                $.jnotify('<?php echo dol_escape_js($langs->transnoentities('EmailSentSuccessfully')); ?>', {type: 'success'});
                 $('#quick-sign-email').val('');
             }
 
             window.saturne.loader.remove(button);
         },
         error: function() {
-            $.jnotify('<?php echo $langs->trans('ErrorSendingEmail'); ?>', {type: 'error'});
+            $.jnotify('<?php echo dol_escape_js($langs->transnoentities('ErrorSendingEmail')); ?>', {type: 'error'});
             window.saturne.loader.remove(button);
         }
     });
