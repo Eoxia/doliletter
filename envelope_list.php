@@ -103,7 +103,7 @@ $sender = new User($db);
 $project = new Project($db);
 $formproject = new FormProjets($db);
 
-$diroutputmassaction = $conf->envelope->dir_output.'/temp/massgeneration/'.$user->id;
+$diroutputmassaction = $conf->doliletter->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('documentlist')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
@@ -269,7 +269,7 @@ if (empty($reshook)) {
 	// Mass actions
 	$objectclass = 'Envelope';
 	$objectlabel = 'Envelope';
-	$uploaddir = $conf->doliletter->envelope->dir_output;
+	$uploaddir = $conf->doliletter->dir_output;
 //	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
 
