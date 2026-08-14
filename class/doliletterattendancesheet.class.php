@@ -307,8 +307,15 @@ class DoliletterAttendanceSheet extends SaturneObject
         $array           = ['graphs' => [], 'lists' => [], 'disabledGraphs' => []];
 
         $listOfSpreads = $this->fetchAll('DESC', 'date_creation');
+        if (!is_array($listOfSpreads)) {
+            $listOfSpreads = [];
+        }
+
         $signatory     = new SaturneSignature($this->db);
         $signatories   = $signatory->fetchAll('', '', 0, 0, ['customsql' => 't.object_type = "' . $this->element . '" AND t.element_id <> 0']);
+        if (!is_array($signatories)) {
+            $signatories = [];
+        }
 
         if (empty($dashboardConfig->graphs->LastSpreadList->hide)) {
             $array['lists'][] = $this->getLastSpreadList($listOfSpreads, $signatories);

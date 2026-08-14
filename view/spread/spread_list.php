@@ -101,7 +101,7 @@ $objectPosition     = 21;
 $excludeFields      = [];
 $objectsMetadata    = saturne_get_objects_metadata();
 foreach($objectsMetadata as $objectMetadata) {
-    if ($objectMetadata['conf'] == 0) {
+    if (empty($objectMetadata['conf'])) {
         continue;
     }
 
