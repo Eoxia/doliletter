@@ -69,7 +69,7 @@ $linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/module
 print load_fiche_titre($langs->trans($page_name), $linkback, 'object_doliletter@doliletter');
 
 // Configuration header
-$head = doliletterAdminPrepareHead();
+$head = doliletter_admin_prepare_head();
 print dol_get_fiche_head($head, 'about', $langs->trans($page_name), 0, 'doliletter@doliletter');
 
 dol_include_once('/doliletter/core/modules/modDoliLetter.class.php');
