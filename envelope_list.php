@@ -103,7 +103,7 @@ $sender = new User($db);
 $project = new Project($db);
 $formproject = new FormProjets($db);
 
-$diroutputmassaction = $conf->envelope->dir_output.'/temp/massgeneration/'.$user->id;
+$diroutputmassaction = $conf->doliletter->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('documentlist')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
@@ -218,7 +218,7 @@ $permissiontoread = $user->rights->doliletter->envelope->read;
 $permissiontoadd = $user->rights->doliletter->envelope->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->doliletter->envelope->delete || ($permissiontoadd && isset($object->status));
 $permissionnote = $user->rights->doliletter->envelope->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->envelope->letter->write; // Used by the include of actions_dellink.inc.php
+$permissiondellink = isset($user->rights->doliletter->envelope->write) ? $user->rights->doliletter->envelope->write : 0; // Used by the include of actions_dellink.inc.php
 $upload_dir = $conf->doliletter->multidir_output[$conf->entity];
 
 // Security check (enable the most restrictive one)
@@ -269,7 +269,7 @@ if (empty($reshook)) {
 	// Mass actions
 	$objectclass = 'Envelope';
 	$objectlabel = 'Envelope';
-	$uploaddir = $conf->doliletter->envelope->dir_output;
+	$uploaddir = $conf->doliletter->dir_output;
 //	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
 
@@ -546,16 +546,16 @@ foreach ($object->fields as $key => $val) {
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
 			print $form->selectarray('search_'.$key, $val['arrayofkeyval'], (isset($search[$key]) ? $search[$key] : ''), $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
 		} elseif ($key == 'fk_soc') {
-			$thirdparty->fetch(0, $search['fk_soc']);
+			$thirdparty->fetch(0, empty($search['fk_soc']) ? '' : $search['fk_soc']);
 			print '<div class="nowrap">';
 			print $form->select_company((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : (GETPOST('fromtype') == 'thirdparty' ? GETPOST('fromid') : '')), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'maxwidth200');
 			print '</div>';
 		} elseif ($key == 'fk_project') {
-			$project->fetch(0, $search['fk_project']);
+			$project->fetch(0, empty($search['fk_project']) ? '' : $search['fk_project']);
 			print $formproject->select_projects(0, ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') :  (GETPOST('fromtype') == 'project' ? GETPOST('fromid') : '')), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth200');
 			print '<input class="input-hidden-fk_project" type="hidden" name="search_fk_project" value=""/>';
 		} elseif ($key == 'fk_contact') {
-			$contact->fetch(0, $search['fk_contact']);
+			$contact->fetch(0, empty($search['fk_contact']) ? '' : $search['fk_contact']);
 			print $form->selectcontacts(0, !empty(GETPOST('fk_contact')) ? GETPOST('fk_contact') : (GETPOST('fromtype') == 'contact' ? GETPOST('fromid') : ''), 'fk_contact', 1);
 			print '<input class="input-hidden-fk_project" type="hidden" name="search_fk_contact" value=""/>';
 		} elseif ((strpos($val['type'], 'integer:') === 0) || (strpos($val['type'], 'sellist:') === 0)) {
