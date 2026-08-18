@@ -46,9 +46,20 @@
         <?php echo $langs->trans('SpreadPublicRegister'); ?>
     </h3>
     <p class="public-register__intro"><?php echo $langs->trans('SpreadPublicRegisterInfo'); ?></p>
-    <?php if (!empty($isPreventionPlan) && !empty($ppCertifications) && is_array($ppCertifications)) {
-        $tmpCertSignatoryId = 'tmp_' . uniqid();
-        echo '<input type="hidden" id="public-register-tmp-id" value="' . dol_escape_htmltag($tmpCertSignatoryId) . '">';
+      <?php if (!empty($isPreventionPlan) && !empty($ppCertifications) && is_array($ppCertifications)) {
+          $tmpCertSignatoryId = '';
+          // If Saturne is doing an AJAX refresh, it posts JSON containing the subtype
+          if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+              $inputData = json_decode(file_get_contents('php://input'), true);
+              if (!empty($inputData['objectSubtype']) && preg_match('/^cert-(tmp_[^-]+)-/', $inputData['objectSubtype'], $matches)) {
+                  $tmpCertSignatoryId = $matches[1];
+              }
+          }
+          if (empty($tmpCertSignatoryId)) {
+              $tmpCertSignatoryId = 'tmp_' . uniqid();
+          }
+          
+          echo '<input type="hidden" id="public-register-tmp-id" value="' . dol_escape_htmltag($tmpCertSignatoryId) . '">';
         echo '<input type="hidden" id="public-register-not-concerned" value="{}">';
         
         if (!isset($ppCertificationStates)) {
