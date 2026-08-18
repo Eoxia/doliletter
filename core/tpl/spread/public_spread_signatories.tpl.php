@@ -38,27 +38,66 @@ foreach ($signatories as $signatoryItem) {
         <div class="spread-signatories__title">
             <i class="fas fa-users"></i> <?php echo $langs->trans('SpreadSignatoriesTitle'); ?>
         </div>
+        <?php if (!isset($showCount) || $showCount) { ?>
         <span class="spread-signatories__count"><?php echo $langs->trans('SpreadSignatoriesCount', $signedCount, count($signatories)); ?></span>
+        <?php } ?>
     </div>
 
     <?php if (empty($signatories)) { ?>
     <div class="spread-signatories__empty"><?php echo $langs->trans('SpreadNoSignatoryYet'); ?></div>
-    <?php } else { ?>
+    <?php } elseif (!isset($showName) || $showName || !empty($showContact) || !empty($showDocs)) { ?>
     <ul class="spread-signatories__list">
         <?php foreach ($signatories as $signatoryItem) {
-            $signatoryName = doliletter_spread_get_signatory_name($signatoryItem);
-            if (!dol_strlen($signatoryName) && !empty($signatoryItem->element_id)) {
-                $tmpUser->fetch($signatoryItem->element_id);
-                $signatoryName = $tmpUser->getFullName($langs);
-            }
             $hasSigned = !empty($signatoryItem->signature);
+            // Hide pending signatories if they shouldn't be listed. Actually, the original template shows them.
+            // We keep showing them.
+
+            $signatoryName  = '';
+            $signatoryEmail = $signatoryItem->email ?? '';
+            $signatoryPhone = $signatoryItem->phone ?? '';
+
+            if (!empty($signatoryItem->element_id)) {
+                $tmpUser->fetch($signatoryItem->element_id);
+                if (empty($signatoryEmail) && !empty($tmpUser->email)) {
+                    $signatoryEmail = $tmpUser->email;
+                }
+                if (empty($signatoryPhone)) {
+                    if (!empty($tmpUser->user_mobile)) {
+                        $signatoryPhone = $tmpUser->user_mobile;
+                    } elseif (!empty($tmpUser->office_phone)) {
+                        $signatoryPhone = $tmpUser->office_phone;
+                    }
+                }
+            }
+
+            if (!isset($showName) || $showName) {
+                $signatoryName = doliletter_spread_get_signatory_name($signatoryItem);
+                if (!dol_strlen($signatoryName) && !empty($signatoryItem->element_id)) {
+                    $signatoryName = $tmpUser->getFullName($langs);
+                }
+            } else {
+                $signatoryName = $langs->trans('Signatory');
+            }
         ?>
-        <li class="spread-signatories__item<?php echo $hasSigned ? ' spread-signatories__item--signed' : ''; ?>">
-            <i class="fas <?php echo $hasSigned ? 'fa-check-circle' : 'fa-hourglass-half'; ?>"></i>
-            <span class="spread-signatories__name"><?php echo dol_escape_htmltag(dol_strlen($signatoryName) ? $signatoryName : $langs->trans('Unknown')); ?></span>
-            <span class="spread-signatories__status">
-                <?php echo $hasSigned ? dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') : $langs->trans('SpreadSignatoryPending'); ?>
-            </span>
+        <li class="spread-signatories__item<?php echo $hasSigned ? ' spread-signatories__item--signed' : ''; ?>" style="display: block;">
+            <div style="display: flex; align-items: center; width: 100%;">
+                <i class="fas <?php echo $hasSigned ? 'fa-check-circle' : 'fa-hourglass-half'; ?>" style="margin-right: 10px;"></i>
+                <span class="spread-signatories__name" style="flex: 1 1 auto;"><?php echo dol_escape_htmltag(dol_strlen($signatoryName) ? $signatoryName : $langs->trans('Unknown')); ?></span>
+                <span class="spread-signatories__status">
+                    <?php echo $hasSigned ? dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') : $langs->trans('SpreadSignatoryPending'); ?>
+                </span>
+            </div>
+            
+            <?php if (!empty($showContact) && (!empty($signatoryEmail) || !empty($signatoryPhone))) { ?>
+            <div style="margin-left: 24px; margin-top: 6px; font-size: 13px; color: #6b7280; display: flex; flex-wrap: wrap; gap: 15px;">
+                <?php if (!empty($signatoryEmail)) { ?>
+                <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fas fa-envelope"></i> <?php echo dol_escape_htmltag($signatoryEmail); ?></span>
+                <?php } ?>
+                <?php if (!empty($signatoryPhone)) { ?>
+                <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fas fa-phone" style="transform: scaleX(-1);"></i> <?php echo dol_escape_htmltag($signatoryPhone); ?></span>
+                <?php } ?>
+            </div>
+            <?php } ?>
         </li>
         <?php } ?>
     </ul>
