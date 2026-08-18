@@ -237,4 +237,26 @@ class ActionsDoliletter
 			return -1;
 		}
     }
+
+    /**
+     * Overloading the saturneAdminDocumentData function : replacing the parent's function with the one below
+     *
+     * @param  array $parameters Hook metadata (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     */
+    public function saturneAdminDocumentData(array $parameters): int
+    {
+        if (strpos($parameters['context'], 'doliletteradmindocuments') !== false) {
+            $types = [
+                'SigninSheetDocument' => [
+                    'documentType' => 'signinsheet',
+                    'className'    => 'signinsheetdocument',
+                    'picto'        => 'fontawesome_fa-file-signature_fas_#63ACC9'
+                ]
+            ];
+            $this->results = array_merge((array)$this->results, $types);
+        }
+
+        return 0;
+    }
 }

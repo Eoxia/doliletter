@@ -35,9 +35,10 @@ if (!empty($ppCertifications)) { ?>
             <i class="fas fa-id-badge"></i> <span class="pp-cert-upload__name"><?php echo dol_escape_htmltag($certState['label']); ?></span>
             <?php if (!empty($certState['mandatory'])) { ?>
             <span class="pp-public-badge pp-cert-badge-mandatory"><?php echo $langs->trans('MobilePPMandatory'); ?></span>
-            <span class="pp-public-badge pp-public-badge--muted pp-cert-badge-not-concerned"><?php echo $langs->trans('SpreadNotConcerned'); ?></span>
             <?php } ?>
-            <?php if (!empty($certState['mandatory'])) { ?>
+            <span class="pp-public-badge pp-public-badge--muted pp-cert-badge-not-concerned"><?php echo $langs->trans('SpreadNotConcerned'); ?></span>
+
+            <?php if (empty($certState['mandatory'])) { ?>
             <button type="button" class="pp-cert-not-concerned-btn<?php echo $notConcerned ? ' pp-cert-not-concerned-btn--active' : ''; ?>">
                 <i class="fas <?php echo $notConcerned ? 'fa-undo' : 'fa-ban'; ?>"></i>
                 <span><?php echo $notConcerned ? $langs->trans('SpreadIAmConcerned') : $langs->trans('SpreadIAmNotConcerned'); ?></span>

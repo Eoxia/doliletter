@@ -252,9 +252,11 @@ if ($action == 'add_spread_user') {
         exit;
     }
 
+    $type = GETPOST('type', 'aZ09');
+
     $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
     $tmpSignatory->element_id     = 0;
-    $tmpSignatory->element_type   = 'user';
+    $tmpSignatory->element_type   = ($type === 'external') ? DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE : 'user';
     $tmpSignatory->role           = '';
     $tmpSignatory->object_type    = $attendanceSheet->element;
     $tmpSignatory->fk_object      = $attendanceSheet->id;
@@ -368,6 +370,19 @@ if ($action == 'update_spread_user') {
         $signatory->firstname = $tmpUser->firstname;
         $signatory->lastname  = $tmpUser->lastname;
 
+        $signatory->update($user);
+    }
+    $action = '';
+}
+
+if ($action == 'update_spread_user_external') {
+    $signatory_id = GETPOSTINT('signatory_id');
+    $signatory->fetch($signatory_id);
+    if ($signatory->id > 0 && $signatory->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE) {
+        $signatory->firstname = GETPOST('first_name', 'alphanohtml');
+        $signatory->lastname = GETPOST('last_name', 'alphanohtml');
+        $signatory->email = GETPOST('email', 'alphanohtml');
+        $signatory->phone = GETPOST('phone', 'alphanohtml');
         $signatory->update($user);
     }
     $action = '';
