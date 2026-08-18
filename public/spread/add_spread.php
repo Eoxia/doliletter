@@ -285,8 +285,15 @@ if ($action == 'register_public_signatory') {
     $lastname  = dol_string_nohtmltag(trim($data['lastname'] ?? ''));
     $email     = dol_string_nohtmltag(trim($data['email'] ?? ''));
     $phone     = dol_string_nohtmltag(trim($data['phone'] ?? ''));
+    $tmpSignatoryId = $data['tmp_signatory_id'] ?? null;
+    $notConcernedCodes = $data['not_concerned_codes'] ?? [];
 
-    $requiredFields = ['Firstname' => $firstname, 'Lastname' => $lastname, 'Email' => $email, 'Phone' => $phone];
+    $requiredFields = [];
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY')) $requiredFields['Firstname'] = $firstname;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_MANDATORY')) $requiredFields['Lastname'] = $lastname;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY')) $requiredFields['Email'] = $email;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_MANDATORY')) $requiredFields['Phone'] = $phone;
+
     foreach ($requiredFields as $requiredLabel => $requiredValue) {
         if (dol_strlen($requiredValue) == 0) {
             echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFieldRequired', $langs->transnoentities($requiredLabel)) . '">';
@@ -294,7 +301,8 @@ if ($action == 'register_public_signatory') {
         }
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $emailVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') || getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY') || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') === '');
+    if ($emailVisible && !empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorBadEMail', dol_escape_htmltag($email)) . '">';
         exit;
     }
@@ -330,6 +338,34 @@ if ($action == 'register_public_signatory') {
         if ($result < 0) {
             echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorSpreadRegisterFailed', doliletter_spread_get_object_error($tmpSignatory, $langs))) . '">';
             exit;
+        }
+
+        // Handle temporary Saturne uploads (from stateless registration)
+        if ($tmpSignatoryId && str_starts_with($tmpSignatoryId, 'tmp_') && $isPreventionPlan) {
+            require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+            
+            // Apply not concerned statuses
+            if (!empty($notConcernedCodes)) {
+                $opts = !empty($tmpSignatory->array_options['options_mobile_not_concerned']) ? json_decode($tmpSignatory->array_options['options_mobile_not_concerned'], true) : [];
+                $opts = array_unique(array_merge($opts, $notConcernedCodes));
+                $tmpSignatory->array_options['options_mobile_not_concerned'] = json_encode(array_values($opts));
+                $tmpSignatory->update($user, true); // No triggers needed
+            }
+
+            // Rename temporary upload directory if it exists
+            $tmpDir = doliletter_spread_get_certification_dir($ppCertBaseDir, $tmpSignatoryId, '');
+            // The folder path ends with '/tmp_xxx/'. We want to move 'tmp_xxx' to '\$tmpSignatory->id'
+            $tmpDirBase = rtrim($tmpDir, '/');
+            if (dol_is_dir($tmpDirBase)) {
+                $realDirBase = doliletter_spread_get_certification_dir($ppCertBaseDir, $tmpSignatory->id, '');
+                $realDirBase = rtrim($realDirBase, '/');
+                
+                // Create parent directories if they don't exist
+                dol_mkdir(dirname($realDirBase));
+                
+                // Rename tmp to real ID
+                dol_move_dir($tmpDirBase, $realDirBase);
+            }
         }
 
         $attendanceSheet->context = ['user' => $firstname . ' ' . $lastname, 'old_user' => ''];

@@ -27,10 +27,10 @@ if (!empty($ppCertifications)) { ?>
 <div class="pp-cert-uploads">
     <?php foreach ($ppCertificationStates[$certSignatoryId] ?? [] as $certState) {
         $certCode     = $certState['code'];
-        $certSubDir   = 'preventionplan/' . dol_sanitizeFileName($objectRef) . '/certifications/' . ((int) $certSignatoryId) . '/' . dol_sanitizeFileName($certCode);
+        $certSubDir   = 'preventionplan/' . dol_sanitizeFileName($objectRef) . '/certifications/' . dol_sanitizeFileName($certSignatoryId) . '/' . dol_sanitizeFileName($certCode);
         $notConcerned = !empty($certState['not_concerned']);
     ?>
-    <div class="pp-cert-upload<?php echo $notConcerned ? ' pp-cert-upload--not-concerned' : ''; ?>" data-cert-code="<?php echo dol_escape_htmltag($certCode); ?>" data-cert-signatory-id="<?php echo (int) $certSignatoryId; ?>">
+    <div class="pp-cert-upload<?php echo $notConcerned ? ' pp-cert-upload--not-concerned' : ''; ?>" data-cert-code="<?php echo dol_escape_htmltag($certCode); ?>" data-cert-signatory-id="<?php echo dol_escape_htmltag($certSignatoryId); ?>">
         <div class="pp-cert-upload__label">
             <i class="fas fa-id-badge"></i> <span class="pp-cert-upload__name"><?php echo dol_escape_htmltag($certState['label']); ?></span>
             <?php if (!empty($certState['mandatory'])) { ?>
@@ -49,7 +49,7 @@ if (!empty($ppCertifications)) { ?>
         <?php
         // Saturne media block only (upload buttons + photo editor + gallery), as documented in
         // saturne/admin/media.php. The page implements the action=uploadPhoto contract.
-        $certMediaBlock = saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . ((int) $certSignatoryId) . '-' . $certCode, '', ['show_photo' => true, 'show_audio' => false]);
+        $certMediaBlock = saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . dol_sanitizeFileName($certSignatoryId) . '-' . $certCode, '', ['show_photo' => true, 'show_audio' => false]);
         echo empty($isLogged) ? doliletter_spread_public_media_block($certMediaBlock) : $certMediaBlock;
         ?>
         </div>
@@ -57,3 +57,5 @@ if (!empty($ppCertifications)) { ?>
     <?php } ?>
 </div>
 <?php }
+
+

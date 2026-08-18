@@ -1592,24 +1592,52 @@ function sendQuickSignEmail() {
 function registerPublicSignatory() {
     const button = $(this);
     const token  = window.saturne.toolbox.getToken();
+    
+    // Check for temporary documents
+    let tmpSignatoryId = null;
+    let notConcernedCodes = [];
+    if ($('#public-register-tmp-id').length) {
+        tmpSignatoryId = $('#public-register-tmp-id').val();
+        const ncState = JSON.parse($('#public-register-not-concerned').val() || '{}');
+        notConcernedCodes = Object.keys(ncState).filter(code => ncState[code]);
+    }
+
     const fields = {
         firstname: $('#public-register-firstname').val(),
         lastname:  $('#public-register-lastname').val(),
         email:     $('#public-register-email').val(),
-        phone:     $('#public-register-phone').val()
+        phone:     $('#public-register-phone').val(),
+        tmp_signatory_id: tmpSignatoryId,
+        not_concerned_codes: notConcernedCodes
     };
 
-    if (!fields.firstname || !fields.lastname || !fields.phone) {
+    let hasError = false;
+    <?php if ($confExtFirstnameMandatory) { ?>
+    if (!fields.firstname) hasError = true;
+    <?php } ?>
+    <?php if ($confExtLastnameMandatory) { ?>
+    if (!fields.lastname) hasError = true;
+    <?php } ?>
+    <?php if ($confExtPhoneMandatory) { ?>
+    if (!fields.phone) hasError = true;
+    <?php } ?>
+    <?php if ($confExtEmailMandatory) { ?>
+    if (!fields.email) hasError = true;
+    <?php } ?>
+
+    if (hasError) {
         $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SpreadPublicRegisterMissingFields')); ?>', {type: 'error'});
         return;
     }
 
     // A single "@" is not a check: the server refuses what it rejects, and the visitor only found
     // out after a round trip with an error naming their own address
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(fields.email || '')) {
+    <?php if ($confExtEmailVisible) { ?>
+    if (fields.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(fields.email)) {
         $.jnotify('<?php echo dol_escape_js($langs->transnoentities('PleaseEnterValidEmail')); ?>', {type: 'error'});
         return;
     }
+    <?php } ?>
 
     window.saturne.loader.display(button);
 
@@ -1647,6 +1675,32 @@ function toggleCertNotConcerned() {
     const certItem     = button.parents('.pp-cert-upload').eq(0);
     const notConcerned = !certItem.hasClass('pp-cert-upload--not-concerned');
     const token        = window.saturne.toolbox.getToken();
+    const sigId        = certItem.data('cert-signatory-id');
+    const certCode     = certItem.data('cert-code');
+
+    if (typeof sigId === 'string' && sigId.startsWith('tmp_')) {
+        if (notConcerned) {
+            certItem.addClass('pp-cert-upload--not-concerned');
+            button.addClass('pp-cert-not-concerned-btn--active');
+            button.find('i').removeClass('fa-ban').addClass('fa-undo');
+            button.find('span').text('<?php echo dol_escape_js($langs->transnoentities('SpreadIAmConcerned')); ?>');
+        } else {
+            certItem.removeClass('pp-cert-upload--not-concerned');
+            button.removeClass('pp-cert-not-concerned-btn--active');
+            button.find('i').removeClass('fa-undo').addClass('fa-ban');
+            button.find('span').text('<?php echo dol_escape_js($langs->transnoentities('SpreadIAmNotConcerned')); ?>');
+        }
+        
+        const ncInput = $('#public-register-not-concerned');
+        if (ncInput.length) {
+            const ncState = JSON.parse(ncInput.val() || '{}');
+            ncState[certCode] = notConcerned;
+            ncInput.val(JSON.stringify(ncState));
+        }
+        
+        updateValidateButtonState();
+        return;
+    }
 
     $.ajax({
         method: 'POST',
@@ -1801,3 +1855,4 @@ $(document).ready(function () {
 });
 
 </script>
+
