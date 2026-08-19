@@ -50,7 +50,7 @@ if (!empty($ppCertifications)) { ?>
         // Saturne media block only (upload buttons + photo editor + gallery), as documented in
         // saturne/admin/media.php. The page implements the action=uploadPhoto contract.
         $certMediaBlock = saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . (is_string($certSignatoryId) && str_starts_with($certSignatoryId, 'tmp_') ? dol_sanitizeFileName($certSignatoryId) : (int) $certSignatoryId) . '-' . $certCode, '', ['show_photo' => true, 'show_audio' => false]);
-        echo empty($isLogged) ? doliletter_spread_public_media_block($certMediaBlock) : $certMediaBlock;
+        echo doliletter_spread_public_media_block($certMediaBlock);
         ?>
         </div>
     </div>
