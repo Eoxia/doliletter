@@ -1513,8 +1513,22 @@ function sendMail() {
         contentType: 'application/json charset=utf-8',
         success: function (resp) {
 
-            const $respObj = $('<div/>').html(resp).find('input'); const message = $respObj.val();
-            const isError = $respObj.attr('id') === 'error';
+            let message = "Erreur inconnue";
+            let isError = true;
+            if (typeof resp === "string") {
+                const matchSuccess = resp.match(/id="success"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="success"/i);
+                const matchError = resp.match(/id="error"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="error"/i);
+                if (matchSuccess) {
+                    message = matchSuccess[1];
+                    isError = false;
+                } else if (matchError) {
+                    message = matchError[1];
+                } else {
+                    message = resp.substring(0, 100);
+                }
+            } else {
+                message = "Type non géré: " + (typeof resp);
+            }
 
             if (isError) {
                 $.jnotify(message, {type: 'error'});
@@ -1570,8 +1584,22 @@ function sendQuickSignEmail() {
         processData: false,
         contentType: 'application/json; charset=utf-8',
         success: function (resp) {
-            const $respObj = $('<div/>').html(resp).find('input'); const message = $respObj.val();
-            const isError = $respObj.attr('id') === 'error';
+            let message = "Erreur inconnue";
+            let isError = true;
+            if (typeof resp === "string") {
+                const matchSuccess = resp.match(/id="success"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="success"/i);
+                const matchError = resp.match(/id="error"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="error"/i);
+                if (matchSuccess) {
+                    message = matchSuccess[1];
+                    isError = false;
+                } else if (matchError) {
+                    message = matchError[1];
+                } else {
+                    message = resp.substring(0, 100);
+                }
+            } else {
+                message = "Type non géré: " + (typeof resp);
+            }
 
             if (isError) {
                 $.jnotify(message, {type: 'error'});
