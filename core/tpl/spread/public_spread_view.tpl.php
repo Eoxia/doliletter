@@ -1513,7 +1513,7 @@ function sendMail() {
         contentType: 'application/json charset=utf-8',
         success: function (resp) {
 
-            const $respObj = $($.trim(resp)); const message = $respObj.val();
+            const $respObj = $('<div/>').html(resp).find('input'); const message = $respObj.val();
             const isError = $respObj.attr('id') === 'error';
 
             if (isError) {
@@ -1570,7 +1570,7 @@ function sendQuickSignEmail() {
         processData: false,
         contentType: 'application/json; charset=utf-8',
         success: function (resp) {
-            const $respObj = $($.trim(resp)); const message = $respObj.val();
+            const $respObj = $('<div/>').html(resp).find('input'); const message = $respObj.val();
             const isError = $respObj.attr('id') === 'error';
 
             if (isError) {
