@@ -1,4 +1,4 @@
-<?php
+ï»¿<?php
 
 // Spread config: external fields
 $confExtFirstnameMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY');
@@ -784,7 +784,27 @@ body {
    sur une ligne a eux comme le faisaient les boutons avec libelle */
 </style>
 
+<?php
+$isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) && $signSignatory->status == DoliletterSpreadSignature::STATUS_SIGNED);
+?>
 <div class="public-card__container" data-public-interface="true">
+<?php if ($isSignedPreventionPlan && empty($isLogged)) { ?>
+    <!-- SUCCESS SCREEN -->
+    <div style="background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 40px 20px; text-align: center; margin-top: 40px;">
+        <i class="fas fa-check-circle" style="font-size: 64px; color: #10b981; margin-bottom: 20px;"></i>
+        <h2 style="font-size: 24px; color: #1e293b; margin-bottom: 16px; font-weight: 600;">
+            <?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?> vient de signer le plan de prÃ©vention en ayant validÃ© l'analyse de risque et envoyÃ© les Ã©lÃ©ments demandÃ©s.
+        </h2>
+        <div style="margin-top: 30px;">
+            <?php
+            $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType;
+            ?>
+            <a href="<?php echo $registerUrl; ?>" class="wpeo-button button-blue" style="font-size: 16px; padding: 12px 24px; display: inline-flex; align-items: center; text-decoration: none; color: white;">
+                <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Ajouter un nouvel intervenant
+            </a>
+        </div>
+    </div>
+<?php } else { ?>
     <div class="public-card__header">
         <div class="public-card__content">
             <div class="spread-brand">
@@ -1241,7 +1261,7 @@ body {
 
     // Une personne diffusee doit pouvoir voir qui d'autre a pris connaissance du document. La liste
     // modifiable ci-dessus est reservee aux gestionnaires : celle-ci est en lecture seule.
-    // L'affichage est conditionné par les paramètres ou s'il s'agit d'un visiteur public.
+    // L'affichage est conditionnï¿½ par les paramï¿½tres ou s'il s'agit d'un visiteur public.
     if ((!$isLogged && !empty($signSignatory)) || $showCount || $showName || $showContact) {
         require __DIR__ . '/public_spread_signatories.tpl.php';
     }
@@ -1298,6 +1318,9 @@ function getFileIcon($extension) {
     </div>
 </div>
 <?php } ?>
+
+<?php } ?>
+
 
 <script>
 let currentUserIndex = null;
@@ -1420,17 +1443,10 @@ function validateSignature() {
                     return;
                 }
 
-                // Inline (single-person) mode: refresh this person's block in place, no page reload.
+                                // Inline (single-person) mode: refresh the page to show the success screen.
                 // The ?sign= token stays valid, so the response already holds the signed state.
                 if ($('.pp-inline-signature').length) {
-                    var $updatedPerson = $(response).find('.pp-single-person');
-                    if ($updatedPerson.length) {
-                        $('.pp-single-person').replaceWith($updatedPerson);
-                    } else {
-                        $('.pp-inline-signature').remove();
-                    }
-                    currentUserIndex = null;
-                    $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SignatureValidatedSuccessfully')); ?>', {type: 'success'});
+                    window.location.reload();
                     return;
                 }
 
@@ -1527,7 +1543,7 @@ function sendMail() {
                     message = resp.substring(0, 100);
                 }
             } else {
-                message = "Type non géré: " + (typeof resp);
+                message = "Type non gï¿½rï¿½: " + (typeof resp);
             }
 
             if (isError) {
@@ -1598,7 +1614,7 @@ function sendQuickSignEmail() {
                     message = resp.substring(0, 100);
                 }
             } else {
-                message = "Type non géré: " + (typeof resp);
+                message = "Type non gï¿½rï¿½: " + (typeof resp);
             }
 
             if (isError) {
