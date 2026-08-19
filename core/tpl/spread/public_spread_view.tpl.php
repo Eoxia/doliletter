@@ -1890,6 +1890,9 @@ $(document).ready(function () {
         if (inlineCanvas) {
             inlineCanvas.addEventListener('mouseup', updateValidateButtonState);
             inlineCanvas.addEventListener('touchend', updateValidateButtonState);
+            setTimeout(function() {
+                inlineCanvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
         }
         updateValidateButtonState();
     })();
