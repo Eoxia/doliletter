@@ -48,10 +48,10 @@
     <p class="public-register__intro"><?php echo $langs->trans('SpreadPublicRegisterInfo'); ?></p>
       <?php if (!empty($isPreventionPlan) && !empty($ppCertifications) && is_array($ppCertifications)) {
           $tmpCertSignatoryId = '';
-          // If Saturne is doing an AJAX refresh, it posts JSON containing the subtype
+          // If Saturne is doing an AJAX refresh, it posts JSON containing the subdir
           if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
               $inputData = json_decode(file_get_contents('php://input'), true);
-              if (is_array($inputData) && !empty($inputData['objectSubtype']) && preg_match('/^cert-(tmp_[^-]+)-/', $inputData['objectSubtype'], $matches)) {
+              if (is_array($inputData) && !empty($inputData['objectSubdir']) && preg_match('/\/certifications\/(tmp_[^\/]+)\//', $inputData['objectSubdir'], $matches)) {
                   $tmpCertSignatoryId = $matches[1];
               }
           }
