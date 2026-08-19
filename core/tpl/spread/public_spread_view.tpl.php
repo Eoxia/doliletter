@@ -861,8 +861,8 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
 
             <?php if ($isSignedPreventionPlan) { ?>
         <!-- SUCCESS SCREEN -->
-    <div style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; text-align: center; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-        <a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 16px; text-decoration: none;"><i class="fas fa-times"></i></a>
+    <div class="success-screen" style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; text-align: center; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <a href="javascript:void(0)" onclick="this.closest('.success-screen').style.display='none'; return false;" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 16px; text-decoration: none;"><i class="fas fa-times"></i></a>
         
         <!-- Animated check icon -->
         <div style="margin-bottom: 25px;">
@@ -895,7 +895,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <i class="fas fa-user"></i>
                 </div>
                 <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Intervenant</div>
-                <div style="font-size: 14px; color: #0f172a; font-weight: 600; word-break: break-word;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;" title="<?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?>"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
             </div>
 
             <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
@@ -911,7 +911,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <i class="fas fa-file-contract"></i>
                 </div>
                 <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Référence</div>
-                <div style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($objectRef); ?></div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;" title="<?php echo dol_escape_htmltag($objectRef); ?>"><?php echo dol_escape_htmltag($objectRef); ?></div>
             </div>
         </div>
 
@@ -952,7 +952,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
 
         <!-- Actions -->
         <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" style="font-size: 15px; padding: 12px 24px; border: 1px solid #cbd5e1; color: #3b82f6; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
+            <a href="javascript:void(0)" onclick="this.closest('.success-screen').style.display='none'; return false;" style="font-size: 15px; padding: 12px 24px; border: 1px solid #cbd5e1; color: #3b82f6; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
                 <i class="far fa-file-alt" style="margin-right: 8px;"></i> Voir le plan de prévention
             </a>
             <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
@@ -1991,19 +1991,24 @@ $(document).ready(function () {
 
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    var dateEls = document.querySelectorAll('.local-date-formatter');
-    dateEls.forEach(function(el) {
-        var ts = parseInt(el.getAttribute('data-timestamp'), 10);
-        if (!isNaN(ts) && ts > 0) {
-            var d = new Date(ts * 1000);
-            var day = ("0" + d.getDate()).slice(-2);
-            var month = ("0" + (d.getMonth() + 1)).slice(-2);
-            var year = d.getFullYear();
-            var hours = ("0" + d.getHours()).slice(-2);
-            var minutes = ("0" + d.getMinutes()).slice(-2);
-            el.innerText = day + '/' + month + '/' + year + ' à ' + hours + ':' + minutes;
-        }
-    });
-});
+(function() {
+    function formatDates() {
+        var dateEls = document.querySelectorAll('.local-date-formatter:not(.formatted)');
+        dateEls.forEach(function(el) {
+            var ts = parseInt(el.getAttribute('data-timestamp'), 10);
+            if (!isNaN(ts) && ts > 0) {
+                var d = new Date(ts * 1000);
+                var day = ("0" + d.getDate()).slice(-2);
+                var month = ("0" + (d.getMonth() + 1)).slice(-2);
+                var year = d.getFullYear();
+                var hours = ("0" + d.getHours()).slice(-2);
+                var minutes = ("0" + d.getMinutes()).slice(-2);
+                el.innerText = day + '/' + month + '/' + year + ' à ' + hours + ':' + minutes;
+                el.classList.add('formatted');
+            }
+        });
+    }
+    document.addEventListener("DOMContentLoaded", formatDates);
+    formatDates(); // run immediately in case DOM is already loaded
+})();
 </script>
