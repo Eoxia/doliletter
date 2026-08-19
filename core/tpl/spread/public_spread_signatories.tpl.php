@@ -38,9 +38,16 @@ foreach ($signatories as $signatoryItem) {
         <div class="spread-signatories__title">
             <i class="fas fa-users"></i> <?php echo $langs->trans('SpreadSignatoriesTitle'); ?>
         </div>
-        <?php if (!isset($showCount) || $showCount) { ?>
-        <span class="spread-signatories__count"><?php echo $langs->trans('SpreadSignatoriesCount', $signedCount, count($signatories)); ?></span>
-        <?php } ?>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <?php if (!isset($showCount) || $showCount) { ?>
+            <span class="spread-signatories__count"><?php echo $langs->trans('SpreadSignatoriesCount', $signedCount, count($signatories)); ?></span>
+            <?php } ?>
+            <?php if (!empty($isSignedPreventionPlan) && isset($registerUrl)) { ?>
+            <a href="<?php echo $registerUrl; ?>" style="font-size: 13px; padding: 6px 12px; background: #3b82f6; color: white; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(59,130,246,0.2);">
+                <i class="fas fa-user-plus" style="margin-right: 6px;"></i> Ajouter un nouvel intervenant
+            </a>
+            <?php } ?>
+        </div>
     </div>
 
     <?php if (empty($signatories)) { ?>

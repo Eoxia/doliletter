@@ -761,6 +761,22 @@ if ($signatories <= 0) {
     $signatories = current($signatories);
 }
 
+// Sort signatories by signature date DESC, then unsigned
+uasort($signatories, function($a, $b) {
+    $aHasSigned = !empty($a->signature);
+    $bHasSigned = !empty($b->signature);
+    
+    if ($aHasSigned && $bHasSigned) {
+        return $b->signature_date <=> $a->signature_date;
+    } elseif ($aHasSigned) {
+        return -1;
+    } elseif ($bHasSigned) {
+        return 1;
+    } else {
+        return $b->id <=> $a->id;
+    }
+});
+
 // Certification answers of each signatory: uploaded photo or "not concerned" declaration
 $ppCertificationStates   = [];
 $ppPendingCertifications = [];

@@ -271,7 +271,7 @@ body {
 }
 
 .file-icon {
-    font-size: 20px;
+    font-size: 16px;
     width: 40px;
     height: 40px;
     display: flex;
@@ -859,14 +859,15 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <?php } ?>
             <?php }} ?>
 
-            <?php if ($isSignedPreventionPlan) { ?>
+            <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
+            <?php if ($isSignedPreventionPlan && empty(GETPOST('hide_success'))) { ?>
         <!-- SUCCESS SCREEN -->
-    <div style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; text-align: center; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-        <a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 20px; text-decoration: none;"><i class="fas fa-times"></i></a>
+    <div class="success-screen" style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; text-align: center; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 16px; text-decoration: none;"><i class="fas fa-times"></i></a>
         
         <!-- Animated check icon -->
         <div style="margin-bottom: 25px;">
-            <div style="display: inline-flex; align-items: center; justify-content: center; width: 100px; height: 100px; background-color: #84cc16; border-radius: 50%; color: white; font-size: 50px; position: relative; box-shadow: 0 4px 15px rgba(132, 204, 22, 0.3);">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background-color: #84cc16; border-radius: 50%; color: white; font-size: 40px; position: relative; box-shadow: 0 4px 15px rgba(132, 204, 22, 0.3);">
                 <i class="fas fa-check"></i>
                 <div style="position: absolute; top: 10px; left: -30px; width: 15px; height: 3px; background: #84cc16; border-radius: 2px; transform: rotate(15deg);"></div>
                 <div style="position: absolute; top: -10px; left: -15px; width: 15px; height: 3px; background: #84cc16; border-radius: 2px; transform: rotate(-35deg);"></div>
@@ -875,48 +876,48 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             </div>
         </div>
         
-        <h1 style="font-size: 32px; color: #0f172a; margin-bottom: 12px; font-weight: 700;">Plan de prévention signé !</h1>
-        <p style="font-size: 16px; color: #475569; margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+        <h1 style="font-size: 32px; color: #0f172a; margin-bottom: 8px; font-weight: 700;">Plan de prévention signé !</h1>
+        <p style="font-size: 16px; color: #475569; margin-bottom: 25px; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.6;">
             L'intervenant a signé le plan de prévention en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
         </p>
 
         <!-- Stats row -->
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; border: 1px solid #f1f5f9; border-radius: 12px; margin-bottom: 40px; padding: 25px 0; background: #fdfdfd; box-shadow: 0 2px 10px rgba(0,0,0,0.01);">
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; border: 1px solid #f1f5f9; border-radius: 12px; margin-bottom: 25px; padding: 15px 0; background: #fdfdfd; box-shadow: 0 2px 10px rgba(0,0,0,0.01);">
             <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                     <i class="fas fa-clipboard-check"></i>
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Statut</div>
+                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Statut</div>
                 <div style="display: inline-block; background: #dcfce7; color: #16a34a; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
             </div>
 
             <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                     <i class="fas fa-user"></i>
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Intervenant</div>
-                <div style="font-size: 15px; color: #0f172a; font-weight: 600;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
+                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Intervenant</div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;" title="<?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?>"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
             </div>
 
             <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                     <i class="far fa-calendar-alt"></i>
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Date de signature</div>
-                <div style="font-size: 15px; color: #0f172a; font-weight: 600;"><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y à %H:%M'); ?></div>
+                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Date de signature</div>
+                <div class="local-date-formatter" data-timestamp="<?php echo $signSignatory->signature_date; ?>" style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
             </div>
 
             <div style="flex: 1; min-width: 150px; padding: 0 15px;">
-                <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                     <i class="fas fa-file-contract"></i>
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Référence</div>
-                <div style="font-size: 15px; color: #0f172a; font-weight: 600;"><?php echo dol_escape_htmltag($object->ref); ?></div>
+                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Référence</div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;" title="<?php echo dol_escape_htmltag($objectRef); ?>"><?php echo dol_escape_htmltag($objectRef); ?></div>
             </div>
         </div>
 
         <!-- Etapes suivantes -->
-        <div style="text-align: left; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 40px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div style="text-align: left; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
             <div style="font-size: 12px; font-weight: 700; color: #3b82f6; margin-bottom: 25px; display: flex; align-items: center; letter-spacing: 0.5px;">
                 <div style="width: 20px; height: 20px; background: #3b82f6; color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 11px;">
                     <i class="fas fa-info"></i>
@@ -925,37 +926,37 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             </div>
             
             <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 160px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-user-friends"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les autres<br>intervenants</div>
+                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les autres intervenants</div>
                 </div>
                 <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
                 
-                <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 160px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="far fa-file-alt"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Consulter et suivre<br>le plan de prévention</div>
+                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Consulter et suivre le plan de prévention</div>
                 </div>
                 <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
                 
-                <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 160px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-shield-alt"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les mesures<br>de prévention</div>
+                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les mesures de prévention</div>
                 </div>
                 <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
                 
-                <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 160px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-clipboard-list"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre<br>les actions</div>
+                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre les actions</div>
                 </div>
             </div>
         </div>
 
         <!-- Actions -->
         <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" style="font-size: 15px; padding: 12px 24px; border: 1px solid #cbd5e1; color: #3b82f6; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
+            <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="font-size: 15px; padding: 12px 24px; border: 1px solid #cbd5e1; color: #3b82f6; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
                 <i class="far fa-file-alt" style="margin-right: 8px;"></i> Voir le plan de prévention
             </a>
-            <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
+            
             <a href="<?php echo $registerUrl; ?>" style="font-size: 15px; padding: 12px 24px; background: #3b82f6; border: none; color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
                 <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Ajouter un nouvel intervenant
             </a>
@@ -1989,3 +1990,26 @@ $(document).ready(function () {
 
 </script>
 
+
+<script>
+(function() {
+    function formatDates() {
+        var dateEls = document.querySelectorAll('.local-date-formatter:not(.formatted)');
+        dateEls.forEach(function(el) {
+            var ts = parseInt(el.getAttribute('data-timestamp'), 10);
+            if (!isNaN(ts) && ts > 0) {
+                var d = new Date(ts * 1000);
+                var day = ("0" + d.getDate()).slice(-2);
+                var month = ("0" + (d.getMonth() + 1)).slice(-2);
+                var year = d.getFullYear();
+                var hours = ("0" + d.getHours()).slice(-2);
+                var minutes = ("0" + d.getMinutes()).slice(-2);
+                el.innerText = day + '/' + month + '/' + year + ' à ' + hours + ':' + minutes;
+                el.classList.add('formatted');
+            }
+        });
+    }
+    document.addEventListener("DOMContentLoaded", formatDates);
+    formatDates(); // run immediately in case DOM is already loaded
+})();
+</script>
