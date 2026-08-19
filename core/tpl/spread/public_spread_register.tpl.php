@@ -46,23 +46,74 @@
         <?php echo $langs->trans('SpreadPublicRegister'); ?>
     </h3>
     <p class="public-register__intro"><?php echo $langs->trans('SpreadPublicRegisterInfo'); ?></p>
+      <?php if (!empty($isPreventionPlan) && !empty($ppCertifications) && is_array($ppCertifications)) {
+          $tmpCertSignatoryId = '';
+          // If Saturne is doing an AJAX refresh, it either posts form data (uploadPhoto) or JSON (addFiles)
+          $subdirToCheck = '';
+          if (!empty($_POST['sub_dir'])) {
+              $subdirToCheck = $_POST['sub_dir'];
+          } elseif (!empty($_POST['objectSubdir'])) {
+              $subdirToCheck = $_POST['objectSubdir'];
+          } elseif (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+              $inputData = json_decode(file_get_contents('php://input'), true);
+              if (is_array($inputData) && !empty($inputData['objectSubdir'])) {
+                  $subdirToCheck = $inputData['objectSubdir'];
+              }
+          }
+          if (!empty($subdirToCheck) && preg_match('/\/certifications\/(tmp_[^\/]+)\//', $subdirToCheck, $matches)) {
+              $tmpCertSignatoryId = $matches[1];
+          }
+          if (empty($tmpCertSignatoryId)) {
+              $tmpCertSignatoryId = 'tmp_' . uniqid();
+          }
+          
+          echo '<input type="hidden" id="public-register-tmp-id" value="' . dol_escape_htmltag($tmpCertSignatoryId) . '">';
+        echo '<input type="hidden" id="public-register-not-concerned" value="{}">';
+        
+        if (!isset($ppCertificationStates)) {
+            $ppCertificationStates = [];
+        }
+        $ppCertificationStates[$tmpCertSignatoryId] = doliletter_spread_get_certification_states(
+            $ppCertifications,
+            $certificationOptions ?? [],
+            $ppCertBaseDir ?? '',
+            $tmpCertSignatoryId,
+            []
+        );
+        
+        print '<div class="pp-signatory-media-row" style="margin-bottom: 20px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">';
+        print '<div class="pp-signatory-media-row__label" style="font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;"><i class="fas fa-id-badge"></i> ' . ($langs->transnoentitiesnoconv('SpreadRequestedElements') ?: 'Éléments demandés') . '</div>';
+        
+        $certSignatoryId = $tmpCertSignatoryId;
+        require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
+        
+        print '</div>';
+    } ?>
     <div class="public-register__grid">
+        <?php if ($confExtFirstnameVisible) { ?>
         <div class="public-register__field">
-            <label for="public-register-firstname"><?php echo $langs->trans('Firstname'); ?></label>
-            <input type="text" id="public-register-firstname" autocomplete="given-name" required>
+            <label for="public-register-firstname"><?php echo $langs->trans('Firstname') . ($confExtFirstnameMandatory ? ' *' : ''); ?></label>
+            <input type="text" id="public-register-firstname" autocomplete="given-name" <?php echo $confExtFirstnameMandatory ? 'required' : ''; ?>>
         </div>
+        <?php } ?>
+        <?php if ($confExtLastnameVisible) { ?>
         <div class="public-register__field">
-            <label for="public-register-lastname"><?php echo $langs->trans('Lastname'); ?></label>
-            <input type="text" id="public-register-lastname" autocomplete="family-name" required>
+            <label for="public-register-lastname"><?php echo $langs->trans('Lastname') . ($confExtLastnameMandatory ? ' *' : ''); ?></label>
+            <input type="text" id="public-register-lastname" autocomplete="family-name" <?php echo $confExtLastnameMandatory ? 'required' : ''; ?>>
         </div>
+        <?php } ?>
+        <?php if ($confExtEmailVisible) { ?>
         <div class="public-register__field">
-            <label for="public-register-email"><?php echo $langs->trans('Email'); ?></label>
-            <input type="email" id="public-register-email" autocomplete="email" required>
+            <label for="public-register-email"><?php echo $langs->trans('Email') . ($confExtEmailMandatory ? ' *' : ''); ?></label>
+            <input type="email" id="public-register-email" autocomplete="email" <?php echo $confExtEmailMandatory ? 'required' : ''; ?>>
         </div>
+        <?php } ?>
+        <?php if ($confExtPhoneVisible) { ?>
         <div class="public-register__field">
-            <label for="public-register-phone"><?php echo $langs->trans('Phone'); ?></label>
-            <input type="tel" id="public-register-phone" autocomplete="tel" required>
+            <label for="public-register-phone"><?php echo $langs->trans('Phone') . ($confExtPhoneMandatory ? ' *' : ''); ?></label>
+            <input type="tel" id="public-register-phone" autocomplete="tel" <?php echo $confExtPhoneMandatory ? 'required' : ''; ?>>
         </div>
+        <?php } ?>
     </div>
     <div class="public-register__actions">
         <button type="button" class="wpeo-button button-blue public-register-btn">

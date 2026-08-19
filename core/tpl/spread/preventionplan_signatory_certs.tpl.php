@@ -27,17 +27,18 @@ if (!empty($ppCertifications)) { ?>
 <div class="pp-cert-uploads">
     <?php foreach ($ppCertificationStates[$certSignatoryId] ?? [] as $certState) {
         $certCode     = $certState['code'];
-        $certSubDir   = 'preventionplan/' . dol_sanitizeFileName($objectRef) . '/certifications/' . ((int) $certSignatoryId) . '/' . dol_sanitizeFileName($certCode);
+        $certSubDir   = 'preventionplan/' . dol_sanitizeFileName($objectRef) . '/certifications/' . (is_string($certSignatoryId) && str_starts_with($certSignatoryId, 'tmp_') ? dol_sanitizeFileName($certSignatoryId) : (int) $certSignatoryId) . '/' . dol_sanitizeFileName($certCode);
         $notConcerned = !empty($certState['not_concerned']);
     ?>
-    <div class="pp-cert-upload<?php echo $notConcerned ? ' pp-cert-upload--not-concerned' : ''; ?>" data-cert-code="<?php echo dol_escape_htmltag($certCode); ?>" data-cert-signatory-id="<?php echo (int) $certSignatoryId; ?>">
+    <div class="pp-cert-upload<?php echo $notConcerned ? ' pp-cert-upload--not-concerned' : ''; ?>" data-cert-code="<?php echo dol_escape_htmltag($certCode); ?>" data-cert-signatory-id="<?php echo dol_escape_htmltag($certSignatoryId); ?>">
         <div class="pp-cert-upload__label">
             <i class="fas fa-id-badge"></i> <span class="pp-cert-upload__name"><?php echo dol_escape_htmltag($certState['label']); ?></span>
             <?php if (!empty($certState['mandatory'])) { ?>
             <span class="pp-public-badge pp-cert-badge-mandatory"><?php echo $langs->trans('MobilePPMandatory'); ?></span>
-            <span class="pp-public-badge pp-public-badge--muted pp-cert-badge-not-concerned"><?php echo $langs->trans('SpreadNotConcerned'); ?></span>
             <?php } ?>
-            <?php if (!empty($certState['mandatory'])) { ?>
+            <span class="pp-public-badge pp-public-badge--muted pp-cert-badge-not-concerned"><?php echo $langs->trans('SpreadNotConcerned'); ?></span>
+
+            <?php if (empty($certState['mandatory'])) { ?>
             <button type="button" class="pp-cert-not-concerned-btn<?php echo $notConcerned ? ' pp-cert-not-concerned-btn--active' : ''; ?>">
                 <i class="fas <?php echo $notConcerned ? 'fa-undo' : 'fa-ban'; ?>"></i>
                 <span><?php echo $notConcerned ? $langs->trans('SpreadIAmConcerned') : $langs->trans('SpreadIAmNotConcerned'); ?></span>
@@ -48,11 +49,14 @@ if (!empty($ppCertifications)) { ?>
         <?php
         // Saturne media block only (upload buttons + photo editor + gallery), as documented in
         // saturne/admin/media.php. The page implements the action=uploadPhoto contract.
-        $certMediaBlock = saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . ((int) $certSignatoryId) . '-' . $certCode, '', ['show_photo' => true, 'show_audio' => false]);
-        echo empty($isLogged) ? doliletter_spread_public_media_block($certMediaBlock) : $certMediaBlock;
+        $certMediaBlock = saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . (is_string($certSignatoryId) && str_starts_with($certSignatoryId, 'tmp_') ? dol_sanitizeFileName($certSignatoryId) : (int) $certSignatoryId) . '-' . $certCode, '', ['show_photo' => true, 'show_audio' => false]);
+        echo doliletter_spread_public_media_block($certMediaBlock);
         ?>
         </div>
     </div>
     <?php } ?>
 </div>
 <?php }
+
+
+

@@ -127,3 +127,5 @@ SpreadRiskStep = Step %s / %s
 SpreadRecapTitle = Summary
 SpreadRecapRisks = Identified risks
 SpreadRecapProtections = Required protections
+
+SpreadRequestedElements = Requested elements

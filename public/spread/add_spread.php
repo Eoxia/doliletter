@@ -54,7 +54,7 @@ if (file_exists('../../../saturne/saturne.main.inc.php')) {
 // Get module parameters
 // The Saturne media block posts its own module_name with the photo upload; it must not be taken
 // as this page's module context (the upload handler reads it into its own variable instead).
-$moduleName   = (GETPOST('action', 'aZ09') == 'uploadPhoto') ? '' : GETPOST('module_name', 'alpha');
+$moduleName   = (GETPOST('action', 'aZ09') == 'uploadPhoto' || GETPOST('subaction', 'alpha') == 'uploadPhoto') ? '' : GETPOST('module_name', 'alpha');
 $objectType   = GETPOST('object_type', 'alpha');
 $documentType = GETPOST('document_type', 'alpha');
 
@@ -92,7 +92,7 @@ $publicRegisterEnabled     = getDolGlobalInt('DOLILETTER_SPREAD_PUBLIC_REGISTER'
 
 // Load translation files required by the page
 // companies holds the Firstname / Lastname / Phone labels of the public registration form
-saturne_load_langs(['doliletter@doliletter', 'companies', 'errors']);
+saturne_load_langs(['doliletter@doliletter', 'companies', 'errors', 'signature@saturne']);
 
 // Get parameters
 $id                 = GETPOST('id', 'int');
@@ -252,9 +252,11 @@ if ($action == 'add_spread_user') {
         exit;
     }
 
+    $type = GETPOST('type', 'aZ09');
+
     $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
     $tmpSignatory->element_id     = 0;
-    $tmpSignatory->element_type   = 'user';
+    $tmpSignatory->element_type   = ($type === 'external') ? DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE : 'user';
     $tmpSignatory->role           = '';
     $tmpSignatory->object_type    = $attendanceSheet->element;
     $tmpSignatory->fk_object      = $attendanceSheet->id;
@@ -283,8 +285,15 @@ if ($action == 'register_public_signatory') {
     $lastname  = dol_string_nohtmltag(trim($data['lastname'] ?? ''));
     $email     = dol_string_nohtmltag(trim($data['email'] ?? ''));
     $phone     = dol_string_nohtmltag(trim($data['phone'] ?? ''));
+    $tmpSignatoryId = $data['tmp_signatory_id'] ?? null;
+    $notConcernedCodes = $data['not_concerned_codes'] ?? [];
 
-    $requiredFields = ['Firstname' => $firstname, 'Lastname' => $lastname, 'Email' => $email, 'Phone' => $phone];
+    $requiredFields = [];
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY')) $requiredFields['Firstname'] = $firstname;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_MANDATORY')) $requiredFields['Lastname'] = $lastname;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY')) $requiredFields['Email'] = $email;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_MANDATORY')) $requiredFields['Phone'] = $phone;
+
     foreach ($requiredFields as $requiredLabel => $requiredValue) {
         if (dol_strlen($requiredValue) == 0) {
             echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFieldRequired', $langs->transnoentities($requiredLabel)) . '">';
@@ -292,7 +301,8 @@ if ($action == 'register_public_signatory') {
         }
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $emailVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') || getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY') || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') === '');
+    if ($emailVisible && !empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorBadEMail', dol_escape_htmltag($email)) . '">';
         exit;
     }
@@ -307,7 +317,11 @@ if ($action == 'register_public_signatory') {
     $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
 
     // Someone coming back with the same email lands on their own page again instead of piling up duplicates
-    $alreadyRegistered = $tmpSignatory->fetchAll('', '', 1, 0, ['customsql' => 'fk_object = ' . ((int) $attendanceSheet->id) . ' AND object_type = "' . $db->escape($attendanceSheet->element) . '" AND email = "' . $db->escape($email) . '"']);
+    // But ONLY if an email was actually provided, otherwise we'd match the first person who didn't give an email!
+    $alreadyRegistered = [];
+    if (!empty($email)) {
+        $alreadyRegistered = $tmpSignatory->fetchAll('', '', 1, 0, ['customsql' => 'fk_object = ' . ((int) $attendanceSheet->id) . ' AND object_type = "' . $db->escape($attendanceSheet->element) . '" AND email = "' . $db->escape($email) . '"']);
+    }
     if (is_array($alreadyRegistered) && !empty($alreadyRegistered)) {
         $tmpSignatory = current($alreadyRegistered);
     } else {
@@ -328,6 +342,34 @@ if ($action == 'register_public_signatory') {
         if ($result < 0) {
             echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorSpreadRegisterFailed', doliletter_spread_get_object_error($tmpSignatory, $langs))) . '">';
             exit;
+        }
+
+        // Handle temporary Saturne uploads (from stateless registration)
+        if ($tmpSignatoryId && str_starts_with($tmpSignatoryId, 'tmp_') && $isPreventionPlan) {
+            require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+            
+            // Apply not concerned statuses
+            if (!empty($notConcernedCodes)) {
+                $opts = !empty($tmpSignatory->array_options['options_mobile_not_concerned']) ? json_decode($tmpSignatory->array_options['options_mobile_not_concerned'], true) : [];
+                $opts = array_unique(array_merge($opts, $notConcernedCodes));
+                $tmpSignatory->array_options['options_mobile_not_concerned'] = json_encode(array_values($opts));
+                $tmpSignatory->update($user, true); // No triggers needed
+            }
+
+            // Rename temporary upload directory if it exists
+            $tmpDir = doliletter_spread_get_certification_dir($ppCertBaseDir, $tmpSignatoryId, '');
+            // The folder path ends with '/tmp_xxx/'. We want to move 'tmp_xxx' to '\$tmpSignatory->id'
+            $tmpDirBase = rtrim($tmpDir, '/');
+            if (dol_is_dir($tmpDirBase)) {
+                $realDirBase = doliletter_spread_get_certification_dir($ppCertBaseDir, $tmpSignatory->id, '');
+                $realDirBase = rtrim($realDirBase, '/');
+                
+                // Create parent directories if they don't exist
+                dol_mkdir(dirname($realDirBase));
+                
+                // Rename tmp to real ID
+                dol_move_dir($tmpDirBase, $realDirBase);
+            }
         }
 
         $attendanceSheet->context = ['user' => $firstname . ' ' . $lastname, 'old_user' => ''];
@@ -368,6 +410,19 @@ if ($action == 'update_spread_user') {
         $signatory->firstname = $tmpUser->firstname;
         $signatory->lastname  = $tmpUser->lastname;
 
+        $signatory->update($user);
+    }
+    $action = '';
+}
+
+if ($action == 'update_spread_user_external') {
+    $signatory_id = GETPOSTINT('signatory_id');
+    $signatory->fetch($signatory_id);
+    if ($signatory->id > 0 && $signatory->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE) {
+        $signatory->firstname = GETPOST('first_name', 'alphanohtml');
+        $signatory->lastname = GETPOST('last_name', 'alphanohtml');
+        $signatory->email = GETPOST('email', 'alphanohtml');
+        $signatory->phone = GETPOST('phone', 'alphanohtml');
         $signatory->update($user);
     }
     $action = '';
@@ -495,7 +550,7 @@ if ($action == 'save_public_note') {
 // Photo upload posted by the Saturne media block — same contract as saturne/admin/media.php.
 // Note: the media JS posts its own "module_name", which would otherwise clobber this page's
 // $moduleName/$moduleNameLowerCase, so it is read into a dedicated variable here.
-if ($action == 'uploadPhoto' && !empty($conf->global->MAIN_UPLOAD_DOC)) {
+if (($action == 'uploadPhoto' || $subaction == 'uploadPhoto') && !empty($conf->global->MAIN_UPLOAD_DOC)) {
     require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
     $mediaModuleName = dol_strtolower(GETPOST('module_name', 'alpha'));

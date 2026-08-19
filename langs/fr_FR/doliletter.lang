@@ -295,3 +295,17 @@ SpreadRiskStep                        = Étape %s / %s
 SpreadRecapTitle                      = Récapitulatif
 SpreadRecapRisks                      = Risques identifiés
 SpreadRecapProtections                = Protections nécessaires
+DocumentTemplateSigninSheetDocument   = Modèle de feuille d'émargement
+SigninSheetDocument                   = Feuille d'émargement
+DocumentTemplateFE_Doliletter       = FE_Doliletter
+DocModelFE_DoliletterDesc             = La feuille d'emargement standard proposée au format pdf
+ConfigSpreadExtFields=Champs signataires externes
+ConfigSpreadExtFieldsDesc=Configurez la visibilité et le caractère obligatoire des champs pour les signataires externes.
+ConfigSpreadExtFieldFirstname=Prénom
+ConfigSpreadExtFieldLastname=Nom
+ConfigSpreadExtFieldEmail=Email
+ConfigSpreadExtFieldPhone=Téléphone
+ConfigSpreadExtVisible=Visible
+ConfigSpreadExtMandatory=Obligatoire
+
+SpreadRequestedElements = Éléments demandés

@@ -86,7 +86,8 @@ class modDoliLetter extends DolibarrModules {
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			'hooks' => array(
 				'main',
-				'mainloginpage'
+				'mainloginpage',
+                'doliletteradmindocuments'
 			),
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -137,6 +138,7 @@ class modDoliLetter extends DolibarrModules {
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLILETTER_SPREAD_SHOW_SIGNATURE', 'integer', 1, '', 0, 'current'],
+            $i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_KIKELA_ADDON', 'chaine', 'FE{yy}{mm}-{0000}', '', 0, 'current'],
 
 			$i++ => ['DOLILETTER_SPREAD_QUICK_SIGN', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLILETTER_SPREAD_PUBLIC_REGISTER', 'integer', 1, '', 0, 'current'],
@@ -420,14 +422,16 @@ class modDoliLetter extends DolibarrModules {
         }
 
 		delDocumentModel('signinsheet_odt', 'signinsheet');
+		delDocumentModel('standard', 'signinsheet');
 
 		addDocumentModel('signinsheet_odt', 'signinsheet', 'ODT templates', 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH');
+		addDocumentModel('standard', 'signinsheet', '', '');
 
 		dolibarr_set_const($this->db, 'DOLILETTER_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($this->db, 'DOLILETTER_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH', 'DOL_DOCUMENT_ROOT/custom/doliletter/documents/doctemplates/signinsheet/', 'chaine', 0, '', $conf->entity);
-        dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON', 'mod_signinsheet_standard', 'chaine', 0, '', $conf->entity);
+        dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEETDOCUMENT_ADDON', 'mod_signinsheetdocument_zchuiou', 'chaine', 0, '', $conf->entity);
 
 		// Load Saturne libraries
 		require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';

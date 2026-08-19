@@ -138,6 +138,78 @@ print ajax_constantonoff('DOLILETTER_SPREAD_SHOW_SIGNATURE');
 print '</td>';
 print '</tr>';
 
+
+// Initialize default configuration for external fields if not set
+$defaultExtFields = [
+    'DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_VISIBLE' => '1',
+    'DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_VISIBLE' => '1',
+    'DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE' => '1',
+    'DOLILETTER_SPREAD_EXT_FIELD_PHONE_VISIBLE' => '1'
+];
+foreach ($defaultExtFields as $k => $v) {
+    if (getDolGlobalString($k) === '') {
+        dolibarr_set_const($db, $k, $v, 'chaine', 0, '', $conf->entity);
+        $conf->global->$k = $v;
+    }
+}
+
+// Ext fields configuration
+print '<tr class="oddeven"><td>';
+print $langs->trans('ConfigSpreadExtFields');
+print '</td><td colspan="2">';
+print $langs->trans('ConfigSpreadExtFieldsDesc');
+
+print '<table class="noborder centpercent" style="margin-top: 10px;">';
+print '<tr class="liste_titre">';
+print '<td>Champ</td>';
+print '<td class="center">' . $langs->trans('ConfigSpreadExtVisible') . '</td>';
+print '<td class="center">' . $langs->trans('ConfigSpreadExtMandatory') . '</td>';
+print '</tr>';
+
+$extFields = [
+    'FIRSTNAME' => 'ConfigSpreadExtFieldFirstname',
+    'LASTNAME' => 'ConfigSpreadExtFieldLastname',
+    'EMAIL' => 'ConfigSpreadExtFieldEmail',
+    'PHONE' => 'ConfigSpreadExtFieldPhone'
+];
+
+foreach ($extFields as $key => $labelKey) {
+    print '<tr class="oddeven">';
+    print '<td>' . $langs->trans($labelKey) . '</td>';
+    print '<td class="center ext-visible-cell">';
+    print ajax_constantonoff('DOLILETTER_SPREAD_EXT_FIELD_' . $key . '_VISIBLE', array(), null, 0, 0, 0, 2, 0, 1);
+    print '</td>';
+    print '<td class="center ext-mandatory-cell">';
+    print ajax_constantonoff('DOLILETTER_SPREAD_EXT_FIELD_' . $key . '_MANDATORY', array(), null, 0, 0, 0, 2, 0, 1);
+    print '</td>';
+    print '</tr>';
+}
+
+print '</table>';
+
+print '
+<script type="text/javascript">
+$(document).ready(function() {
+    // If mandatory is turned on, force visible to ON
+    $(".ext-mandatory-cell .switch").on("click", function() {
+        var $mandatorySwitch = $(this);
+        setTimeout(function() {
+            var isMandatory = $mandatorySwitch.find("input[type=checkbox]").is(":checked");
+            if (isMandatory) {
+                var $visibleSwitch = $mandatorySwitch.closest("tr").find(".ext-visible-cell .switch");
+                var isVisible = $visibleSwitch.find("input[type=checkbox]").is(":checked");
+                if (!isVisible) {
+                    $visibleSwitch.click();
+                }
+            }
+        }, 300);
+    });
+});
+</script>
+';
+
+print '</td></tr>';
+
 print '</table>';
 
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.form.class.php';
