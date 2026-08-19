@@ -271,7 +271,7 @@ body {
 }
 
 .file-icon {
-    font-size: 20px;
+    font-size: 16px;
     width: 40px;
     height: 40px;
     display: flex;
@@ -862,11 +862,11 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             <?php if ($isSignedPreventionPlan) { ?>
         <!-- SUCCESS SCREEN -->
     <div style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; text-align: center; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-        <a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 20px; text-decoration: none;"><i class="fas fa-times"></i></a>
+        <a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 16px; text-decoration: none;"><i class="fas fa-times"></i></a>
         
         <!-- Animated check icon -->
         <div style="margin-bottom: 25px;">
-            <div style="display: inline-flex; align-items: center; justify-content: center; width: 100px; height: 100px; background-color: #84cc16; border-radius: 50%; color: white; font-size: 50px; position: relative; box-shadow: 0 4px 15px rgba(132, 204, 22, 0.3);">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background-color: #84cc16; border-radius: 50%; color: white; font-size: 40px; position: relative; box-shadow: 0 4px 15px rgba(132, 204, 22, 0.3);">
                 <i class="fas fa-check"></i>
                 <div style="position: absolute; top: 10px; left: -30px; width: 15px; height: 3px; background: #84cc16; border-radius: 2px; transform: rotate(15deg);"></div>
                 <div style="position: absolute; top: -10px; left: -15px; width: 15px; height: 3px; background: #84cc16; border-radius: 2px; transform: rotate(-35deg);"></div>
@@ -875,48 +875,48 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             </div>
         </div>
         
-        <h1 style="font-size: 32px; color: #0f172a; margin-bottom: 12px; font-weight: 700;">Plan de prévention signé !</h1>
-        <p style="font-size: 16px; color: #475569; margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+        <h1 style="font-size: 32px; color: #0f172a; margin-bottom: 8px; font-weight: 700;">Plan de prévention signé !</h1>
+        <p style="font-size: 16px; color: #475569; margin-bottom: 25px; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.6;">
             L'intervenant a signé le plan de prévention en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
         </p>
 
         <!-- Stats row -->
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; border: 1px solid #f1f5f9; border-radius: 12px; margin-bottom: 40px; padding: 25px 0; background: #fdfdfd; box-shadow: 0 2px 10px rgba(0,0,0,0.01);">
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; border: 1px solid #f1f5f9; border-radius: 12px; margin-bottom: 25px; padding: 15px 0; background: #fdfdfd; box-shadow: 0 2px 10px rgba(0,0,0,0.01);">
             <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                     <i class="fas fa-clipboard-check"></i>
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Statut</div>
+                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Statut</div>
                 <div style="display: inline-block; background: #dcfce7; color: #16a34a; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
             </div>
 
             <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                     <i class="fas fa-user"></i>
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Intervenant</div>
-                <div style="font-size: 15px; color: #0f172a; font-weight: 600;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
+                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Intervenant</div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
             </div>
 
             <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                     <i class="far fa-calendar-alt"></i>
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Date de signature</div>
-                <div style="font-size: 15px; color: #0f172a; font-weight: 600;"><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y à %H:%M'); ?></div>
+                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Date de signature</div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y à %H:%M', 'tzserver'); ?></div>
             </div>
 
             <div style="flex: 1; min-width: 150px; padding: 0 15px;">
-                <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                     <i class="fas fa-file-contract"></i>
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Référence</div>
-                <div style="font-size: 15px; color: #0f172a; font-weight: 600;"><?php echo dol_escape_htmltag($objectRef); ?></div>
+                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Référence</div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($objectRef); ?></div>
             </div>
         </div>
 
         <!-- Etapes suivantes -->
-        <div style="text-align: left; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 40px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div style="text-align: left; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
             <div style="font-size: 12px; font-weight: 700; color: #3b82f6; margin-bottom: 25px; display: flex; align-items: center; letter-spacing: 0.5px;">
                 <div style="width: 20px; height: 20px; background: #3b82f6; color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 11px;">
                     <i class="fas fa-info"></i>
