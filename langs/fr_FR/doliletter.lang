@@ -307,3 +307,5 @@ ConfigSpreadExtFieldEmail=Email
 ConfigSpreadExtFieldPhone=Téléphone
 ConfigSpreadExtVisible=Visible
 ConfigSpreadExtMandatory=Obligatoire
+
+SpreadRequestedElements = Éléments demandés

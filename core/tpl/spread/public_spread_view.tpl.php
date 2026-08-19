@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 // Spread config: external fields
 $confExtFirstnameMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY');
@@ -859,7 +859,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <?php } ?>
             <?php }} ?>
 
-            <?php if ($isSignedPreventionPlan && empty($isLogged)) { ?>
+            <?php if ($isSignedPreventionPlan) { ?>
     <!-- SUCCESS SCREEN -->
     <div style="background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 40px 20px; text-align: center; margin-top: 40px;">
         <i class="fas fa-check-circle" style="font-size: 64px; color: #10b981; margin-bottom: 20px;"></i>
