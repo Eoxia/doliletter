@@ -903,7 +903,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <i class="far fa-calendar-alt"></i>
                 </div>
                 <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Date de signature</div>
-                <div style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y à %H:%M', 'tzserver'); ?></div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
             </div>
 
             <div style="flex: 1; min-width: 150px; padding: 0 15px;">
@@ -925,27 +925,27 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             </div>
             
             <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 160px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-user-friends"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les autres<br>intervenants</div>
+                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les autres intervenants</div>
                 </div>
                 <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
                 
-                <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 160px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="far fa-file-alt"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Consulter et suivre<br>le plan de prévention</div>
+                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Consulter et suivre le plan de prévention</div>
                 </div>
                 <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
                 
-                <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 160px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-shield-alt"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les mesures<br>de prévention</div>
+                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les mesures de prévention</div>
                 </div>
                 <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
                 
-                <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 160px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-clipboard-list"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre<br>les actions</div>
+                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre les actions</div>
                 </div>
             </div>
         </div>
