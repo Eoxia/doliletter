@@ -92,7 +92,7 @@ $publicRegisterEnabled     = getDolGlobalInt('DOLILETTER_SPREAD_PUBLIC_REGISTER'
 
 // Load translation files required by the page
 // companies holds the Firstname / Lastname / Phone labels of the public registration form
-saturne_load_langs(['doliletter@doliletter', 'companies', 'errors']);
+saturne_load_langs(['doliletter@doliletter', 'companies', 'errors', 'signature@saturne']);
 
 // Get parameters
 $id                 = GETPOST('id', 'int');
