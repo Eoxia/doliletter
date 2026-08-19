@@ -911,7 +911,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <i class="fas fa-file-contract"></i>
                 </div>
                 <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Référence</div>
-                <div style="font-size: 15px; color: #0f172a; font-weight: 600;"><?php echo dol_escape_htmltag($object->ref); ?></div>
+                <div style="font-size: 15px; color: #0f172a; font-weight: 600;"><?php echo dol_escape_htmltag($objectRef); ?></div>
             </div>
         </div>
 
