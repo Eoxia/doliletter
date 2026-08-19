@@ -895,7 +895,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <i class="fas fa-user"></i>
                 </div>
                 <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Intervenant</div>
-                <div style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
+                <div style="font-size: 14px; color: #0f172a; font-weight: 600; word-break: break-word;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
             </div>
 
             <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
@@ -903,7 +903,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <i class="far fa-calendar-alt"></i>
                 </div>
                 <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Date de signature</div>
-                <div style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
+                <div class="local-date-formatter" data-timestamp="<?php echo $signSignatory->signature_date; ?>" style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
             </div>
 
             <div style="flex: 1; min-width: 150px; padding: 0 15px;">
@@ -1989,3 +1989,21 @@ $(document).ready(function () {
 
 </script>
 
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var dateEls = document.querySelectorAll('.local-date-formatter');
+    dateEls.forEach(function(el) {
+        var ts = parseInt(el.getAttribute('data-timestamp'), 10);
+        if (!isNaN(ts) && ts > 0) {
+            var d = new Date(ts * 1000);
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            var hours = ("0" + d.getHours()).slice(-2);
+            var minutes = ("0" + d.getMinutes()).slice(-2);
+            el.innerText = day + '/' + month + '/' + year + ' à ' + hours + ':' + minutes;
+        }
+    });
+});
+</script>
