@@ -317,7 +317,11 @@ if ($action == 'register_public_signatory') {
     $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
 
     // Someone coming back with the same email lands on their own page again instead of piling up duplicates
-    $alreadyRegistered = $tmpSignatory->fetchAll('', '', 1, 0, ['customsql' => 'fk_object = ' . ((int) $attendanceSheet->id) . ' AND object_type = "' . $db->escape($attendanceSheet->element) . '" AND email = "' . $db->escape($email) . '"']);
+    // But ONLY if an email was actually provided, otherwise we'd match the first person who didn't give an email!
+    $alreadyRegistered = [];
+    if (!empty($email)) {
+        $alreadyRegistered = $tmpSignatory->fetchAll('', '', 1, 0, ['customsql' => 'fk_object = ' . ((int) $attendanceSheet->id) . ' AND object_type = "' . $db->escape($attendanceSheet->element) . '" AND email = "' . $db->escape($email) . '"']);
+    }
     if (is_array($alreadyRegistered) && !empty($alreadyRegistered)) {
         $tmpSignatory = current($alreadyRegistered);
     } else {
