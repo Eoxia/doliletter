@@ -890,6 +890,9 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <button type="button" class="wpeo-button button-blue add-user-btn" data-type="external">
                         <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire externe'); ?>
                     </button>
+                    <button type="button" class="wpeo-button button-blue copy-link-btn" style="padding: 8px 12px; font-size: 0.9em;" title="<?php echo dol_escape_htmltag($langs->trans('CopyLink')); ?>" onclick="navigator.clipboard.writeText(window.location.href).then(function() { $.jnotify('<?php echo dol_escape_js($langs->trans('LinkCopiedToClipboard')); ?>', 'success'); });">
+                        <i class="fas fa-copy"></i>
+                    </button>
                 </div>
 
                 <div class="user-signatures-list" id="userSignaturesList">

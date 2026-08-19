@@ -309,3 +309,5 @@ ConfigSpreadExtVisible=Visible
 ConfigSpreadExtMandatory=Obligatoire
 
 SpreadRequestedElements = Éléments demandés
+CopyLink=Copier le lien
+LinkCopiedToClipboard=Lien copié dans le presse-papiers !

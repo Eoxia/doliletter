@@ -129,3 +129,5 @@ SpreadRecapRisks = Identified risks
 SpreadRecapProtections = Required protections
 
 SpreadRequestedElements = Requested elements
+CopyLink=Copy link
+LinkCopiedToClipboard=Link copied to clipboard!
