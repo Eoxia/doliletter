@@ -788,23 +788,7 @@ body {
 $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) && $signSignatory->status == DoliletterSpreadSignature::STATUS_SIGNED);
 ?>
 <div class="public-card__container" data-public-interface="true">
-<?php if ($isSignedPreventionPlan && empty($isLogged)) { ?>
-    <!-- SUCCESS SCREEN -->
-    <div style="background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 40px 20px; text-align: center; margin-top: 40px;">
-        <i class="fas fa-check-circle" style="font-size: 64px; color: #10b981; margin-bottom: 20px;"></i>
-        <h2 style="font-size: 24px; color: #1e293b; margin-bottom: 16px; font-weight: 600;">
-            <?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?> vient de signer le plan de prévention en ayant validé l'analyse de risque et envoyé les éléments demandés.
-        </h2>
-        <div style="margin-top: 30px;">
-            <?php
-            $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType;
-            ?>
-            <a href="<?php echo $registerUrl; ?>" class="wpeo-button button-blue" style="font-size: 16px; padding: 12px 24px; display: inline-flex; align-items: center; text-decoration: none; color: white;">
-                <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Ajouter un nouvel intervenant
-            </a>
-        </div>
-    </div>
-<?php } else { ?>
+
     <div class="public-card__header">
         <div class="public-card__content">
             <div class="spread-brand">
@@ -875,6 +859,23 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <?php } ?>
             <?php }} ?>
 
+            <?php if ($isSignedPreventionPlan && empty($isLogged)) { ?>
+    <!-- SUCCESS SCREEN -->
+    <div style="background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 40px 20px; text-align: center; margin-top: 40px;">
+        <i class="fas fa-check-circle" style="font-size: 64px; color: #10b981; margin-bottom: 20px;"></i>
+        <h2 style="font-size: 24px; color: #1e293b; margin-bottom: 16px; font-weight: 600;">
+            <?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?> vient de signer le plan de prévention en ayant validé l'analyse de risque et envoyé les éléments demandés.
+        </h2>
+        <div style="margin-top: 30px;">
+            <?php
+            $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType;
+            ?>
+            <a href="<?php echo $registerUrl; ?>" class="wpeo-button button-blue" style="font-size: 16px; padding: 12px 24px; display: inline-flex; align-items: center; text-decoration: none; color: white;">
+                <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Ajouter un nouvel intervenant
+            </a>
+        </div>
+    </div>
+<?php } else { ?>
             <?php if (!empty($isPreventionPlan)) {
                 require __DIR__ . '/preventionplan_public_info.tpl.php';
             } ?>
