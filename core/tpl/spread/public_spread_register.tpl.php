@@ -49,9 +49,9 @@
       <?php if (!empty($isPreventionPlan) && !empty($ppCertifications) && is_array($ppCertifications)) {
           $tmpCertSignatoryId = '';
           // If Saturne is doing an AJAX refresh, it posts JSON containing the subtype
-          if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+          if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
               $inputData = json_decode(file_get_contents('php://input'), true);
-              if (!empty($inputData['objectSubtype']) && preg_match('/^cert-(tmp_[^-]+)-/', $inputData['objectSubtype'], $matches)) {
+              if (is_array($inputData) && !empty($inputData['objectSubtype']) && preg_match('/^cert-(tmp_[^-]+)-/', $inputData['objectSubtype'], $matches)) {
                   $tmpCertSignatoryId = $matches[1];
               }
           }
