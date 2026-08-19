@@ -48,12 +48,20 @@
     <p class="public-register__intro"><?php echo $langs->trans('SpreadPublicRegisterInfo'); ?></p>
       <?php if (!empty($isPreventionPlan) && !empty($ppCertifications) && is_array($ppCertifications)) {
           $tmpCertSignatoryId = '';
-          // If Saturne is doing an AJAX refresh, it posts JSON containing the subdir
-          if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+          // If Saturne is doing an AJAX refresh, it either posts form data (uploadPhoto) or JSON (addFiles)
+          $subdirToCheck = '';
+          if (!empty($_POST['sub_dir'])) {
+              $subdirToCheck = $_POST['sub_dir'];
+          } elseif (!empty($_POST['objectSubdir'])) {
+              $subdirToCheck = $_POST['objectSubdir'];
+          } elseif (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
               $inputData = json_decode(file_get_contents('php://input'), true);
-              if (is_array($inputData) && !empty($inputData['objectSubdir']) && preg_match('/\/certifications\/(tmp_[^\/]+)\//', $inputData['objectSubdir'], $matches)) {
-                  $tmpCertSignatoryId = $matches[1];
+              if (is_array($inputData) && !empty($inputData['objectSubdir'])) {
+                  $subdirToCheck = $inputData['objectSubdir'];
               }
+          }
+          if (!empty($subdirToCheck) && preg_match('/\/certifications\/(tmp_[^\/]+)\//', $subdirToCheck, $matches)) {
+              $tmpCertSignatoryId = $matches[1];
           }
           if (empty($tmpCertSignatoryId)) {
               $tmpCertSignatoryId = 'tmp_' . uniqid();

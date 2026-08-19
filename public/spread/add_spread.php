@@ -54,7 +54,7 @@ if (file_exists('../../../saturne/saturne.main.inc.php')) {
 // Get module parameters
 // The Saturne media block posts its own module_name with the photo upload; it must not be taken
 // as this page's module context (the upload handler reads it into its own variable instead).
-$moduleName   = (GETPOST('action', 'aZ09') == 'uploadPhoto') ? '' : GETPOST('module_name', 'alpha');
+$moduleName   = (GETPOST('action', 'aZ09') == 'uploadPhoto' || GETPOST('subaction', 'alpha') == 'uploadPhoto') ? '' : GETPOST('module_name', 'alpha');
 $objectType   = GETPOST('object_type', 'alpha');
 $documentType = GETPOST('document_type', 'alpha');
 
@@ -546,7 +546,7 @@ if ($action == 'save_public_note') {
 // Photo upload posted by the Saturne media block — same contract as saturne/admin/media.php.
 // Note: the media JS posts its own "module_name", which would otherwise clobber this page's
 // $moduleName/$moduleNameLowerCase, so it is read into a dedicated variable here.
-if ($action == 'uploadPhoto' && !empty($conf->global->MAIN_UPLOAD_DOC)) {
+if (($action == 'uploadPhoto' || $subaction == 'uploadPhoto') && !empty($conf->global->MAIN_UPLOAD_DOC)) {
     require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
     $mediaModuleName = dol_strtolower(GETPOST('module_name', 'alpha'));
