@@ -133,7 +133,7 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 
 		$pdf->AddPage();
         
-        $this->_pagehead($pdf, $object, $outputlangs);
+        $posy = $this->_pagehead($pdf, $object, $outputlangs);
 
 		$pdf->SetFont('', '', $default_font_size);
 		
@@ -142,7 +142,6 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$signatories = $signatory->fetchAll('', '', 0, 0, ['customsql' => 't.object_type = "doliletter_attendance_sheet" AND t.fk_object = ' . $object->id]);
 		if (!is_array($signatories)) $signatories = [];
 
-		$posy = 120;
 		$pdf->SetXY($this->marge_gauche, $posy);
 		$pdf->SetFillColor(240, 240, 240);
 		
@@ -173,8 +172,23 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		foreach ($signatories as $sig) {
 			if ($posy + $rowHeight > $this->page_hauteur - $this->marge_basse - 20) {
 				$pdf->AddPage();
-				$this->_pagehead($pdf, $object, $outputlangs);
-				$posy = 50; // Reset posy
+				$posy = $this->_pagehead($pdf, $object, $outputlangs);
+				
+				// Redraw Table Header
+				$pdf->SetXY($this->marge_gauche, $posy);
+				$pdf->SetFillColor(63, 114, 134);
+				$pdf->SetTextColor(255, 255, 255);
+				$pdf->SetFont('', 'B', $default_font_size);
+				$pdf->Cell(15, 10, 'Réf.', 1, 0, 'C', 1);
+				$pdf->Cell(35, 10, 'Nom', 1, 0, 'C', 1);
+				$pdf->Cell(35, 10, 'Prénom', 1, 0, 'C', 1);
+				$pdf->Cell(30, 10, 'Présence', 1, 0, 'C', 1);
+				$pdf->Cell(40, 10, 'Signature', 1, 0, 'C', 1);
+				$pdf->Cell(35, 10, 'Date de signature', 1, 1, 'C', 1);
+				
+				$pdf->SetTextColor(0, 0, 0);
+				$pdf->SetFont('', '', $default_font_size);
+				$posy = $pdf->GetY();
 			}
 
 			$pdf->SetXY($this->marge_gauche, $posy);
@@ -242,6 +256,10 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$pdf->SetTextColor(0, 0, 0);
 		$pdf->SetFont('', '', $default_font_size);
 
+		if ($pdf->PageNo() > 1) {
+			return $this->marge_haute + 20;
+		}
+
 		// Company Box
 		$posy = $this->marge_haute + 30;
 		$pdf->SetXY($this->marge_gauche, $posy);
@@ -292,7 +310,10 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 			$pdf->SetFont('', '', $default_font_size);
 			$pdf->SetXY($this->marge_gauche, $posy + 6);
 			$pdf->MultiCell(0, 5, dol_htmlcleanlastbr($object->note_public), 0, 'L', 1);
+            $posy = $pdf->GetY();
 		}
+        
+        return $posy + 10;
 	}
 
 	protected function _pagefoot(&$pdf, $object, $outputlangs)
