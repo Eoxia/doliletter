@@ -1247,11 +1247,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
         </div>
         <?php } ?>
 
-        <?php if (empty($sign)) { ?>
-        <div class="login-message">
-            <p><?= $langs->transnoentities('ConnectForMoreInfo', '?' . http_build_query($_GET + ['action' => 'login'])); ?></p>
-        </div>
-        <?php } ?>
+
     <?php } ?>
 
     <?php
