@@ -859,10 +859,10 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <?php } ?>
             <?php }} ?>
 
-            <?php if ($isSignedPreventionPlan) { ?>
+            <?php if ($isSignedPreventionPlan && empty(GETPOST('hide_success'))) { ?>
         <!-- SUCCESS SCREEN -->
     <div class="success-screen" style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; text-align: center; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-        <a href="javascript:void(0)" onclick="this.closest('.success-screen').style.display='none'; return false;" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 16px; text-decoration: none;"><i class="fas fa-times"></i></a>
+        <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 16px; text-decoration: none;"><i class="fas fa-times"></i></a>
         
         <!-- Animated check icon -->
         <div style="margin-bottom: 25px;">
@@ -952,7 +952,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
 
         <!-- Actions -->
         <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="javascript:void(0)" onclick="this.closest('.success-screen').style.display='none'; return false;" style="font-size: 15px; padding: 12px 24px; border: 1px solid #cbd5e1; color: #3b82f6; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
+            <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="font-size: 15px; padding: 12px 24px; border: 1px solid #cbd5e1; color: #3b82f6; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
                 <i class="far fa-file-alt" style="margin-right: 8px;"></i> Voir le plan de prévention
             </a>
             <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
