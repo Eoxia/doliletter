@@ -294,7 +294,7 @@ function doliletter_spread_get_pending_risks(array $risks, array $acknowledged):
  * @param  string $certCode    Certification code
  * @return string              Absolute directory path
  */
-function doliletter_spread_get_certification_dir(string $certBaseDir, int|string $signatoryId, string $certCode): string
+function doliletter_spread_get_certification_dir(string $certBaseDir, $signatoryId, string $certCode): string
 {
     return $certBaseDir . '/' . $signatoryId . '/' . dol_sanitizeFileName($certCode);
 }
@@ -309,7 +309,7 @@ function doliletter_spread_get_certification_dir(string $certBaseDir, int|string
  * @param  string[] $notConcernedCodes    Codes the signatory declared they are not concerned by
  * @return array                          One entry per certification: code, label, mandatory, has_file, not_concerned
  */
-function doliletter_spread_get_certification_states(array $certifications, array $certificationOptions, string $certBaseDir, int|string $signatoryId, array $notConcernedCodes): array
+function doliletter_spread_get_certification_states(array $certifications, array $certificationOptions, string $certBaseDir, $signatoryId, array $notConcernedCodes): array
 {
     $states = [];
 
