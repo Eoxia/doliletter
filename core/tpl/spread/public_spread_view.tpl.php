@@ -825,13 +825,144 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 <?php } ?>
             </div>
 
+            <?php if (!($isSignedPreventionPlan && empty(GETPOST('hide_success')))) { ?>
             <div class="object-title-section">
                 <?php
                 // Un visiteur anonyme n'a rien a faire d'un lien vers la fiche : il n'y accede pas
                 echo ($isLogged ? $objectsMetadata[$objectType]['object']->getNomUrl(1) : dol_escape_htmltag($objectRef)) . (!empty($objectLabel) ? ' - ' . dol_escape_htmltag($objectLabel) : '');
                 ?>
             </div>
+            <?php } ?>
 
+
+
+            <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
+            <?php if ($isSignedPreventionPlan && empty(GETPOST('hide_success'))) { ?>
+        <!-- SUCCESS SCREEN -->
+        <div class="success-screen" style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 20px; text-decoration: none;"><i class="fas fa-times"></i></a>
+            
+            <div style="display: flex; align-items: flex-start; margin-bottom: 30px;">
+                <!-- Huge Check Icon on the left -->
+                <div style="margin-right: 30px; position: relative; margin-left: 10px;">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 100px; height: 100px; background-color: #22c55e; border-radius: 50%; color: white; font-size: 50px; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <!-- sparkles -->
+                    <div style="position: absolute; top: 15px; left: -20px; width: 12px; height: 4px; background: #22c55e; border-radius: 2px; transform: rotate(-30deg);"></div>
+                    <div style="position: absolute; top: 35px; left: -30px; width: 10px; height: 3px; background: #22c55e; border-radius: 2px; transform: rotate(-15deg);"></div>
+                    <div style="position: absolute; top: 15px; right: -20px; width: 12px; height: 4px; background: #22c55e; border-radius: 2px; transform: rotate(30deg);"></div>
+                    <div style="position: absolute; top: 35px; right: -30px; width: 10px; height: 3px; background: #22c55e; border-radius: 2px; transform: rotate(15deg);"></div>
+                </div>
+                
+                <!-- Title and Desc on the right -->
+                <div style="text-align: left; flex: 1;">
+                    <h1 style="font-size: 32px; color: #0f172a; margin: 0 0 12px 0; font-weight: 700; font-family: inherit;">Plan de prévention signé !</h1>
+                    <div style="font-size: 18px; color: #475569; margin-bottom: 12px; display: flex; align-items: center;">
+                        <i class="far fa-file-alt" style="margin-right: 12px; font-size: 22px; color: #94a3b8;"></i>
+                        <?php echo dol_escape_htmltag($objectRef . (!empty($objectLabel) ? ' - ' . $objectLabel : '')); ?>
+                    </div>
+                    <p style="font-size: 15px; color: #475569; margin: 0; line-height: 1.6; max-width: 600px;">
+                        L'intervenant a signé le plan de prévention en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Stats row -->
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 30px; padding: 25px 0; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.01);">
+                
+                <!-- 1: Référence -->
+                <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
+                    <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Référence</div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($objectRef); ?></div>
+                </div>
+
+                <!-- 2: Intervenant -->
+                <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
+                    <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Intervenant</div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
+                </div>
+
+                <!-- 3: Date de signature -->
+                <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
+                    <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="far fa-calendar-alt"></i>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Date de signature</div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
+                </div>
+
+                <!-- 4: Statut -->
+                <div style="flex: 1; min-width: 150px; padding: 0 15px; text-align: center;">
+                    <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="fas fa-check-square"></i>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Statut</div>
+                    <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
+                </div>
+
+            </div>
+
+            <!-- Etapes suivantes -->
+            <div style="text-align: left; margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; color: #2563eb; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px;">
+                    <div style="width: 20px; height: 20px; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
+                        <i class="fas fa-info"></i>
+                    </div>
+                    Étapes suivantes
+                </div>
+                
+                <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-radius: 10px; padding: 25px 20px; flex-wrap: wrap;">
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-user-friends"></i></div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les<br>autres intervenants</div>
+                    </div>
+                    <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #2563eb; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: #eff6ff;"><i class="fas fa-file-alt"></i></div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Consulter et suivre<br>le plan de prévention</div>
+                    </div>
+                    <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-shield-alt"></i></div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les<br>mesures de prévention</div>
+                    </div>
+                    <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-clipboard-check"></i></div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre<br>les actions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="font-size: 15px; padding: 12px 28px; border: 1px solid #1e40af; color: #1e40af; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
+                    <i class="far fa-file-alt" style="margin-right: 10px; font-size: 18px;"></i> Voir le plan de prévention
+                </a>
+                
+                <a href="<?php echo $registerUrl; ?>" style="font-size: 15px; padding: 12px 28px; background: #0135b6; border: none; color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(1, 53, 182, 0.3);">
+                    <i class="fas fa-user-plus" style="margin-right: 10px; font-size: 18px;"></i> Ajouter un nouvel intervenant
+                </a>
+            </div>
+            <script>
+                if ('scrollRestoration' in history) {
+                    history.scrollRestoration = 'manual';
+                }
+                window.scrollTo(0, 0);
+            </script>
+        </div>
+    <?php } ?>
             <?php
             // Documents mis en avant : affiches en premier, avant le detail de l'objet, pour que
             // la personne diffusee tombe dessus sans avoir a faire defiler la page
@@ -858,111 +989,62 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                         </video>
                     <?php } ?>
             <?php }} ?>
+<?php if (!($isSignedPreventionPlan && empty(GETPOST('hide_success')))) { ?>
+    <?php if (!$isLogged) { ?>
+        <?php if (!empty($publicRegisterEnabled) && empty($sign)) {
+            require __DIR__ . '/public_spread_register.tpl.php';
+        } ?>
 
-            <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
-            <?php if ($isSignedPreventionPlan && empty(GETPOST('hide_success'))) { ?>
-        <!-- SUCCESS SCREEN -->
-    <div class="success-screen" style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; text-align: center; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-        <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 16px; text-decoration: none;"><i class="fas fa-times"></i></a>
-        
-        <!-- Animated check icon -->
-        <div style="margin-bottom: 25px;">
-            <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background-color: #84cc16; border-radius: 50%; color: white; font-size: 40px; position: relative; box-shadow: 0 4px 15px rgba(132, 204, 22, 0.3);">
-                <i class="fas fa-check"></i>
-                <div style="position: absolute; top: 10px; left: -30px; width: 15px; height: 3px; background: #84cc16; border-radius: 2px; transform: rotate(15deg);"></div>
-                <div style="position: absolute; top: -10px; left: -15px; width: 15px; height: 3px; background: #84cc16; border-radius: 2px; transform: rotate(-35deg);"></div>
-                <div style="position: absolute; top: 10px; right: -30px; width: 15px; height: 3px; background: #84cc16; border-radius: 2px; transform: rotate(-15deg);"></div>
-                <div style="position: absolute; top: -10px; right: -15px; width: 15px; height: 3px; background: #84cc16; border-radius: 2px; transform: rotate(35deg);"></div>
+        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
+        <div class="quick-sign">
+            <h3>
+                <i class="fas fa-paper-plane"></i>
+                <?php echo $langs->trans('QuickSignature'); ?>
+            </h3>
+            <p><?php echo $langs->trans('SpreadQuickSignatureInfo') ?></p>
+            <div class="quick-sign-form">
+                <div class="quick-sign-email-group">
+                    <div class="quick-sign-email-field">
+                        <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
+                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
+                    </div>
+                    <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <?php echo $langs->trans('Send'); ?>
+                    </button>
+                </div>
             </div>
         </div>
-        
-        <h1 style="font-size: 32px; color: #0f172a; margin-bottom: 8px; font-weight: 700;">Plan de prévention signé !</h1>
-        <p style="font-size: 16px; color: #475569; margin-bottom: 25px; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-            L'intervenant a signé le plan de prévention en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
-        </p>
-
-        <!-- Stats row -->
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; border: 1px solid #f1f5f9; border-radius: 12px; margin-bottom: 25px; padding: 15px 0; background: #fdfdfd; box-shadow: 0 2px 10px rgba(0,0,0,0.01);">
-            <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-                    <i class="fas fa-clipboard-check"></i>
-                </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Statut</div>
-                <div style="display: inline-block; background: #dcfce7; color: #16a34a; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
-            </div>
-
-            <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Intervenant</div>
-                <div style="font-size: 14px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;" title="<?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?>"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
-            </div>
-
-            <div style="flex: 1; min-width: 150px; border-right: 1px solid #e2e8f0; padding: 0 15px;">
-                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-                    <i class="far fa-calendar-alt"></i>
-                </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Date de signature</div>
-                <div class="local-date-formatter" data-timestamp="<?php echo $signSignatory->signature_date; ?>" style="font-size: 14px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
-            </div>
-
-            <div style="flex: 1; min-width: 150px; padding: 0 15px;">
-                <div style="width: 38px; height: 38px; background: #f0fdf4; border-radius: 50%; color: #166534; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-                    <i class="fas fa-file-contract"></i>
-                </div>
-                <div style="font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Référence</div>
-                <div style="font-size: 14px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;" title="<?php echo dol_escape_htmltag($objectRef); ?>"><?php echo dol_escape_htmltag($objectRef); ?></div>
-            </div>
-        </div>
-
-        <!-- Etapes suivantes -->
-        <div style="text-align: left; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-            <div style="font-size: 12px; font-weight: 700; color: #3b82f6; margin-bottom: 25px; display: flex; align-items: center; letter-spacing: 0.5px;">
-                <div style="width: 20px; height: 20px; background: #3b82f6; color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 11px;">
-                    <i class="fas fa-info"></i>
-                </div>
-                ETAPES SUIVANTES
-            </div>
+        <?php } ?>
+    <?php } ?>
+    <?php if (!empty($signSignatory)) { ?>
+        <div class="pp-single-person-welcome" style="margin-bottom: 25px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <p style="font-size: 16px; margin-bottom: 15px;">Bonjour, <strong><?php echo dol_escape_htmltag(trim($signSignatory->firstname . ' ' . $signSignatory->lastname)); ?></strong></p>
             
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-user-friends"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les autres intervenants</div>
+            <?php if (empty($signSignatory->signature)) { ?>
+            <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
+                Vous venez de vous inscrire en temps d'intervenant sur plan de prévention :<br>
+                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+            </p>
+                <?php if (!empty($ppRisks)) { ?>
+                <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>" style="font-size: 15px; color: #b91c1c; background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 15px;">
+                    <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+                    Afin que vous puissiez le signer il faut prendre connaissance des <?php echo count($ppRisks); ?> risques notés ci-dessous.<br>
+                    <span style="display: block; margin-top: 8px; font-weight: 600;">Risques restants : <span class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></span>/<?php echo count($ppRisks); ?></span>
                 </div>
-                <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
-                
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="far fa-file-alt"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Consulter et suivre le plan de prévention</div>
-                </div>
-                <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
-                
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-shield-alt"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les mesures de prévention</div>
-                </div>
-                <div style="color: #cbd5e1; font-size: 14px;"><i class="fas fa-arrow-right"></i></div>
-                
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 10px; flex: 1; min-width: 120px;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #dbeafe; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fas fa-clipboard-list"></i></div>
-                    <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre les actions</div>
-                </div>
+                <?php } ?>
+            <?php } else { ?>
+            <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
+                Vous consultez le plan de prévention :<br>
+                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+            </p>
+            <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
+                <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                Vous avez signé ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y  %H:%M'); ?>.
             </div>
+            <?php } ?>
         </div>
-
-        <!-- Actions -->
-        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="font-size: 15px; padding: 12px 24px; border: 1px solid #cbd5e1; color: #3b82f6; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
-                <i class="far fa-file-alt" style="margin-right: 8px;"></i> Voir le plan de prévention
-            </a>
-            
-            <a href="<?php echo $registerUrl; ?>" style="font-size: 15px; padding: 12px 24px; background: #3b82f6; border: none; color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
-                <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Ajouter un nouvel intervenant
-            </a>
-        </div>
-    </div>
-<?php } else { ?>
+    <?php } ?>
             <?php if (!empty($isPreventionPlan)) {
                 require __DIR__ . '/preventionplan_public_info.tpl.php';
             } ?>
@@ -1132,43 +1214,10 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             <?php if (!empty($signSignatory)) { ?>
             <!-- Single-person view: only this signatory's signature + their certification photos -->
             <div class="pp-single-person">
-                <div class="user-signature-item <?php echo empty($signSignatory->signature) ? 'signature-not-validated' : 'signature-validated'; ?>" data-user-index="<?php echo $signSignatory->id; ?>">
-                    <div class="user-info">
-                        <div class="form-element">
-                            <div class="input-with-actions">
-                                <div class="user-status"><?php echo dol_escape_htmltag(trim($signSignatory->firstname . ' ' . $signSignatory->lastname)); ?></div>
-                                <div class="signature-status">
-                                    <?php if (empty($signSignatory->signature)) { ?>
-                                        <span class="badge badge-dot badge-status1 badge-status"></span>
-                                        <i class="fas fa-signature"></i>
-                                        <span>jj/mm/aaaa --:--</span>
-                                    <?php } else { ?>
-                                        <span class="badge badge-dot badge-status4 badge-status"></span>
-                                        <i class="fas fa-signature"></i>
-                                        <span><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y %H:%M'); ?></span>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <?php if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
                     $certSignatoryId = $signSignatory->id;
                     require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
                 } ?>
-
-                <?php if (empty($signSignatory->signature) && !empty($ppRisks)) { ?>
-                <!-- Every risk has to be acknowledged before signing. The count is kept up to date
-                     client side as the visitor validates each risk block. -->
-                <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <div>
-                        <?php echo $langs->trans('SpreadRisksPending'); ?>
-                        <strong class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></strong>
-                    </div>
-                </div>
-                <?php } ?>
 
                 <?php if (empty($signSignatory->signature) && !empty($ppPendingCertifications)) { ?>
                 <!-- Mandatory documents block signing until they are uploaded or waived -->
@@ -1308,37 +1357,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
 
 
 
-    <?php if (!$isLogged) { ?>
 
-        <?php if (!empty($publicRegisterEnabled) && empty($sign)) {
-            require __DIR__ . '/public_spread_register.tpl.php';
-        } ?>
-
-        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
-
-        <div class="quick-sign">
-            <h3>
-                <i class="fas fa-paper-plane"></i>
-                <?php echo $langs->trans('QuickSignature'); ?>
-            </h3>
-            <p><?php echo $langs->trans('SpreadQuickSignatureInfo') ?></p>
-            <div class="quick-sign-form">
-                <div class="quick-sign-email-group">
-                    <div class="quick-sign-email-field">
-                        <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
-                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
-                    </div>
-                    <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
-                        <i class="fas fa-paper-plane"></i>
-                        <?php echo $langs->trans('Send'); ?>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <?php } ?>
-
-
-    <?php } ?>
 
     <?php
     // Signed list configuration
