@@ -998,24 +998,24 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             
             <?php if (empty($signSignatory->signature)) { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
-                Vous venez de vous inscrire en temps d'intervenant sur plan de prǸvention :<br>
+                Vous venez de vous inscrire en temps d'intervenant sur plan de prévention :<br>
                 <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
             </p>
                 <?php if (!empty($ppRisks)) { ?>
                 <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>" style="font-size: 15px; color: #b91c1c; background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 15px;">
                     <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
-                    Afin que vous puissiez le signer il faut prendre connaissance des <?php echo count($ppRisks); ?> risques notǸs ci-dessous.<br>
+                    Afin que vous puissiez le signer il faut prendre connaissance des <?php echo count($ppRisks); ?> risques notés ci-dessous.<br>
                     <span style="display: block; margin-top: 8px; font-weight: 600;">Risques restants : <span class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></span>/<?php echo count($ppRisks); ?></span>
                 </div>
                 <?php } ?>
             <?php } else { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
-                Vous consultez le plan de prǸvention :<br>
+                Vous consultez le plan de prévention :<br>
                 <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
             </p>
             <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
                 <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-                Vous avez signǸ ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y  %H:%M'); ?>.
+                Vous avez signé ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y  %H:%M'); ?>.
             </div>
             <?php } ?>
         </div>
