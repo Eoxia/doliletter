@@ -858,7 +858,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <h1 style="font-size: 32px; color: #0f172a; margin: 0 0 12px 0; font-weight: 700; font-family: inherit;">Plan de prévention signé !</h1>
                     <div style="font-size: 18px; color: #475569; margin-bottom: 12px; display: flex; align-items: center;">
                         <i class="far fa-file-alt" style="margin-right: 12px; font-size: 22px; color: #94a3b8;"></i>
-                        <?php echo dol_escape_htmltag($object->ref . ' - ' . $object->label); ?>
+                        <?php echo dol_escape_htmltag($objectRef . (!empty($objectLabel) ? ' - ' . $objectLabel : '')); ?>
                     </div>
                     <p style="font-size: 15px; color: #475569; margin: 0; line-height: 1.6; max-width: 600px;">
                         L'intervenant a signé le plan de prévention en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
@@ -869,14 +869,16 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             <!-- Stats row -->
             <div style="display: flex; flex-wrap: wrap; justify-content: space-between; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 30px; padding: 25px 0; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.01);">
                 
+                <!-- 1: Référence -->
                 <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
-                        <i class="fas fa-check-square"></i>
+                        <i class="fas fa-file-signature"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Statut</div>
-                    <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Référence</div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($objectRef); ?></div>
                 </div>
 
+                <!-- 2: Intervenant -->
                 <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="fas fa-user"></i>
@@ -885,6 +887,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <div style="font-size: 15px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
                 </div>
 
+                <!-- 3: Date de signature -->
                 <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="far fa-calendar-alt"></i>
@@ -893,13 +896,15 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
                 </div>
 
+                <!-- 4: Statut -->
                 <div style="flex: 1; min-width: 150px; padding: 0 15px; text-align: center;">
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
-                        <i class="fas fa-file-contract"></i>
+                        <i class="fas fa-check-square"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Référence</div>
-                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($object->ref); ?></div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Statut</div>
+                    <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
                 </div>
+
             </div>
 
             <!-- Etapes suivantes -->
