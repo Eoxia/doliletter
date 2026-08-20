@@ -990,6 +990,34 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
         </div>
         <?php } ?>
     <?php } ?>
+    <?php if (!empty($signSignatory)) { ?>
+        <div class="pp-single-person-welcome" style="margin-bottom: 25px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <p style="font-size: 16px; margin-bottom: 15px;">Bonjour, <strong><?php echo dol_escape_htmltag(trim($signSignatory->firstname . ' ' . $signSignatory->lastname)); ?></strong></p>
+            
+            <?php if (empty($signSignatory->signature)) { ?>
+            <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
+                Vous venez de vous inscrire en temps d'intervenant sur plan de prǸvention :<br>
+                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+            </p>
+                <?php if (!empty($ppRisks)) { ?>
+                <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>" style="font-size: 15px; color: #b91c1c; background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 15px;">
+                    <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+                    Afin que vous puissiez le signer il faut prendre connaissance des <?php echo count($ppRisks); ?> risques notǸs ci-dessous.<br>
+                    <span style="display: block; margin-top: 8px; font-weight: 600;">Risques restants : <span class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></span>/<?php echo count($ppRisks); ?></span>
+                </div>
+                <?php } ?>
+            <?php } else { ?>
+            <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
+                Vous consultez le plan de prǸvention :<br>
+                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+            </p>
+            <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
+                <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                Vous avez signǸ ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y  %H:%M'); ?>.
+            </div>
+            <?php } ?>
+        </div>
+    <?php } ?>
             <?php if (!empty($isPreventionPlan)) {
                 require __DIR__ . '/preventionplan_public_info.tpl.php';
             } ?>
@@ -1159,43 +1187,10 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             <?php if (!empty($signSignatory)) { ?>
             <!-- Single-person view: only this signatory's signature + their certification photos -->
             <div class="pp-single-person">
-                <div class="user-signature-item <?php echo empty($signSignatory->signature) ? 'signature-not-validated' : 'signature-validated'; ?>" data-user-index="<?php echo $signSignatory->id; ?>">
-                    <div class="user-info">
-                        <div class="form-element">
-                            <div class="input-with-actions">
-                                <div class="user-status"><?php echo dol_escape_htmltag(trim($signSignatory->firstname . ' ' . $signSignatory->lastname)); ?></div>
-                                <div class="signature-status">
-                                    <?php if (empty($signSignatory->signature)) { ?>
-                                        <span class="badge badge-dot badge-status1 badge-status"></span>
-                                        <i class="fas fa-signature"></i>
-                                        <span>jj/mm/aaaa --:--</span>
-                                    <?php } else { ?>
-                                        <span class="badge badge-dot badge-status4 badge-status"></span>
-                                        <i class="fas fa-signature"></i>
-                                        <span><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y %H:%M'); ?></span>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <?php if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
                     $certSignatoryId = $signSignatory->id;
                     require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
                 } ?>
-
-                <?php if (empty($signSignatory->signature) && !empty($ppRisks)) { ?>
-                <!-- Every risk has to be acknowledged before signing. The count is kept up to date
-                     client side as the visitor validates each risk block. -->
-                <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <div>
-                        <?php echo $langs->trans('SpreadRisksPending'); ?>
-                        <strong class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></strong>
-                    </div>
-                </div>
-                <?php } ?>
 
                 <?php if (empty($signSignatory->signature) && !empty($ppPendingCertifications)) { ?>
                 <!-- Mandatory documents block signing until they are uploaded or waived -->
