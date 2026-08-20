@@ -791,7 +791,6 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
 
     <div class="public-card__header">
         <div class="public-card__content">
-            <?php if (!($isSignedPreventionPlan && empty(GETPOST('hide_success')))) { ?>
             <div class="spread-brand">
                 <?php if (dol_strlen($spreadLogoUrl)) { ?>
                 <img class="spread-brand__logo" src="<?php echo $spreadLogoUrl; ?>" alt="<?php echo dol_escape_htmltag($mysoc->name); ?>">
@@ -832,7 +831,6 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 echo ($isLogged ? $objectsMetadata[$objectType]['object']->getNomUrl(1) : dol_escape_htmltag($objectRef)) . (!empty($objectLabel) ? ' - ' . dol_escape_htmltag($objectLabel) : '');
                 ?>
             </div>
-            <?php } ?>
 
 
 
