@@ -963,6 +963,33 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
         </div>
     </div>
 <?php } else { ?>
+    <?php if (!$isLogged) { ?>
+        <?php if (!empty($publicRegisterEnabled) && empty($sign)) {
+            require __DIR__ . '/public_spread_register.tpl.php';
+        } ?>
+
+        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
+        <div class="quick-sign">
+            <h3>
+                <i class="fas fa-paper-plane"></i>
+                <?php echo $langs->trans('QuickSignature'); ?>
+            </h3>
+            <p><?php echo $langs->trans('SpreadQuickSignatureInfo') ?></p>
+            <div class="quick-sign-form">
+                <div class="quick-sign-email-group">
+                    <div class="quick-sign-email-field">
+                        <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
+                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
+                    </div>
+                    <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <?php echo $langs->trans('Send'); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+    <?php } ?>
             <?php if (!empty($isPreventionPlan)) {
                 require __DIR__ . '/preventionplan_public_info.tpl.php';
             } ?>
@@ -1308,37 +1335,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
 
 
 
-    <?php if (!$isLogged) { ?>
 
-        <?php if (!empty($publicRegisterEnabled) && empty($sign)) {
-            require __DIR__ . '/public_spread_register.tpl.php';
-        } ?>
-
-        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
-
-        <div class="quick-sign">
-            <h3>
-                <i class="fas fa-paper-plane"></i>
-                <?php echo $langs->trans('QuickSignature'); ?>
-            </h3>
-            <p><?php echo $langs->trans('SpreadQuickSignatureInfo') ?></p>
-            <div class="quick-sign-form">
-                <div class="quick-sign-email-group">
-                    <div class="quick-sign-email-field">
-                        <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
-                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
-                    </div>
-                    <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
-                        <i class="fas fa-paper-plane"></i>
-                        <?php echo $langs->trans('Send'); ?>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <?php } ?>
-
-
-    <?php } ?>
 
     <?php
     // Signed list configuration
