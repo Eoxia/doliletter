@@ -134,7 +134,8 @@ class modDoliLetter extends DolibarrModules {
 			$i++ => array('DOLILETTER_TRACKINGNUMBER_ADDON_PDF','chaine', 'nerio' ,'', $conf->entity),
 
 			// CONST SIGNIN SHEET
-			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_ADDON_PDF', 'chaine', 'FE_Doliletter', '', $conf->entity],
+			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_ADDON_PDF', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
+			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_DEFAULT_MODEL', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
@@ -425,10 +426,11 @@ class modDoliLetter extends DolibarrModules {
 		delDocumentModel('signinsheet_odt', 'signinsheet');
 		delDocumentModel('standard', 'signinsheet');
 		delDocumentModel('FE_Doliletter', 'signinsheetdocument');
+		delDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheetdocument');
 
 		addDocumentModel('signinsheet_odt', 'signinsheet', 'ODT templates', 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH');
 		addDocumentModel('standard', 'signinsheet', '', '');
-		addDocumentModel('FE_Doliletter', 'signinsheetdocument', '', '');
+		addDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheetdocument', '', '');
 
 		dolibarr_set_const($this->db, 'DOLILETTER_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($this->db, 'DOLILETTER_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
