@@ -825,12 +825,14 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 <?php } ?>
             </div>
 
+            <?php if (!($isSignedPreventionPlan && empty(GETPOST('hide_success')))) { ?>
             <div class="object-title-section">
                 <?php
                 // Un visiteur anonyme n'a rien a faire d'un lien vers la fiche : il n'y accede pas
                 echo ($isLogged ? $objectsMetadata[$objectType]['object']->getNomUrl(1) : dol_escape_htmltag($objectRef)) . (!empty($objectLabel) ? ' - ' . dol_escape_htmltag($objectLabel) : '');
                 ?>
             </div>
+            <?php } ?>
 
 
 
