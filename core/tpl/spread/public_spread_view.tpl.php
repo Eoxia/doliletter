@@ -936,6 +936,12 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Ajouter un nouvel intervenant
             </a>
         </div>
+        <script>
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            window.scrollTo(0, 0);
+        </script>
     </div>
 <?php } ?>
             <?php
