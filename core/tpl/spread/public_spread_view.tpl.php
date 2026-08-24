@@ -1086,14 +1086,17 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                         // A signatory registered from the public page carries their own identity, no Dolibarr user behind it
                         $isExternalSignatory = ($signatoryItem->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
                         $isSignatoryReady = false;
+                        $isEmailReady = false;
                         if ($isExternalSignatory) {
                             $isSignatoryReady = true;
                             if ($confExtFirstnameMandatory && trim($signatoryItem->first_name) === '') $isSignatoryReady = false;
                             if ($confExtLastnameMandatory && trim($signatoryItem->last_name) === '') $isSignatoryReady = false;
                             if ($confExtEmailMandatory && trim($signatoryItem->email) === '') $isSignatoryReady = false;
                             if ($confExtPhoneMandatory && trim($signatoryItem->phone) === '') $isSignatoryReady = false;
+                            $isEmailReady = (trim($signatoryItem->email) !== '');
                         } else {
                             $isSignatoryReady = (!empty($signatoryItem->element_id) && $signatoryItem->element_id != -1);
+                            $isEmailReady = $isSignatoryReady;
                         }
                         if (empty($signatoryItem->signature)) {
                         ?>
@@ -1143,7 +1146,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                                                 <i class="fas fa-signature"></i>
                                             </button>
                                             <?php if (!empty($permissiontoadd)) { ?>
-                                            <button type="button" class="wpeo-button button-<?php echo $isSignatoryReady ? 'primary' : 'disable' ?> send-email-btn">
+                                            <button type="button" class="wpeo-button button-<?php echo $isEmailReady ? 'primary' : 'disable' ?> send-email-btn" <?php echo $isEmailReady ? '' : 'disabled'; ?>>
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
@@ -1916,16 +1919,22 @@ $(document).ready(function () {
         if ($ph.length && $ph.data('mandatory') == '1' && phone.trim() === '') isReady = false;
 
         let $signBtn = $('.sign-btn');
+        let isEmailReady = ($em.length ? email.trim() !== '' : false);
         let $sendEmailBtn = $container.find('.send-email-btn');
         let $badge = $container.find('.badge-status');
+        
         if (isReady) {
-            $signBtn.removeClass('button-disable').addClass('button-primary');
-            $sendEmailBtn.removeClass('button-disable').addClass('button-primary');
+            $signBtn.removeClass('button-disable').addClass('button-primary').prop('disabled', false);
             $badge.removeClass('badge-status0').addClass('badge-status1');
         } else {
-            $signBtn.removeClass('button-primary').addClass('button-disable');
-            $sendEmailBtn.removeClass('button-primary').addClass('button-disable');
+            $signBtn.removeClass('button-primary').addClass('button-disable').prop('disabled', true);
             $badge.removeClass('badge-status1').addClass('badge-status0');
+        }
+        
+        if (isEmailReady) {
+            $sendEmailBtn.removeClass('button-disable').addClass('button-primary').prop('disabled', false);
+        } else {
+            $sendEmailBtn.removeClass('button-primary').addClass('button-disable').prop('disabled', true);
         }
 
 
