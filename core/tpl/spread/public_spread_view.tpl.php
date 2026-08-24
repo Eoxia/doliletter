@@ -1071,11 +1071,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 </div>
             <?php } ?>
 
-            <?php if (!empty($isPreventionPlan)) {
-                require __DIR__ . '/preventionplan_public_info.tpl.php';
-            } ?>
 
- 
             <?php if (!empty($permissiontoadd) && empty($sign)) { ?>
             <div class="user-list-container">
                 <div class="user-signatures-list" id="userSignaturesList">
@@ -1275,6 +1271,12 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 </div>
             </div>
             <?php } ?>
+
+            <?php if (!empty($isPreventionPlan)) {
+                require __DIR__ . '/preventionplan_public_info.tpl.php';
+            } ?>
+
+
             <?php if (!empty($linkedLinks)) { ?>
                 <div class="linked-files-section">
                     <div class="linked-files-grid">
