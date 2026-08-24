@@ -1407,6 +1407,17 @@ function getFileIcon($extension) {
 
 
 <script>
+function updateBottomSignBtn() {
+    $('#bottomSignBtnPlaceholder').empty();
+    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn');
+    if ($topSignBtn.length > 0) {
+        let $bottomBtn = $topSignBtn.clone();
+        $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities(\'ValidateSignature\')); ?>');
+        $bottomBtn.data('user-index', $topSignBtn.parents('.user-signature-item').data('user-index'));
+        $('#bottomSignBtnPlaceholder').append($bottomBtn);
+    }
+}
+
 let currentUserIndex = null;
 
 function openSignatureModal(userIndex = null) {
@@ -1584,6 +1595,7 @@ function addUser() {
             if ($newAddSection.length) {
                 $('.add-user-section').replaceWith($newAddSection);
             }
+            updateBottomSignBtn();
         }
     })
 }
@@ -1605,6 +1617,7 @@ function removeUser() {
                 if ($newAddSection.length) {
                     $('.add-user-section').replaceWith($newAddSection);
                 }
+                updateBottomSignBtn();
             },
         });
     }
@@ -1872,13 +1885,7 @@ function toggleCertNotConcerned() {
 }
 
 $(document).ready(function () {
-    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn');
-    if ($topSignBtn.length > 0) {
-        let $bottomBtn = $topSignBtn.clone();
-        $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities('ValidateSignature')); ?>');
-        $bottomBtn.data('user-index', $topSignBtn.parents('.user-signature-item').data('user-index'));
-        $('#bottomSignBtnPlaceholder').append($bottomBtn);
-    }
+    updateBottomSignBtn();
 
     $(document).on('click', '.public-register-btn', registerPublicSignatory);
 
@@ -1895,6 +1902,7 @@ $(document).ready(function () {
             contentType: 'application/json; charset=utf-8',
             success: function (resp) {
                 $('.user-signature-item[data-user-index="' + signatoryId + '"]').replaceWith($(resp).find('.user-signature-item[data-user-index="' + signatoryId + '"]'));
+                updateBottomSignBtn();
             }
         })
     });
