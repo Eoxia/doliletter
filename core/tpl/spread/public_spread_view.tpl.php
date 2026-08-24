@@ -1412,7 +1412,7 @@ function updateBottomSignBtn() {
     let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn');
     if ($topSignBtn.length > 0) {
         let $bottomBtn = $topSignBtn.clone();
-        $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities(\'ValidateSignature\')); ?>');
+        $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities('ValidateSignature')); ?>');
         $bottomBtn.data('user-index', $topSignBtn.parents('.user-signature-item').data('user-index'));
         $('#bottomSignBtnPlaceholder').append($bottomBtn);
     }
