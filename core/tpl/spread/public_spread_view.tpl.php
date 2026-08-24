@@ -1045,25 +1045,35 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             <?php } ?>
         </div>
     <?php } ?>
-            <?php if (!empty($isPreventionPlan)) {
-                require __DIR__ . '/preventionplan_public_info.tpl.php';
-            } ?>
-
- 
-            <?php if (!empty($permissiontoadd) && empty($sign)) { ?>
-            <div class="user-list-container">
-                <div class="add-user-section tabsAction" style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button type="button" class="wpeo-button button-blue add-user-btn" data-type="internal">
+            <?php if (!empty($permissiontoadd) && empty($sign)) {
+                $hasUnsigned = false;
+                if (!empty($signatories) && is_array($signatories)) {
+                    foreach ($signatories as $s) {
+                        if (empty($s->signature)) {
+                            $hasUnsigned = true;
+                            break;
+                        }
+                    }
+                }
+                $addBtnClass = $hasUnsigned ? "button-disable" : "";
+                $addBtnAttr = $hasUnsigned ? "disabled=\"disabled\" title=\"Veuillez d'abord valider la signature en attente\"" : "";
+            ?>
+                <div class="add-user-section tabsAction" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button type="button" class="wpeo-button button-blue add-user-btn <?php echo $addBtnClass; ?>" data-type="internal" <?php echo $addBtnAttr; ?>>
                         <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire interne'); ?>
                     </button>
-                    <button type="button" class="wpeo-button button-blue add-user-btn" data-type="external">
+                    <button type="button" class="wpeo-button button-blue add-user-btn <?php echo $addBtnClass; ?>" data-type="external" <?php echo $addBtnAttr; ?>>
                         <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire externe'); ?>
                     </button>
                     <button type="button" class="wpeo-button button-blue copy-link-btn" style="padding: 8px 12px; font-size: 0.9em;" title="<?php echo dol_escape_htmltag($langs->trans('CopyLink')); ?>" onclick="navigator.clipboard.writeText(window.location.href).then(function() { $.jnotify('<?php echo dol_escape_js($langs->trans('LinkCopiedToClipboard')); ?>', 'success'); });">
                         <i class="fas fa-copy"></i>
                     </button>
                 </div>
+            <?php } ?>
 
+
+            <?php if (!empty($permissiontoadd) && empty($sign)) { ?>
+            <div class="user-list-container">
                 <div class="user-signatures-list" id="userSignaturesList">
                     <!-- Utilisateurs pré-signés par défaut -->
 
@@ -1076,14 +1086,17 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                         // A signatory registered from the public page carries their own identity, no Dolibarr user behind it
                         $isExternalSignatory = ($signatoryItem->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
                         $isSignatoryReady = false;
+                        $isEmailReady = false;
                         if ($isExternalSignatory) {
                             $isSignatoryReady = true;
                             if ($confExtFirstnameMandatory && trim($signatoryItem->first_name) === '') $isSignatoryReady = false;
                             if ($confExtLastnameMandatory && trim($signatoryItem->last_name) === '') $isSignatoryReady = false;
                             if ($confExtEmailMandatory && trim($signatoryItem->email) === '') $isSignatoryReady = false;
                             if ($confExtPhoneMandatory && trim($signatoryItem->phone) === '') $isSignatoryReady = false;
+                            $isEmailReady = (trim($signatoryItem->email) !== '');
                         } else {
                             $isSignatoryReady = (!empty($signatoryItem->element_id) && $signatoryItem->element_id != -1);
+                            $isEmailReady = $isSignatoryReady;
                         }
                         if (empty($signatoryItem->signature)) {
                         ?>
@@ -1133,7 +1146,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                                                 <i class="fas fa-signature"></i>
                                             </button>
                                             <?php if (!empty($permissiontoadd)) { ?>
-                                            <button type="button" class="wpeo-button button-<?php echo $isSignatoryReady ? 'primary' : 'disable' ?> send-email-btn">
+                                            <button type="button" class="wpeo-button button-<?php echo $isEmailReady ? 'primary' : 'disable' ?> send-email-btn" <?php echo $isEmailReady ? '' : 'disabled'; ?>>
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
@@ -1145,51 +1158,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                                 </div>
                             </div>
                     <?php
-                    } else {
-                    ?>
-                        <div class="user-signature-item signature-validated" data-user-index="<?php echo $signatoryItem->id; ?>">
-                            <div class="user-info">
-                                <div class="form-row">
-                                    <div class="form-element">
-                                        <div class="input-with-actions">
-                                            <div class="user-status">
-                                                <?php if ($isExternalSignatory) { ?>
-                                                    <div class="external-signatory">
-                                                        <span class="external-signatory__name"><?php echo dol_escape_htmltag(doliletter_spread_get_signatory_name($signatoryItem)); ?></span>
-                                                        <span class="external-signatory__contact"><?php echo dol_escape_htmltag($signatoryItem->email); ?><?php echo dol_strlen($signatoryItem->phone) ? ' - ' . dol_escape_htmltag($signatoryItem->phone) : ''; ?></span>
-                                                    </div>
-                                                <?php } else {
-                                                    $tmpUser->fetch($signatoryItem->element_id);
-                                                    echo $tmpUser->getNomUrl(1);
-                                                } ?>
-                                            </div>
-                                            <div class="signature-status">
-                                                <span class="badge badge-dot badge-status4 badge-status"></span>
-                                                <i class="fas fa-signature"></i>
-                                                <span><?php echo dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') ?></span>
-                                            </div>
-                                            <?php if ($permissiontoadd) { ?>
-                                                <?php if (!empty($permissiontoshowsignature) && getDolGlobalInt('DOLILETTER_SPREAD_SHOW_SIGNATURE')) { ?>
-                                                <a href="<?php echo DOL_URL_ROOT . '/custom/saturne/public/signature/add_signature.php?track_id=' . $signatoryItem->signature_url . '&entity=1&module_name=doliletter&object_type=doliletterattendancesheet'; ?>"
-                                                    target="_blank" class="wpeo-button">
-                                                    <i class="fas fa-eye" style="color:white"></i>
-                                                </a>
-                                                <?php } ?>
-                                                <button type="button" class="wpeo-button button-disable send-email-btn" disabled>
-                                                    <i class="fas fa-paper-plane"></i>
-                                                </button>
-                                                <button type="button" class="wpeo-button button-red remove-user-btn">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                    <?php
-                    }
-
-                    // Prevention plan: one photo per required certification (document) for this signatory
+                    // Prevention plan:                    // Prevention plan: one photo per required certification (document) for this signatory
                     if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
                         print '<div class="pp-signatory-media-row" style="border-top: 1px dashed #e5e5e5; margin-top: 10px; padding-top: 10px;">';
                         print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> Envoyer les éléments demandés</div>';
@@ -1200,7 +1169,8 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     ?>
                         </div> <!-- close user-signature-item -->
                     <?php
-                    }
+                        } // close if (empty($signatoryItem->signature))
+                    } // close foreach
                     ?>
 
                 </div>
@@ -1304,6 +1274,14 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 </div>
             </div>
             <?php } ?>
+
+            <?php if (!empty($isPreventionPlan)) {
+                require __DIR__ . '/preventionplan_public_info.tpl.php';
+            } ?>
+
+            <div id="bottomSignBtnPlaceholder" style="text-align: right; margin-top: 15px; margin-bottom: 30px;"></div>
+
+
             <?php if (!empty($linkedLinks)) { ?>
                 <div class="linked-files-section">
                     <div class="linked-files-grid">
@@ -1429,11 +1407,22 @@ function getFileIcon($extension) {
 
 
 <script>
+function updateBottomSignBtn() {
+    $('#bottomSignBtnPlaceholder').empty();
+    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn');
+    if ($topSignBtn.length > 0) {
+        let $bottomBtn = $topSignBtn.clone();
+        $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities('ValidateSignature')); ?>');
+        $bottomBtn.data('user-index', $topSignBtn.parents('.user-signature-item').data('user-index'));
+        $('#bottomSignBtnPlaceholder').append($bottomBtn);
+    }
+}
+
 let currentUserIndex = null;
 
 function openSignatureModal(userIndex = null) {
     if (typeof userIndex == 'object') {
-        userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+        userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
     }
 
     currentUserIndex = userIndex;
@@ -1556,8 +1545,6 @@ function validateSignature() {
                     return;
                 }
 
-                $('.user-signature-item[data-user-index="' + currentUserIndex + '"]').replaceWith($(response).find('.user-signature-item[data-user-index="' + currentUserIndex + '"]'));
-
                 // The device goes to the next attendee: they have to go through the risks themselves
                 if (window.ppRiskAck) {
                     window.ppRiskAck.reset();
@@ -1567,6 +1554,10 @@ function validateSignature() {
 
                 // Add success notification
                 $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SignatureValidatedSuccessfully')); ?>', {type: 'success'});
+                
+                setTimeout(function() {
+                    window.location.reload();
+                }, 500);
             },
         });
     }
@@ -1599,12 +1590,18 @@ function addUser() {
                 let $elementsToAdd = nextItemIndex !== -1 ? $newList.slice(firstItemIndex, nextItemIndex) : $newList.slice(firstItemIndex);
                 $(document).find('.user-signatures-list').prepend($elementsToAdd);
             }
+            
+            let $newAddSection = $(resp).find('.add-user-section');
+            if ($newAddSection.length) {
+                $('.add-user-section').replaceWith($newAddSection);
+            }
+            updateBottomSignBtn();
         }
     })
 }
 
 function removeUser() {
-    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    const userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
     const userItem    = document.querySelector(`[data-user-index="${userIndex}"]`);
     const token       = window.saturne.toolbox.getToken();
 
@@ -1615,13 +1612,19 @@ function removeUser() {
             url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=remove_spread_user&signatory_id=' + userIndex + '&token=' + token,
             success: function (resp) {
                 userItem.remove();
+                
+                let $newAddSection = $(resp).find('.add-user-section');
+                if ($newAddSection.length) {
+                    $('.add-user-section').replaceWith($newAddSection);
+                }
+                updateBottomSignBtn();
             },
         });
     }
 }
 
 function sendMail() {
-    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    const userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
 
     const token       = window.saturne.toolbox.getToken();
 
@@ -1882,6 +1885,8 @@ function toggleCertNotConcerned() {
 }
 
 $(document).ready(function () {
+    updateBottomSignBtn();
+
     $(document).on('click', '.public-register-btn', registerPublicSignatory);
 
     $(document).on('click', '.pp-cert-not-concerned-btn', toggleCertNotConcerned);
@@ -1897,6 +1902,7 @@ $(document).ready(function () {
             contentType: 'application/json; charset=utf-8',
             success: function (resp) {
                 $('.user-signature-item[data-user-index="' + signatoryId + '"]').replaceWith($(resp).find('.user-signature-item[data-user-index="' + signatoryId + '"]'));
+                updateBottomSignBtn();
             }
         })
     });
@@ -1920,17 +1926,23 @@ $(document).ready(function () {
         if ($em.length && $em.data('mandatory') == '1' && email.trim() === '') isReady = false;
         if ($ph.length && $ph.data('mandatory') == '1' && phone.trim() === '') isReady = false;
 
-        let $signBtn = $container.find('.sign-btn');
+        let $signBtn = $('.sign-btn');
+        let isEmailReady = ($em.length ? email.trim() !== '' : false);
         let $sendEmailBtn = $container.find('.send-email-btn');
         let $badge = $container.find('.badge-status');
+        
         if (isReady) {
-            $signBtn.removeClass('button-disable').addClass('button-primary');
-            $sendEmailBtn.removeClass('button-disable').addClass('button-primary');
+            $signBtn.removeClass('button-disable').addClass('button-primary').prop('disabled', false);
             $badge.removeClass('badge-status0').addClass('badge-status1');
         } else {
-            $signBtn.removeClass('button-primary').addClass('button-disable');
-            $sendEmailBtn.removeClass('button-primary').addClass('button-disable');
+            $signBtn.removeClass('button-primary').addClass('button-disable').prop('disabled', true);
             $badge.removeClass('badge-status1').addClass('badge-status0');
+        }
+        
+        if (isEmailReady) {
+            $sendEmailBtn.removeClass('button-disable').addClass('button-primary').prop('disabled', false);
+        } else {
+            $sendEmailBtn.removeClass('button-primary').addClass('button-disable').prop('disabled', true);
         }
 
 
