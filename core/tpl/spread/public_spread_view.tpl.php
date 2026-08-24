@@ -1276,6 +1276,8 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 require __DIR__ . '/preventionplan_public_info.tpl.php';
             } ?>
 
+            <div id="bottomSignBtnPlaceholder" style="text-align: right; margin-top: 15px; margin-bottom: 30px;"></div>
+
 
             <?php if (!empty($linkedLinks)) { ?>
                 <div class="linked-files-section">
@@ -1406,7 +1408,7 @@ let currentUserIndex = null;
 
 function openSignatureModal(userIndex = null) {
     if (typeof userIndex == 'object') {
-        userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+        userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
     }
 
     currentUserIndex = userIndex;
@@ -1584,7 +1586,7 @@ function addUser() {
 }
 
 function removeUser() {
-    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    const userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
     const userItem    = document.querySelector(`[data-user-index="${userIndex}"]`);
     const token       = window.saturne.toolbox.getToken();
 
@@ -1606,7 +1608,7 @@ function removeUser() {
 }
 
 function sendMail() {
-    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    const userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
 
     const token       = window.saturne.toolbox.getToken();
 
@@ -1867,6 +1869,14 @@ function toggleCertNotConcerned() {
 }
 
 $(document).ready(function () {
+    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn');
+    if ($topSignBtn.length > 0) {
+        let $bottomBtn = $topSignBtn.clone();
+        $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities(\'ValidateSignature\')); ?>');
+        $bottomBtn.data('user-index', $topSignBtn.parents('.user-signature-item').data('user-index'));
+        $('#bottomSignBtnPlaceholder').append($bottomBtn);
+    }
+
     $(document).on('click', '.public-register-btn', registerPublicSignatory);
 
     $(document).on('click', '.pp-cert-not-concerned-btn', toggleCertNotConcerned);
@@ -1905,7 +1915,7 @@ $(document).ready(function () {
         if ($em.length && $em.data('mandatory') == '1' && email.trim() === '') isReady = false;
         if ($ph.length && $ph.data('mandatory') == '1' && phone.trim() === '') isReady = false;
 
-        let $signBtn = $container.find('.sign-btn');
+        let $signBtn = $('.sign-btn');
         let $sendEmailBtn = $container.find('.send-email-btn');
         let $badge = $container.find('.badge-status');
         if (isReady) {
