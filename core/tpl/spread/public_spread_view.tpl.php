@@ -1595,9 +1595,25 @@ function addUser() {
             if ($newAddSection.length) {
                 $('.add-user-section').replaceWith($newAddSection);
             }
+            refreshSignatoriesBlock(resp);
             updateBottomSignBtn();
         }
     })
+}
+
+/**
+ * Repeindre le recapitulatif des signataires avec celui que le serveur vient de renvoyer.
+ * Ajouter ou retirer un signataire ne touchait que la liste du haut : le bloc du bas gardait le
+ * compte d'avant et affichait encore "0 signature(s) sur 0" jusqu'a un rechargement complet.
+ *
+ * @param {String} resp Reponse HTML complete de la page
+ * @return {void}
+ */
+function refreshSignatoriesBlock(resp) {
+    let $newSignatories = $(resp).find('.spread-signatories');
+    if ($newSignatories.length) {
+        $('.spread-signatories').replaceWith($newSignatories);
+    }
 }
 
 function removeUser() {
@@ -1617,6 +1633,7 @@ function removeUser() {
                 if ($newAddSection.length) {
                     $('.add-user-section').replaceWith($newAddSection);
                 }
+                refreshSignatoriesBlock(resp);
                 updateBottomSignBtn();
             },
         });
