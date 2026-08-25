@@ -311,3 +311,4 @@ ConfigSpreadExtMandatory=Obligatoire
 SpreadRequestedElements = Éléments demandés
 CopyLink=Copier le lien
 LinkCopiedToClipboard=Lien copié dans le presse-papiers !
+SpreadRiskMustAcknowledgeFirst        = Ce signataire doit d'abord prendre connaissance des risques : il en reste %s.
