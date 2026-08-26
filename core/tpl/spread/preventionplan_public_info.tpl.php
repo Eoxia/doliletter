@@ -95,6 +95,11 @@
 .pp-risk-ack--done { border-top-color: #a7f3d0; }
 /* Le theme ne definit pas .hidden sur cette page publique */
 .pp-risks-pending.hidden, .pp-inline-signature.hidden { display: none; }
+/* Un signataire ajoute apres coup doit prendre connaissance des risques a son tour : la case est
+   remise a zero pour lui, ce que personne ne remarque puisqu'on vient de la cocher. On amene donc
+   l'utilisateur sur le bloc concerne et on le fait clignoter. */
+.pp-risk-block--attention { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25); animation: pp-risk-flash 1.2s ease-in-out 2; }
+@keyframes pp-risk-flash { 0%, 100% { background: #fff; } 50% { background: #fffbeb; } }
 .pp-signatory-media-row { margin: 6px 0 12px; padding: 10px 12px; border: 1px dashed #d1d5db; border-radius: 6px; background: #fafafa; }
 .pp-signatory-media-row__label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 .pp-signatory-media-row__label i { color: #3b82f6; }
@@ -361,6 +366,36 @@ window.ppRiskAck = {
         });
 
         window.ppRiskAck.refreshSignature();
+    },
+
+    /**
+     * Number of risks still waiting for this signatory's acknowledgement.
+     */
+    pendingCount: function() {
+        var blocks = $('.pp-risk-ack');
+        return blocks.length - blocks.filter('.pp-risk-ack--done').length;
+    },
+
+    /**
+     * Bring the visitor to the first risk left to acknowledge and make it obvious. Called when a
+     * signature is attempted too early: the warning otherwise sits at the top of a long page, far
+     * from the button that was just pressed.
+     */
+    focusPending: function() {
+        var block = $('.pp-risk-ack').not('.pp-risk-ack--done').first();
+        if (!block.length) {
+            return;
+        }
+
+        var riskBlock = block.closest('.pp-risk-block');
+        var target    = riskBlock.length ? riskBlock : block;
+
+        target.addClass('pp-risk-block--attention');
+        setTimeout(function() { target.removeClass('pp-risk-block--attention'); }, 2600);
+
+        if (target[0] && target[0].scrollIntoView) {
+            target[0].scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
     },
 
     /**

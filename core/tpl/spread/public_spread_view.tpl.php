@@ -1425,6 +1425,16 @@ function openSignatureModal(userIndex = null) {
         userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
     }
 
+    // Chaque signataire acquitte les risques pour lui-meme : la case est remise a zero quand on en
+    // ajoute un, ce qui passe inapercu puisqu'on vient de la cocher pour le precedent. Le refus
+    // arrivait alors du serveur, une fois la signature tracee, sous forme d'un message en haut
+    // d'une page tres longue. On bloque desormais avant d'ouvrir, et on montre le risque en cause.
+    if (window.ppRiskAck && window.ppRiskAck.pendingCount() > 0) {
+        $.jnotify(<?php echo json_encode($langs->transnoentities('SpreadRiskMustAcknowledgeFirst', '%s')); ?>.replace('%s', window.ppRiskAck.pendingCount()), {type: 'warning'});
+        window.ppRiskAck.focusPending();
+        return;
+    }
+
     currentUserIndex = userIndex;
     const modal = document.getElementById('signatureModal');
     modal.style.display = 'block';
@@ -1595,9 +1605,25 @@ function addUser() {
             if ($newAddSection.length) {
                 $('.add-user-section').replaceWith($newAddSection);
             }
+            refreshSignatoriesBlock(resp);
             updateBottomSignBtn();
         }
     })
+}
+
+/**
+ * Repeindre le recapitulatif des signataires avec celui que le serveur vient de renvoyer.
+ * Ajouter ou retirer un signataire ne touchait que la liste du haut : le bloc du bas gardait le
+ * compte d'avant et affichait encore "0 signature(s) sur 0" jusqu'a un rechargement complet.
+ *
+ * @param {String} resp Reponse HTML complete de la page
+ * @return {void}
+ */
+function refreshSignatoriesBlock(resp) {
+    let $newSignatories = $(resp).find('.spread-signatories');
+    if ($newSignatories.length) {
+        $('.spread-signatories').replaceWith($newSignatories);
+    }
 }
 
 function removeUser() {
@@ -1617,6 +1643,7 @@ function removeUser() {
                 if ($newAddSection.length) {
                     $('.add-user-section').replaceWith($newAddSection);
                 }
+                refreshSignatoriesBlock(resp);
                 updateBottomSignBtn();
             },
         });

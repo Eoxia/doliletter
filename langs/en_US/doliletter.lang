@@ -131,3 +131,4 @@ SpreadRecapProtections = Required protections
 SpreadRequestedElements = Requested elements
 CopyLink=Copy link
 LinkCopiedToClipboard=Link copied to clipboard!
+SpreadRiskMustAcknowledgeFirst = This signatory must first acknowledge the risks: %s left.
