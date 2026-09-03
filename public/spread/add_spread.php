@@ -122,6 +122,13 @@ if (isModEnabled('societe')) {
 
 $objectsMetadata    = saturne_get_objects_metadata();
 
+// A module contributing its objects through the Saturne metadata hook only does so on the pages
+// whose hook context it declares, and this one has none. Without the metadata the diffused object
+// cannot be resolved, and going any further would be a fatal error on a public page.
+if (!isset($objectsMetadata[$objectType]['object'])) {
+    accessforbidden($langs->transnoentities('ErrorSpreadObjectTypeUnknown'), 0, 0, 1);
+}
+
 $attendanceSheet->fetch(0, '', ' AND object_type = ' . "'" . $objectType  . "'" . ' AND fk_object = ' . $id);
 
 $objectsMetadata[$objectType]['object']->fetch($id);

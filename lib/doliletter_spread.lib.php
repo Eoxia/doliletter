@@ -49,6 +49,13 @@ function doliletter_spread_ensure_attendance_sheet(DoliletterAttendanceSheet $at
         return $attendanceSheet->id;
     }
 
+    // The metadata of the diffused object is missing when its module does not contribute it on
+    // the calling page : creating the sheet from it would be a fatal error.
+    if (!isset($objectsMetadata[$objectType]['object'])) {
+        $attendanceSheet->error = 'ErrorSpreadObjectTypeUnknown';
+        return -1;
+    }
+
     $objectsMetadata[$objectType]['object']->fetch($objectId);
 
     // A visitor registering from the public page has no session, so $user->id is empty and
