@@ -132,3 +132,17 @@ SpreadRequestedElements = Requested elements
 CopyLink=Copy link
 LinkCopiedToClipboard=Link copied to clipboard!
 SpreadRiskMustAcknowledgeFirst = This signatory must first acknowledge the risks: %s left.
+
+# Spreadable objects
+LinkableElements                      = Spreadable elements
+LinkedObjectUsage                     = Usage
+LinkedObjectUsageDetail               = %d spread(s)
+NoLinkedObjectUsage                   = Not spread
+DisableLinkConfirm                    = The spread of "%s" is about to be disabled. Its Spread tab will disappear while %d spread(s) already exist: they stay in database but are no longer reachable from the card. Confirm?
+EnableAllLinksConfirm                 = The spread is about to be enabled on every available object: the Spread tab will show up on all their cards. Confirm?
+DisableAllLinksConfirm                = The spread is about to be disabled on every object: no Spread tab will be visible anymore. Existing spreads stay in database. Confirm?
+CleanUnusedLinks                      = Apply the configuration again
+CleanUnusedLinksConfirm               = Tabs and hooks are about to be rebuilt from the objects enabled above. Confirm?
+LinkedObjectSyncDone                  = Synchronisation done: %d tab(s), %d hook(s)
+LinkedObjectSyncError                 = Spread synchronisation failed, no change has been saved
+ErrorSpreadObjectTypeUnknown          = The object type of this spread is unknown, report it to the company that sent you the link

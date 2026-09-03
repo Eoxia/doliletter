@@ -166,6 +166,43 @@ class modDoliLetter extends DolibarrModules {
 			$this->tabs[] = array('data'=>'order:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=order');
 			$this->tabs[] = array('data'=>'invoice:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=facture');  	  	// To add a new tab identified by code tabname1
 			$this->tabs[] = array('data'=>'contact:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=contact');  	  	// To add a new tab identified by code tabname1
+		// The Diffusion tabs are the only ones the module installs : the reset keeps the envelope
+		// tabs declared above out of the database, exactly as init() did before this block moved here.
+		$this->tabs  = [];
+		$pictoSpread = '<i class="fas fa-check-circle"></i> ';
+
+		// Tabs and hooks are declared for the enabled spreads only, they are driven from admin/setup.php
+		dol_include_once('/saturne/lib/object.lib.php');
+		dol_include_once('/saturne/lib/linked_object.lib.php');
+
+		$spreadableObjects = [];
+		if (function_exists('saturne_get_objects_metadata') && function_exists('saturne_filter_linkable_objects')) {
+			$spreadableObjects = saturne_filter_linkable_objects(saturne_get_objects_metadata(), ['doliletter_']);
+		}
+
+		$enabledObjectTypes = [];
+		if (function_exists('saturne_get_enabled_linked_object_types')) {
+			$enabledObjectTypes = saturne_get_enabled_linked_object_types($spreadableObjects, 'DOLILETTER_SPREAD_LINK_');
+		}
+
+		foreach ($enabledObjectTypes as $objectType) {
+			$objectMetadata = $spreadableObjects[$objectType];
+
+			if (preg_match('/_/', $objectType)) {
+				$splittedElementType = explode('_', $objectType);
+				$moduleName = $splittedElementType[0];
+				$objectName = dol_strtolower($objectMetadata['class_name']);
+				$tabType    = $objectName . '@' . $moduleName;
+			} else {
+				$tabType = $objectMetadata['tab_type'];
+			}
+
+			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+
+			$this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
+			$this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
+		}
+
 		// To add a new tab identified by code tabname1
 		// Example:
 		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@doliletter:$user->rights->doliletter->read:/doliletter/mynewtab1.php?id=__ID__');  					// To add a new tab identified by code tabname1
@@ -400,28 +437,13 @@ class modDoliLetter extends DolibarrModules {
 
 		$sql = array();
 
-		$this->tabs   = [];
-		$pictoSpread = '<i class="fas fa-check-circle"></i> ';
-        $objectsMetadata = saturne_get_objects_metadata();
+		require_once __DIR__ . '/../../lib/doliletter_linked_object.lib.php';
 
-        foreach($objectsMetadata as $objectType => $objectMetadata) {
-            // Legacy alias keys point to an entry already handled, declaring them would duplicate its tabs and hooks
-            if (!empty($objectMetadata['alias_of'])) {
-                continue;
-            }
-            if (preg_match('/_/', $objectType)) {
-                $splittedElementType = explode('_', $objectType);
-                $moduleName = $splittedElementType[0];
-                $objectName = dol_strtolower($objectMetadata['class_name']);
-                $objectType = $objectName . '@' . $moduleName;
-            } else {
-                $objectType = $objectMetadata['tab_type'];
-            }
-            $this->tabs[] = ['data' => $objectType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
-
-            $this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
-            $this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
-        }
+		// Constants must be written before _init(), which inserts the tabs the constructor computed.
+		if (getDolGlobalInt('DOLILETTER_SPREAD_LINK_BACKWARD') == 0) {
+			doliletter_run_spread_backward();
+			dolibarr_set_const($this->db, 'DOLILETTER_SPREAD_LINK_BACKWARD', 1, 'integer', 0, '', $conf->entity);
+		}
 
 		delDocumentModel('signinsheet_odt', 'signinsheet');
 		delDocumentModel('standard', 'signinsheet');
@@ -472,7 +494,12 @@ class modDoliLetter extends DolibarrModules {
             }
         }
 
-		return $this->_init($sql, $options);
+		$result = $this->_init($sql, $options);
+
+		// Replayed on a fresh descriptor, so that the constants written above are taken into account.
+		doliletter_sync_spread_objects();
+
+		return $result;
 	}
 
 	/**

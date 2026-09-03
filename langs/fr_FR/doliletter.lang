@@ -312,3 +312,17 @@ SpreadRequestedElements = Éléments demandés
 CopyLink=Copier le lien
 LinkCopiedToClipboard=Lien copié dans le presse-papiers !
 SpreadRiskMustAcknowledgeFirst        = Ce signataire doit d'abord prendre connaissance des risques : il en reste %s.
+
+# Spreadable objects
+LinkableElements                      = Éléments diffusables
+LinkedObjectUsage                     = Utilisation
+LinkedObjectUsageDetail               = %d diffusion(s)
+NoLinkedObjectUsage                   = Aucune diffusion
+DisableLinkConfirm                    = La diffusion de « %s » va être désactivée. Son onglet Diffusion disparaîtra alors que %d diffusion(s) existent déjà, elles resteront en base mais ne seront plus accessibles depuis la fiche. Confirmer ?
+EnableAllLinksConfirm                 = La diffusion va être activée sur tous les objets disponibles : l'onglet Diffusion apparaîtra sur toutes leurs fiches. Confirmer ?
+DisableAllLinksConfirm                = La diffusion va être désactivée sur tous les objets : plus aucun onglet Diffusion ne sera visible. Les diffusions existantes resteront en base. Confirmer ?
+CleanUnusedLinks                      = Réappliquer la configuration
+CleanUnusedLinksConfirm               = Les onglets et hooks vont être régénérés à partir des objets activés ci-dessus. Confirmer ?
+LinkedObjectSyncDone                  = Synchronisation effectuée : %d onglet(s), %d hook(s)
+LinkedObjectSyncError                 = La synchronisation des diffusions a échoué, aucune modification n'a été enregistrée
+ErrorSpreadObjectTypeUnknown          = Le type d'objet de cette diffusion est inconnu, signalez-le à l'entreprise qui vous a transmis le lien

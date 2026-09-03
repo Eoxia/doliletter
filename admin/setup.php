@@ -21,30 +21,27 @@
  * \brief   doliLetter setup page.
  */
 
-// Load Dolibarr environment
-$res = 0;
-// Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
-if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) $res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
-// Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
-while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) { $i--; $j--; }
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) $res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) $res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
-// Try main.inc.php using relative path
-if (!$res && file_exists("../../main.inc.php")) $res = @include "../../main.inc.php";
-if (!$res && file_exists("../../../main.inc.php")) $res = @include "../../../main.inc.php";
-if (!$res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
-if (!$res) die("Include of main fails");
+// Load DoliLetter environment
+if (file_exists('../doliletter.main.inc.php')) {
+    require_once __DIR__ . '/../doliletter.main.inc.php';
+} elseif (file_exists('../../doliletter.main.inc.php')) {
+    require_once __DIR__ . '/../../doliletter.main.inc.php';
+} else {
+    die('Include of doliletter main fails');
+}
 
-global $db, $langs, $user;
+global $conf, $db, $langs, $user;
 
 // Libraries
-require_once '../lib/doliletter.lib.php';
+require_once __DIR__ . '/../lib/doliletter.lib.php';
+require_once __DIR__ . '/../lib/doliletter_linked_object.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
 // Translations
-$langs->loadLangs(array("admin", "doliletter@doliletter"));
+// Loaded before saturne_get_objects_metadata(), which pulls the lang file of every spreadable
+// object : the first file loaded wins, and the spread wording of the shared template is ours.
+saturne_load_langs(['admin', 'doliletter@doliletter']);
 
 // Parameters
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -56,6 +53,43 @@ if (!$user->admin) accessforbidden();
 /*
  * Actions
  */
+
+// Spreadable objects actions
+if (in_array($action, ['toggle_link', 'toggle_all_links', 'clean_unused_links'])) {
+    $db->begin();
+
+    if ($action == 'toggle_link') {
+        $objectType = GETPOST('objecttype', 'aZ09');
+        $value      = GETPOSTINT('value');
+
+        $spreadableObjects = doliletter_get_spreadable_objects();
+        if (isset($spreadableObjects[$objectType])) {
+            $constName = DOLILETTER_SPREAD_LINK_CONST_PREFIX . strtoupper($objectType);
+            dolibarr_set_const($db, $constName, $value, 'integer', 0, '', $conf->entity);
+        }
+    } elseif ($action == 'toggle_all_links') {
+        $value = GETPOSTINT('value');
+
+        foreach (array_keys(doliletter_get_spreadable_objects()) as $objectType) {
+            $constName = DOLILETTER_SPREAD_LINK_CONST_PREFIX . strtoupper($objectType);
+            dolibarr_set_const($db, $constName, $value, 'integer', 0, '', $conf->entity);
+        }
+    }
+
+    // clean_unused_links has no branch of its own : realigning tabs and hooks on the constants is its whole job.
+    $report = doliletter_sync_spread_objects();
+
+    if ($report['errors'] > 0) {
+        $db->rollback();
+        setEventMessages($langs->trans('LinkedObjectSyncError'), [], 'errors');
+    } else {
+        $db->commit();
+        setEventMessage($langs->trans('LinkedObjectSyncDone', $report['tabs'], $report['hooks']));
+    }
+
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
 
 if ($action == 'save') {
 
@@ -75,7 +109,8 @@ if ($action == 'save') {
 $page_name = "DoliLetterSetup";
 $help_url  = '';
 
-llxHeader('', $langs->trans($page_name), $help_url);
+// saturne_header loads saturne.min.js, which carries the confirmation of the spread toggles
+saturne_header(0, '', $langs->trans($page_name), $help_url);
 
 // Subheader
 $linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
@@ -288,6 +323,14 @@ print '</td>';
 print '</tr>';
 
 print '</table>';
+
+// Spreadable elements, driven by the DOLILETTER_SPREAD_LINK_* constants
+$linkableObjects            = doliletter_get_spreadable_objects();
+$enabledObjectTypes         = doliletter_get_enabled_spread_object_types();
+$linkedObjectExtraFieldName = DOLILETTER_SPREAD_LINK_USAGE_KEY;
+$linkedObjectUsage          = doliletter_get_spread_usage();
+
+require_once __DIR__ . '/../../saturne/core/tpl/admin/object/linked_object_view.tpl.php';
 
 print '<hr>';
 
