@@ -135,9 +135,14 @@ $objectsMetadata[$objectType]['object']->fetch($id);
 $objectRef   = $objectsMetadata[$objectType]['object']->ref;
 $objectLabel = $objectsMetadata[$objectType]['object']->{$objectsMetadata[$objectType]['label_field']} ?? '';
 
-// Prevention plan specifics: risks, protections, required certifications + uploaded certification photos
+// Digirisk objects filled in from the mobile interfaces publish the same things: the blocks the
+// attendees must read (risks for a prevention plan, types of work for a fire permit) with their
+// protections and their site photos, plus the certifications each attendee has to provide.
 // Loaded before the actions: signing is refused while a mandatory certification has no answer.
 $isPreventionPlan     = ($objectType === 'digiriskdolibarr_preventionplan');
+$isFirePermit         = ($objectType === 'digiriskdolibarr_firepermit');
+$isDigiriskRiskObject = ($isPreventionPlan || $isFirePermit);
+$ppElement            = $isFirePermit ? 'firepermit' : 'preventionplan';
 $ppRisks              = [];
 $ppProtections        = [];
 $ppCertifications     = [];
@@ -145,14 +150,21 @@ $ppOrphanProtections  = [];
 $ppRecapProtections   = [];
 $certificationOptions = [];
 $ppCertBaseDir        = '';
-if ($isPreventionPlan) {
+$ppTexts              = [];
+if ($isDigiriskRiskObject) {
     saturne_load_langs(['digiriskdolibarr@digiriskdolibarr']);
-    dol_include_once('/digiriskdolibarr/class/preventionplan.class.php');
+    dol_include_once('/digiriskdolibarr/class/' . $ppElement . '.class.php');
     dol_include_once('/digiriskdolibarr/class/riskanalysis/risk.class.php');
     dol_include_once('/digiriskdolibarr/lib/digiriskdolibarr_mobile.lib.php');
 
     $ppObject             = $objectsMetadata[$objectType]['object'];
     $certificationOptions = digiriskGetCertificationOptions();
+
+    // Un plan de prevention parle de risques, un permis de feu de types de travaux : les libelles
+    // sont resolus ici pour que l'affichage public reste le meme d'un objet a l'autre
+    $ppTexts = $isFirePermit
+        ? ['blocks' => 'MobileFPWorkTypes', 'photos' => 'SpreadWorkTypePhotos', 'acknowledge' => 'SpreadWorkTypeAcknowledgeText', 'recap' => 'SpreadRecapWorkTypes', 'toRead' => 'SpreadWorkTypesToRead', 'remaining' => 'SpreadWorkTypesRemaining', 'objectName' => 'FirePermit']
+        : ['blocks' => 'MobilePPRisks',     'photos' => 'SpreadRiskPhotos',     'acknowledge' => 'SpreadRiskAcknowledgeText',     'recap' => 'SpreadRecapRisks',     'toRead' => 'SpreadRisksToRead',     'remaining' => 'SpreadRisksRemaining',     'objectName' => 'PreventionPlan'];
 
     // Protections + certifications from the extrafields
     $ppObject->fetch_optionals();
@@ -171,14 +183,14 @@ if ($isPreventionPlan) {
         }
     }
 
-    // Risks (prevention plan lines), each carrying the protections that apply to it and the
-    // photos taken on site from the mobile interface
-    $ppLine  = new PreventionPlanLine($db);
+    // Lines of the object, each carrying the protections that apply to it and the photos taken on
+    // site from the mobile interface
+    $ppLine  = $isFirePermit ? new FirePermitLine($db) : new PreventionPlanLine($db);
     $ppRisk  = new Risk($db);
-    $ppLines = $ppLine->fetchAll('', '', 0, 0, ['fk_preventionplan' => $ppObject->id]);
+    $ppLines = $ppLine->fetchAll('', '', 0, 0, ['fk_' . $ppElement => $ppObject->id]);
     if (is_array($ppLines)) {
         foreach ($ppLines as $ppLineItem) {
-            $thumb        = $ppRisk->getDangerCategory($ppLineItem);
+            $thumb        = $isFirePermit ? $ppRisk->getFirePermitDangerCategory($ppLineItem) : $ppRisk->getDangerCategory($ppLineItem);
             $riskCategory = (int) $ppLineItem->category;
 
             $riskProtections = [];
@@ -196,8 +208,8 @@ if ($isPreventionPlan) {
             // Public page: the photos go through the Saturne image wrapper, document.php would
             // ask the anonymous visitor to log in
             $riskPhotos    = [];
-            $riskPhotoDir  = digiriskMobileRiskPhotoDir('preventionplan', $ppObject->ref, $riskCategory);
-            $riskPhotoPath = 'preventionplan/' . dol_sanitizeFileName($ppObject->ref) . '/risks/' . $riskCategory . '/';
+            $riskPhotoDir  = digiriskMobileRiskPhotoDir($ppElement, $ppObject->ref, $riskCategory);
+            $riskPhotoPath = $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/risks/' . $riskCategory . '/';
             if (dol_is_dir($riskPhotoDir)) {
                 foreach (dol_dir_list($riskPhotoDir, 'files', 0, '', '(\.meta|_preview.*\.png)$', 'name') as $riskPhotoFile) {
                     $riskPhotos[] = DOL_URL_ROOT . '/custom/saturne/utils/viewimage.php?modulepart=digiriskdolibarr&entity=' . $conf->entity . '&file=' . urlencode($riskPhotoPath . $riskPhotoFile['name']);
@@ -206,9 +218,11 @@ if ($isPreventionPlan) {
 
             $ppRisks[] = [
                 'category'    => $riskCategory,
-                'thumb'       => ($thumb != -1) ? DOL_URL_ROOT . '/custom/digiriskdolibarr/img/categorieDangers/' . $thumb . '.png' : '',
-                'name'        => $ppRisk->getDangerCategoryName($ppLineItem),
+                'thumb'       => ($thumb != -1) ? DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . ($isFirePermit ? 'typeDeTravaux' : 'categorieDangers') . '/' . $thumb . '.png' : '',
+                'name'        => $isFirePermit ? $ppRisk->getFirePermitDangerCategoryName($ppLineItem) : $ppRisk->getDangerCategoryName($ppLineItem),
                 'comment'     => $ppLineItem->description,
+                // Le materiel employe est ce qui fait le travail par point chaud : il se lit avec le type de travaux
+                'equipment'   => $isFirePermit ? (string) $ppLineItem->used_equipment : '',
                 'protections' => $riskProtections,
                 'photos'      => $riskPhotos,
             ];
@@ -241,7 +255,7 @@ if ($isPreventionPlan) {
 
     // Base directory of uploaded certification photos, same resolution as saturne_render_media_block()
     $ppUploadBase  = !empty($conf->digiriskdolibarr->dir_output) ? $conf->digiriskdolibarr->dir_output : $conf->ecm->dir_output . '/digiriskdolibarr';
-    $ppCertBaseDir = $ppUploadBase . '/preventionplan/' . dol_sanitizeFileName($ppObject->ref) . '/certifications';
+    $ppCertBaseDir = $ppUploadBase . '/' . $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/certifications';
 }
 
 // Signatory the ?sign= token points to, resolved before the actions so a visitor can only answer for themselves
@@ -352,7 +366,7 @@ if ($action == 'register_public_signatory') {
         }
 
         // Handle temporary Saturne uploads (from stateless registration)
-        if ($tmpSignatoryId && str_starts_with($tmpSignatoryId, 'tmp_') && $isPreventionPlan) {
+        if ($tmpSignatoryId && str_starts_with($tmpSignatoryId, 'tmp_') && $isDigiriskRiskObject) {
             require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
             
             // Apply not concerned statuses
@@ -500,7 +514,7 @@ if ($action == 'validate_signature') {
 
         // Risks read on the page and sent with the signature: a visitor signing from the attendee
         // table has no ?sign= link, nothing could be recorded while they were ticking the blocks
-        if ($isPreventionPlan && !empty($ppRisks) && !empty($data['acknowledged_risks']) && is_array($data['acknowledged_risks'])) {
+        if ($isDigiriskRiskObject && !empty($ppRisks) && !empty($data['acknowledged_risks']) && is_array($data['acknowledged_risks'])) {
             $knownRiskCategories = array_map('intval', array_column($ppRisks, 'category'));
             foreach ($data['acknowledged_risks'] as $acknowledgedRisk) {
                 if (in_array((int) $acknowledgedRisk, $knownRiskCategories, true)) {
@@ -510,7 +524,7 @@ if ($action == 'validate_signature') {
         }
 
         // Every risk must have been acknowledged before signing
-        if ($isPreventionPlan && !empty($ppRisks)) {
+        if ($isDigiriskRiskObject && !empty($ppRisks)) {
             $pendingRisks = doliletter_spread_get_pending_risks($ppRisks, doliletter_spread_get_acknowledged_risks($signatory));
             if (!empty($pendingRisks)) {
                 echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorRisksNotAcknowledged', implode(', ', array_column($pendingRisks, 'name')))) . '">';
@@ -519,7 +533,7 @@ if ($action == 'validate_signature') {
         }
 
         // Mandatory documents must be either uploaded or declared not applicable before signing
-        if ($isPreventionPlan && !empty($ppCertifications)) {
+        if ($isDigiriskRiskObject && !empty($ppCertifications)) {
             $certificationStates   = doliletter_spread_get_certification_states($ppCertifications, $certificationOptions, $ppCertBaseDir, $signatory->id, doliletter_spread_get_not_concerned_certifications($signatory));
             $pendingCertifications = doliletter_spread_get_pending_certifications($certificationStates);
             if (!empty($pendingCertifications)) {
@@ -787,7 +801,7 @@ uasort($signatories, function($a, $b) {
 // Certification answers of each signatory: uploaded photo or "not concerned" declaration
 $ppCertificationStates   = [];
 $ppPendingCertifications = [];
-if ($isPreventionPlan && !empty($ppCertifications)) {
+if ($isDigiriskRiskObject && !empty($ppCertifications)) {
     $certificationSignatories = $signatories;
     if (!empty($signSignatory)) {
         $certificationSignatories[$signSignatory->id] = $signSignatory;
@@ -804,7 +818,7 @@ if ($isPreventionPlan && !empty($ppCertifications)) {
 
 // Risks the identified visitor has already taken note of, so a reload does not undo their reading
 $ppAcknowledgedRisks = (!empty($signSignatory)) ? doliletter_spread_get_acknowledged_risks($signSignatory) : [];
-$ppPendingRisks      = ($isPreventionPlan && !empty($signSignatory)) ? doliletter_spread_get_pending_risks($ppRisks, $ppAcknowledgedRisks) : [];
+$ppPendingRisks      = ($isDigiriskRiskObject && !empty($signSignatory)) ? doliletter_spread_get_pending_risks($ppRisks, $ppAcknowledgedRisks) : [];
 
 /*
  * View
@@ -821,7 +835,7 @@ saturne_header(0, '', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card')
 require_once __DIR__ . '/../../core/tpl/spread/public_spread_view.tpl.php';
 
 // Photo editor modal required by the Saturne media blocks (mediaBlock.js -> saturne.photoEditor.openFile)
-if ($isPreventionPlan) {
+if ($isDigiriskRiskObject) {
     include dol_buildpath('/saturne/core/tpl/medias/photo_editor_modal.tpl.php');
 }
 

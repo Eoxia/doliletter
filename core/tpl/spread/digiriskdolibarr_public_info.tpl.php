@@ -16,13 +16,16 @@
  */
 
 /**
- * \file    core/tpl/spread/preventionplan_public_info.tpl.php
+ * \file    core/tpl/spread/digiriskdolibarr_public_info.tpl.php
  * \ingroup doliletter
- * \brief   Read-only public display of a prevention plan: one block per risk, holding its picto,
- *          its description, the protections that apply to it and a carousel of the photos taken on site.
+ * \brief   Read-only public display of a Digirisk object filled in from the mobile interfaces:
+ *          one block per risk (prevention plan) or per type of work (fire permit), holding its picto,
+ *          its description, the equipment used, the protections that apply to it and a carousel of
+ *          the photos taken on site.
  *          Certification photos are uploaded per signatory (Saturne media block) in the signatories list.
  *          Each block ends with an acknowledgement the visitor must give before being able to sign.
- *          Expects: $langs, $ppRisks, $ppOrphanProtections, $signSignatory, $ppAcknowledgedRisks.
+ *          Expects: $langs, $ppRisks, $ppOrphanProtections, $ppRecapProtections, $ppTexts,
+ *                   $signSignatory, $ppAcknowledgedRisks.
  */
 ?>
 <style>
@@ -42,6 +45,9 @@
 /* Reste en haut a droite du bloc, quelle que soit la hauteur du nom et de la description */
 .pp-risk-block__step { flex: 0 0 auto; align-self: flex-start; margin-left: auto; padding: 3px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; }
 .pp-risk-block__comment { margin-top: 4px; font-size: 13px; color: #666; white-space: pre-line; }
+/* Permis de feu : le materiel employe se lit avec le type de travaux */
+.pp-risk-block__equipment { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; color: #4b5563; }
+.pp-risk-block__equipment i { color: #3b82f6; }
 .pp-risk-block__section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
 .pp-risk-block__label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 .pp-risk-block__label i { color: #3b82f6; }
@@ -142,6 +148,7 @@
             <div>
                 <div class="pp-risk-block__name"><?php echo dol_escape_htmltag(($ppRiskItem['name'] != -1) ? $ppRiskItem['name'] : ''); ?></div>
                 <?php if (dol_strlen($ppRiskItem['comment'])) { ?><div class="pp-risk-block__comment"><?php echo dol_escape_htmltag($ppRiskItem['comment']); ?></div><?php } ?>
+                <?php if (!empty($ppRiskItem['equipment'])) { ?><div class="pp-risk-block__equipment"><i class="fas fa-tools"></i> <?php echo $langs->trans('SpreadWorkTypeUsedEquipment'); ?> : <?php echo dol_escape_htmltag($ppRiskItem['equipment']); ?></div><?php } ?>
             </div>
             <span class="pp-risk-block__step"><?php echo $langs->trans('SpreadRiskStep', $ppRiskIndex + 1, count($ppRisks)); ?></span>
         </div>
@@ -161,7 +168,7 @@
 
         <?php if (!empty($ppRiskItem['photos'])) { ?>
         <div class="pp-risk-block__section">
-            <div class="pp-risk-block__label"><i class="fas fa-camera"></i> <?php echo $langs->trans('SpreadRiskPhotos'); ?></div>
+            <div class="pp-risk-block__label"><i class="fas fa-camera"></i> <?php echo $langs->trans($ppTexts['photos']); ?></div>
             <div class="pp-carousel <?php echo (count($ppRiskItem['photos']) < 2) ? 'pp-carousel--single' : ''; ?>" data-carousel="<?php echo (int) $ppRiskIndex; ?>">
                 <div class="pp-carousel__track">
                     <?php foreach ($ppRiskItem['photos'] as $ppRiskPhoto) { ?>
@@ -186,7 +193,7 @@
         $riskAcknowledged = in_array((int) $ppRiskItem['category'], $ppAcknowledgedRisks, true);
         ?>
         <div class="pp-risk-ack <?php echo $riskAcknowledged ? 'pp-risk-ack--done' : ''; ?>" data-risk-index="<?php echo (int) $ppRiskIndex; ?>" data-risk-category="<?php echo (int) $ppRiskItem['category']; ?>" data-photos="<?php echo count($ppRiskItem['photos']); ?>">
-            <span class="pp-risk-ack__text"><?php echo $langs->trans('SpreadRiskAcknowledgeText'); ?></span>
+            <span class="pp-risk-ack__text"><?php echo $langs->trans($ppTexts['acknowledge']); ?></span>
             <input type="checkbox" class="pp-risk-ack__input" title="<?php echo dol_escape_htmltag($langs->trans('SpreadRiskAcknowledgeButton')); ?>"<?php echo $riskAcknowledged ? ' checked' : ''; ?>>
             <span class="pp-risk-ack__hint"><i class="fas fa-images"></i> <?php echo $langs->trans('SpreadRiskSeeAllPhotos'); ?></span>
         </div>
@@ -212,7 +219,7 @@
     if (!empty($ppRisks)) { ?>
     <div class="pp-public-block">
         <div class="pp-public-block__title"><i class="fas fa-clipboard-list"></i> <?php echo $langs->trans('SpreadRecapTitle'); ?></div>
-        <div class="pp-risk-block__label"><i class="fas fa-exclamation-triangle"></i> <?php echo $langs->trans('SpreadRecapRisks'); ?></div>
+        <div class="pp-risk-block__label"><i class="fas fa-exclamation-triangle"></i> <?php echo $langs->trans($ppTexts['recap']); ?></div>
         <div class="pp-recap__line pp-recap__line--risks">
             <?php foreach ($ppRisks as $ppRecapRisk) {
                 if (empty($ppRecapRisk['thumb'])) {
