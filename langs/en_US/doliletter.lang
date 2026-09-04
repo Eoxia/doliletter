@@ -146,3 +146,19 @@ CleanUnusedLinksConfirm               = Tabs and hooks are about to be rebuilt f
 LinkedObjectSyncDone                  = Synchronisation done: %d tab(s), %d hook(s)
 LinkedObjectSyncError                 = Spread synchronisation failed, no change has been saved
 ErrorSpreadObjectTypeUnknown          = The object type of this spread is unknown, report it to the company that sent you the link
+
+# Fire permit spread - Digirisk issue #5042
+SpreadWorkTypePhotos = Work photos
+SpreadWorkTypeUsedEquipment = Equipment used
+SpreadWorkTypeAcknowledgeText = I have taken note of this work, of the protections to wear and of the site photos.
+SpreadRecapWorkTypes = Planned work
+SpreadRisksToRead = Before you can sign, you must take note of the %s risks listed below.
+SpreadWorkTypesToRead = Before you can sign, you must take note of the %s types of work listed below.
+SpreadRisksRemaining = Risks left:
+SpreadWorkTypesRemaining = Work left:
+SpreadRegisteredOnObject = You have just registered as an attendee on this %s:
+SpreadViewingObject = You are viewing this %s:
+SpreadObjectSignedTitle = %s signed!
+SpreadObjectSignedText = The attendee signed the %s, acknowledging the risk analysis and providing every requested element.
+SpreadSeeObject = See the %s
+SpreadNextStepFollowObject = Consult and follow<br>the %s

@@ -46,7 +46,7 @@
         <?php echo $langs->trans('SpreadPublicRegister'); ?>
     </h3>
     <p class="public-register__intro"><?php echo $langs->trans('SpreadPublicRegisterInfo'); ?></p>
-      <?php if (!empty($isPreventionPlan) && !empty($ppCertifications) && is_array($ppCertifications)) {
+      <?php if (!empty($isDigiriskRiskObject) && !empty($ppCertifications) && is_array($ppCertifications)) {
           $tmpCertSignatoryId = '';
           // If Saturne is doing an AJAX refresh, it either posts form data (uploadPhoto) or JSON (addFiles)
           $subdirToCheck = '';
@@ -85,7 +85,7 @@
         print '<div class="pp-signatory-media-row__label" style="font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;"><i class="fas fa-id-badge"></i> ' . ($langs->transnoentitiesnoconv('SpreadRequestedElements') ?: 'Éléments demandés') . '</div>';
         
         $certSignatoryId = $tmpCertSignatoryId;
-        require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
+        require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
         
         print '</div>';
     } ?>

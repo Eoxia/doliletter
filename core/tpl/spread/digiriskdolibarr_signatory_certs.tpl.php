@@ -16,18 +16,20 @@
  */
 
 /**
- * \file    core/tpl/spread/preventionplan_signatory_certs.tpl.php
+ * \file    core/tpl/spread/digiriskdolibarr_signatory_certs.tpl.php
  * \ingroup doliletter
  * \brief   One Saturne media block per required certification (document) for a given signatory.
  *          A mandatory certification can be waived by declaring the signatory is not concerned by it.
- *          Expects: $isLogged, $langs, $objectRef, $certSignatoryId, $ppCertifications, $certificationOptions, $ppCertificationStates.
+ *          Expects: $isLogged, $langs, $objectRef, $ppElement, $certSignatoryId, $ppCertifications,
+ *                   $certificationOptions, $ppCertificationStates.
  */
 
 if (!empty($ppCertifications)) { ?>
 <div class="pp-cert-uploads">
     <?php foreach ($ppCertificationStates[$certSignatoryId] ?? [] as $certState) {
         $certCode     = $certState['code'];
-        $certSubDir   = 'preventionplan/' . dol_sanitizeFileName($objectRef) . '/certifications/' . (is_string($certSignatoryId) && str_starts_with($certSignatoryId, 'tmp_') ? dol_sanitizeFileName($certSignatoryId) : (int) $certSignatoryId) . '/' . dol_sanitizeFileName($certCode);
+        // Meme arborescence que $ppCertBaseDir : le repertoire porte l'element de l'objet diffuse
+        $certSubDir   = $ppElement . '/' . dol_sanitizeFileName($objectRef) . '/certifications/' . (is_string($certSignatoryId) && str_starts_with($certSignatoryId, 'tmp_') ? dol_sanitizeFileName($certSignatoryId) : (int) $certSignatoryId) . '/' . dol_sanitizeFileName($certCode);
         $notConcerned = !empty($certState['not_concerned']);
     ?>
     <div class="pp-cert-upload<?php echo $notConcerned ? ' pp-cert-upload--not-concerned' : ''; ?>" data-cert-code="<?php echo dol_escape_htmltag($certCode); ?>" data-cert-signatory-id="<?php echo dol_escape_htmltag($certSignatoryId); ?>">

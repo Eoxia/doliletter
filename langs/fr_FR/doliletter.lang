@@ -326,3 +326,19 @@ CleanUnusedLinksConfirm               = Les onglets et hooks vont être régén�
 LinkedObjectSyncDone                  = Synchronisation effectuée : %d onglet(s), %d hook(s)
 LinkedObjectSyncError                 = La synchronisation des diffusions a échoué, aucune modification n'a été enregistrée
 ErrorSpreadObjectTypeUnknown          = Le type d'objet de cette diffusion est inconnu, signalez-le à l'entreprise qui vous a transmis le lien
+
+# Diffusion d'un permis de feu - issue Digirisk #5042
+SpreadWorkTypePhotos                  = Photos des travaux
+SpreadWorkTypeUsedEquipment           = Matériel utilisé
+SpreadWorkTypeAcknowledgeText         = J'ai pris connaissance de ces travaux, des protections à porter et des photos du site.
+SpreadRecapWorkTypes                  = Travaux prévus
+SpreadRisksToRead                     = Afin que vous puissiez le signer il faut prendre connaissance des %s risques notés ci-dessous.
+SpreadWorkTypesToRead                 = Afin que vous puissiez le signer il faut prendre connaissance des %s types de travaux notés ci-dessous.
+SpreadRisksRemaining                  = Risques restants :
+SpreadWorkTypesRemaining              = Travaux restants :
+SpreadRegisteredOnObject              = Vous venez de vous inscrire en tant qu'intervenant sur ce %s :
+SpreadViewingObject                   = Vous consultez ce %s :
+SpreadObjectSignedTitle               = %s signé !
+SpreadObjectSignedText                = L'intervenant a signé le %s en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
+SpreadSeeObject                       = Voir le %s
+SpreadNextStepFollowObject            = Consulter et suivre<br>le %s

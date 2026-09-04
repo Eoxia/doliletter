@@ -69,14 +69,14 @@ $spreadLogoUrl = dol_strlen($spreadLogoFile)
 $spreadCardUrl   = '';
 $spreadMobileUrl = '';
 if ($isLogged && !empty($objectsMetadata[$objectType]['create_url'])) {
-    // If it's a prevention plan and it's locked, don't allow editing
-    $isLocked = (!empty($isPreventionPlan) && isset($ppObject) && $ppObject->status == PreventionPlan::STATUS_LOCKED);
-    
+    // Un plan de prevention ou un permis de feu verrouille ne se modifie plus
+    $isLocked = (!empty($isDigiriskRiskObject) && isset($ppObject) && $ppObject->status == $ppObject::STATUS_LOCKED);
+
     if (!$isLocked) {
         $spreadCardUrl = dol_buildpath(str_replace('?action=create', '', $objectsMetadata[$objectType]['create_url']), 1) . '?id=' . $id;
 
-        if (!empty($isPreventionPlan)) {
-            $spreadMobileUrl = dol_buildpath('/custom/digiriskdolibarr/view/preventionplan/preventionplan_mobile_create.php', 1) . '?id=' . $id;
+        if (!empty($isDigiriskRiskObject)) {
+            $spreadMobileUrl = dol_buildpath('/custom/digiriskdolibarr/view/' . $ppElement . '/' . $ppElement . '_mobile_create.php', 1) . '?id=' . $id;
         }
     }
 }
@@ -785,7 +785,10 @@ body {
 </style>
 
 <?php
-$isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) && $signSignatory->status == DoliletterSpreadSignature::STATUS_SIGNED);
+$isSignedPreventionPlan = (!empty($isDigiriskRiskObject) && !empty($signSignatory) && $signSignatory->status == DoliletterSpreadSignature::STATUS_SIGNED);
+
+// Le libelle de l'objet suit ce qui est diffuse : plan de prevention ou permis de feu
+$spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->transnoentities($ppTexts['objectName'])) : '';
 ?>
 <div class="public-card__container" data-public-interface="true">
 
@@ -857,13 +860,13 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                 
                 <!-- Title and Desc on the right -->
                 <div style="text-align: left; flex: 1;">
-                    <h1 style="font-size: 32px; color: #0f172a; margin: 0 0 12px 0; font-weight: 700; font-family: inherit;">Plan de prévention signé !</h1>
+                    <h1 style="font-size: 32px; color: #0f172a; margin: 0 0 12px 0; font-weight: 700; font-family: inherit;"><?php echo $langs->trans('SpreadObjectSignedTitle', dol_ucfirst($spreadObjectName)); ?></h1>
                     <div style="font-size: 18px; color: #475569; margin-bottom: 12px; display: flex; align-items: center;">
                         <i class="far fa-file-alt" style="margin-right: 12px; font-size: 22px; color: #94a3b8;"></i>
                         <?php echo dol_escape_htmltag($objectRef . (!empty($objectLabel) ? ' - ' . $objectLabel : '')); ?>
                     </div>
                     <p style="font-size: 15px; color: #475569; margin: 0; line-height: 1.6; max-width: 600px;">
-                        L'intervenant a signé le plan de prévention en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
+                        <?php echo $langs->trans('SpreadObjectSignedText', $spreadObjectName); ?>
                     </p>
                 </div>
             </div>
@@ -928,7 +931,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                     
                     <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
                         <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #2563eb; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: #eff6ff;"><i class="fas fa-file-alt"></i></div>
-                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Consulter et suivre<br>le plan de prévention</div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;"><?php echo $langs->trans('SpreadNextStepFollowObject', $spreadObjectName); ?></div>
                     </div>
                     <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
                     
@@ -948,7 +951,7 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             <!-- Actions -->
             <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
                 <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="font-size: 15px; padding: 12px 28px; border: 1px solid #1e40af; color: #1e40af; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
-                    <i class="far fa-file-alt" style="margin-right: 10px; font-size: 18px;"></i> Voir le plan de prévention
+                    <i class="far fa-file-alt" style="margin-right: 10px; font-size: 18px;"></i> <?php echo $langs->trans('SpreadSeeObject', $spreadObjectName); ?>
                 </a>
                 
                 <a href="<?php echo $registerUrl; ?>" style="font-size: 15px; padding: 12px 28px; background: #0135b6; border: none; color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(1, 53, 182, 0.3);">
@@ -1023,19 +1026,19 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             
             <?php if (empty($signSignatory->signature)) { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
-                Vous venez de vous inscrire en temps d'intervenant sur plan de prévention :<br>
+                <?php echo $langs->trans('SpreadRegisteredOnObject', $spreadObjectName); ?><br>
                 <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
             </p>
                 <?php if (!empty($ppRisks)) { ?>
                 <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>" style="font-size: 15px; color: #b91c1c; background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 15px;">
                     <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
-                    Afin que vous puissiez le signer il faut prendre connaissance des <?php echo count($ppRisks); ?> risques notés ci-dessous.<br>
-                    <span style="display: block; margin-top: 8px; font-weight: 600;">Risques restants : <span class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></span>/<?php echo count($ppRisks); ?></span>
+                    <?php echo $langs->trans($ppTexts['toRead'], count($ppRisks)); ?><br>
+                    <span style="display: block; margin-top: 8px; font-weight: 600;"><?php echo $langs->trans($ppTexts['remaining']); ?> <span class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></span>/<?php echo count($ppRisks); ?></span>
                 </div>
                 <?php } ?>
             <?php } else { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
-                Vous consultez le plan de prévention :<br>
+                <?php echo $langs->trans('SpreadViewingObject', $spreadObjectName); ?><br>
                 <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
             </p>
             <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
@@ -1159,11 +1162,11 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
                             </div>
                     <?php
                     // Prevention plan:                    // Prevention plan: one photo per required certification (document) for this signatory
-                    if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
+                    if (!empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
                         print '<div class="pp-signatory-media-row" style="border-top: 1px dashed #e5e5e5; margin-top: 10px; padding-top: 10px;">';
                         print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> Envoyer les éléments demandés</div>';
                         $certSignatoryId = $signatoryItem->id;
-                        require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
+                        require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
                         print '</div>';
                     }
                     ?>
@@ -1184,9 +1187,9 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             <?php if (!empty($signSignatory)) { ?>
             <!-- Single-person view: only this signatory's signature + their certification photos -->
             <div class="pp-single-person">
-                <?php if (!empty($isPreventionPlan) && !empty($ppCertifications)) {
+                <?php if (!empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
                     $certSignatoryId = $signSignatory->id;
-                    require __DIR__ . '/preventionplan_signatory_certs.tpl.php';
+                    require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
                 } ?>
 
                 <?php if (empty($signSignatory->signature) && !empty($ppPendingCertifications)) { ?>
@@ -1275,8 +1278,8 @@ $isSignedPreventionPlan = (!empty($isPreventionPlan) && !empty($signSignatory) &
             </div>
             <?php } ?>
 
-            <?php if (!empty($isPreventionPlan)) {
-                require __DIR__ . '/preventionplan_public_info.tpl.php';
+            <?php if (!empty($isDigiriskRiskObject)) {
+                require __DIR__ . '/digiriskdolibarr_public_info.tpl.php';
             } ?>
 
             <div id="bottomSignBtnPlaceholder" style="text-align: right; margin-top: 15px; margin-bottom: 30px;"></div>
