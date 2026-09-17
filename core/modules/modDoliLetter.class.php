@@ -230,7 +230,10 @@ class modDoliLetter extends DolibarrModules {
 			// Name of columns with primary key (try to always name it 'rowid')
 			'tabrowid'=>array("rowid", "rowid"),
 			// Condition to show each dictionary
-			'tabcond'=>array($conf->doliletter->enabled, $conf->doliletter->enabled, $conf->doliletter->enabled),
+			// Une entree par dictionnaire declare dans tabname : une entree de plus et
+			// complete_dictionary_with_modules() cherche un nom de table inexistant, ce qui
+			// affiche un warning PHP avant les en-tetes sur la page Dictionnaires
+			'tabcond'=>array($conf->doliletter->enabled, $conf->doliletter->enabled),
 		);
 		/* Example:
 		$this->dictionaries=array(
