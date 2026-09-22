@@ -90,6 +90,8 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 	{
 		global $user, $langs, $conf, $mysoc, $db, $hookmanager;
 
+        $moreParam = self::getMoreParam($objectDocument, $moreParam);
+
         $object = $moreParam['object'];
         if (empty($object->ref)) $object->ref = 'SPECIMEN';
         if (empty($object->id)) $object->id = 0;
