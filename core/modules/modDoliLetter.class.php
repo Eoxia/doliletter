@@ -56,7 +56,7 @@ class modDoliLetter extends DolibarrModules {
 		$this->descriptionlong = $langs->trans('DoliLetterDescriptionLong');
 		$this->editor_name     = 'Eoxia';
 		$this->editor_url      = 'https://eoxia.com/';
-		$this->version         = '23.0.0';
+		$this->version         = '23.1.0';
 		$this->const_name      = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto           = 'doliletter256px@doliletter';
 
@@ -86,7 +86,8 @@ class modDoliLetter extends DolibarrModules {
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			'hooks' => array(
 				'main',
-				'mainloginpage'
+				'mainloginpage',
+                'doliletteradmindocuments'
 			),
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -133,12 +134,16 @@ class modDoliLetter extends DolibarrModules {
 			$i++ => array('DOLILETTER_TRACKINGNUMBER_ADDON_PDF','chaine', 'nerio' ,'', $conf->entity),
 
 			// CONST SIGNIN SHEET
+			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_ADDON_PDF', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
+			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_DEFAULT_MODEL', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLILETTER_SPREAD_SHOW_SIGNATURE', 'integer', 1, '', 0, 'current'],
+            $i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_KIKELA_ADDON', 'chaine', 'FE{yy}{mm}-{0000}', '', 0, 'current'],
 
 			$i++ => ['DOLILETTER_SPREAD_QUICK_SIGN', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLILETTER_SPREAD_PUBLIC_REGISTER', 'integer', 1, '', 0, 'current'],
 
 			// Globals CONST
             $i++ => ['DOLILETTER_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
@@ -161,6 +166,43 @@ class modDoliLetter extends DolibarrModules {
 			$this->tabs[] = array('data'=>'order:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=order');
 			$this->tabs[] = array('data'=>'invoice:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=facture');  	  	// To add a new tab identified by code tabname1
 			$this->tabs[] = array('data'=>'contact:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=contact');  	  	// To add a new tab identified by code tabname1
+		// The Diffusion tabs are the only ones the module installs : the reset keeps the envelope
+		// tabs declared above out of the database, exactly as init() did before this block moved here.
+		$this->tabs  = [];
+		$pictoSpread = '<i class="fas fa-check-circle"></i> ';
+
+		// Tabs and hooks are declared for the enabled spreads only, they are driven from admin/setup.php
+		dol_include_once('/saturne/lib/object.lib.php');
+		dol_include_once('/saturne/lib/linked_object.lib.php');
+
+		$spreadableObjects = [];
+		if (function_exists('saturne_get_objects_metadata') && function_exists('saturne_filter_linkable_objects')) {
+			$spreadableObjects = saturne_filter_linkable_objects(saturne_get_objects_metadata(), ['doliletter_']);
+		}
+
+		$enabledObjectTypes = [];
+		if (function_exists('saturne_get_enabled_linked_object_types')) {
+			$enabledObjectTypes = saturne_get_enabled_linked_object_types($spreadableObjects, 'DOLILETTER_SPREAD_LINK_');
+		}
+
+		foreach ($enabledObjectTypes as $objectType) {
+			$objectMetadata = $spreadableObjects[$objectType];
+
+			if (preg_match('/_/', $objectType)) {
+				$splittedElementType = explode('_', $objectType);
+				$moduleName = $splittedElementType[0];
+				$objectName = dol_strtolower($objectMetadata['class_name']);
+				$tabType    = $objectName . '@' . $moduleName;
+			} else {
+				$tabType = $objectMetadata['tab_type'];
+			}
+
+			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+
+			$this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
+			$this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
+		}
+
 		// To add a new tab identified by code tabname1
 		// Example:
 		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@doliletter:$user->rights->doliletter->read:/doliletter/mynewtab1.php?id=__ID__');  					// To add a new tab identified by code tabname1
@@ -188,7 +230,10 @@ class modDoliLetter extends DolibarrModules {
 			// Name of columns with primary key (try to always name it 'rowid')
 			'tabrowid'=>array("rowid", "rowid"),
 			// Condition to show each dictionary
-			'tabcond'=>array($conf->doliletter->enabled, $conf->doliletter->enabled, $conf->doliletter->enabled),
+			// Une entree par dictionnaire declare dans tabname : une entree de plus et
+			// complete_dictionary_with_modules() cherche un nom de table inexistant, ce qui
+			// affiche un warning PHP avant les en-tetes sur la page Dictionnaires
+			'tabcond'=>array($conf->doliletter->enabled, $conf->doliletter->enabled),
 		);
 		/* Example:
 		$this->dictionaries=array(
@@ -221,54 +266,64 @@ class modDoliLetter extends DolibarrModules {
 		$this->cronjobs = array();
 
 		// Permissions provided by this module
+		//
+		// L'identifiant de chaque droit est ecrit en dur, il n'est plus deduit du rang.
+		// A la desactivation, DolibarrModules::delete_permissions() efface toutes les lignes
+		// de llx_rights_def du module, et la reactivation les recree depuis ce descripteur.
+		// llx_user_rights et llx_usergroup_rights, eux, ne sont pas touches : ils continuent
+		// de pointer sur les anciens identifiants. Un droit insere ailleurs qu'en fin de liste
+		// decalait donc tous les suivants, et un utilisateur qui detenait envelope/read se
+		// retrouvait avec ce que le code appelle autre chose. Les identifiants ci-dessous
+		// reprennent la numerotation historique ; 05 et 06, occupes par d'anciens doublons,
+		// restent libres. Tout nouveau droit se pose a la suite, jamais au milieu.
 		$this->rights = [];
 		$r = 0;
 
-		/* Doliletter PERMISSIONS */
-		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->trans('LireModule', 'Doliletter');
-		$this->rights[$r][4] = 'lire';
-		$this->rights[$r][5] = 1;
-		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->trans('ReadModule', 'Doliletter');
-		$this->rights[$r][4] = 'read';
-		$this->rights[$r][5] = 1;
-		$r++;
-
 		/* DoliLetter PERMISSIONS */
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '01';
 		$this->rights[$r][1] = $langs->trans('ReadEnvelope');
 		$this->rights[$r][4] = 'envelope';
 		$this->rights[$r][5] = 'read';
 		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '02';
 		$this->rights[$r][1] = $langs->trans('CreateEnvelope');
 		$this->rights[$r][4] = 'envelope';
 		$this->rights[$r][5] = 'write';
 		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '03';
 		$this->rights[$r][1] = $langs->trans('DeleteEnvelope');
 		$this->rights[$r][4] = 'envelope';
 		$this->rights[$r][5] = 'delete';
 		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '04';
 		$this->rights[$r][1] = $langs->trans('ReadAdminPage');
 		$this->rights[$r][4] = 'adminpage';
 		$this->rights[$r][5] = 'read';
 		$r++;
 
 		/* Manage public spreading PERMISSIONS */
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '07';
 		$this->rights[$r][1] = $langs->trans('ManageUserSpread');
 		$this->rights[$r][4] = 'spread';
 		$this->rights[$r][5] = 'write';
 		$r++;
 
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '08';
 		$this->rights[$r][1] = $langs->trans('ShowSpreadSignature');
 		$this->rights[$r][4] = 'spreadsignature';
 		$this->rights[$r][5] = 'read';
+		$r++;
+
+		/* Doliletter PERMISSIONS */
+		$this->rights[$r][0] = $this->numero . '09';
+		$this->rights[$r][1] = $langs->trans('LireModule', 'Doliletter');
+		$this->rights[$r][4] = 'lire';
+		$this->rights[$r][5] = 1;
+		$r++;
+		$this->rights[$r][0] = $this->numero . '10';
+		$this->rights[$r][1] = $langs->trans('ReadModule', 'Doliletter');
+		$this->rights[$r][4] = 'read';
+		$this->rights[$r][5] = 1;
 		$r++;
 
 		// Main menu entries to add
@@ -395,34 +450,28 @@ class modDoliLetter extends DolibarrModules {
 
 		$sql = array();
 
-		$this->tabs   = [];
-		$pictoSpread = '<i class="fas fa-check-circle"></i> ';
-        $objectsMetadata = saturne_get_objects_metadata();
+		require_once __DIR__ . '/../../lib/doliletter_linked_object.lib.php';
 
-        foreach($objectsMetadata as $objectType => $objectMetadata) {
-            if (preg_match('/_/', $objectType)) {
-                $splittedElementType = explode('_', $objectType);
-                $moduleName = $splittedElementType[0];
-                $objectName = dol_strtolower($objectMetadata['class_name']);
-                $objectType = $objectName . '@' . $moduleName;
-            } else {
-                $objectType = $objectMetadata['tab_type'];
-            }
-            $this->tabs[] = ['data' => $objectType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
-
-            $this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
-            $this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
-        }
+		// Constants must be written before _init(), which inserts the tabs the constructor computed.
+		if (getDolGlobalInt('DOLILETTER_SPREAD_LINK_BACKWARD') == 0) {
+			doliletter_run_spread_backward();
+			dolibarr_set_const($this->db, 'DOLILETTER_SPREAD_LINK_BACKWARD', 1, 'integer', 0, '', $conf->entity);
+		}
 
 		delDocumentModel('signinsheet_odt', 'signinsheet');
+		delDocumentModel('standard', 'signinsheet');
+		delDocumentModel('FE_Doliletter', 'signinsheetdocument');
+		delDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheetdocument');
 
 		addDocumentModel('signinsheet_odt', 'signinsheet', 'ODT templates', 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH');
+		addDocumentModel('standard', 'signinsheet', '', '');
+		addDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheetdocument', '', '');
 
 		dolibarr_set_const($this->db, 'DOLILETTER_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($this->db, 'DOLILETTER_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH', 'DOL_DOCUMENT_ROOT/custom/doliletter/documents/doctemplates/signinsheet/', 'chaine', 0, '', $conf->entity);
-        dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEET_ADDON', 'mod_signinsheet_standard', 'chaine', 0, '', $conf->entity);
+        dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEETDOCUMENT_ADDON', 'mod_signinsheetdocument_zchuiou', 'chaine', 0, '', $conf->entity);
 
 		// Load Saturne libraries
 		require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
@@ -458,7 +507,12 @@ class modDoliLetter extends DolibarrModules {
             }
         }
 
-		return $this->_init($sql, $options);
+		$result = $this->_init($sql, $options);
+
+		// Replayed on a fresh descriptor, so that the constants written above are taken into account.
+		doliletter_sync_spread_objects();
+
+		return $result;
 	}
 
 	/**

@@ -1813,3 +1813,10 @@
 .dropdown-toggle::after {
   display: none;
 }
+
+/* Individual signature link button in the spread signatories list:
+   softer corners than the default wpeo-button (5px), compact for an icon-only button. */
+.wpeo-button.doliletter-signature-link {
+  border-radius: 10px;
+  padding: 6px 12px;
+}

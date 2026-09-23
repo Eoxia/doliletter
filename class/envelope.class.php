@@ -449,6 +449,10 @@ class Envelope extends CommonObject
 			$this->labelStatus[self::STATUS_SENT_BY_MAIL]                  = $langs->trans('SentByMail');
 			$this->labelStatus[self::STATUS_RECEIVED_BY_MAIL_AND_SIGNED]   = $langs->trans('ReceivedAndSignedByMail');
 			$this->labelStatus[self::STATUS_RECEIVED_BY_LETTER_AND_SIGNED] = $langs->trans('ReceivedAndSignedByLetter');
+
+			// Le libelle court n'etait jamais rempli : chaque ligne de liste lisait une cle
+			// absente, et la garde ci-dessus restait vraie a chaque appel pour la meme raison
+			$this->labelStatusShort = $this->labelStatus;
 		}
 
 		$statusType                                                            = 'status' . $status;
@@ -594,7 +598,9 @@ class EnvelopeSignature extends DoliletterSignature
 		{
 			foreach ($this->fields as $key => $val)
 			{
-				if (is_array($val['arrayofkeyval']))
+				// Tous les champs n'ont pas de liste de valeurs : lire la cle sans la verifier
+				// ecrivait un avertissement par champ, a chaque construction de l objet
+				if (is_array($val['arrayofkeyval'] ?? null))
 				{
 					foreach ($val['arrayofkeyval'] as $key2 => $val2)
 					{
@@ -636,10 +642,12 @@ class EnvelopeSignature extends DoliletterSignature
 			foreach ($filter as $key => $value) {
 				if ($key == 'rowid') {
 					$sqlwhere[] = $key.'='.$value;
-				} elseif (in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
-					$sqlwhere[] = $key.' = \''.$this->db->idate($value).'\'';
+					// 'customsql' n'est pas un champ de l'objet : le tester apres la lecture de
+					// $this->fields[$key] lisait une cle absente, puis un offset sur null
 				} elseif ($key == 'customsql') {
 					$sqlwhere[] = $value;
+				} elseif (in_array($this->fields[$key]['type'] ?? '', array('date', 'datetime', 'timestamp'))) {
+					$sqlwhere[] = $key.' = \''.$this->db->idate($value).'\'';
 				} elseif (strpos($value, '%') === false) {
 					$sqlwhere[] = $key.' IN ('.$this->db->sanitize($this->db->escape($value)).')';
 				} else {
