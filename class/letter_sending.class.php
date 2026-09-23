@@ -112,7 +112,7 @@ class LetterSending extends EnvelopeSending
 		{
 			foreach ($this->fields as $key => $val)
 			{
-				if (is_array($val['arrayofkeyval']))
+				if (is_array($val['arrayofkeyval'] ?? null))
 				{
 					foreach ($val['arrayofkeyval'] as $key2 => $val2)
 					{
