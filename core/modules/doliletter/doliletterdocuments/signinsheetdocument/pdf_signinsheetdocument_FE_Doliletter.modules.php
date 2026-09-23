@@ -86,7 +86,7 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
         return $this->description;
     }
 
-	public function write_file(SaturneDocuments $objectDocument, Translate $outputLangs, string $srcTemplatePath, int $hideDetails, int $hideDesc, int $hideRef, array $moreParam): int
+	public function write_file(SaturneDocuments $objectDocument, Translate $outputLangs, string $srcTemplatePath, int $hideDetails = 0, int $hideDesc = 0, int $hideRef = 0, array $moreParam = []): int
 	{
 		global $user, $langs, $conf, $mysoc, $db, $hookmanager;
 

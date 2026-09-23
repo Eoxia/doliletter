@@ -266,54 +266,64 @@ class modDoliLetter extends DolibarrModules {
 		$this->cronjobs = array();
 
 		// Permissions provided by this module
+		//
+		// L'identifiant de chaque droit est ecrit en dur, il n'est plus deduit du rang.
+		// A la desactivation, DolibarrModules::delete_permissions() efface toutes les lignes
+		// de llx_rights_def du module, et la reactivation les recree depuis ce descripteur.
+		// llx_user_rights et llx_usergroup_rights, eux, ne sont pas touches : ils continuent
+		// de pointer sur les anciens identifiants. Un droit insere ailleurs qu'en fin de liste
+		// decalait donc tous les suivants, et un utilisateur qui detenait envelope/read se
+		// retrouvait avec ce que le code appelle autre chose. Les identifiants ci-dessous
+		// reprennent la numerotation historique ; 05 et 06, occupes par d'anciens doublons,
+		// restent libres. Tout nouveau droit se pose a la suite, jamais au milieu.
 		$this->rights = [];
 		$r = 0;
 
-		/* Doliletter PERMISSIONS */
-		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->trans('LireModule', 'Doliletter');
-		$this->rights[$r][4] = 'lire';
-		$this->rights[$r][5] = 1;
-		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->trans('ReadModule', 'Doliletter');
-		$this->rights[$r][4] = 'read';
-		$this->rights[$r][5] = 1;
-		$r++;
-
 		/* DoliLetter PERMISSIONS */
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '01';
 		$this->rights[$r][1] = $langs->trans('ReadEnvelope');
 		$this->rights[$r][4] = 'envelope';
 		$this->rights[$r][5] = 'read';
 		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '02';
 		$this->rights[$r][1] = $langs->trans('CreateEnvelope');
 		$this->rights[$r][4] = 'envelope';
 		$this->rights[$r][5] = 'write';
 		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '03';
 		$this->rights[$r][1] = $langs->trans('DeleteEnvelope');
 		$this->rights[$r][4] = 'envelope';
 		$this->rights[$r][5] = 'delete';
 		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '04';
 		$this->rights[$r][1] = $langs->trans('ReadAdminPage');
 		$this->rights[$r][4] = 'adminpage';
 		$this->rights[$r][5] = 'read';
 		$r++;
 
 		/* Manage public spreading PERMISSIONS */
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '07';
 		$this->rights[$r][1] = $langs->trans('ManageUserSpread');
 		$this->rights[$r][4] = 'spread';
 		$this->rights[$r][5] = 'write';
 		$r++;
 
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][0] = $this->numero . '08';
 		$this->rights[$r][1] = $langs->trans('ShowSpreadSignature');
 		$this->rights[$r][4] = 'spreadsignature';
 		$this->rights[$r][5] = 'read';
+		$r++;
+
+		/* Doliletter PERMISSIONS */
+		$this->rights[$r][0] = $this->numero . '09';
+		$this->rights[$r][1] = $langs->trans('LireModule', 'Doliletter');
+		$this->rights[$r][4] = 'lire';
+		$this->rights[$r][5] = 1;
+		$r++;
+		$this->rights[$r][0] = $this->numero . '10';
+		$this->rights[$r][1] = $langs->trans('ReadModule', 'Doliletter');
+		$this->rights[$r][4] = 'read';
+		$this->rights[$r][5] = 1;
 		$r++;
 
 		// Main menu entries to add
