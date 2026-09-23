@@ -51,3 +51,114 @@ MyPageName = My page name
 #
 MyWidget = My widget
 MyWidgetDescription = My widget description
+
+ErrorInvalidSignatureLink = This signature link is no longer valid or has expired.
+ErrorNotAllowed = Action not allowed
+ErrorSendingEmail = The email could not be sent.
+ErrorUserNotFound = User not found, please contact your administrator.
+PleaseEnterValidEmail = Please enter a valid email
+EmailSentSuccessfully = Email sent successfully
+
+#
+# Spread
+#
+ValidateSignature = Validate the signature
+EnterNotePublicHere = Enter your public note here
+QuickSignature = Quick signature
+SpreadQuickSignatureInfo = Enter your email to receive a signature link
+ConnectForMoreInfo = <a href="%s">Log in</a> for more information
+EmailSpreadLabel = DOLILETTER_Spread
+EmailSpreadTopic = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEMENT__ __REF__
+EmailSpreadContent = Hello,<br />Please find the signature link of the spread document below.<br />__SATURNE_SIGNATORY_URL__
+
+# Situated error messages: code, subject, script and line, then the raw reason, so that a user
+# report is enough to find the failure point without reproducing the problem
+ErrorSpreadContext = [%s] %s — %s: %s
+ErrorSpreadSubjectRegister = Spread registration
+ErrorSpreadSubjectCertification = Mandatory document recording
+ErrorSpreadSubjectRiskAck = Risk acknowledgement
+ErrorSpreadSubjectQuickSign = Quick signature request
+ErrorSpreadSubjectEmail = Signature link sending
+ErrorSpreadMailNotConfigured = email sending is not configured on this Dolibarr
+
+# Back to the application: icon-only buttons, these labels are the tooltips
+SpreadBackToDolibarr = Back to Dolibarr
+SpreadEditPlan = Edit the plan
+
+# Spread signatories
+SpreadSignatoriesTitle = Spread signatories
+SpreadSignatoriesCount = %s signature(s) out of %s
+SpreadNoSignatoryYet = Nobody has joined this spread yet.
+SpreadSignatoryPending = Waiting for signature
+
+#
+# Public registration
+#
+ConfigSpreadPublicRegister = Free registration
+ConfigSpreadPublicRegisterDescription = Anyone holding the public link can join the spread with their lastname, firstname, email and phone, without being logged in
+SpreadPublicRegister = Join the spread
+SpreadPublicRegisterInfo = Fill in your details to reach your own signature and document page.
+SpreadPublicRegisterSubmit = Confirm my registration
+SpreadPublicRegisterMissingFields = Please fill in your lastname, firstname, email and phone
+SpreadExternalSignatory = Registered from the public link
+
+ErrorSpreadRegisterFailed = Your registration could not be saved: %s
+ErrorSpreadNoAuthorForAttendanceSheet = the spread has no author, please report it to the company that sent you the link
+ErrorSpreadUnknown = unknown reason, see the Dolibarr log
+
+#
+# Mandatory documents
+#
+SpreadNotConcerned = Not concerned
+SpreadIAmNotConcerned = I am not concerned
+SpreadIAmConcerned = I am concerned
+SpreadMandatoryCertificationsPending = Mandatory documents to provide before signing. Use "I am not concerned" for those that do not apply to you:
+ErrorMandatoryCertificationsMissing = Missing mandatory documents: %s
+
+# Risk acknowledgement
+SpreadRiskPhotos = Risk photos
+SpreadRiskAcknowledgeText = I have taken note of this risk, of the protections to wear and of the site photos.
+SpreadRiskAcknowledgeButton = OK
+SpreadRiskAcknowledged = Acknowledged
+SpreadRiskSeeAllPhotos = Scroll through every photo to validate
+SpreadRisksPending = Take note of every risk before signing. Risks left:
+ErrorRisksNotAcknowledged = Risks you have not taken note of: %s
+SpreadRiskStep = Step %s / %s
+SpreadRecapTitle = Summary
+SpreadRecapRisks = Identified risks
+SpreadRecapProtections = Required protections
+
+SpreadRequestedElements = Requested elements
+CopyLink=Copy link
+LinkCopiedToClipboard=Link copied to clipboard!
+SpreadRiskMustAcknowledgeFirst = This signatory must first acknowledge the risks: %s left.
+
+# Spreadable objects
+LinkableElements                      = Spreadable elements
+LinkedObjectUsage                     = Usage
+LinkedObjectUsageDetail               = %d spread(s)
+NoLinkedObjectUsage                   = Not spread
+DisableLinkConfirm                    = The spread of "%s" is about to be disabled. Its Spread tab will disappear while %d spread(s) already exist: they stay in database but are no longer reachable from the card. Confirm?
+EnableAllLinksConfirm                 = The spread is about to be enabled on every available object: the Spread tab will show up on all their cards. Confirm?
+DisableAllLinksConfirm                = The spread is about to be disabled on every object: no Spread tab will be visible anymore. Existing spreads stay in database. Confirm?
+CleanUnusedLinks                      = Apply the configuration again
+CleanUnusedLinksConfirm               = Tabs and hooks are about to be rebuilt from the objects enabled above. Confirm?
+LinkedObjectSyncDone                  = Synchronisation done: %d tab(s), %d hook(s)
+LinkedObjectSyncError                 = Spread synchronisation failed, no change has been saved
+ErrorSpreadObjectTypeUnknown          = The object type of this spread is unknown, report it to the company that sent you the link
+
+# Fire permit spread - Digirisk issue #5042
+SpreadWorkTypePhotos = Work photos
+SpreadWorkTypeUsedEquipment = Equipment used
+SpreadWorkTypeAcknowledgeText = I have taken note of this work, of the protections to wear and of the site photos.
+SpreadRecapWorkTypes = Planned work
+SpreadRisksToRead = Before you can sign, you must take note of the %s risks listed below.
+SpreadWorkTypesToRead = Before you can sign, you must take note of the %s types of work listed below.
+SpreadRisksRemaining = Risks left:
+SpreadWorkTypesRemaining = Work left:
+SpreadRegisteredOnObject = You have just registered as an attendee on this %s:
+SpreadViewingObject = You are viewing this %s:
+SpreadObjectSignedTitle = %s signed!
+SpreadObjectSignedText = The attendee signed the %s, acknowledging the risk analysis and providing every requested element.
+SpreadSeeObject = See the %s
+SpreadNextStepFollowObject = Consult and follow<br>the %s

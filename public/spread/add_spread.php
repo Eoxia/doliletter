@@ -52,7 +52,9 @@ if (file_exists('../../../saturne/saturne.main.inc.php')) {
 }
 
 // Get module parameters
-$moduleName   = GETPOST('module_name', 'alpha');
+// The Saturne media block posts its own module_name with the photo upload; it must not be taken
+// as this page's module context (the upload handler reads it into its own variable instead).
+$moduleName   = (GETPOST('action', 'aZ09') == 'uploadPhoto' || GETPOST('subaction', 'alpha') == 'uploadPhoto') ? '' : GETPOST('module_name', 'alpha');
 $objectType   = GETPOST('object_type', 'alpha');
 $documentType = GETPOST('document_type', 'alpha');
 
@@ -69,7 +71,10 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
 
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/medias.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
+require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterspreadsignature.class.php';
+require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/lib/doliletter_spread.lib.php';
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user, $modulepart;
 
@@ -83,9 +88,11 @@ if (!isset($_SESSION['dol_login'])) {
 $permissiontoadd           = $user->hasRight('doliletter', 'spread', 'write');
 $permissiontoshowsignature = $user->hasRight('doliletter', 'spreadsignature', 'read');
 $isLogged                  = !empty($_SESSION['dol_login']);
+$publicRegisterEnabled     = getDolGlobalInt('DOLILETTER_SPREAD_PUBLIC_REGISTER') > 0;
 
 // Load translation files required by the page
-saturne_load_langs(['doliletter@doliletter']);
+// companies holds the Firstname / Lastname / Phone labels of the public registration form
+saturne_load_langs(['doliletter@doliletter', 'companies', 'errors', 'signature@saturne']);
 
 // Get parameters
 $id                 = GETPOST('id', 'int');
@@ -101,7 +108,8 @@ $sign               = GETPOST('sign', 'alpha');
 
 // Initialize technical objects
 $className       = ucfirst($objectType);
-$signatory       = new SaturneSignature($db);
+// Spread signature: same object as the Saturne one, plus the `json` column holding the signatory answers
+$signatory       = new DoliletterSpreadSignature($db);
 $saturneMail     = new SaturneMail($db, $moduleNameLowerCase, $objectType);
 $usertmp         = new User($db);
 $attendanceSheet = new DoliletterAttendanceSheet($db, $moduleNameLowerCase);
@@ -114,30 +122,162 @@ if (isModEnabled('societe')) {
 
 $objectsMetadata    = saturne_get_objects_metadata();
 
+// A module contributing its objects through the Saturne metadata hook only does so on the pages
+// whose hook context it declares, and this one has none. Without the metadata the diffused object
+// cannot be resolved, and going any further would be a fatal error on a public page.
+if (!isset($objectsMetadata[$objectType]['object'])) {
+    accessforbidden($langs->transnoentities('ErrorSpreadObjectTypeUnknown'), 0, 0, 1);
+}
+
 $attendanceSheet->fetch(0, '', ' AND object_type = ' . "'" . $objectType  . "'" . ' AND fk_object = ' . $id);
 
-if ($action == 'add_spread_user') {
-    if ($attendanceSheet->id <= 0 || $attendanceSheet->id == null) {
+$objectsMetadata[$objectType]['object']->fetch($id);
+$objectRef   = $objectsMetadata[$objectType]['object']->ref;
+$objectLabel = $objectsMetadata[$objectType]['object']->{$objectsMetadata[$objectType]['label_field']} ?? '';
 
-        $objectsMetadata[$objectType]['object']->fetch($id);
+// Digirisk objects filled in from the mobile interfaces publish the same things: the blocks the
+// attendees must read (risks for a prevention plan, types of work for a fire permit) with their
+// protections and their site photos, plus the certifications each attendee has to provide.
+// Loaded before the actions: signing is refused while a mandatory certification has no answer.
+$isPreventionPlan     = ($objectType === 'digiriskdolibarr_preventionplan');
+$isFirePermit         = ($objectType === 'digiriskdolibarr_firepermit');
+$isDigiriskRiskObject = ($isPreventionPlan || $isFirePermit);
+$ppElement            = $isFirePermit ? 'firepermit' : 'preventionplan';
+$ppRisks              = [];
+$ppProtections        = [];
+$ppCertifications     = [];
+$ppOrphanProtections  = [];
+$ppRecapProtections   = [];
+$certificationOptions = [];
+$ppCertBaseDir        = '';
+$ppTexts              = [];
+if ($isDigiriskRiskObject) {
+    saturne_load_langs(['digiriskdolibarr@digiriskdolibarr']);
+    dol_include_once('/digiriskdolibarr/class/' . $ppElement . '.class.php');
+    dol_include_once('/digiriskdolibarr/class/riskanalysis/risk.class.php');
+    dol_include_once('/digiriskdolibarr/lib/digiriskdolibarr_mobile.lib.php');
 
-        $attendanceSheet->ref           = $objectsMetadata[$objectType]['object']->ref;
-        $attendanceSheet->status        = $attendanceSheet::STATUS_VALIDATED;
-        $attendanceSheet->fk_object     = $id;
-        $attendanceSheet->object_type   = $objectType;
-        $attendanceSheet->entity        = $conf->entity;
-        $attendanceSheet->fk_user_creat = $user->id;
+    $ppObject             = $objectsMetadata[$objectType]['object'];
+    $certificationOptions = digiriskGetCertificationOptions();
 
-        $result = $attendanceSheet->create($user);
-        if ($result < 0) {
-            setEventMessages($attendanceSheet->error, $attendanceSheet->errors, 'errors');
-            exit;
+    // Un plan de prevention parle de risques, un permis de feu de types de travaux : les libelles
+    // sont resolus ici pour que l'affichage public reste le meme d'un objet a l'autre
+    $ppTexts = $isFirePermit
+        ? ['blocks' => 'MobileFPWorkTypes', 'photos' => 'SpreadWorkTypePhotos', 'acknowledge' => 'SpreadWorkTypeAcknowledgeText', 'recap' => 'SpreadRecapWorkTypes', 'toRead' => 'SpreadWorkTypesToRead', 'remaining' => 'SpreadWorkTypesRemaining', 'objectName' => 'FirePermit']
+        : ['blocks' => 'MobilePPRisks',     'photos' => 'SpreadRiskPhotos',     'acknowledge' => 'SpreadRiskAcknowledgeText',     'recap' => 'SpreadRecapRisks',     'toRead' => 'SpreadRisksToRead',     'remaining' => 'SpreadRisksRemaining',     'objectName' => 'PreventionPlan'];
+
+    // Protections + certifications from the extrafields
+    $ppObject->fetch_optionals();
+    $ppProtections    = !empty($ppObject->array_options['options_mobile_protections'])   ? json_decode($ppObject->array_options['options_mobile_protections'], true)   : [];
+    $ppCertifications = !empty($ppObject->array_options['options_mobile_certifications']) ? json_decode($ppObject->array_options['options_mobile_certifications'], true) : [];
+    if (!is_array($ppProtections)) {
+        $ppProtections = [];
+    }
+
+    // Map protection position -> signalisation picto/name
+    $signalisationFile = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/js/json/signalisationCategories.json';
+    $ppProtectionMap   = [];
+    if (file_exists($signalisationFile)) {
+        foreach ((json_decode(file_get_contents($signalisationFile), true) ?: []) as $signalisationCategory) {
+            $ppProtectionMap[$signalisationCategory['position']] = $signalisationCategory;
         }
     }
 
+    // Lines of the object, each carrying the protections that apply to it and the photos taken on
+    // site from the mobile interface
+    $ppLine  = $isFirePermit ? new FirePermitLine($db) : new PreventionPlanLine($db);
+    $ppRisk  = new Risk($db);
+    $ppLines = $ppLine->fetchAll('', '', 0, 0, ['fk_' . $ppElement => $ppObject->id]);
+    if (is_array($ppLines)) {
+        foreach ($ppLines as $ppLineItem) {
+            $thumb        = $isFirePermit ? $ppRisk->getFirePermitDangerCategory($ppLineItem) : $ppRisk->getDangerCategory($ppLineItem);
+            $riskCategory = (int) $ppLineItem->category;
+
+            $riskProtections = [];
+            foreach ($ppProtections as $ppProtectionItem) {
+                if (!isset($ppProtectionItem['risk_category']) || (int) $ppProtectionItem['risk_category'] !== $riskCategory || !isset($ppProtectionMap[$ppProtectionItem['position']])) {
+                    continue;
+                }
+                $riskProtections[] = [
+                    'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
+                    'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
+                    'comment' => $ppProtectionItem['comment'] ?? '',
+                ];
+            }
+
+            // Public page: the photos go through the Saturne image wrapper, document.php would
+            // ask the anonymous visitor to log in
+            $riskPhotos    = [];
+            $riskPhotoDir  = digiriskMobileRiskPhotoDir($ppElement, $ppObject->ref, $riskCategory);
+            $riskPhotoPath = $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/risks/' . $riskCategory . '/';
+            if (dol_is_dir($riskPhotoDir)) {
+                foreach (dol_dir_list($riskPhotoDir, 'files', 0, '', '(\.meta|_preview.*\.png)$', 'name') as $riskPhotoFile) {
+                    $riskPhotos[] = DOL_URL_ROOT . '/custom/saturne/utils/viewimage.php?modulepart=digiriskdolibarr&entity=' . $conf->entity . '&file=' . urlencode($riskPhotoPath . $riskPhotoFile['name']);
+                }
+            }
+
+            $ppRisks[] = [
+                'category'    => $riskCategory,
+                'thumb'       => ($thumb != -1) ? DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . ($isFirePermit ? 'typeDeTravaux' : 'categorieDangers') . '/' . $thumb . '.png' : '',
+                'name'        => $isFirePermit ? $ppRisk->getFirePermitDangerCategoryName($ppLineItem) : $ppRisk->getDangerCategoryName($ppLineItem),
+                'comment'     => $ppLineItem->description,
+                // Le materiel employe est ce qui fait le travail par point chaud : il se lit avec le type de travaux
+                'equipment'   => $isFirePermit ? (string) $ppLineItem->used_equipment : '',
+                'protections' => $riskProtections,
+                'photos'      => $riskPhotos,
+            ];
+        }
+    }
+
+    // Protections of plans created before they were attached to a risk: nothing links them to a
+    // block, they would silently disappear from the public page
+    $ppOrphanProtections = [];
+    foreach ($ppProtections as $ppProtectionItem) {
+        if (empty($ppProtectionItem['risk_category']) && isset($ppProtectionMap[$ppProtectionItem['position']])) {
+            $ppOrphanProtections[] = [
+                'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
+                'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
+                'comment' => $ppProtectionItem['comment'] ?? '',
+            ];
+        }
+    }
+
+    // Recapitulatif de fin de page : les moyens de prevention du plan, une seule fois chacun, un
+    // meme moyen revenant sur plusieurs risques
+    foreach ($ppRisks as $ppRiskItem) {
+        foreach ($ppRiskItem['protections'] as $ppRiskProtection) {
+            $ppRecapProtections[$ppRiskProtection['name']] = $ppRiskProtection;
+        }
+    }
+    foreach ($ppOrphanProtections as $ppOrphanProtection) {
+        $ppRecapProtections[$ppOrphanProtection['name']] = $ppOrphanProtection;
+    }
+
+    // Base directory of uploaded certification photos, same resolution as saturne_render_media_block()
+    $ppUploadBase  = !empty($conf->digiriskdolibarr->dir_output) ? $conf->digiriskdolibarr->dir_output : $conf->ecm->dir_output . '/digiriskdolibarr';
+    $ppCertBaseDir = $ppUploadBase . '/' . $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/certifications';
+}
+
+// Signatory the ?sign= token points to, resolved before the actions so a visitor can only answer for themselves
+$signTokenSignatoryId = 0;
+if (!empty($sign)) {
+    $tokenSignatory = new SaturneSignature($db);
+    $tokenSignatory->fetch(0, '', ' AND t.signature_url = "' . $db->escape($sign) . '"');
+    $signTokenSignatoryId = ($tokenSignatory->id > 0) ? $tokenSignatory->id : 0;
+}
+
+if ($action == 'add_spread_user') {
+    $result = doliletter_spread_ensure_attendance_sheet($attendanceSheet, $objectsMetadata, $objectType, $id, $user);
+    if ($result < 0) {
+        setEventMessages($attendanceSheet->error, $attendanceSheet->errors, 'errors');
+        exit;
+    }
+
+    $type = GETPOST('type', 'aZ09');
+
     $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
     $tmpSignatory->element_id     = 0;
-    $tmpSignatory->element_type   = 'user';
+    $tmpSignatory->element_type   = ($type === 'external') ? DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE : 'user';
     $tmpSignatory->role           = '';
     $tmpSignatory->object_type    = $attendanceSheet->element;
     $tmpSignatory->fk_object      = $attendanceSheet->id;
@@ -151,6 +291,116 @@ if ($action == 'add_spread_user') {
         exit;
     }
     $action = '';
+}
+
+// Free registration from the public page: anybody holding the link declares themselves with their
+// identity only, no Dolibarr user and no login involved.
+if ($action == 'register_public_signatory') {
+    if (!$publicRegisterEnabled) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
+        exit;
+    }
+
+    $data      = json_decode(file_get_contents('php://input'), true);
+    $firstname = dol_string_nohtmltag(trim($data['firstname'] ?? ''));
+    $lastname  = dol_string_nohtmltag(trim($data['lastname'] ?? ''));
+    $email     = dol_string_nohtmltag(trim($data['email'] ?? ''));
+    $phone     = dol_string_nohtmltag(trim($data['phone'] ?? ''));
+    $tmpSignatoryId = $data['tmp_signatory_id'] ?? null;
+    $notConcernedCodes = $data['not_concerned_codes'] ?? [];
+
+    $requiredFields = [];
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY')) $requiredFields['Firstname'] = $firstname;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_MANDATORY')) $requiredFields['Lastname'] = $lastname;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY')) $requiredFields['Email'] = $email;
+    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_MANDATORY')) $requiredFields['Phone'] = $phone;
+
+    foreach ($requiredFields as $requiredLabel => $requiredValue) {
+        if (dol_strlen($requiredValue) == 0) {
+            echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFieldRequired', $langs->transnoentities($requiredLabel)) . '">';
+            exit;
+        }
+    }
+
+    $emailVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') || getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY') || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') === '');
+    if ($emailVisible && !empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorBadEMail', dol_escape_htmltag($email)) . '">';
+        exit;
+    }
+
+    $result = doliletter_spread_ensure_attendance_sheet($attendanceSheet, $objectsMetadata, $objectType, $id, $user);
+    if ($result < 0) {
+        // A bare "Error" leaves both the visitor and the support with nothing to go on
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorSpreadRegisterFailed', doliletter_spread_get_object_error($attendanceSheet, $langs))) . '">';
+        exit;
+    }
+
+    $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
+
+    // Someone coming back with the same email lands on their own page again instead of piling up duplicates
+    // But ONLY if an email was actually provided, otherwise we'd match the first person who didn't give an email!
+    $alreadyRegistered = [];
+    if (!empty($email)) {
+        $alreadyRegistered = $tmpSignatory->fetchAll('', '', 1, 0, ['customsql' => 'fk_object = ' . ((int) $attendanceSheet->id) . ' AND object_type = "' . $db->escape($attendanceSheet->element) . '" AND email = "' . $db->escape($email) . '"']);
+    }
+    if (is_array($alreadyRegistered) && !empty($alreadyRegistered)) {
+        $tmpSignatory = current($alreadyRegistered);
+    } else {
+        $tmpSignatory->element_id    = 0;
+        $tmpSignatory->element_type  = DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE;
+        $tmpSignatory->role          = '';
+        $tmpSignatory->firstname     = $firstname;
+        $tmpSignatory->lastname      = $lastname;
+        $tmpSignatory->email         = $email;
+        $tmpSignatory->phone         = $phone;
+        $tmpSignatory->object_type   = $attendanceSheet->element;
+        $tmpSignatory->fk_object     = $attendanceSheet->id;
+        $tmpSignatory->module_name   = $moduleNameLowerCase;
+        $tmpSignatory->status        = $tmpSignatory::STATUS_PENDING_SIGNATURE;
+        $tmpSignatory->signature_url = generate_random_id();
+
+        $result = $tmpSignatory->create($user);
+        if ($result < 0) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorSpreadRegisterFailed', doliletter_spread_get_object_error($tmpSignatory, $langs))) . '">';
+            exit;
+        }
+
+        // Handle temporary Saturne uploads (from stateless registration)
+        if ($tmpSignatoryId && str_starts_with($tmpSignatoryId, 'tmp_') && $isDigiriskRiskObject) {
+            require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+            
+            // Apply not concerned statuses
+            if (!empty($notConcernedCodes)) {
+                $opts = !empty($tmpSignatory->array_options['options_mobile_not_concerned']) ? json_decode($tmpSignatory->array_options['options_mobile_not_concerned'], true) : [];
+                $opts = array_unique(array_merge($opts, $notConcernedCodes));
+                $tmpSignatory->array_options['options_mobile_not_concerned'] = json_encode(array_values($opts));
+                $tmpSignatory->update($user, true); // No triggers needed
+            }
+
+            // Rename temporary upload directory if it exists
+            $tmpDir = doliletter_spread_get_certification_dir($ppCertBaseDir, $tmpSignatoryId, '');
+            // The folder path ends with '/tmp_xxx/'. We want to move 'tmp_xxx' to '\$tmpSignatory->id'
+            $tmpDirBase = rtrim($tmpDir, '/');
+            if (dol_is_dir($tmpDirBase)) {
+                $realDirBase = doliletter_spread_get_certification_dir($ppCertBaseDir, $tmpSignatory->id, '');
+                $realDirBase = rtrim($realDirBase, '/');
+                
+                // Create parent directories if they don't exist
+                dol_mkdir(dirname($realDirBase));
+                
+                // Rename tmp to real ID
+                dol_move_dir($tmpDirBase, $realDirBase);
+            }
+        }
+
+        $attendanceSheet->context = ['user' => $firstname . ' ' . $lastname, 'old_user' => ''];
+        $attendanceSheet->call_trigger('SPREAD_ADD_USER', $user);
+    }
+
+    $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType . '&sign=' . urlencode($tmpSignatory->signature_url);
+
+    echo '<input type="hidden" id="redirect" value="' . dol_escape_htmltag($registerUrl) . '">';
+    exit;
 }
 
 if ($action == 'remove_spread_user') {
@@ -186,18 +436,120 @@ if ($action == 'update_spread_user') {
     $action = '';
 }
 
+if ($action == 'update_spread_user_external') {
+    $signatory_id = GETPOSTINT('signatory_id');
+    $signatory->fetch($signatory_id);
+    if ($signatory->id > 0 && $signatory->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE) {
+        $signatory->firstname = GETPOST('first_name', 'alphanohtml');
+        $signatory->lastname = GETPOST('last_name', 'alphanohtml');
+        $signatory->email = GETPOST('email', 'alphanohtml');
+        $signatory->phone = GETPOST('phone', 'alphanohtml');
+        $signatory->update($user);
+    }
+    $action = '';
+}
+
+// Declare a mandatory document as not applicable, so it no longer has to be uploaded
+if ($action == 'set_cert_not_concerned') {
+    $data         = json_decode(file_get_contents('php://input'), true);
+    $signatoryId  = (int) ($data['signatory_id'] ?? 0);
+    $certCode     = dol_string_nohtmltag(trim($data['cert_code'] ?? ''));
+    $notConcerned = !empty($data['not_concerned']);
+
+    $tmpSignatory = new DoliletterSpreadSignature($db);
+    $tmpSignatory->fetch($signatoryId);
+
+    $belongsToSpread = $tmpSignatory->id > 0 && $tmpSignatory->fk_object == $attendanceSheet->id && $tmpSignatory->object_type == $attendanceSheet->element;
+    // Without a session the ?sign= token is the only proof of identity: answer for yourself only
+    $isOwnAnswer = $isLogged || ($signTokenSignatoryId > 0 && $signTokenSignatoryId == $tmpSignatory->id);
+
+    if (!$belongsToSpread || !$isOwnAnswer || dol_strlen($certCode) == 0) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
+        exit;
+    }
+
+    $result = doliletter_spread_set_not_concerned_certification($tmpSignatory, $certCode, $notConcerned, $user);
+    if ($result < 0) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-01', 'ErrorSpreadSubjectCertification', doliletter_spread_get_object_error($tmpSignatory, $langs), __FILE__, __LINE__, $langs)) . '">';
+        exit;
+    }
+
+    echo '<input type="hidden" id="success" value="' . $langs->transnoentities('RecordSaved') . '">';
+    exit;
+}
+
+// Record that the visitor has taken note of one risk, its protections and its photos
+if ($action == 'acknowledge_risk') {
+    $data         = json_decode(file_get_contents('php://input'), true);
+    $signatoryId  = (int) ($data['signatory_id'] ?? 0);
+    $riskCategory = (int) ($data['risk_category'] ?? 0);
+
+    $tmpSignatory = new DoliletterSpreadSignature($db);
+    $tmpSignatory->fetch($signatoryId);
+
+    $belongsToSpread = $tmpSignatory->id > 0 && $tmpSignatory->fk_object == $attendanceSheet->id && $tmpSignatory->object_type == $attendanceSheet->element;
+    // Without a session the ?sign= token is the only proof of identity: answer for yourself only
+    $isOwnAnswer = $isLogged || ($signTokenSignatoryId > 0 && $signTokenSignatoryId == $tmpSignatory->id);
+    $isKnownRisk = in_array($riskCategory, array_map('intval', array_column($ppRisks, 'category')), true);
+
+    if (!$belongsToSpread || !$isOwnAnswer || !$isKnownRisk) {
+        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
+        exit;
+    }
+
+    if (doliletter_spread_acknowledge_risk($tmpSignatory, $riskCategory, $user) < 0) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-02', 'ErrorSpreadSubjectRiskAck', doliletter_spread_get_object_error($tmpSignatory, $langs), __FILE__, __LINE__, $langs)) . '">';
+        exit;
+    }
+
+    echo '<input type="hidden" id="success" value="' . $langs->transnoentities('RecordSaved') . '">';
+    exit;
+}
+
 if ($action == 'validate_signature') {
     $signatory_id = GETPOSTINT('signatory_id');
     $signatory->fetch($signatory_id);
     if ($signatory->id > 0) {
-        $data      = json_decode(file_get_contents('php://input'), true);
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Risks read on the page and sent with the signature: a visitor signing from the attendee
+        // table has no ?sign= link, nothing could be recorded while they were ticking the blocks
+        if ($isDigiriskRiskObject && !empty($ppRisks) && !empty($data['acknowledged_risks']) && is_array($data['acknowledged_risks'])) {
+            $knownRiskCategories = array_map('intval', array_column($ppRisks, 'category'));
+            foreach ($data['acknowledged_risks'] as $acknowledgedRisk) {
+                if (in_array((int) $acknowledgedRisk, $knownRiskCategories, true)) {
+                    doliletter_spread_acknowledge_risk($signatory, (int) $acknowledgedRisk, $user);
+                }
+            }
+        }
+
+        // Every risk must have been acknowledged before signing
+        if ($isDigiriskRiskObject && !empty($ppRisks)) {
+            $pendingRisks = doliletter_spread_get_pending_risks($ppRisks, doliletter_spread_get_acknowledged_risks($signatory));
+            if (!empty($pendingRisks)) {
+                echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorRisksNotAcknowledged', implode(', ', array_column($pendingRisks, 'name')))) . '">';
+                exit;
+            }
+        }
+
+        // Mandatory documents must be either uploaded or declared not applicable before signing
+        if ($isDigiriskRiskObject && !empty($ppCertifications)) {
+            $certificationStates   = doliletter_spread_get_certification_states($ppCertifications, $certificationOptions, $ppCertBaseDir, $signatory->id, doliletter_spread_get_not_concerned_certifications($signatory));
+            $pendingCertifications = doliletter_spread_get_pending_certifications($certificationStates);
+            if (!empty($pendingCertifications)) {
+                echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorMandatoryCertificationsMissing', implode(', ', array_column($pendingCertifications, 'label')))) . '">';
+                exit;
+            }
+        }
+
         $signature = $data['signature'] ?? '';
 
         if (!empty($signature)) {
             $signatory->signature      = $signature;
             $signatory->status         = $signatory::STATUS_SIGNED;
             $signatory->signature_date = dol_now();
-            $signatory->signature_url  = generate_random_id();
+            // Keep signature_url unchanged: the ?sign= link must stay valid so the signatory
+            // still lands on their own single-person page (signed state) after signing.
             $signatory->update($user);
         }
     }
@@ -211,6 +563,54 @@ if ($action == 'save_public_note') {
 
         $attendanceSheet->note_public = $note;
         $attendanceSheet->update($user);
+    }
+    $action = '';
+}
+
+
+// Photo upload posted by the Saturne media block — same contract as saturne/admin/media.php.
+// Note: the media JS posts its own "module_name", which would otherwise clobber this page's
+// $moduleName/$moduleNameLowerCase, so it is read into a dedicated variable here.
+if (($action == 'uploadPhoto' || $subaction == 'uploadPhoto') && !empty($conf->global->MAIN_UPLOAD_DOC)) {
+    require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+    $mediaModuleName = dol_strtolower(GETPOST('module_name', 'alpha'));
+    $mediaSubDir     = GETPOST('sub_dir', 'alpha');
+
+    if (!empty($mediaModuleName) && strpos($mediaSubDir, '..') === false) {
+        $uploadDir = !empty($conf->$mediaModuleName->dir_output)
+            ? $conf->$mediaModuleName->dir_output
+            : $conf->ecm->dir_output . '/' . $mediaModuleName;
+        if (!empty($mediaSubDir)) {
+            $uploadDir .= '/' . $mediaSubDir;
+        }
+
+        if (!dol_is_dir($uploadDir)) {
+            dol_mkdir($uploadDir);
+        }
+
+        // Validate that every uploaded file is a real image via MIME type
+        $uploadedFiles = isset($_FILES['userfile']) ? $_FILES['userfile'] : [];
+        $invalidFile   = false;
+        if (!empty($uploadedFiles['tmp_name'])) {
+            $tmpNames = is_array($uploadedFiles['tmp_name']) ? $uploadedFiles['tmp_name'] : [$uploadedFiles['tmp_name']];
+            foreach ($tmpNames as $tmpName) {
+                if (empty($tmpName)) {
+                    continue;
+                }
+                $finfo    = new finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($tmpName);
+                if (strpos($mimeType, 'image/') !== 0) {
+                    $invalidFile = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$invalidFile) {
+            $allowOverwrite = GETPOSTINT('overwrite') ? 1 : 0;
+            dol_add_file_process($uploadDir, $allowOverwrite, 1, 'userfile', '', null, '', 1);
+        }
     }
     $action = '';
 }
@@ -248,7 +648,7 @@ if ($action == 'send_quick_sign_email') {
 
     $result = $tmpSignatory->create($user);
     if ($result < 0) {
-        echo '<input type="hidden" id="error" value="' . $langs->transnoentities('Error') . '">';
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-03', 'ErrorSpreadSubjectQuickSign', doliletter_spread_get_object_error($tmpSignatory, $langs), __FILE__, __LINE__, $langs)) . '">';
         exit;
     }
     $signatory_id = $result;
@@ -283,29 +683,38 @@ if ($action == 'send_email') {
         $result  = $saturneMail->fetch(getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'));
         $subject = $result > 0 ? $saturneMail->topic : $langs->transnoentities('EmailSpreadTopic');
         $message = $result > 0 ? $saturneMail->content : $langs->transnoentities('EmailSpreadContent');
-        $sendto  = $tmpUser->email;
+        // A signatory registered from the public page has no Dolibarr user: their email is on the signature itself
+        $sendto  = !empty($tmpUser->email) ? $tmpUser->email : $signatory->email;
 
         $subject = make_substitutions($subject, $substitutionarray);
         $message = make_substitutions($message, $substitutionarray);
 
         // Create form object
         // Send mail (substitutionarray must be done just before this)
+        // Chaque issue repond quelque chose : une construction en echec et une messagerie non
+        // configuree laissaient la page se recharger sans rien dire, et personne ne savait si le
+        // lien de signature etait parti.
         $mailfile = new CMailFile($subject, $sendto, $from, $message, [], [], [], '', '', 0, -1, '', '', '', '', 'mail');
         if ($mailfile->error) {
-            setEventMessages($mailfile->error, $mailfile->errors, 'errors');
-        } elseif (!empty($conf->global->MAIN_MAIL_SMTPS_ID) || $conf->global->SATURNE_USE_ALL_EMAIL_MODE > 0) {
-            $result = $mailfile->sendfile();
-            if ($result) {
-                $signatory->last_email_sent_date = dol_now();
-                $signatory->update($user, true);
-                $signatory->setPending($user, false);
-                echo '<input type="hidden" id="success" value="' . $langs->transnoentities('SendEmailAt', dol_escape_htmltag($sendto)) . '">';
-                exit;
-            } else {
-                echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto)) . '">';
-                exit;
-            }
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-04', 'ErrorSpreadSubjectEmail', $mailfile->error, __FILE__, __LINE__, $langs)) . '">';
+            exit;
         }
+
+        if (!dol_strlen(getDolGlobalString('MAIN_MAIL_SMTPS_ID')) && getDolGlobalInt('SATURNE_USE_ALL_EMAIL_MODE') <= 0) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-05', 'ErrorSpreadSubjectEmail', $langs->transnoentities('ErrorSpreadMailNotConfigured'), __FILE__, __LINE__, $langs)) . '">';
+            exit;
+        }
+
+        if ($mailfile->sendfile()) {
+            $signatory->last_email_sent_date = dol_now();
+            $signatory->update($user, true);
+            $signatory->setPending($user, false);
+            echo '<input type="hidden" id="success" value="' . $langs->transnoentities('SendEmailAt', dol_escape_htmltag($sendto)) . '">';
+            exit;
+        }
+
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-06', 'ErrorSpreadSubjectEmail', $langs->transnoentities('ErrorFailedToSendMail', $from, $sendto) . ($mailfile->error ? ' - ' . $mailfile->error : ''), __FILE__, __LINE__, $langs)) . '">';
+        exit;
     }
 }
 
@@ -354,17 +763,62 @@ $linkedLinks = array_filter($linkedLinks, function ($linkedItem) {
 });
 
 
-$objectsMetadata[$objectType]['object']->fetch($id);
-$objectRef   = $objectsMetadata[$objectType]['object']->ref;
-$objectLabel = $objectsMetadata[$objectType]['object']->{$objectsMetadata[$objectType]['label_field']} ?? '';
-
+$signSignatory = null;
 if (!empty($sign)) {
-    $tmpSignatory = new SaturneSignature($db);
+    $tmpSignatory = new DoliletterSpreadSignature($db);
     $directSignatoryId = $tmpSignatory->fetch(0, '', ' AND t.signature_url = "' . $sign . '"');
+    if ($tmpSignatory->id > 0) {
+        $signSignatory = $tmpSignatory; // Single-person view: only this signatory's signature + certification photos
+    }
     if (!empty($tmpSignatory->signature)) {
         $directSignatoryId = 0;
     }
 }
+
+$signatories = $signatory->fetchSignatory('', $attendanceSheet->id ?? 0, $attendanceSheet->element);
+if ($signatories <= 0) {
+    $signatories = [];
+} elseif (is_array($signatories)) {
+    $signatories = current($signatories);
+}
+
+// Sort signatories by signature date DESC, then unsigned
+uasort($signatories, function($a, $b) {
+    $aHasSigned = !empty($a->signature);
+    $bHasSigned = !empty($b->signature);
+    
+    if ($aHasSigned && $bHasSigned) {
+        return $b->signature_date <=> $a->signature_date;
+    } elseif ($aHasSigned) {
+        return -1;
+    } elseif ($bHasSigned) {
+        return 1;
+    } else {
+        return $b->id <=> $a->id;
+    }
+});
+
+// Certification answers of each signatory: uploaded photo or "not concerned" declaration
+$ppCertificationStates   = [];
+$ppPendingCertifications = [];
+if ($isDigiriskRiskObject && !empty($ppCertifications)) {
+    $certificationSignatories = $signatories;
+    if (!empty($signSignatory)) {
+        $certificationSignatories[$signSignatory->id] = $signSignatory;
+    }
+
+    foreach ($certificationSignatories as $certificationSignatory) {
+        $ppCertificationStates[$certificationSignatory->id] = doliletter_spread_get_certification_states($ppCertifications, $certificationOptions, $ppCertBaseDir, $certificationSignatory->id, doliletter_spread_get_not_concerned_certifications($certificationSignatory));
+    }
+
+    if (!empty($signSignatory)) {
+        $ppPendingCertifications = doliletter_spread_get_pending_certifications($ppCertificationStates[$signSignatory->id]);
+    }
+}
+
+// Risks the identified visitor has already taken note of, so a reload does not undo their reading
+$ppAcknowledgedRisks = (!empty($signSignatory)) ? doliletter_spread_get_acknowledged_risks($signSignatory) : [];
+$ppPendingRisks      = ($isDigiriskRiskObject && !empty($signSignatory)) ? doliletter_spread_get_pending_risks($ppRisks, $ppAcknowledgedRisks) : [];
 
 /*
  * View
@@ -376,16 +830,14 @@ $moreJS = ['/saturne/js/includes/signature-pad.min.js'];
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(0,'', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card');
-
-$signatories = $signatory->fetchSignatory('', $attendanceSheet->id ?? 0, $attendanceSheet->element);
-if ($signatories <= 0) {
-    $signatories = [];
-} elseif (is_array($signatories)) {
-    $signatories = current($signatories);
-}
+saturne_header(0, '', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card');
 
 require_once __DIR__ . '/../../core/tpl/spread/public_spread_view.tpl.php';
+
+// Photo editor modal required by the Saturne media blocks (mediaBlock.js -> saturne.photoEditor.openFile)
+if ($isDigiriskRiskObject) {
+    include dol_buildpath('/saturne/core/tpl/medias/photo_editor_modal.tpl.php');
+}
 
 llxFooter('', 'public');
 $db->close();

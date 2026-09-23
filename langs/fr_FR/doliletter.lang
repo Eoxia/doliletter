@@ -34,6 +34,8 @@ SpreadConfig                        = Configuration des diffusions
 
 ConfigSpreadQuickSign               = Signature rapide
 ConfigSpreadQuickSignDescription    = Les utilisateurs peuvent signer rapidement les diffusions en rentrant leurs emails
+ConfigSpreadPublicRegister             = Inscription libre
+ConfigSpreadPublicRegisterDescription  = Toute personne disposant du lien public peut rejoindre la diffusion en renseignant son nom, prénom, email et téléphone, sans être connectée
 
 #
 # About page
@@ -239,3 +241,104 @@ EmailSentSuccessfully           = Email envoyé avec succès
 ErrorUserNotFound               = Utilisateur non trouvé, contactez votre administrateur.
 
 ConnectForMoreInfo              = <a href="%s">Connectez-vous</a> pour avoir d'autres informations
+ErrorInvalidSignatureLink       = Ce lien de signature n'est plus valide ou a expiré.
+ErrorNotAllowed                 = Action non autorisée
+ErrorSendingEmail               = L'email n'a pas pu être envoyé.
+
+# Messages d'erreur situes : code, sujet, script et ligne, puis la raison brute, pour qu'un retour
+# utilisateur suffise a retrouver le point de defaillance sans reproduire le probleme
+ErrorSpreadContext              = [%s] %s — %s : %s
+ErrorSpreadSubjectRegister      = Inscription à la diffusion
+ErrorSpreadSubjectCertification = Enregistrement d'un document obligatoire
+ErrorSpreadSubjectRiskAck       = Prise de connaissance d'un risque
+ErrorSpreadSubjectQuickSign     = Demande de signature rapide
+ErrorSpreadSubjectEmail         = Envoi du lien de signature
+ErrorSpreadMailNotConfigured    = la messagerie n'est pas configurée sur ce Dolibarr
+
+# Retours vers l'application : boutons sans libelle, ces textes servent d'infobulle
+SpreadBackToDolibarr            = Retour à Dolibarr
+SpreadEditPlan                  = Modifier le plan
+
+# Signataires de la diffusion
+SpreadSignatoriesTitle          = Signataires de la diffusion
+SpreadSignatoriesCount          = %s signature(s) sur %s
+SpreadNoSignatoryYet            = Personne n'a encore rejoint cette diffusion.
+SpreadSignatoryPending          = En attente de signature
+
+# Public registration
+SpreadPublicRegister              = Rejoindre la diffusion
+SpreadPublicRegisterInfo          = Renseignez vos coordonnées pour accéder à votre page personnelle de signature et de dépôt de documents.
+SpreadPublicRegisterSubmit        = Valider mon inscription
+SpreadPublicRegisterMissingFields = Renseignez vos nom, prénom, email et téléphone
+SpreadExternalSignatory           = Inscrit depuis le lien public
+
+ErrorSpreadRegisterFailed              = Votre inscription n'a pas pu être enregistrée : %s
+ErrorSpreadNoAuthorForAttendanceSheet  = la diffusion n'a pas d'auteur, signalez-le à l'entreprise qui vous a transmis le lien
+ErrorSpreadUnknown                     = raison inconnue, consultez le journal Dolibarr
+
+# Mandatory documents
+SpreadNotConcerned                    = Non concerné
+SpreadIAmNotConcerned                 = Je ne suis pas concerné
+SpreadIAmConcerned                    = Je suis concerné
+SpreadMandatoryCertificationsPending  = Documents obligatoires à fournir avant de signer. Indiquez « Je ne suis pas concerné » pour ceux qui ne vous concernent pas :
+ErrorMandatoryCertificationsMissing   = Documents obligatoires manquants : %s
+
+# Prise de connaissance des risques
+SpreadRiskPhotos                      = Photos du risque
+SpreadRiskAcknowledgeText             = J'ai pris connaissance de ce risque, des protections à porter et des photos du site.
+SpreadRiskAcknowledgeButton           = OK
+SpreadRiskAcknowledged                = Pris connaissance
+SpreadRiskSeeAllPhotos                = Faites défiler toutes les photos pour valider
+SpreadRisksPending                    = Prenez connaissance de tous les risques avant de signer. Risques restants :
+ErrorRisksNotAcknowledged             = Risques dont vous n'avez pas pris connaissance : %s
+SpreadRiskStep                        = Étape %s / %s
+SpreadRecapTitle                      = Récapitulatif
+SpreadRecapRisks                      = Risques identifiés
+SpreadRecapProtections                = Protections nécessaires
+DocumentTemplateSigninSheetDocument   = Modèle de feuille d'émargement
+SigninSheetDocument                   = Feuille d'émargement
+DocumentTemplateFE_Doliletter       = FE_Doliletter
+DocModelFE_DoliletterDesc             = La feuille d'emargement standard proposée au format pdf
+ConfigSpreadExtFields=Champs signataires externes
+ConfigSpreadExtFieldsDesc=Configurez la visibilité et le caractère obligatoire des champs pour les signataires externes.
+ConfigSpreadExtFieldFirstname=Prénom
+ConfigSpreadExtFieldLastname=Nom
+ConfigSpreadExtFieldEmail=Email
+ConfigSpreadExtFieldPhone=Téléphone
+ConfigSpreadExtVisible=Visible
+ConfigSpreadExtMandatory=Obligatoire
+
+SpreadRequestedElements = Éléments demandés
+CopyLink=Copier le lien
+LinkCopiedToClipboard=Lien copié dans le presse-papiers !
+SpreadRiskMustAcknowledgeFirst        = Ce signataire doit d'abord prendre connaissance des risques : il en reste %s.
+
+# Spreadable objects
+LinkableElements                      = Éléments diffusables
+LinkedObjectUsage                     = Utilisation
+LinkedObjectUsageDetail               = %d diffusion(s)
+NoLinkedObjectUsage                   = Aucune diffusion
+DisableLinkConfirm                    = La diffusion de « %s » va être désactivée. Son onglet Diffusion disparaîtra alors que %d diffusion(s) existent déjà, elles resteront en base mais ne seront plus accessibles depuis la fiche. Confirmer ?
+EnableAllLinksConfirm                 = La diffusion va être activée sur tous les objets disponibles : l'onglet Diffusion apparaîtra sur toutes leurs fiches. Confirmer ?
+DisableAllLinksConfirm                = La diffusion va être désactivée sur tous les objets : plus aucun onglet Diffusion ne sera visible. Les diffusions existantes resteront en base. Confirmer ?
+CleanUnusedLinks                      = Réappliquer la configuration
+CleanUnusedLinksConfirm               = Les onglets et hooks vont être régénérés à partir des objets activés ci-dessus. Confirmer ?
+LinkedObjectSyncDone                  = Synchronisation effectuée : %d onglet(s), %d hook(s)
+LinkedObjectSyncError                 = La synchronisation des diffusions a échoué, aucune modification n'a été enregistrée
+ErrorSpreadObjectTypeUnknown          = Le type d'objet de cette diffusion est inconnu, signalez-le à l'entreprise qui vous a transmis le lien
+
+# Diffusion d'un permis de feu - issue Digirisk #5042
+SpreadWorkTypePhotos                  = Photos des travaux
+SpreadWorkTypeUsedEquipment           = Matériel utilisé
+SpreadWorkTypeAcknowledgeText         = J'ai pris connaissance de ces travaux, des protections à porter et des photos du site.
+SpreadRecapWorkTypes                  = Travaux prévus
+SpreadRisksToRead                     = Afin que vous puissiez le signer il faut prendre connaissance des %s risques notés ci-dessous.
+SpreadWorkTypesToRead                 = Afin que vous puissiez le signer il faut prendre connaissance des %s types de travaux notés ci-dessous.
+SpreadRisksRemaining                  = Risques restants :
+SpreadWorkTypesRemaining              = Travaux restants :
+SpreadRegisteredOnObject              = Vous venez de vous inscrire en tant qu'intervenant sur ce %s :
+SpreadViewingObject                   = Vous consultez ce %s :
+SpreadObjectSignedTitle               = %s signé !
+SpreadObjectSignedText                = L'intervenant a signé le %s en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
+SpreadSeeObject                       = Voir le %s
+SpreadNextStepFollowObject            = Consulter et suivre<br>le %s

@@ -68,6 +68,9 @@ $confirm     = GETPOST('confirm', 'alpha');
 $cancel      = GETPOST('cancel', 'aZ09');
 $contextpage = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'riskcard'; // To manage different context of search
 $backtopage  = GETPOST('backtopage', 'alpha');
+// Lues plus bas dans les formulaires sans avoir jamais ete initialisees
+$backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
+$ref                 = GETPOST('ref', 'alpha');
 
 // Initialize technical objects
 $object         = new Envelope($db);
@@ -114,7 +117,7 @@ $permissiontoread = $user->rights->doliletter->envelope->read;
 $permissiontoadd = $user->rights->doliletter->envelope->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->doliletter->envelope->delete || ($permissiontoadd && isset($object->status));
 $permissionnote = $user->rights->doliletter->envelope->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->envelope->letter->write; // Used by the include of actions_dellink.inc.php
+$permissiondellink = $user->rights->doliletter->envelope->write; // Used by the include of actions_dellink.inc.php
 $upload_dir = $conf->doliletter->multidir_output[$conf->entity];
 $thirdparty->fetch($object->fk_soc);
 

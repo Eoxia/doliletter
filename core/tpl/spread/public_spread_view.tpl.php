@@ -1,4 +1,18 @@
 <?php
+
+// Spread config: external fields
+$confExtFirstnameMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY');
+$confExtFirstnameVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_VISIBLE') || $confExtFirstnameMandatory || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_VISIBLE') === '');
+
+$confExtLastnameMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_MANDATORY');
+$confExtLastnameVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_VISIBLE') || $confExtLastnameMandatory || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_VISIBLE') === '');
+
+$confExtEmailMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY');
+$confExtEmailVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') || $confExtEmailMandatory || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') === '');
+
+$confExtPhoneMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_MANDATORY');
+$confExtPhoneVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_VISIBLE') || $confExtPhoneMandatory || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_PHONE_VISIBLE') === '');
+
 /* Copyright (C) 2021-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -33,6 +47,39 @@
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 $tmpUser = new User($db);
 $form    = new Form($db);
+
+// Logo de l'entreprise : la page arrive par un lien brut, sans rien qui dise de qui elle vient.
+// Le wrapper public de Saturne sert l'image sans session, contrairement a viewimage.php natif.
+$spreadLogoFile = '';
+if (!empty($mysoc->logo_squarred_small)) {
+    $spreadLogoFile = 'logos/thumbs/' . $mysoc->logo_squarred_small;
+} elseif (!empty($mysoc->logo_squarred)) {
+    $spreadLogoFile = 'logos/thumbs/' . $mysoc->logo_squarred;
+} elseif (!empty($mysoc->logo_small)) {
+    $spreadLogoFile = 'logos/thumbs/' . $mysoc->logo_small;
+} elseif (!empty($mysoc->logo)) {
+    $spreadLogoFile = 'logos/' . $mysoc->logo;
+}
+$spreadLogoUrl = dol_strlen($spreadLogoFile)
+    ? DOL_URL_ROOT . '/custom/saturne/utils/viewimage.php?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode($spreadLogoFile)
+    : '';
+
+// Retours vers l'application, reserves aux personnes connectees : un visiteur anonyme n'aurait
+// qu'un ecran de connexion au bout du lien
+$spreadCardUrl   = '';
+$spreadMobileUrl = '';
+if ($isLogged && !empty($objectsMetadata[$objectType]['create_url'])) {
+    // Un plan de prevention ou un permis de feu verrouille ne se modifie plus
+    $isLocked = (!empty($isDigiriskRiskObject) && isset($ppObject) && $ppObject->status == $ppObject::STATUS_LOCKED);
+
+    if (!$isLocked) {
+        $spreadCardUrl = dol_buildpath(str_replace('?action=create', '', $objectsMetadata[$objectType]['create_url']), 1) . '?id=' . $id;
+
+        if (!empty($isDigiriskRiskObject)) {
+            $spreadMobileUrl = dol_buildpath('/custom/digiriskdolibarr/view/' . $ppElement . '/' . $ppElement . '_mobile_create.php', 1) . '?id=' . $id;
+        }
+    }
+}
 ?>
 
 <style>
@@ -46,6 +93,14 @@ body {
     margin: 20px auto;
     padding: 0;
     background: transparent;
+}
+
+/* Saturne pose width:100% + padding:2em sur ce conteneur, sans box-sizing et avec une
+   specificite superieure a la regle ci-dessus : sur mobile il deborde et rogne tout ce qu'il
+   contient (photos des risques, champs du formulaire d'inscription) */
+.page-public-card .public-card__container {
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .public-card__header {
@@ -216,7 +271,7 @@ body {
 }
 
 .file-icon {
-    font-size: 20px;
+    font-size: 16px;
     width: 40px;
     height: 40px;
     display: flex;
@@ -486,6 +541,23 @@ body {
     font-size: 16px;
 }
 
+.external-signatory {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.external-signatory__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.external-signatory__contact {
+    font-size: 12px;
+    color: #666;
+}
+
 .quick-sign {
     background: white;
     border: 1px solid #e5e5e5;
@@ -565,31 +637,354 @@ body {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .quick-sign-send-btn {
         min-width: auto;
     }
 }
+
+/* En-tete : la page arrive par un lien brut, le logo et la raison sociale disent de qui elle vient */
+.spread-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.spread-brand__logo {
+    flex-shrink: 0;
+    max-height: 44px;
+    max-width: 140px;
+    object-fit: contain;
+}
+
+.spread-brand__name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.spread-brand__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* Boutons sans libelle : la cible tactile doit rester tenable au doigt, d'ou le carre de 38px */
+.spread-back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+    color: #334155;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+}
+
+.spread-back-link:hover {
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+/* Qui d'autre a pris connaissance du document : c'est le sujet meme de la diffusion */
+.spread-signatories {
+    margin-top: 16px;
+    padding: 16px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.spread-signatories__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.spread-signatories__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.spread-signatories__title i {
+    color: #3b82f6;
+}
+
+.spread-signatories__count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.spread-signatories__empty {
+    padding-top: 12px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.spread-signatories__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.spread-signatories__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    font-size: 13px;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.spread-signatories__item:last-child {
+    border-bottom: none;
+}
+
+.spread-signatories__item i {
+    flex-shrink: 0;
+    color: #cbd5e1;
+}
+
+.spread-signatories__item--signed i {
+    color: #16a34a;
+}
+
+.spread-signatories__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 600;
+    color: #334155;
+    overflow-wrap: anywhere;
+}
+
+.spread-signatories__status {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Deux carres de 38px tiennent a cote du logo meme sur un telephone : plus besoin de les passer
+   sur une ligne a eux comme le faisaient les boutons avec libelle */
 </style>
 
+<?php
+$isSignedPreventionPlan = (!empty($isDigiriskRiskObject) && !empty($signSignatory) && $signSignatory->status == DoliletterSpreadSignature::STATUS_SIGNED);
+
+// Le libelle de l'objet suit ce qui est diffuse : plan de prevention ou permis de feu
+$spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->transnoentities($ppTexts['objectName'])) : '';
+?>
 <div class="public-card__container" data-public-interface="true">
+
     <div class="public-card__header">
         <div class="public-card__content">
-            <div class="object-title-section">
-                <?php echo $objectsMetadata[$objectType]['object']->getNomUrl(1) . (!empty($objectLabel) ? ' - ' . $objectLabel : '' ); ?>
+            <div class="spread-brand">
+                <?php if (dol_strlen($spreadLogoUrl)) { ?>
+                <img class="spread-brand__logo" src="<?php echo $spreadLogoUrl; ?>" alt="<?php echo dol_escape_htmltag($mysoc->name); ?>">
+                <?php } ?>
+                <span class="spread-brand__name"><?php echo dol_escape_htmltag($mysoc->name); ?></span>
+                
+                <span style="flex-grow: 1; text-align: center; font-weight: bold; font-size: 1.2em; color: #4a55d1; text-transform: uppercase;">
+                    <?php echo $langs->transnoentities($objectsMetadata[$objectType]['langs'] ?? ucfirst($objectsMetadata[$objectType]['object']->element)); ?>
+                </span>
+
+                <?php if (dol_strlen($spreadCardUrl) || dol_strlen($spreadMobileUrl)) { ?>
+                <!-- Deux icones sans texte : le crayon pour modifier le plan, la fleche pour
+                     revenir dans Dolibarr. Sans libelle visible, l'intitule doit rester porte par
+                     title et aria-label, sinon le bouton ne dit plus rien au survol ni au lecteur
+                     d'ecran -->
+                <div class="spread-brand__actions">
+                    <?php if (dol_strlen($spreadMobileUrl)) {
+                        $spreadEditLabel = $langs->trans('SpreadEditPlan');
+                    ?>
+                    <a class="spread-back-link" href="<?php echo $spreadMobileUrl; ?>" title="<?php echo dol_escape_htmltag($spreadEditLabel); ?>" aria-label="<?php echo dol_escape_htmltag($spreadEditLabel); ?>">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <?php } ?>
+                    <?php if (dol_strlen($spreadCardUrl)) {
+                        $spreadBackLabel = $langs->trans('SpreadBackToDolibarr');
+                    ?>
+                    <a class="spread-back-link" href="<?php echo $spreadCardUrl; ?>" title="<?php echo dol_escape_htmltag($spreadBackLabel); ?>" aria-label="<?php echo dol_escape_htmltag($spreadBackLabel); ?>">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <?php } ?>
+                </div>
+                <?php } ?>
             </div>
 
-            <?php if (!empty($linkedFilesFavorite)) {
+            <?php if (!($isSignedPreventionPlan && empty(GETPOST('hide_success')))) { ?>
+            <div class="object-title-section">
+                <?php
+                // Un visiteur anonyme n'a rien a faire d'un lien vers la fiche : il n'y accede pas
+                echo ($isLogged ? $objectsMetadata[$objectType]['object']->getNomUrl(1) : dol_escape_htmltag($objectRef)) . (!empty($objectLabel) ? ' - ' . dol_escape_htmltag($objectLabel) : '');
+                ?>
+            </div>
+            <?php } ?>
+
+
+
+            <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
+            <?php if ($isSignedPreventionPlan && empty(GETPOST('hide_success'))) { ?>
+        <!-- SUCCESS SCREEN -->
+        <div class="success-screen" style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 20px; text-decoration: none;"><i class="fas fa-times"></i></a>
+            
+            <div style="display: flex; align-items: flex-start; margin-bottom: 30px;">
+                <!-- Huge Check Icon on the left -->
+                <div style="margin-right: 30px; position: relative; margin-left: 10px;">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 100px; height: 100px; background-color: #22c55e; border-radius: 50%; color: white; font-size: 50px; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <!-- sparkles -->
+                    <div style="position: absolute; top: 15px; left: -20px; width: 12px; height: 4px; background: #22c55e; border-radius: 2px; transform: rotate(-30deg);"></div>
+                    <div style="position: absolute; top: 35px; left: -30px; width: 10px; height: 3px; background: #22c55e; border-radius: 2px; transform: rotate(-15deg);"></div>
+                    <div style="position: absolute; top: 15px; right: -20px; width: 12px; height: 4px; background: #22c55e; border-radius: 2px; transform: rotate(30deg);"></div>
+                    <div style="position: absolute; top: 35px; right: -30px; width: 10px; height: 3px; background: #22c55e; border-radius: 2px; transform: rotate(15deg);"></div>
+                </div>
+                
+                <!-- Title and Desc on the right -->
+                <div style="text-align: left; flex: 1;">
+                    <h1 style="font-size: 32px; color: #0f172a; margin: 0 0 12px 0; font-weight: 700; font-family: inherit;"><?php echo $langs->trans('SpreadObjectSignedTitle', dol_ucfirst($spreadObjectName)); ?></h1>
+                    <div style="font-size: 18px; color: #475569; margin-bottom: 12px; display: flex; align-items: center;">
+                        <i class="far fa-file-alt" style="margin-right: 12px; font-size: 22px; color: #94a3b8;"></i>
+                        <?php echo dol_escape_htmltag($objectRef . (!empty($objectLabel) ? ' - ' . $objectLabel : '')); ?>
+                    </div>
+                    <p style="font-size: 15px; color: #475569; margin: 0; line-height: 1.6; max-width: 600px;">
+                        <?php echo $langs->trans('SpreadObjectSignedText', $spreadObjectName); ?>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Stats row -->
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 30px; padding: 25px 0; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.01);">
+                
+                <!-- 1: Référence -->
+                <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
+                    <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Référence</div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($objectRef); ?></div>
+                </div>
+
+                <!-- 2: Intervenant -->
+                <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
+                    <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Intervenant</div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
+                </div>
+
+                <!-- 3: Date de signature -->
+                <div style="flex: 1; min-width: 150px; border-right: 1px solid #f1f5f9; padding: 0 15px; text-align: center;">
+                    <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="far fa-calendar-alt"></i>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Date de signature</div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
+                </div>
+
+                <!-- 4: Statut -->
+                <div style="flex: 1; min-width: 150px; padding: 0 15px; text-align: center;">
+                    <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="fas fa-check-square"></i>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Statut</div>
+                    <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
+                </div>
+
+            </div>
+
+            <!-- Etapes suivantes -->
+            <div style="text-align: left; margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; color: #2563eb; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px;">
+                    <div style="width: 20px; height: 20px; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
+                        <i class="fas fa-info"></i>
+                    </div>
+                    Étapes suivantes
+                </div>
+                
+                <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-radius: 10px; padding: 25px 20px; flex-wrap: wrap;">
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-user-friends"></i></div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les<br>autres intervenants</div>
+                    </div>
+                    <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #2563eb; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: #eff6ff;"><i class="fas fa-file-alt"></i></div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;"><?php echo $langs->trans('SpreadNextStepFollowObject', $spreadObjectName); ?></div>
+                    </div>
+                    <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-shield-alt"></i></div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les<br>mesures de prévention</div>
+                    </div>
+                    <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-clipboard-check"></i></div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre<br>les actions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="font-size: 15px; padding: 12px 28px; border: 1px solid #1e40af; color: #1e40af; background: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; cursor: pointer;">
+                    <i class="far fa-file-alt" style="margin-right: 10px; font-size: 18px;"></i> <?php echo $langs->trans('SpreadSeeObject', $spreadObjectName); ?>
+                </a>
+                
+                <a href="<?php echo $registerUrl; ?>" style="font-size: 15px; padding: 12px 28px; background: #0135b6; border: none; color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(1, 53, 182, 0.3);">
+                    <i class="fas fa-user-plus" style="margin-right: 10px; font-size: 18px;"></i> Ajouter un nouvel intervenant
+                </a>
+            </div>
+            <script>
+                if ('scrollRestoration' in history) {
+                    history.scrollRestoration = 'manual';
+                }
+                window.scrollTo(0, 0);
+            </script>
+        </div>
+    <?php } ?>
+            <?php
+            // Documents mis en avant : affiches en premier, avant le detail de l'objet, pour que
+            // la personne diffusee tombe dessus sans avoir a faire defiler la page
+            if (!empty($linkedFilesFavorite)) {
                 foreach ($linkedFilesFavorite as $key => $file) {
                     if (dol_mimetype($file->filename) != 'video/mp4') {
+                        // L'URL d'un <object> se donne dans data : avec data-src le navigateur
+                        // n'appelle jamais le document et le cadre reste vide.
+                        // attachment=0 : sans lui document.php repond Content-Disposition: attachment
+                        // et le navigateur telecharge le fichier au lieu de l'afficher dans le cadre.
+                        $filePreviewUrl = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share) . '&attachment=0';
                     ?>
                     <object
                         name="objectpreview"
                         type="<?php echo dol_mimetype($file->filename); ?>"
                         width="100%"
                         height="600px"
-                        param="noparam"
-                        data-src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>">
+                        data="<?php echo $filePreviewUrl; ?>">
+                        <a href="<?php echo $filePreviewUrl; ?>" target="_blank"><?php echo dol_escape_htmltag($file->filename); ?></a>
                     </object>
                     <?php } else { ?>
                         <video src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>" controls width="100%" height="600px">
@@ -597,6 +992,240 @@ body {
                         </video>
                     <?php } ?>
             <?php }} ?>
+<?php if (!($isSignedPreventionPlan && empty(GETPOST('hide_success')))) { ?>
+    <?php if (!$isLogged) { ?>
+        <?php if (!empty($publicRegisterEnabled) && empty($sign)) {
+            require __DIR__ . '/public_spread_register.tpl.php';
+        } ?>
+
+        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
+        <div class="quick-sign">
+            <h3>
+                <i class="fas fa-paper-plane"></i>
+                <?php echo $langs->trans('QuickSignature'); ?>
+            </h3>
+            <p><?php echo $langs->trans('SpreadQuickSignatureInfo') ?></p>
+            <div class="quick-sign-form">
+                <div class="quick-sign-email-group">
+                    <div class="quick-sign-email-field">
+                        <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
+                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
+                    </div>
+                    <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <?php echo $langs->trans('Send'); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+    <?php } ?>
+    <?php if (!empty($signSignatory)) { ?>
+        <div class="pp-single-person-welcome" style="margin-bottom: 25px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <p style="font-size: 16px; margin-bottom: 15px;">Bonjour, <strong><?php echo dol_escape_htmltag(trim($signSignatory->firstname . ' ' . $signSignatory->lastname)); ?></strong></p>
+            
+            <?php if (empty($signSignatory->signature)) { ?>
+            <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
+                <?php echo $langs->trans('SpreadRegisteredOnObject', $spreadObjectName); ?><br>
+                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+            </p>
+                <?php if (!empty($ppRisks)) { ?>
+                <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>" style="font-size: 15px; color: #b91c1c; background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 15px;">
+                    <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+                    <?php echo $langs->trans($ppTexts['toRead'], count($ppRisks)); ?><br>
+                    <span style="display: block; margin-top: 8px; font-weight: 600;"><?php echo $langs->trans($ppTexts['remaining']); ?> <span class="pp-risks-pending__count"><?php echo count($ppPendingRisks); ?></span>/<?php echo count($ppRisks); ?></span>
+                </div>
+                <?php } ?>
+            <?php } else { ?>
+            <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
+                <?php echo $langs->trans('SpreadViewingObject', $spreadObjectName); ?><br>
+                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+            </p>
+            <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
+                <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                Vous avez signé ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y  %H:%M'); ?>.
+            </div>
+            <?php } ?>
+        </div>
+    <?php } ?>
+            <?php if (!empty($permissiontoadd) && empty($sign)) {
+                $hasUnsigned = false;
+                if (!empty($signatories) && is_array($signatories)) {
+                    foreach ($signatories as $s) {
+                        if (empty($s->signature)) {
+                            $hasUnsigned = true;
+                            break;
+                        }
+                    }
+                }
+                $addBtnClass = $hasUnsigned ? "button-disable" : "";
+                $addBtnAttr = $hasUnsigned ? "disabled=\"disabled\" title=\"Veuillez d'abord valider la signature en attente\"" : "";
+            ?>
+                <div class="add-user-section tabsAction" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button type="button" class="wpeo-button button-blue add-user-btn <?php echo $addBtnClass; ?>" data-type="internal" <?php echo $addBtnAttr; ?>>
+                        <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire interne'); ?>
+                    </button>
+                    <button type="button" class="wpeo-button button-blue add-user-btn <?php echo $addBtnClass; ?>" data-type="external" <?php echo $addBtnAttr; ?>>
+                        <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire externe'); ?>
+                    </button>
+                    <button type="button" class="wpeo-button button-blue copy-link-btn" style="padding: 8px 12px; font-size: 0.9em;" title="<?php echo dol_escape_htmltag($langs->trans('CopyLink')); ?>" onclick="navigator.clipboard.writeText(window.location.href).then(function() { $.jnotify('<?php echo dol_escape_js($langs->trans('LinkCopiedToClipboard')); ?>', 'success'); });">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            <?php } ?>
+
+
+            <?php if (!empty($permissiontoadd) && empty($sign)) { ?>
+            <div class="user-list-container">
+                <div class="user-signatures-list" id="userSignaturesList">
+                    <!-- Utilisateurs pré-signés par défaut -->
+
+
+                    <?php
+
+                    // If there are already added signatories, display them
+                    $signatories = array_reverse($signatories, true);
+                    foreach ($signatories as $index => $signatoryItem) {
+                        // A signatory registered from the public page carries their own identity, no Dolibarr user behind it
+                        $isExternalSignatory = ($signatoryItem->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
+                        $isSignatoryReady = false;
+                        $isEmailReady = false;
+                        if ($isExternalSignatory) {
+                            $isSignatoryReady = true;
+                            if ($confExtFirstnameMandatory && trim($signatoryItem->first_name) === '') $isSignatoryReady = false;
+                            if ($confExtLastnameMandatory && trim($signatoryItem->last_name) === '') $isSignatoryReady = false;
+                            if ($confExtEmailMandatory && trim($signatoryItem->email) === '') $isSignatoryReady = false;
+                            if ($confExtPhoneMandatory && trim($signatoryItem->phone) === '') $isSignatoryReady = false;
+                            $isEmailReady = (trim($signatoryItem->email) !== '');
+                        } else {
+                            $isSignatoryReady = (!empty($signatoryItem->element_id) && $signatoryItem->element_id != -1);
+                            $isEmailReady = $isSignatoryReady;
+                        }
+                        if (empty($signatoryItem->signature)) {
+                        ?>
+                        <div class="user-signature-item signature-not-validated" data-user-index="<?php echo $signatoryItem->id; ?>">
+                            <div class="user-info">
+                                <div class="form-row">
+                                    <div class="form-element">
+                                        <label for="attendant_user"><?php echo $langs->trans('User'); ?></label>
+                                        <div class="input-with-actions">
+                                            <div class="user-status">
+                                                <?php if ($isExternalSignatory) { ?>
+                                                    <div class="external-signatory">
+                                                        <?php if (empty($permissiontoadd)) { ?>
+                                                            <span class="external-signatory__name"><?php echo dol_escape_htmltag(doliletter_spread_get_signatory_name($signatoryItem)); ?></span>
+                                                            <span class="external-signatory__contact"><?php echo dol_escape_htmltag($signatoryItem->email); ?><?php echo dol_strlen($signatoryItem->phone) ? ' - ' . dol_escape_htmltag($signatoryItem->phone) : ''; ?></span>
+                                                        <?php } else { ?>
+                                                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                                                <div style="display: flex; gap: 8px;">
+                                                                    <?php if ($confExtFirstnameVisible) { ?>
+                                                                    <input type="text" class="external-signatory-input" data-field="first_name" <?php echo $confExtFirstnameMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->first_name); ?>" placeholder="<?php echo $langs->trans('Firstname') . ($confExtFirstnameMandatory ? ' *' : ''); ?>" style="width: 50%;">
+                                                                    <?php } ?>
+                                                                    <?php if ($confExtLastnameVisible) { ?>
+                                                                    <input type="text" class="external-signatory-input" data-field="last_name" <?php echo $confExtLastnameMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->last_name); ?>" placeholder="<?php echo $langs->trans('Lastname') . ($confExtLastnameMandatory ? ' *' : ''); ?>" style="width: 50%;">
+                                                                    <?php } ?>
+                                                                </div>
+                                                                <div style="display: flex; gap: 8px;">
+                                                                    <?php if ($confExtEmailVisible) { ?>
+                                                                    <input type="email" class="external-signatory-input" data-field="email" <?php echo $confExtEmailMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->email); ?>" placeholder="<?php echo $langs->trans('Email') . ($confExtEmailMandatory ? ' *' : ''); ?>" style="width: 50%;">
+                                                                    <?php } ?>
+                                                                    <?php if ($confExtPhoneVisible) { ?>
+                                                                    <input type="text" class="external-signatory-input" data-field="phone" <?php echo $confExtPhoneMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->phone); ?>" placeholder="<?php echo $langs->trans('Phone') . ($confExtPhoneMandatory ? ' *' : ''); ?>" style="width: 50%;">
+                                                                    <?php } ?>
+                                                                </div>
+                                                            </div>
+                                                        <?php } ?>
+                                                    </div>
+                                                <?php } else {
+                                                    print $form->select_dolusers(empty($signatoryItem->element_id) ? -1 : $signatoryItem->element_id, 'attendant_user_' . $signatoryItem->id, 1, [], 0, '', '', $conf->entity, 0, 0, '', 0, '', 'minwidth150 widthcentpercentminusx user-select-small', 1);
+                                                } ?>
+                                            </div>
+                                            <div class="signature-status">
+                                                <span class="badge badge-dot badge-status<?php echo $isSignatoryReady ? '1' : '0' ?> badge-status"></span>
+                                                <i class="fas fa-signature"></i>
+                                                <span>jj/mm/aaaa --:--</span>
+                                            </div>
+                                            <button type="button" class="wpeo-button button-<?php echo $isSignatoryReady ? 'primary' : 'disable' ?> sign-btn">
+                                                <i class="fas fa-signature"></i>
+                                            </button>
+                                            <?php if (!empty($permissiontoadd)) { ?>
+                                            <button type="button" class="wpeo-button button-<?php echo $isEmailReady ? 'primary' : 'disable' ?> send-email-btn" <?php echo $isEmailReady ? '' : 'disabled'; ?>>
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                            <button type="button" class="wpeo-button button-red remove-user-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    <?php
+                    // Prevention plan:                    // Prevention plan: one photo per required certification (document) for this signatory
+                    if (!empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
+                        print '<div class="pp-signatory-media-row" style="border-top: 1px dashed #e5e5e5; margin-top: 10px; padding-top: 10px;">';
+                        print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> Envoyer les éléments demandés</div>';
+                        $certSignatoryId = $signatoryItem->id;
+                        require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
+                        print '</div>';
+                    }
+                    ?>
+                        </div> <!-- close user-signature-item -->
+                    <?php
+                        } // close if (empty($signatoryItem->signature))
+                    } // close foreach
+                    ?>
+
+                </div>
+
+                
+            </div>
+            <?php } ?>
+        </div>
+    </div>
+
+            <?php if (!empty($signSignatory)) { ?>
+            <!-- Single-person view: only this signatory's signature + their certification photos -->
+            <div class="pp-single-person">
+                <?php if (!empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
+                    $certSignatoryId = $signSignatory->id;
+                    require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
+                } ?>
+
+                <?php if (empty($signSignatory->signature) && !empty($ppPendingCertifications)) { ?>
+                <!-- Mandatory documents block signing until they are uploaded or waived -->
+                <div class="pp-mandatory-pending">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <?php echo $langs->trans('SpreadMandatoryCertificationsPending'); ?>
+                        <ul class="pp-mandatory-pending__list">
+                            <?php foreach ($ppPendingCertifications as $pendingCertification) { ?>
+                            <li data-cert-code="<?php echo dol_escape_htmltag($pendingCertification['code']); ?>"><?php echo dol_escape_htmltag($pendingCertification['label']); ?></li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                </div>
+                <?php } ?>
+
+                <?php if (empty($signSignatory->signature)) { ?>
+                <!-- Inline signature panel: no modal, the person signs directly on the page -->
+                <div class="pp-inline-signature">
+                    <div class="pp-inline-signature__title"><i class="fas fa-signature"></i> <?php echo $langs->trans('Signature'); ?></div>
+                    <div class="signature-element">
+                        <canvas id="signatureCanvas" class="canvas-container editable canvas-signature pp-inline-canvas" width="600" height="200"></canvas>
+                        <div class="signature-erase wpeo-button button-square-40 button-rounded button-red">
+                            <span><i class="fas fa-eraser"></i></span>
+                        </div>
+                    </div>
+                    <div class="pp-inline-signature__actions">
+                        <button type="button" class="wpeo-button button-disable validate-sign-btn" disabled>
+                            <i class="fas fa-check"></i> <?php echo $langs->trans('ValidateSignature'); ?>
+                        </button>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+            <?php } ?>
 
             <?php if (!empty($linkedLinksFavorite)) { ?>
                 <div class="linked-links-section">
@@ -648,6 +1277,14 @@ body {
                 </div>
             </div>
             <?php } ?>
+
+            <?php if (!empty($isDigiriskRiskObject)) {
+                require __DIR__ . '/digiriskdolibarr_public_info.tpl.php';
+            } ?>
+
+            <div id="bottomSignBtnPlaceholder" style="text-align: right; margin-top: 15px; margin-bottom: 30px;"></div>
+
+
             <?php if (!empty($linkedLinks)) { ?>
                 <div class="linked-files-section">
                     <div class="linked-files-grid">
@@ -672,106 +1309,17 @@ body {
                 </div>
             <?php } ?>
 
-            <?php if (!empty($permissiontoadd)) { ?>
-            <div class="user-list-container">
-                <div class="user-signatures-list" id="userSignaturesList">
-                    <!-- Utilisateurs pré-signés par défaut -->
-
-
-                    <?php
-
-                    // If there are already added signatories, display them
-                    foreach ($signatories as $index => $signatoryItem) {
-                        if (empty($signatoryItem->signature)) {
-                        ?>
-                        <div class="user-signature-item signature-not-validated" data-user-index="<?php echo $signatoryItem->id; ?>">
-                            <div class="user-info">
-                                <div class="form-row">
-                                    <div class="form-element">
-                                        <label for="attendant_user"><?php echo $langs->trans('User'); ?></label>
-                                        <div class="input-with-actions">
-                                            <div class="user-status">
-                                                <?php
-                                                print $form->select_dolusers(empty($signatoryItem->element_id) ? -1 : $signatoryItem->element_id, 'attendant_user_' . $signatoryItem->id, 1, [], 0, '', '', $conf->entity, 0, 0, '', 0, '', 'minwidth150 widthcentpercentminusx user-select-small', 1);
-                                                ?>
-                                            </div>
-                                            <div class="signature-status">
-                                                <span class="badge badge-dot badge-status<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? '0' : '1' ?> badge-status"></span>
-                                                <i class="fas fa-signature"></i>
-                                                <span>jj/mm/aaaa --:--</span>
-                                            </div>
-                                            <button type="button" class="wpeo-button button-<?php echo empty($signatoryItem->element_id) || $signatoryItem->element_id == -1 ? 'disable' : 'primary' ?> sign-btn">
-                                                <i class="fas fa-signature"></i>
-                                            </button>
-                                            <?php if (!empty($permissiontoadd)) { ?>
-                                            <button type="button" class="wpeo-button button-<?php echo (empty($signatoryItem->element_id) || $signatoryItem->element_id == -1) ? 'disable' : 'primary' ?> send-email-btn">
-                                                <i class="fas fa-paper-plane"></i>
-                                            </button>
-                                            <button type="button" class="wpeo-button button-red remove-user-btn">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php
-                    } else {
-                    ?>
-                        <div class="user-signature-item signature-validated" data-user-index="<?php echo $signatoryItem->id; ?>">
-                            <div class="user-info">
-                                <div class="form-row">
-                                    <div class="form-element">
-                                        <div class="input-with-actions">
-                                            <div class="user-status">
-                                                <?php
-                                                $tmpUser->fetch($signatoryItem->element_id);
-                                                echo $tmpUser->getNomUrl(1);
-                                                ?>
-                                            </div>
-                                            <div class="signature-status">
-                                                <span class="badge badge-dot badge-status4 badge-status"></span>
-                                                <i class="fas fa-signature"></i>
-                                                <span><?php echo dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') ?></span>
-                                            </div>
-                                            <?php if ($permissiontoadd) { ?>
-                                                <?php if (!empty($permissiontoshowsignature) && getDolGlobalInt('DOLILETTER_SPREAD_SHOW_SIGNATURE')) { ?>
-                                                <a href="<?php echo DOL_URL_ROOT . '/custom/saturne/public/signature/add_signature.php?track_id=' . $signatoryItem->signature_url . '&entity=1&module_name=doliletter&object_type=doliletterattendancesheet'; ?>"
-                                                    target="_blank" class="wpeo-button">
-                                                    <i class="fas fa-eye" style="color:white"></i>
-                                                </a>
-                                                <?php } ?>
-                                                <button type="button" class="wpeo-button button-disable send-email-btn" disabled>
-                                                    <i class="fas fa-paper-plane"></i>
-                                                </button>
-                                                <button type="button" class="wpeo-button button-red remove-user-btn">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php
-                    }
-                    }
-                    ?>
-
-                </div>
-
-                <div class="add-user-section tabsAction">
-                    <button type="button" class="wpeo-button button-blue add-user-btn">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
+            <?php if (!empty($sign) && empty($signSignatory)) { ?>
+            <!-- A sign token was provided but does not resolve: never fall back to the global list -->
+            <div class="pp-invalid-link">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><?php echo $langs->trans('ErrorInvalidSignatureLink'); ?></span>
             </div>
             <?php } ?>
-        </div>
-    </div>
 
-    <?php if (!empty($isLogged)) { ?>
+                <?php
+    $hidePublicNote = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_HIDE_PUBLIC_NOTE', 1);
+    if (!empty($isLogged) && empty($hidePublicNote)) { ?>
     <!-- Public Note Section moved to bottom -->
     <div class="public-note-section">
         <div class="public-note-header">
@@ -788,35 +1336,23 @@ body {
     </div>
     <?php } ?>
 
-    <?php if (!$isLogged) { ?>
 
-        <?php if (getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN') && empty($sign)) { ?>
 
-        <div class="quick-sign">
-            <h3>
-                <i class="fas fa-paper-plane"></i>
-                <?php echo $langs->trans('QuickSignature'); ?>
-            </h3>
-            <p><?php echo $langs->trans('SpreadQuickSignatureInfo') ?></p>
-            <div class="quick-sign-form">
-                <div class="quick-sign-email-group">
-                    <div class="quick-sign-email-field">
-                        <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
-                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
-                    </div>
-                    <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
-                        <i class="fas fa-paper-plane"></i>
-                        <?php echo $langs->trans('Send'); ?>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <?php } ?>
 
-        <div class="login-message">
-            <p><?= $langs->transnoentities('ConnectForMoreInfo', '?' . http_build_query($_GET + ['action' => 'login'])); ?></p>
-        </div>
-    <?php } ?>
+
+    <?php
+    // Signed list configuration
+    $showCount   = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATURE_COUNT', 1);
+    $showName    = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_NAME', 1);
+    $showContact = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_CONTACT', 0);
+
+    // Une personne diffusee doit pouvoir voir qui d'autre a pris connaissance du document. La liste
+    // modifiable ci-dessus est reservee aux gestionnaires : celle-ci est en lecture seule.
+    // L'affichage est conditionn� par les param�tres ou s'il s'agit d'un visiteur public.
+    if ((!$isLogged && !empty($signSignatory)) || $showCount || $showName || $showContact) {
+        require __DIR__ . '/public_spread_signatories.tpl.php';
+    }
+    ?>
 </div>
 
 <?php
@@ -842,7 +1378,8 @@ function getFileIcon($extension) {
 }
 ?>
 
-<!-- Modal de signature -->
+<!-- Modal de signature (not rendered when a sign token is used: the signature panel is inline there) -->
+<?php if (empty($sign)) { ?>
 <div id="signatureModal" class="modal-spread">
     <div class="modal-spread-content">
         <div class="modal-spread-header">
@@ -867,13 +1404,38 @@ function getFileIcon($extension) {
         </div>
     </div>
 </div>
+<?php } ?>
+
+<?php } ?>
+
 
 <script>
+function updateBottomSignBtn() {
+    $('#bottomSignBtnPlaceholder').empty();
+    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn');
+    if ($topSignBtn.length > 0) {
+        let $bottomBtn = $topSignBtn.clone();
+        $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities('ValidateSignature')); ?>');
+        $bottomBtn.data('user-index', $topSignBtn.parents('.user-signature-item').data('user-index'));
+        $('#bottomSignBtnPlaceholder').append($bottomBtn);
+    }
+}
+
 let currentUserIndex = null;
 
 function openSignatureModal(userIndex = null) {
     if (typeof userIndex == 'object') {
-        userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+        userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
+    }
+
+    // Chaque signataire acquitte les risques pour lui-meme : la case est remise a zero quand on en
+    // ajoute un, ce qui passe inapercu puisqu'on vient de la cocher pour le precedent. Le refus
+    // arrivait alors du serveur, une fois la signature tracee, sous forme d'un message en haut
+    // d'une page tres longue. On bloque desormais avant d'ouvrir, et on montre le risque en cause.
+    if (window.ppRiskAck && window.ppRiskAck.pendingCount() > 0) {
+        $.jnotify(<?php echo json_encode($langs->transnoentities('SpreadRiskMustAcknowledgeFirst', '%s')); ?>.replace('%s', window.ppRiskAck.pendingCount()), {type: 'warning'});
+        window.ppRiskAck.focusPending();
+        return;
     }
 
     currentUserIndex = userIndex;
@@ -909,7 +1471,9 @@ function openSignatureModal(userIndex = null) {
 
 function closeSignatureModal() {
     const modal = document.getElementById('signatureModal');
-    modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+    }
     currentUserIndex = null;
 
     // Clear the canvas when closing
@@ -958,48 +1522,115 @@ function clearSignature() {
     updateValidateButtonState();
 }
 
+function getResponseMessage(response, id) {
+    return $('<div></div>').append(response).find('#' + id);
+}
+
 function validateSignature() {
     if (currentUserIndex !== null && !isCanvasEmpty()) {
 
         var signature = window.saturne.signature.canvas.toDataURL();
+
+        // Risks read on the page: without a ?sign= link nothing could be recorded while the visitor
+        // was ticking them, so they travel with the signature and are saved just before it
+        var acknowledgedRisks = window.ppRiskAck ? window.ppRiskAck.getAcknowledgedCategories() : [];
 
         $.ajax({
             method: 'POST',
             url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=validate_signature&signatory_id=' + currentUserIndex,
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({
-                signature
+                signature,
+                acknowledged_risks: acknowledgedRisks
             }),
             success: function (response) {
+                // Signature refused server-side, typically a mandatory document still waiting for an answer
+                const error = getResponseMessage(response, 'error');
+                if (error.length) {
+                    $.jnotify(error.val(), {type: 'error'});
+                    return;
+                }
 
-                $('.user-signature-item[data-user-index="' + currentUserIndex + '"]').replaceWith($(response).find('.user-signature-item[data-user-index="' + currentUserIndex + '"]'));
+                                // Inline (single-person) mode: refresh the page to show the success screen.
+                // The ?sign= token stays valid, so the response already holds the signed state.
+                if ($('.pp-inline-signature').length) {
+                    window.location.reload();
+                    return;
+                }
+
+                // The device goes to the next attendee: they have to go through the risks themselves
+                if (window.ppRiskAck) {
+                    window.ppRiskAck.reset();
+                }
 
                 closeSignatureModal();
-                
+
                 // Add success notification
-                $.jnotify('<?php echo $langs->trans("SignatureValidatedSuccessfully"); ?>', {type: 'success'});
+                $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SignatureValidatedSuccessfully')); ?>', {type: 'success'});
+                
+                setTimeout(function() {
+                    window.location.reload();
+                }, 500);
             },
         });
     }
 }
 
 function addUser() {
+    let type = $(this).data('type') || 'internal';
     let token          = window.saturne.toolbox.getToken();
     let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
 
     $.ajax({
         method: 'POST',
-        url: document.URL + querySeparator + 'action=add_spread_user' + '&token=' + token,
+        url: document.URL + querySeparator + 'action=add_spread_user&type=' + type + '&token=' + token,
         processData: false,
         contentType: 'application/json charset=utf-8',
         success: function (resp) {
-            $(document).find('.user-signatures-list').append($(resp).find('.user-signature-item').last());
+            let $newList = $(resp).find('.user-signatures-list').children();
+            let firstItemIndex = -1;
+            let nextItemIndex = -1;
+            $newList.each(function(i) {
+                if ($(this).hasClass('user-signature-item')) {
+                    if (firstItemIndex === -1) {
+                        firstItemIndex = i;
+                    } else if (nextItemIndex === -1) {
+                        nextItemIndex = i;
+                    }
+                }
+            });
+            if (firstItemIndex !== -1) {
+                let $elementsToAdd = nextItemIndex !== -1 ? $newList.slice(firstItemIndex, nextItemIndex) : $newList.slice(firstItemIndex);
+                $(document).find('.user-signatures-list').prepend($elementsToAdd);
+            }
+            
+            let $newAddSection = $(resp).find('.add-user-section');
+            if ($newAddSection.length) {
+                $('.add-user-section').replaceWith($newAddSection);
+            }
+            refreshSignatoriesBlock(resp);
+            updateBottomSignBtn();
         }
     })
 }
 
+/**
+ * Repeindre le recapitulatif des signataires avec celui que le serveur vient de renvoyer.
+ * Ajouter ou retirer un signataire ne touchait que la liste du haut : le bloc du bas gardait le
+ * compte d'avant et affichait encore "0 signature(s) sur 0" jusqu'a un rechargement complet.
+ *
+ * @param {String} resp Reponse HTML complete de la page
+ * @return {void}
+ */
+function refreshSignatoriesBlock(resp) {
+    let $newSignatories = $(resp).find('.spread-signatories');
+    if ($newSignatories.length) {
+        $('.spread-signatories').replaceWith($newSignatories);
+    }
+}
+
 function removeUser() {
-    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    const userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
     const userItem    = document.querySelector(`[data-user-index="${userIndex}"]`);
     const token       = window.saturne.toolbox.getToken();
 
@@ -1010,13 +1641,20 @@ function removeUser() {
             url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=remove_spread_user&signatory_id=' + userIndex + '&token=' + token,
             success: function (resp) {
                 userItem.remove();
+                
+                let $newAddSection = $(resp).find('.add-user-section');
+                if ($newAddSection.length) {
+                    $('.add-user-section').replaceWith($newAddSection);
+                }
+                refreshSignatoriesBlock(resp);
+                updateBottomSignBtn();
             },
         });
     }
 }
 
 function sendMail() {
-    const userIndex   = $(this).parents('.user-signature-item').eq(0).data('user-index');
+    const userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
 
     const token       = window.saturne.toolbox.getToken();
 
@@ -1030,8 +1668,22 @@ function sendMail() {
         contentType: 'application/json charset=utf-8',
         success: function (resp) {
 
-            const message = $(resp).val();
-            const isError = $(resp).attr('id') === 'error';
+            let message = "Erreur inconnue";
+            let isError = true;
+            if (typeof resp === "string") {
+                const matchSuccess = resp.match(/id="success"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="success"/i);
+                const matchError = resp.match(/id="error"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="error"/i);
+                if (matchSuccess) {
+                    message = matchSuccess[1];
+                    isError = false;
+                } else if (matchError) {
+                    message = matchError[1];
+                } else {
+                    message = resp.substring(0, 100);
+                }
+            } else {
+                message = "Type non g�r�: " + (typeof resp);
+            }
 
             if (isError) {
                 $.jnotify(message, {type: 'error'});
@@ -1072,7 +1724,7 @@ function sendQuickSignEmail() {
     const button = $(this);
 
     if (!email || !email.includes('@')) {
-        $.jnotify('<?php echo $langs->trans('PleaseEnterValidEmail'); ?>', {type: 'error'});
+        $.jnotify('<?php echo dol_escape_js($langs->transnoentities('PleaseEnterValidEmail')); ?>', {type: 'error'});
         return;
     }
 
@@ -1087,26 +1739,188 @@ function sendQuickSignEmail() {
         processData: false,
         contentType: 'application/json; charset=utf-8',
         success: function (resp) {
-            const message = $(resp).val();
-            const isError = $(resp).attr('id') === 'error';
+            let message = "Erreur inconnue";
+            let isError = true;
+            if (typeof resp === "string") {
+                const matchSuccess = resp.match(/id="success"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="success"/i);
+                const matchError = resp.match(/id="error"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="error"/i);
+                if (matchSuccess) {
+                    message = matchSuccess[1];
+                    isError = false;
+                } else if (matchError) {
+                    message = matchError[1];
+                } else {
+                    message = resp.substring(0, 100);
+                }
+            } else {
+                message = "Type non g�r�: " + (typeof resp);
+            }
 
             if (isError) {
                 $.jnotify(message, {type: 'error'});
             } else {
-                $.jnotify('<?php echo $langs->trans('EmailSentSuccessfully'); ?>', {type: 'success'});
+                $.jnotify('<?php echo dol_escape_js($langs->transnoentities('EmailSentSuccessfully')); ?>', {type: 'success'});
                 $('#quick-sign-email').val('');
             }
 
             window.saturne.loader.remove(button);
         },
         error: function() {
-            $.jnotify('<?php echo $langs->trans('ErrorSendingEmail'); ?>', {type: 'error'});
+            $.jnotify('<?php echo dol_escape_js($langs->transnoentities('ErrorSendingEmail')); ?>', {type: 'error'});
             window.saturne.loader.remove(button);
         }
     });
 }
 
+function registerPublicSignatory() {
+    const button = $(this);
+    const token  = window.saturne.toolbox.getToken();
+    
+    // Check for temporary documents
+    let tmpSignatoryId = null;
+    let notConcernedCodes = [];
+    if ($('#public-register-tmp-id').length) {
+        tmpSignatoryId = $('#public-register-tmp-id').val();
+        const ncState = JSON.parse($('#public-register-not-concerned').val() || '{}');
+        notConcernedCodes = Object.keys(ncState).filter(code => ncState[code]);
+    }
+
+    const fields = {
+        firstname: $('#public-register-firstname').val(),
+        lastname:  $('#public-register-lastname').val(),
+        email:     $('#public-register-email').val(),
+        phone:     $('#public-register-phone').val(),
+        tmp_signatory_id: tmpSignatoryId,
+        not_concerned_codes: notConcernedCodes
+    };
+
+    let hasError = false;
+    <?php if ($confExtFirstnameMandatory) { ?>
+    if (!fields.firstname) hasError = true;
+    <?php } ?>
+    <?php if ($confExtLastnameMandatory) { ?>
+    if (!fields.lastname) hasError = true;
+    <?php } ?>
+    <?php if ($confExtPhoneMandatory) { ?>
+    if (!fields.phone) hasError = true;
+    <?php } ?>
+    <?php if ($confExtEmailMandatory) { ?>
+    if (!fields.email) hasError = true;
+    <?php } ?>
+
+    if (hasError) {
+        $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SpreadPublicRegisterMissingFields')); ?>', {type: 'error'});
+        return;
+    }
+
+    // A single "@" is not a check: the server refuses what it rejects, and the visitor only found
+    // out after a round trip with an error naming their own address
+    <?php if ($confExtEmailVisible) { ?>
+    if (fields.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(fields.email)) {
+        $.jnotify('<?php echo dol_escape_js($langs->transnoentities('PleaseEnterValidEmail')); ?>', {type: 'error'});
+        return;
+    }
+    <?php } ?>
+
+    window.saturne.loader.display(button);
+
+    $.ajax({
+        method: 'POST',
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=register_public_signatory&token=' + token,
+        data: JSON.stringify(fields),
+        processData: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+            const error = getResponseMessage(response, 'error');
+            if (error.length) {
+                $.jnotify(error.val(), {type: 'error'});
+                window.saturne.loader.remove(button);
+                return;
+            }
+
+            // Land straight on the personal page: signature and required documents live there
+            const redirect = getResponseMessage(response, 'redirect');
+            if (redirect.length) {
+                window.location.href = redirect.val();
+            } else {
+                window.saturne.loader.remove(button);
+            }
+        },
+        error: function () {
+            $.jnotify('<?php echo dol_escape_js($langs->transnoentities('Error')); ?>', {type: 'error'});
+            window.saturne.loader.remove(button);
+        }
+    });
+}
+
+function toggleCertNotConcerned() {
+    const button       = $(this);
+    const certItem     = button.parents('.pp-cert-upload').eq(0);
+    const notConcerned = !certItem.hasClass('pp-cert-upload--not-concerned');
+    const token        = window.saturne.toolbox.getToken();
+    const sigId        = certItem.data('cert-signatory-id');
+    const certCode     = certItem.data('cert-code');
+
+    if (typeof sigId === 'string' && sigId.startsWith('tmp_')) {
+        if (notConcerned) {
+            certItem.addClass('pp-cert-upload--not-concerned');
+            button.addClass('pp-cert-not-concerned-btn--active');
+            button.find('i').removeClass('fa-ban').addClass('fa-undo');
+            button.find('span').text('<?php echo dol_escape_js($langs->transnoentities('SpreadIAmConcerned')); ?>');
+        } else {
+            certItem.removeClass('pp-cert-upload--not-concerned');
+            button.removeClass('pp-cert-not-concerned-btn--active');
+            button.find('i').removeClass('fa-undo').addClass('fa-ban');
+            button.find('span').text('<?php echo dol_escape_js($langs->transnoentities('SpreadIAmNotConcerned')); ?>');
+        }
+        
+        const ncInput = $('#public-register-not-concerned');
+        if (ncInput.length) {
+            const ncState = JSON.parse(ncInput.val() || '{}');
+            ncState[certCode] = notConcerned;
+            ncInput.val(JSON.stringify(ncState));
+        }
+        
+        updateValidateButtonState();
+        return;
+    }
+
+    $.ajax({
+        method: 'POST',
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=set_cert_not_concerned&token=' + token,
+        data: JSON.stringify({
+            signatory_id:  certItem.data('cert-signatory-id'),
+            cert_code:     certItem.data('cert-code'),
+            not_concerned: notConcerned
+        }),
+        processData: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+            const error = getResponseMessage(response, 'error');
+            if (error.length) {
+                $.jnotify(error.val(), {type: 'error'});
+                return;
+            }
+
+            certItem.toggleClass('pp-cert-upload--not-concerned', notConcerned);
+            button.toggleClass('pp-cert-not-concerned-btn--active', notConcerned);
+            button.find('i').attr('class', notConcerned ? 'fas fa-undo' : 'fas fa-ban');
+            button.find('span').text(notConcerned ? '<?php echo dol_escape_js($langs->transnoentities('SpreadIAmConcerned')); ?>' : '<?php echo dol_escape_js($langs->transnoentities('SpreadIAmNotConcerned')); ?>');
+
+            // The pending list is rebuilt server-side on the next load; keep it truthful meanwhile
+            $('.pp-mandatory-pending__list li[data-cert-code="' + certItem.data('cert-code') + '"]').toggle(!notConcerned);
+            $('.pp-mandatory-pending').toggle($('.pp-mandatory-pending__list li:visible').length > 0);
+        }
+    });
+}
+
 $(document).ready(function () {
+    updateBottomSignBtn();
+
+    $(document).on('click', '.public-register-btn', registerPublicSignatory);
+
+    $(document).on('click', '.pp-cert-not-concerned-btn', toggleCertNotConcerned);
+
     $(document).on('change', '.user-select-small', function () {
         let signatoryId = $(this).parents('.user-signature-item').eq(0).data('user-index');
         let val         = $(this).val();
@@ -1118,9 +1932,67 @@ $(document).ready(function () {
             contentType: 'application/json; charset=utf-8',
             success: function (resp) {
                 $('.user-signature-item[data-user-index="' + signatoryId + '"]').replaceWith($(resp).find('.user-signature-item[data-user-index="' + signatoryId + '"]'));
+                updateBottomSignBtn();
             }
         })
-    })
+    });
+
+    $(document).on('input change', '.external-signatory-input', function () {
+        let $container = $(this).parents('.user-signature-item').eq(0);
+        let signatoryId = $container.data('user-index');
+        let $fn = $container.find('input[data-field="first_name"]');
+        let $ln = $container.find('input[data-field="last_name"]');
+        let $em = $container.find('input[data-field="email"]');
+        let $ph = $container.find('input[data-field="phone"]');
+        let first_name = $fn.length ? $fn.val() : '';
+        let last_name = $ln.length ? $ln.val() : '';
+        let email = $em.length ? $em.val() : '';
+        let phone = $ph.length ? $ph.val() : '';
+        let token = window.saturne.toolbox.getToken();
+
+        let isReady = true;
+        if ($fn.length && $fn.data('mandatory') == '1' && first_name.trim() === '') isReady = false;
+        if ($ln.length && $ln.data('mandatory') == '1' && last_name.trim() === '') isReady = false;
+        if ($em.length && $em.data('mandatory') == '1' && email.trim() === '') isReady = false;
+        if ($ph.length && $ph.data('mandatory') == '1' && phone.trim() === '') isReady = false;
+
+        let $signBtn = $('.sign-btn');
+        let isEmailReady = ($em.length ? email.trim() !== '' : false);
+        let $sendEmailBtn = $container.find('.send-email-btn');
+        let $badge = $container.find('.badge-status');
+        
+        if (isReady) {
+            $signBtn.removeClass('button-disable').addClass('button-primary').prop('disabled', false);
+            $badge.removeClass('badge-status0').addClass('badge-status1');
+        } else {
+            $signBtn.removeClass('button-primary').addClass('button-disable').prop('disabled', true);
+            $badge.removeClass('badge-status1').addClass('badge-status0');
+        }
+        
+        if (isEmailReady) {
+            $sendEmailBtn.removeClass('button-disable').addClass('button-primary').prop('disabled', false);
+        } else {
+            $sendEmailBtn.removeClass('button-primary').addClass('button-disable').prop('disabled', true);
+        }
+
+
+        let data = {
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            phone: phone
+        };
+
+        $.ajax({
+            method: 'POST',
+            url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=update_spread_user_external&signatory_id=' + signatoryId + '&token=' + token,
+            data: $.param(data),
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function (resp) {
+                // Optionally update UI if needed, for now just saved silently
+            }
+        })
+    });
 
     $(document).on('click', '.close-modal-spread, .cancel-signature-btn', closeSignatureModal);
     $(document).on('click', '.add-user-btn', addUser);
@@ -1158,9 +2030,47 @@ $(document).ready(function () {
             });
     });
 
-    <?php if (!empty($directSignatoryId)) { ?>
+    <?php if (!empty($signSignatory) && empty($signSignatory->signature)) { ?>
+    // Single-person view: the signature panel is inline, bind it straight to this signatory (no modal)
+    currentUserIndex = <?php echo (int) $signSignatory->id; ?>;
+    (function () {
+        const inlineCanvas = document.getElementById('signatureCanvas');
+        if (inlineCanvas) {
+            inlineCanvas.addEventListener('mouseup', updateValidateButtonState);
+            inlineCanvas.addEventListener('touchend', updateValidateButtonState);
+            setTimeout(function() {
+                inlineCanvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+        }
+        updateValidateButtonState();
+    })();
+    <?php } elseif (!empty($directSignatoryId)) { ?>
     openSignatureModal(<?php echo (int) $directSignatoryId; ?>);
     <?php } ?>
 });
 
+</script>
+
+
+<script>
+(function() {
+    function formatDates() {
+        var dateEls = document.querySelectorAll('.local-date-formatter:not(.formatted)');
+        dateEls.forEach(function(el) {
+            var ts = parseInt(el.getAttribute('data-timestamp'), 10);
+            if (!isNaN(ts) && ts > 0) {
+                var d = new Date(ts * 1000);
+                var day = ("0" + d.getDate()).slice(-2);
+                var month = ("0" + (d.getMonth() + 1)).slice(-2);
+                var year = d.getFullYear();
+                var hours = ("0" + d.getHours()).slice(-2);
+                var minutes = ("0" + d.getMinutes()).slice(-2);
+                el.innerText = day + '/' + month + '/' + year + ' à ' + hours + ':' + minutes;
+                el.classList.add('formatted');
+            }
+        });
+    }
+    document.addEventListener("DOMContentLoaded", formatDates);
+    formatDates(); // run immediately in case DOM is already loaded
+})();
 </script>
