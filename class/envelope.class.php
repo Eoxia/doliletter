@@ -642,10 +642,12 @@ class EnvelopeSignature extends DoliletterSignature
 			foreach ($filter as $key => $value) {
 				if ($key == 'rowid') {
 					$sqlwhere[] = $key.'='.$value;
-				} elseif (in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
-					$sqlwhere[] = $key.' = \''.$this->db->idate($value).'\'';
+					// 'customsql' n'est pas un champ de l'objet : le tester apres la lecture de
+					// $this->fields[$key] lisait une cle absente, puis un offset sur null
 				} elseif ($key == 'customsql') {
 					$sqlwhere[] = $value;
+				} elseif (in_array($this->fields[$key]['type'] ?? '', array('date', 'datetime', 'timestamp'))) {
+					$sqlwhere[] = $key.' = \''.$this->db->idate($value).'\'';
 				} elseif (strpos($value, '%') === false) {
 					$sqlwhere[] = $key.' IN ('.$this->db->sanitize($this->db->escape($value)).')';
 				} else {
