@@ -20,18 +20,12 @@
 # Module label 'ModuleDoliLetterName'
 ModuleDoliLetterName = DoliLetter
 # Module description 'ModuleDoliLetterDesc'
-ModuleDoliLetterDesc = DoliLetter description
 
 #
 # Admin page
 #
 DoliLetterSetup = DoliLetter setup
 Settings = Settings
-DoliLetterSetupPage = DoliLetter setup page
-DOLILETTER_MYPARAM1 = My param 1
-DOLILETTER_MYPARAM1Tooltip = My param 1 tooltip
-DOLILETTER_MYPARAM2=My param 2
-DOLILETTER_MYPARAM2Tooltip=My param 2 tooltip
 
 
 #
@@ -39,18 +33,14 @@ DOLILETTER_MYPARAM2Tooltip=My param 2 tooltip
 #
 About = About
 DoliLetterAbout = About DoliLetter
-DoliLetterAboutPage = DoliLetter about page
 
 #
 # Sample page
 #
-MyPageName = My page name
 
 #
 # Sample widget
 #
-MyWidget = My widget
-MyWidgetDescription = My widget description
 
 ErrorInvalidSignatureLink = This signature link is no longer valid or has expired.
 ErrorNotAllowed = Action not allowed
