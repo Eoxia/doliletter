@@ -4523,3 +4523,261 @@ parameters:
 			identifier: booleanAnd.alwaysFalse
 			count: 1
 			path: view/spread/spread_list.php
+
+		-
+			message: '#^Cannot access property \$datec on object\|false\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Cannot access property \$datem on object\|false\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Cannot access property \$datev on object\|false\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Cannot access property \$fk_user_author on object\|false\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Cannot access property \$fk_user_cloture on object\|false\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Cannot access property \$fk_user_valid on object\|false\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Cannot access property \$rowid on object\|false\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Parameter \#1 \$socid of method Form\:\:selectcontacts\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/ajax/contacts.php
+
+		-
+			message: '#^Call to an undefined static method doc_signinsheet_odt\:\:getMoreParam\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheet/doc_signinsheet_odt.modules.php
+
+		-
+			message: '#^Call to an undefined static method pdf_signinsheetdocument_FE_Doliletter\:\:getMoreParam\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Binary operation "\-" between string and 1 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: envelope_agenda.php
+
+		-
+			message: '#^Parameter \#1 \$id of method Contact\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#1 \$id of method Envelope\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 3
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#1 \$socid of method Form\:\:selectcontacts\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#2 \$fk_object of method DoliletterSignature\:\:fetchSignatory\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#5 \$filter of method User\:\:fetchAll\(\) expects string, array\<string, string\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#7 \$src_object_id of method EcmFiles\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 6
+			path: envelope_card.php
+
+		-
+			message: '#^Property CommonObject\:\:\$fk_bank \(int\|null\) does not accept string\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Property Envelope\:\:\$fk_project \(int\|null\) does not accept string\.$#'
+			identifier: assign.propertyType
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#1 \$fk_socpeople of method CommonObject\:\:add_contact\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_contact.php
+
+		-
+			message: '#^Parameter \#1 \$id of method Envelope\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 5
+			path: envelope_contact.php
+
+		-
+			message: '#^Parameter \#1 \$rowid of method CommonObject\:\:delete_contact\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_contact.php
+
+		-
+			message: '#^Parameter \#1 \$rowid of method CommonObject\:\:swapContactStatus\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_contact.php
+
+		-
+			message: '#^Binary operation "\-" between string and 1 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: envelope_document.php
+
+		-
+			message: '#^Binary operation "\-" between string and 1 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Parameter \#2 \$user of method Contact\:\:fetch\(\) expects User\|null, int\<min, \-1\>\|int\<1, max\>\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Parameter \#4 \$month of function dol_mktime expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_list.php
+
+		-
+			message: '#^Parameter \#5 \$day of function dol_mktime expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_list.php
+
+		-
+			message: '#^Parameter \#6 \$year of function dol_mktime expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_list.php
+
+		-
+			message: '#^Parameter \#1 \$id of method Envelope\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_objects.php
+
+		-
+			message: '#^Parameter \#2 \$origin_id of method CommonObject\:\:add_object_linked\(\) expects int\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_objects.php
+
+		-
+			message: '#^Parameter \#1 \$id of method Envelope\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Parameter \#4 \$month of function dol_mktime expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_sending.php
+
+		-
+			message: '#^Parameter \#5 \$day of function dol_mktime expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_sending.php
+
+		-
+			message: '#^Parameter \#6 \$year of function dol_mktime expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_sending.php
+
+		-
+			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 2
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#1 \$id of method DoliletterSignature\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 3
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#1 \$id of method Envelope\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#2 \$fk_object of method DoliletterSignature\:\:fetchSignatory\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#3 \$element_ids of method DoliletterSignature\:\:setSignatory\(\) expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#1 \$id of method Categorie\:\:fetch\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Parameter \#3 \$objectid of method Link\:\:fetchAll\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Parameter \#4 \$objectId of function doliletter_spread_ensure_attendance_sheet expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: public/spread/add_spread.php
