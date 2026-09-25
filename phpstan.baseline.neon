@@ -1,0 +1,4525 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: admin/about.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: class/actions_doliletter.class.php
+
+		-
+			message: '#^Method ActionsDoliletter\:\:completeTabsHead\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/actions_doliletter.class.php
+
+		-
+			message: '#^Method ActionsDoliletter\:\:emailElementlist\(\) has parameter \$parameters with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/actions_doliletter.class.php
+
+		-
+			message: '#^Method ActionsDoliletter\:\:redirectAfterConnection\(\) has parameter \$parameters with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/actions_doliletter.class.php
+
+		-
+			message: '#^Property CommonObject\:\:\$id \(int\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: class/actions_doliletter.class.php
+
+		-
+			message: '#^Function dol_escape_htmltag invoked with 2 parameters, 1 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^Method DoliletterAttendanceSheet\:\:getLastSpreadList\(\) has parameter \$listOfSpreads with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^Method DoliletterAttendanceSheet\:\:getLastSpreadList\(\) has parameter \$signatories with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^PHPDoc type array of property DoliletterAttendanceSheet\:\:\$fields is not covariant with PHPDoc type array\<string, array\{type\: string, label\: string, langfile\?\: string, enabled\: int\<0, 2\>\|string, position\: int, notnull\?\: int, visible\: int\<\-6, 6\>\|string, alwayseditable\?\: int\<0, 1\>\|string, \.\.\.\}\> of overridden property CommonObject\:\:\$fields\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^PHPDoc type int of property DoliletterAttendanceSheet\:\:\$isextrafieldmanaged is not covariant with PHPDoc type int\<0, 1\> of overridden property SaturneObject\:\:\$isextrafieldmanaged\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^PHPDoc type int of property DoliletterAttendanceSheet\:\:\$ismultientitymanaged is not covariant with PHPDoc type int\<0, 1\>\|string of overridden property SaturneObject\:\:\$ismultientitymanaged\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^PHPDoc type int\|string of property DoliletterAttendanceSheet\:\:\$date_creation is not covariant with PHPDoc type ''''\|int\|null of overridden property CommonObject\:\:\$date_creation\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^PHPDoc type int\|string of property DoliletterAttendanceSheet\:\:\$tms is not covariant with PHPDoc type int of overridden property CommonObject\:\:\$tms\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^Parameter \#1 \$array of function end is passed by reference, so it expects variables only\.$#'
+			identifier: argument.byRef
+			count: 1
+			path: class/doliletterattendancesheet.class.php
+
+		-
+			message: '#^Access to an undefined property User\:\:\$user_mobile\.$#'
+			identifier: property.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Argument of an invalid type int\<1, max\> supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 2
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:fetch_object\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:free\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:lasterror\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:num_rows\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:order\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:plimit\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:query\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:sanitize\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Comparison operation "\>" between non\-empty\-array and 0 results in an error\.$#'
+			identifier: greater.invalid
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$fk_object follows optional parameter \$role\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 2
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:checkSignatoriesSignatures\(\) has parameter \$fk_object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:checkSignatoriesSignatures\(\) should return int but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:create\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:delete\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:deletePreviousSignatories\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:deleteSignatoriesSignatures\(\) has parameter \$document_generated with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:deleteSignatoriesSignatures\(\) has parameter \$fk_object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:deleteSignatoriesSignatures\(\) should return int but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:fetch\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:fetchSignatories\(\) has parameter \$fk_object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:setAbsent\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:setDeleted\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:setPending\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:setRegistered\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:setSigned\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Method DoliletterSignature\:\:update\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int						\<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 179 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 2
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int						\<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 180 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 2
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int						\<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 183 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 194 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 197 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, Id of created object if OK\)\: Unexpected token "if", expected ''\>'' at offset 196 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int         \<0 if KO, 0 if not found, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 201 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc type array of property DoliletterSignature\:\:\$fields is not covariant with PHPDoc type array\<string, array\{type\: string, label\: string, langfile\?\: string, enabled\: int\<0, 2\>\|string, position\: int, notnull\?\: int, visible\: int\<\-6, 6\>\|string, alwayseditable\?\: int\<0, 1\>\|string, \.\.\.\}\> of overridden property CommonObject\:\:\$fields\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc type int of property DoliletterSignature\:\:\$isextrafieldmanaged is not covariant with PHPDoc type int\<0, 1\> of overridden property CommonObject\:\:\$isextrafieldmanaged\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc type int of property DoliletterSignature\:\:\$ismultientitymanaged is not covariant with PHPDoc type int\<0, 1\>\|string\|null of overridden property CommonObject\:\:\$ismultientitymanaged\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method CommonObject\:\:createCommon\(\) expects int\<0, 1\>, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method CommonObject\:\:deleteCommon\(\) expects int\<0, 1\>, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method CommonObject\:\:updateCommon\(\) expects int\<0, 1\>, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$element_id has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$element_type has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$email has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$fk_object has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$ip has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$last_email_sent_date has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$phone has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$role has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$rowid has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$signature has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$signature_comment has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$signature_date has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$signature_url has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$society_name has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$stamp has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Property DoliletterSignature\:\:\$transaction_url has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Variable \$result might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Variable \$signatoriesArray might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^Variable \$signatory_data might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: class/dolilettersignature.class.php
+
+		-
+			message: '#^PHPDoc type array of property EmailSending\:\:\$fields is not covariant with PHPDoc type array\<string, array\{type\: string, label\: string, langfile\?\: string, enabled\: int\<0, 2\>\|string, position\: int, notnull\?\: int, visible\: int\<\-6, 6\>\|string, alwayseditable\?\: int\<0, 1\>\|string, \.\.\.\}\> of overridden property CommonObject\:\:\$fields\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^PHPDoc type int of property EmailSending\:\:\$element is not covariant with PHPDoc type string of overridden property CommonObject\:\:\$element\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Property EmailSending\:\:\$contact_fullname has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Property EmailSending\:\:\$element \(int\) does not accept default value of type string\.$#'
+			identifier: property.defaultValue
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Property EmailSending\:\:\$fk_envelope has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Property EmailSending\:\:\$fk_socpeople has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Property EmailSending\:\:\$fk_user has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Property EmailSending\:\:\$recipient_email has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Property EmailSending\:\:\$rowid has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Property EmailSending\:\:\$sender_fullname has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/email_sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:fetch_object\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:free\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:jdate\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:lasterror\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:num_rows\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:order\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:plimit\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:query\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:sanitize\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: class/envelope.class.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 3
+			path: class/envelope.class.php
+
+		-
+			message: '#^Function dol_escape_htmltag invoked with 2 parameters, 1 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: class/envelope.class.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Method Envelope\:\:create\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Method Envelope\:\:delete\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Method Envelope\:\:fetch\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Method Envelope\:\:update\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 194 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 197 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, Id of created object if OK\)\: Unexpected token "if", expected ''\>'' at offset 196 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int         \<0 if KO, 0 if not found, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 141 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^PHPDoc type array of property Envelope\:\:\$fields is not covariant with PHPDoc type array\<string, array\{type\: string, label\: string, langfile\?\: string, enabled\: int\<0, 2\>\|string, position\: int, notnull\?\: int, visible\: int\<\-6, 6\>\|string, alwayseditable\?\: int\<0, 1\>\|string, \.\.\.\}\> of overridden property CommonObject\:\:\$fields\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^PHPDoc type int of property Envelope\:\:\$isextrafieldmanaged is not covariant with PHPDoc type int\<0, 1\> of overridden property CommonObject\:\:\$isextrafieldmanaged\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^PHPDoc type int of property Envelope\:\:\$ismultientitymanaged is not covariant with PHPDoc type int\<0, 1\>\|string\|null of overridden property CommonObject\:\:\$ismultientitymanaged\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method CommonObject\:\:createCommon\(\) expects int\<0, 1\>, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method CommonObject\:\:updateCommon\(\) expects int\<0, 1\>, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Property Envelope\:\:\$content has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Property Envelope\:\:\$document_url has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Property Envelope\:\:\$fk_contact has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Property Envelope\:\:\$fk_soc has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Property Envelope\:\:\$label has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^Property Envelope\:\:\$rowid has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/envelope.class.php
+
+		-
+			message: '#^PHPDoc type array of property LetterSending\:\:\$fields is not covariant with PHPDoc type array\<string, array\{type\: string, label\: string, langfile\?\: string, enabled\: int\<0, 2\>\|string, position\: int, notnull\?\: int, visible\: int\<\-6, 6\>\|string, alwayseditable\?\: int\<0, 1\>\|string, \.\.\.\}\> of overridden property CommonObject\:\:\$fields\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^PHPDoc type int of property LetterSending\:\:\$element is not covariant with PHPDoc type string of overridden property CommonObject\:\:\$element\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$contact_fullname has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$element \(int\) does not accept default value of type string\.$#'
+			identifier: property.defaultValue
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$fk_envelope has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$fk_socpeople has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$fk_user has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$letter_code has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$recipient_address has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$rowid has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Property LetterSending\:\:\$sender_fullname has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: class/letter_sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:fetch_object\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:free\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:lasterror\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:num_rows\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:order\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:plimit\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:query\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Method EnvelopeSending\:\:create\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Method EnvelopeSending\:\:delete\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Method EnvelopeSending\:\:fetch\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Method EnvelopeSending\:\:update\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 194 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 197 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int             \<0 if KO, Id of created object if OK\)\: Unexpected token "if", expected ''\>'' at offset 196 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int         \<0 if KO, 0 if not found, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 141 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^PHPDoc type int of property EnvelopeSending\:\:\$isextrafieldmanaged is not covariant with PHPDoc type int\<0, 1\> of overridden property CommonObject\:\:\$isextrafieldmanaged\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^PHPDoc type int of property EnvelopeSending\:\:\$ismultientitymanaged is not covariant with PHPDoc type int\<0, 1\>\|string\|null of overridden property CommonObject\:\:\$ismultientitymanaged\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method CommonObject\:\:createCommon\(\) expects int\<0, 1\>, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method CommonObject\:\:updateCommon\(\) expects int\<0, 1\>, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/sending.class.php
+
+		-
+			message: '#^Comparison operation "\>" between non\-empty\-array\<mixed, mixed\> and 0 results in an error\.$#'
+			identifier: greater.invalid
+			count: 1
+			path: core/ajax/contacts.php
+
+		-
+			message: '#^Function fetchAllSocPeople not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: core/ajax/contacts.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: core/ajax/contacts.php
+
+		-
+			message: '#^Parameter \#5 \$exclude of method Form\:\:selectcontacts\(\) expects string, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/ajax/contacts.php
+
+		-
+			message: '#^Parameter \#9 \$options_only of method Form\:\:selectcontacts\(\) expects int, true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/ajax/contacts.php
+
+		-
+			message: '#^Variable \$db might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: core/ajax/contacts.php
+
+		-
+			message: '#^$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Access to an undefined property pdf_ares\:\:\$option_codeproduitservice\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Binary operation "\+" between string and 3 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Binary operation "\+" between string and 8 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:convToOutputCharset\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to an undefined method User\:\:getFullName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method AliasNbPages\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method Cell\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 3
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method Close\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method GetY\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method Image\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method ImportPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method Open\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method Output\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetAuthor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetAutoPageBreak\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetCompression\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetCreator\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetDrawColor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetKeyWords\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetMargins\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetSubject\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetTextColor\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetTitle\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method SetXY\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method commitTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method getPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method getTemplatesize\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method importPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method rollbackTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method setPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 5
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method setPageOrientation\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method setPrintFooter\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method setPrintHeader\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method setSourceFile\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method setSourceFile\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method setTopMargin\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method startTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method useTemplate\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 3
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method useTemplate\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Call to method writeHTMLCell\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Class HookManager does not have a constructor and must be instantiated without any parameters\.$#'
+			identifier: new.noConstructor
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Method pdf_ares\:\:_joinedFiles\(\) should return int but return statement is missing\.$#'
+			identifier: return.missing
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Method pdf_ares\:\:_tableau\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Method pdf_ares\:\:tabSignature\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^PHPDoc type array of property pdf_ares\:\:\$format is not covariant with PHPDoc type array\{float, float\} of overridden property CommonDocGenerator\:\:\$format\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^PHPDoc type array of property pdf_ares\:\:\$phpmin is not covariant with PHPDoc type array\{int, int\} of overridden property CommonDocGenerator\:\:\$phpmin\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_ares\:\:\$marge_basse is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_basse\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_ares\:\:\$marge_droite is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_droite\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_ares\:\:\$marge_gauche is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_gauche\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_ares\:\:\$marge_haute is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_haute\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_ares\:\:\$page_hauteur is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$page_hauteur\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_ares\:\:\$page_largeur is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$page_largeur\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_shift is passed by reference, so it expects variables only\.$#'
+			identifier: argument.byRef
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#1 \$pdf of function pdf_pagefoot expects TCPDF, PDF given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#1 \$pdf of method pdf_ares\:\:_pagefoot\(\) expects PDF, TCPDF given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#2 \$object of method pdf_ares\:\:_pagefoot\(\) expects Contrat, Envelope given\.$#'
+			identifier: argument.type
+			count: 3
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#2 \$tab_top of method pdf_ares\:\:tabSignature\(\) expects int, float given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_height of method pdf_ares\:\:tabSignature\(\) expects int, float given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_top of method pdf_ares\:\:_tableau\(\) expects string, float given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_top of method pdf_ares\:\:_tableau\(\) expects string, int given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#3 \$y of method CommonDocGenerator\:\:printRect\(\) expects float, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#4 \$tab_height of method pdf_ares\:\:_tableau\(\) expects string, \(float\|int\) given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#4 \$tab_height of method pdf_ares\:\:_tableau\(\) expects string, float given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \#6 \$fill of method TCPDF\:\:MultiCell\(\) expects bool, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \$pdf of method pdf_ares\:\:_joinedFiles\(\) has invalid type PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter \$pdf of method pdf_ares\:\:_pagefoot\(\) has invalid type PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Parameter &\$pdf by\-ref type of method pdf_ares\:\:_pagefoot\(\) expects PDF, TCPDF given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Variable \$pagenb might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^Variable \$test might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: core/modules/doliletter/doc/pdf_ares.modules.php
+
+		-
+			message: '#^$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Access to an undefined property pdf_deimos\:\:\$option_codeproduitservice\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Binary operation "\+" between string and 3 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Binary operation "\+" between string and 8 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:convToOutputCharset\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to an undefined method User\:\:getFullName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method AliasNbPages\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method Cell\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 3
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method Close\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method GetY\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method Image\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method ImportPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method Open\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method Output\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetAuthor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetAutoPageBreak\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetCompression\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetCreator\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetDrawColor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetKeyWords\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetMargins\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetSubject\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetTextColor\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetTitle\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method SetXY\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method commitTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method getPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method getTemplatesize\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method importPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method rollbackTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method setPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 5
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method setPageOrientation\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method setPrintFooter\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method setPrintHeader\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method setSourceFile\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method setSourceFile\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method setTopMargin\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method startTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method useTemplate\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 3
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method useTemplate\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Call to method writeHTMLCell\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Class HookManager does not have a constructor and must be instantiated without any parameters\.$#'
+			identifier: new.noConstructor
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Method pdf_deimos\:\:_joinedFiles\(\) should return int but return statement is missing\.$#'
+			identifier: return.missing
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Method pdf_deimos\:\:_tableau\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Method pdf_deimos\:\:tabSignature\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^PHPDoc type array of property pdf_deimos\:\:\$format is not covariant with PHPDoc type array\{float, float\} of overridden property CommonDocGenerator\:\:\$format\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^PHPDoc type array of property pdf_deimos\:\:\$phpmin is not covariant with PHPDoc type array\{int, int\} of overridden property CommonDocGenerator\:\:\$phpmin\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_deimos\:\:\$marge_basse is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_basse\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_deimos\:\:\$marge_droite is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_droite\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_deimos\:\:\$marge_gauche is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_gauche\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_deimos\:\:\$marge_haute is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_haute\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_deimos\:\:\$page_hauteur is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$page_hauteur\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_deimos\:\:\$page_largeur is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$page_largeur\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_shift is passed by reference, so it expects variables only\.$#'
+			identifier: argument.byRef
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#1 \$pdf of function pdf_pagefoot expects TCPDF, PDF given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#1 \$pdf of method pdf_deimos\:\:_pagefoot\(\) expects PDF, TCPDF given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#2 \$object of method pdf_deimos\:\:_pagefoot\(\) expects Contrat, Envelope given\.$#'
+			identifier: argument.type
+			count: 3
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#2 \$tab_top of method pdf_deimos\:\:tabSignature\(\) expects int, float given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_height of method pdf_deimos\:\:tabSignature\(\) expects int, float given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_top of method pdf_deimos\:\:_tableau\(\) expects string, float given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_top of method pdf_deimos\:\:_tableau\(\) expects string, int given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#3 \$y of method CommonDocGenerator\:\:printRect\(\) expects float, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#4 \$tab_height of method pdf_deimos\:\:_tableau\(\) expects string, \(float\|int\) given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#4 \$tab_height of method pdf_deimos\:\:_tableau\(\) expects string, float given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \#6 \$fill of method TCPDF\:\:MultiCell\(\) expects bool, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \$pdf of method pdf_deimos\:\:_joinedFiles\(\) has invalid type PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter \$pdf of method pdf_deimos\:\:_pagefoot\(\) has invalid type PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Parameter &\$pdf by\-ref type of method pdf_deimos\:\:_pagefoot\(\) expects PDF, TCPDF given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Variable \$filename might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Variable \$pagenb might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^Variable \$test might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: core/modules/doliletter/doc/pdf_deimos.modules.php
+
+		-
+			message: '#^$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Access to an undefined property pdf_nerio\:\:\$option_codeproduitservice\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Binary operation "\+" between string and 3 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Binary operation "\+" between string and 8 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:convToOutputCharset\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to an undefined method User\:\:getFullName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method AliasNbPages\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method Cell\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 3
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method Close\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method GetY\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method Image\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method ImportPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method Open\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method Output\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetAuthor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetAutoPageBreak\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetCompression\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetCreator\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetDrawColor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetKeyWords\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetMargins\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetSubject\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetTextColor\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetTitle\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method SetXY\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method commitTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method getPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method getTemplatesize\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method importPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method rollbackTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method setPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 5
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method setPageOrientation\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method setPrintFooter\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method setPrintHeader\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method setSourceFile\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method setSourceFile\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method setTopMargin\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method startTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method useTemplate\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 3
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method useTemplate\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Call to method writeHTMLCell\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Class HookManager does not have a constructor and must be instantiated without any parameters\.$#'
+			identifier: new.noConstructor
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Method pdf_nerio\:\:_joinedFiles\(\) should return int but return statement is missing\.$#'
+			identifier: return.missing
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Method pdf_nerio\:\:_tableau\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Method pdf_nerio\:\:tabSignature\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^PHPDoc type array of property pdf_nerio\:\:\$format is not covariant with PHPDoc type array\{float, float\} of overridden property CommonDocGenerator\:\:\$format\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^PHPDoc type array of property pdf_nerio\:\:\$phpmin is not covariant with PHPDoc type array\{int, int\} of overridden property CommonDocGenerator\:\:\$phpmin\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_nerio\:\:\$marge_basse is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_basse\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_nerio\:\:\$marge_droite is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_droite\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_nerio\:\:\$marge_gauche is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_gauche\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_nerio\:\:\$marge_haute is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_haute\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_nerio\:\:\$page_hauteur is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$page_hauteur\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_nerio\:\:\$page_largeur is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$page_largeur\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_shift is passed by reference, so it expects variables only\.$#'
+			identifier: argument.byRef
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#1 \$pdf of function pdf_pagefoot expects TCPDF, PDF given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#1 \$pdf of method pdf_nerio\:\:_pagefoot\(\) expects PDF, TCPDF given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#2 \$object of method pdf_nerio\:\:_pagefoot\(\) expects Contrat, Envelope given\.$#'
+			identifier: argument.type
+			count: 3
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#2 \$tab_top of method pdf_nerio\:\:tabSignature\(\) expects int, float given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_height of method pdf_nerio\:\:tabSignature\(\) expects int, float given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_top of method pdf_nerio\:\:_tableau\(\) expects string, float given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_top of method pdf_nerio\:\:_tableau\(\) expects string, int given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#3 \$y of method CommonDocGenerator\:\:printRect\(\) expects float, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#4 \$tab_height of method pdf_nerio\:\:_tableau\(\) expects string, \(float\|int\) given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#4 \$tab_height of method pdf_nerio\:\:_tableau\(\) expects string, float given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \#6 \$fill of method TCPDF\:\:MultiCell\(\) expects bool, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \$pdf of method pdf_nerio\:\:_joinedFiles\(\) has invalid type PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter \$pdf of method pdf_nerio\:\:_pagefoot\(\) has invalid type PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Parameter &\$pdf by\-ref type of method pdf_nerio\:\:_pagefoot\(\) expects PDF, TCPDF given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Variable \$pagenb might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Variable \$test might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: core/modules/doliletter/doc/pdf_nerio.modules.php
+
+		-
+			message: '#^Access to an undefined property pdf_phobos\:\:\$option_codeproduitservice\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Binary operation "\+" between string and 3 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Binary operation "\+" between string and 8 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:convToOutputCharset\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to an undefined method User\:\:getFullName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method AliasNbPages\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method Close\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method GetY\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method Open\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method Output\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetAuthor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetAutoPageBreak\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetCompression\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetCreator\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetDrawColor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetKeyWords\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetMargins\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetSubject\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetTextColor\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method SetTitle\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method commitTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method getPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method importPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method rollbackTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method setPage\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 5
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method setPageOrientation\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 4
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method setPrintFooter\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method setPrintHeader\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method setSourceFile\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method setTopMargin\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method startTransaction\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method useTemplate\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method useTemplate\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Call to method writeHTMLCell\(\) on an unknown class PDF\.$#'
+			identifier: class.notFound
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Class HookManager does not have a constructor and must be instantiated without any parameters\.$#'
+			identifier: new.noConstructor
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Method pdf_phobos\:\:_tableau\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Method pdf_phobos\:\:tabSignature\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^PHPDoc type array of property pdf_phobos\:\:\$format is not covariant with PHPDoc type array\{float, float\} of overridden property CommonDocGenerator\:\:\$format\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^PHPDoc type array of property pdf_phobos\:\:\$phpmin is not covariant with PHPDoc type array\{int, int\} of overridden property CommonDocGenerator\:\:\$phpmin\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_phobos\:\:\$marge_basse is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_basse\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_phobos\:\:\$marge_droite is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_droite\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_phobos\:\:\$marge_gauche is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_gauche\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_phobos\:\:\$marge_haute is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$marge_haute\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_phobos\:\:\$page_hauteur is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$page_hauteur\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^PHPDoc type int of property pdf_phobos\:\:\$page_largeur is not covariant with PHPDoc type float of overridden property CommonDocGenerator\:\:\$page_largeur\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_shift is passed by reference, so it expects variables only\.$#'
+			identifier: argument.byRef
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#1 \$pdf of function pdf_pagefoot expects TCPDF, PDF given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#1 \$pdf of method pdf_phobos\:\:_pagefoot\(\) expects PDF, TCPDF given\.$#'
+			identifier: argument.type
+			count: 3
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#2 \$object of method pdf_phobos\:\:_pagefoot\(\) expects Contrat, Envelope given\.$#'
+			identifier: argument.type
+			count: 3
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_top of method pdf_phobos\:\:_tableau\(\) expects string, float\|int given\.$#'
+			identifier: argument.type
+			count: 4
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#3 \$tab_top of method pdf_phobos\:\:_tableau\(\) expects string, int given\.$#'
+			identifier: argument.type
+			count: 4
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#3 \$y of method CommonDocGenerator\:\:printRect\(\) expects float, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#4 \$tab_height of method pdf_phobos\:\:_tableau\(\) expects string, \(float\|int\) given\.$#'
+			identifier: argument.type
+			count: 8
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \#6 \$fill of method TCPDF\:\:MultiCell\(\) expects bool, int given\.$#'
+			identifier: argument.type
+			count: 2
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter \$pdf of method pdf_phobos\:\:_pagefoot\(\) has invalid type PDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Parameter &\$pdf by\-ref type of method pdf_phobos\:\:_pagefoot\(\) expects PDF, TCPDF given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Variable \$test might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: core/modules/doliletter/doc/pdf_phobos.modules.php
+
+		-
+			message: '#^Access to an undefined property mod_signinsheetdocument_kikela\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/mod_signinsheetdocument_kikela.php
+
+		-
+			message: '#^Call to function is_object\(\) with Translate will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Call to method AddPage\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Call to method SetAuthor\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Call to method SetAutoPageBreak\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Call to method SetCreator\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Call to method SetFont\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Call to method SetKeywords\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Call to method SetSubject\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Call to method SetTitle\(\) on an unknown class TCPDI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method pdf_signinsheetdocument_FE_Doliletter\:\:_pagefoot\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method pdf_signinsheetdocument_FE_Doliletter\:\:_pagefoot\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method pdf_signinsheetdocument_FE_Doliletter\:\:_pagefoot\(\) has parameter \$outputlangs with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method pdf_signinsheetdocument_FE_Doliletter\:\:_pagefoot\(\) has parameter \$pdf with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method pdf_signinsheetdocument_FE_Doliletter\:\:_pagehead\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method pdf_signinsheetdocument_FE_Doliletter\:\:_pagehead\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method pdf_signinsheetdocument_FE_Doliletter\:\:_pagehead\(\) has parameter \$outputlangs with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method pdf_signinsheetdocument_FE_Doliletter\:\:_pagehead\(\) has parameter \$pdf with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Property pdf_signinsheetdocument_FE_Doliletter\:\:\$custom_info has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Property pdf_signinsheetdocument_FE_Doliletter\:\:\$custom_name has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Property pdf_signinsheetdocument_FE_Doliletter\:\:\$custom_scandir has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: core/modules/doliletter/doliletterdocuments/signinsheetdocument/pdf_signinsheetdocument_FE_Doliletter.modules.php
+
+		-
+			message: '#^Method mod_envelope_standard\:\:getNextValue\(\) should return string but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: core/modules/doliletter/mod_envelope_standard.php
+
+		-
+			message: '#^Property mod_envelope_standard\:\:\$prefix has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: core/modules/doliletter/mod_envelope_standard.php
+
+		-
+			message: '#^Access to an undefined property ModeleNumRefAcknowledgementReceipt\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 4
+			path: core/modules/doliletter/modules_acknowledgementreceipt.php
+
+		-
+			message: '#^Access to an undefined property ModeleNumRefEnvelope\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 4
+			path: core/modules/doliletter/modules_envelope.php
+
+		-
+			message: '#^Access to an undefined property ModeleNumRefSendingProof\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 4
+			path: core/modules/doliletter/modules_sendingproof.php
+
+		-
+			message: '#^Access to an undefined property ModeleNumRefTrackingNumber\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 4
+			path: core/modules/doliletter/modules_trackingnumber.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$boxes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$config_page_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$conflictwith\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$const\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$const_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$cronjobs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 9
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$depends\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$descriptionlong\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$dictionaries\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$dirs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$editor_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$error\.$#'
+			identifier: property.notFound
+			count: 2
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$errors\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$family\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$familyinfo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$hidden\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$langfiles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$max_dolibarr_version\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$menu\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$module_parts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$module_position\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$need_dolibarr_version\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$phpmin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$picto\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$requiredby\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$rights\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$rights_class\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$tabs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$warnings_activation\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property modDoliLetter\:\:\$warnings_activation_ext\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Call to an undefined method modDoliLetter\:\:_init\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Call to an undefined method modDoliLetter\:\:_load_tables\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Call to an undefined method modDoliLetter\:\:_remove\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/modDoliLetter.class.php
+
+		-
+			message: '#^Access to an undefined property User\:\:\$firstname\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
+
+		-
+			message: '#^Access to an undefined property User\:\:\$lastname\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int              		\<0 if KO, 0 if no triggered ran, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 404 on line 11$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_agenda.php
+
+		-
+			message: '#^Parameter \#1 \$string of function urlencode expects string, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_agenda.php
+
+		-
+			message: '#^Variable \$conf might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: envelope_agenda.php
+
+		-
+			message: '#^Variable \$db might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: envelope_agenda.php
+
+		-
+			message: '#^Variable \$hookmanager might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_agenda.php
+
+		-
+			message: '#^Variable \$langs might not be defined\.$#'
+			identifier: variable.undefined
+			count: 8
+			path: envelope_agenda.php
+
+		-
+			message: '#^Variable \$user might not be defined\.$#'
+			identifier: variable.undefined
+			count: 10
+			path: envelope_agenda.php
+
+		-
+			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Call to an undefined method User\:\:user_get_property\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Call to function is_array\(\) with list\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Call to function is_object\(\) with Envelope will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 7
+			path: envelope_card.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Envelope and ''fetch_thirdparty'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Envelope and ''generateDocument'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 5
+			path: envelope_card.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Envelope and ''makeSubstitution'' will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Class Translate does not have a constructor and must be instantiated without any parameters\.$#'
+			identifier: new.noConstructor
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 5
+			path: envelope_card.php
+
+		-
+			message: '#^Comparison operation "\>" between array\<array\{name\: string, path\: string, level1name\: string, relativename\: string, fullname\: string, date\: string, size\: int, perm\: int, \.\.\.\}\> and 0 results in an error\.$#'
+			identifier: greater.invalid
+			count: 3
+			path: envelope_card.php
+
+		-
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 6
+			path: envelope_card.php
+
+		-
+			message: '#^Method User\:\:fetchAll\(\) invoked with 7 parameters, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#1 \$db of function dol_print_error expects DoliDB\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#1 \$links of function dol_get_fiche_head expects array\<int, array\<int\<0, 5\>, string\>\>, '''' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#10 \$param of function dolilettershowdocuments expects string, int given\.$#'
+			identifier: argument.type
+			count: 4
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#11 \$forcecombo of method Form\:\:selectcontacts\(\) expects int, array given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#12 \$buttonlabel of function dolilettershowdocuments expects string, int given\.$#'
+			identifier: argument.type
+			count: 4
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#12 \$events of method Form\:\:selectcontacts\(\) expects array\<array\{method\: string, url\: string, htmlname\: string, params\: array\<string, string\>\}\>, false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#14 \$object of function dolilettershowdocuments expects object\|null, string given\.$#'
+			identifier: argument.type
+			count: 4
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#15 \$hideifempty of function dolilettershowdocuments expects int, string given\.$#'
+			identifier: argument.type
+			count: 4
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#17 \$active of function dolilettershowdocuments expects bool, int given\.$#'
+			identifier: argument.type
+			count: 4
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(mixed\)\: bool\)\|null, ''remove_index'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#2 \$morehtmlright of function load_fiche_titre expects string, null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, int\<1, max\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#3 \$picto of function load_fiche_titre expects string, null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#3 \$socid of method FormActions\:\:showactions\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#5 \$disablejs of function llxHeader expects int\<0, 1\>, '''' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#6 \$disablehead of function llxHeader expects int\<0, 1\>, '''' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Parameter \#9 \$options_only of method Form\:\:selectcontacts\(\) expects int, false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$action might not be defined\.$#'
+			identifier: variable.undefined
+			count: 25
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$dolibarr_main_url_root might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$file might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$filename might not be defined\.$#'
+			identifier: variable.undefined
+			count: 6
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$fileparams might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$from might not be defined\.$#'
+			identifier: variable.undefined
+			count: 7
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$hidedesc might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$hidedetails might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$hideref might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$lineid might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$linked_contact might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$modelselected might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$mysoc might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$now might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$paramname might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$paramname2 might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$paramval2 might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$result might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$sendtosocid might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_card.php
+
+		-
+			message: '#^Variable \$signature_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_card.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: envelope_contact.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_contact.php
+
+		-
+			message: '#^Variable \$formproject might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_contact.php
+
+		-
+			message: '#^Variable \$langs might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_contact.php
+
+		-
+			message: '#^Variable \$maxlength might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_contact.php
+
+		-
+			message: '#^Variable \$mesg might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_contact.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_document.php
+
+		-
+			message: '#^Variable \$conf might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_document.php
+
+		-
+			message: '#^Variable \$db might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_document.php
+
+		-
+			message: '#^Variable \$hookmanager might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_document.php
+
+		-
+			message: '#^Variable \$langs might not be defined\.$#'
+			identifier: variable.undefined
+			count: 8
+			path: envelope_document.php
+
+		-
+			message: '#^Variable \$liste_limit might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_document.php
+
+		-
+			message: '#^Variable \$upload_dir might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_document.php
+
+		-
+			message: '#^Variable \$user might not be defined\.$#'
+			identifier: variable.undefined
+			count: 9
+			path: envelope_document.php
+
+		-
+			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Call to an undefined method User\:\:getNomUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Parameter \#2 \$array of method Form\:\:multiSelectArrayWithCheckbox\(\) expects array\<string, array\{label\: string, checked\?\: string, enabled\?\: string, type\?\: string, langfile\?\: string, position\?\: int, help\?\: string\}\>, array\<non\-falsy\-string, array\{label\: mixed, checked\: 0\|1, enabled\: bool, position\: mixed, help\: mixed\}\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Parameter \#3 \$value of method CommonObject\:\:showOutputField\(\) expects string, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$conf might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$head might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$hookmanager might not be defined\.$#'
+			identifier: variable.undefined
+			count: 23
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$linkback might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$linkedObjectsArray might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$morehtmlref might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$objectLinked might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$prehead might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_list.php
+
+		-
+			message: '#^Variable \$resql might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: envelope_list.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_note.php
+
+		-
+			message: '#^Variable \$conf might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_note.php
+
+		-
+			message: '#^Variable \$db might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_note.php
+
+		-
+			message: '#^Variable \$hookmanager might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_note.php
+
+		-
+			message: '#^Variable \$langs might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_note.php
+
+		-
+			message: '#^Variable \$user might not be defined\.$#'
+			identifier: variable.undefined
+			count: 9
+			path: envelope_note.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: envelope_objects.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_objects.php
+
+		-
+			message: '#^Variable \$lineid might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_objects.php
+
+		-
+			message: '#^Variable \$product might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_objects.php
+
+		-
+			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Call to an undefined method User\:\:getNomUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: envelope_sending.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Parameter \#1 \$element of function getEntity expects string, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Parameter \#3 \$value of method CommonObject\:\:showOutputField\(\) expects string, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Path in require_once\(\) "\./class/envelope_email\.class\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Path in require_once\(\) "\./class/envelope_letter\.class\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$firepermit might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$form might not be defined\.$#'
+			identifier: variable.undefined
+			count: 7
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$fromid might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$help_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$limit might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$morehtmlref might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$newcardbutton might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$offset might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$optioncss might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$page might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$resql might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$sortfield might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$sortorder might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_sending.php
+
+		-
+			message: '#^Variable \$toselect might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_sending.php
+
+		-
+			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: envelope_signature.php
+
+		-
+			message: '#^Call to an undefined method User\:\:getNomUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#2 \$mesgs of function setEventMessages expects array\<string\>\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method DoliletterSignature\:\:setAbsent\(\) expects int, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method DoliletterSignature\:\:setDeleted\(\) expects int, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method DoliletterSignature\:\:setSigned\(\) expects int, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, int\<1, max\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#5 \$disablejs of function llxHeader expects int\<0, 1\>, '''' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Parameter \#6 \$disablehead of function llxHeader expects int\<0, 1\>, '''' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Variable \$cancel might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: envelope_signature.php
+
+		-
+			message: '#^Variable \$error might not be defined\.$#'
+			identifier: variable.undefined
+			count: 6
+			path: envelope_signature.php
+
+		-
+			message: '#^Variable \$hookmanager might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: envelope_signature.php
+
+		-
+			message: '#^Variable \$morehtmlleft might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Variable \$morehtmlref might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: envelope_signature.php
+
+		-
+			message: '#^Function envelopePrepareHead\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: lib/doliletter_envelope.lib.php
+
+		-
+			message: '#^Function envelopePrepareHead\(\) has parameter \$object with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_envelope.lib.php
+
+		-
+			message: '#^Function remove_index\(\) has parameter \$model with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_envelope.lib.php
+
+		-
+			message: '#^Function remove_index\(\) should return array but returns string\.$#'
+			identifier: return.type
+			count: 1
+			path: lib/doliletter_envelope.lib.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$object$#'
+			identifier: parameter.notFound
+			count: 1
+			path: lib/doliletter_envelope.lib.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Expression "\$htmlid \=\= \\substr\(\$htmlname, 0, \-2\)" on a separate line does not do anything\.$#'
+			identifier: expr.resultUnused
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function dolilettershowdocuments\(\) should return string but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function fetchAllAny\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function fetchAllAny\(\) has parameter \$filtermode with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function fetchAllAny\(\) has parameter \$limit with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function fetchAllAny\(\) has parameter \$objecttype with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function fetchAllAny\(\) has parameter \$offset with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function fetchAllAny\(\) has parameter \$sortfield with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function fetchAllAny\(\) has parameter \$sortorder with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function selectForm\(\) has parameter \$objecttype with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Function selectForm\(\) should return int but returns string\.$#'
+			identifier: return.type
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(mixed\)\: bool\)\|null, ''remove_index'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Ternary operator condition is always true\.$#'
+			identifier: ternary.alwaysTrue
+			count: 2
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^Variable \$entity might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: lib/doliletter_function.lib.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int                                        \< 0 if KO, ID of the attendance sheet if OK\)\: Unexpected token "if", expected ''\>'' at offset 584 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: lib/doliletter_spread.lib.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int                             \< 0 if KO, \> 0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 505 on line 10$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: lib/doliletter_spread.lib.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(int                            \< 0 if KO, \> 0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 449 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: lib/doliletter_spread.lib.php
+
+		-
+			message: '#^Class mod_ticket_simple does not have a constructor and must be instantiated without any parameters\.$#'
+			identifier: new.noConstructor
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Function show_category_image not found\.$#'
+			identifier: function.notFound
+			count: 4
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Parameter \#2 \$notrigger of method DoliletterSignature\:\:setSigned\(\) expects int, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Parameter \#2 \$ticket of method mod_ticket_simple\:\:getNextValue\(\) expects Ticket, Envelope given\.$#'
+			identifier: argument.type
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$backtopage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$backtopageforcancel might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$conf might not be defined\.$#'
+			identifier: variable.undefined
+			count: 7
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$element might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$error might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$hookmanager might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$php_self might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$thirdparty might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$title_edit might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Variable \$user might not be defined\.$#'
+			identifier: variable.undefined
+			count: 6
+			path: public/acknowledgementreceipt/send_ar.php
+
+		-
+			message: '#^Cannot access property \$element on class\-string\|object\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Cannot access property \$error on class\-string\|object\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Cannot access property \$errors on class\-string\|object\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Cannot access property \$ref on class\-string\|object\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$envelope_file might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$error might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$filename might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$hidedesc might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$hidedetails might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$hideref might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$hookmanager might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$id might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$object might not be defined\.$#'
+			identifier: variable.undefined
+			count: 16
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Variable \$signatory might not be defined\.$#'
+			identifier: variable.undefined
+			count: 15
+			path: public/signature/add_signature.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: public/signature/signature_success.php
+
+		-
+			message: '#^Variable \$acknowledgementreceipt_file might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: public/signature/signature_success.php
+
+		-
+			message: '#^Variable \$acknowledgementreceipt_filename might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/signature_success.php
+
+		-
+			message: '#^Variable \$envelope_file might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: public/signature/signature_success.php
+
+		-
+			message: '#^Variable \$envelope_filename might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/signature/signature_success.php
+
+		-
+			message: '#^Variable \$object might not be defined\.$#'
+			identifier: variable.undefined
+			count: 9
+			path: public/signature/signature_success.php
+
+		-
+			message: '#^Access to an undefined property User\:\:\$firstname\.$#'
+			identifier: property.notFound
+			count: 3
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Access to an undefined property User\:\:\$lastname\.$#'
+			identifier: property.notFound
+			count: 3
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Call to method fetchAll\(\) on an unknown class FirePermitLine\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Call to method fetchAll\(\) on an unknown class PreventionPlanLine\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Call to method getDangerCategory\(\) on an unknown class Risk\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Call to method getDangerCategoryName\(\) on an unknown class Risk\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Call to method getFirePermitDangerCategory\(\) on an unknown class Risk\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Call to method getFirePermitDangerCategoryName\(\) on an unknown class Risk\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 4
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Function digiriskGetCertificationOptions not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Function digiriskMobileRiskPhotoDir not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Instantiated class FirePermitLine not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Instantiated class PreventionPlanLine not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Instantiated class Risk not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Parameter \#2 \$noTrigger of method SaturneObject\:\:update\(\) expects int\<0, 1\>, true given\.$#'
+			identifier: argument.type
+			count: 2
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Property CommonObject\:\:\$id \(int\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Variable \$parameters might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/spread/add_spread.php
+
+		-
+			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Call to an undefined method User\:\:getNomUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Loose comparison using \=\= between '''' and ''pwa'' will always evaluate to false\.$#'
+			identifier: equal.alwaysFalse
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Parameter \#12 \$param of function saturne_show_documents expects string, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Parameter \#16 \$morepicto of function saturne_show_documents expects string, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Parameter \#20 \$active of function saturne_show_documents expects int, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Property CommonObject\:\:\$id \(int\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Variable \$moduleNameLowerCase might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: view/spread.php
+
+		-
+			message: '#^Loose comparison using \=\= between '''' and ''pwa'' will always evaluate to false\.$#'
+			identifier: equal.alwaysFalse
+			count: 2
+			path: view/spread/spread_list.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 2
+			path: view/spread/spread_list.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: view/spread/spread_list.php

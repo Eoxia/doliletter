@@ -36,7 +36,7 @@ if (isModEnabled('categorie')) {
 }
 
 // load DoliLetter libraries
-include_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
+dol_include_once('/doliletter/class/doliletterattendancesheet.class.php');
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;

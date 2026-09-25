@@ -24,8 +24,8 @@
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/core/modules/saturne/modules_saturne.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+dol_include_once('/saturne/core/modules/saturne/modules_saturne.php');
+dol_include_once('/saturne/class/saturnesignature.class.php');
 
 /**
  * Class to generate attendance sheet PDF
