@@ -3127,12 +3127,6 @@ parameters:
 			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
 
 		-
-			message: '#^Property DolibarrTriggers\:\:\$version \(''''\|''development''\|''dolibarr''\|''experimental''\) does not accept ''23\.1\.0''\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
-
-		-
 			message: '#^Negated boolean expression is always true\.$#'
 			identifier: booleanNot.alwaysTrue
 			count: 1
