@@ -432,7 +432,7 @@ class modDoliLetter extends DolibarrModules {
 	 *  @param      string  $options    Options when enabling module ('', 'noboxes')
 	 *  @return     int             	1 if OK, 0 if KO
 	 */
-	public function init($options = '') {
+	public function init($options = ''): int {
 		global $conf, $langs, $user;
 
 		$this->_load_tables('/doliletter/sql/');
@@ -524,7 +524,7 @@ class modDoliLetter extends DolibarrModules {
 	 *  @param      string	$options    Options when enabling module ('', 'noboxes')
 	 *  @return     int                 1 if OK, 0 if KO
 	 */
-	public function remove($options = '') {
+	public function remove($options = ''): int {
 		$sql = array();
 		return $this->_remove($sql, $options);
 	}
