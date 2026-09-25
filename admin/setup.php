@@ -248,7 +248,7 @@ print '</td></tr>';
 print '</table>';
 
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.form.class.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+dol_include_once('/saturne/class/saturnemail.class.php');
 
 $form        = new Form($db);
 $saturneMail = new SaturneMail($db);

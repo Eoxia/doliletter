@@ -99,7 +99,7 @@ class ActionsDoliletter
         if (preg_match('/spreadlist/', $parameters['context'])) {
             if ($parameters['key'] == 'number_of_users') {
 
-                require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+                dol_include_once('/saturne/class/saturnesignature.class.php');
                 $signatory = new SaturneSignature($this->db, 'doliletter', 'spread');
 
                 $signatories = $signatory->fetchSignatory('', $object->id, $object->element);
@@ -114,7 +114,7 @@ class ActionsDoliletter
                 print count($signatories);
             } elseif ($parameters['key'] == 'label') {
 
-                require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/saturne.lib.php';
+                dol_include_once('/saturne/lib/saturne.lib.php');
 
                 $objectsMetadata    = saturne_get_objects_metadata();
 
@@ -123,7 +123,7 @@ class ActionsDoliletter
                 print $objectLabel;
 
             } elseif ($parameters['key'] == 'object_type') {
-                require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/saturne.lib.php';
+                dol_include_once('/saturne/lib/saturne.lib.php');
 
                 $objectsMetadata    = saturne_get_objects_metadata();
 
@@ -148,8 +148,8 @@ class ActionsDoliletter
     {
         global $db;
 
-        require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
-        require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+        dol_include_once('/doliletter/class/doliletterattendancesheet.class.php');
+        dol_include_once('/saturne/class/saturnesignature.class.php');
 
         $attendanceSheet = new DoliletterAttendanceSheet($db, 'doliletter');
         $signatory       = new SaturneSignature($db, 'doliletter', 'spread');
