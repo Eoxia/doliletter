@@ -111,7 +111,8 @@ class modDoliLetter extends DolibarrModules {
 
 		// Prerequisites
 		$this->phpmin                = array(5, 6); // Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(13, -3); // Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(23, 0); // Minimum version of Dolibarr required by module
+		$this->max_dolibarr_version = array(24, 0); // Maximum version of Dolibarr supported by module
 
 		// Messages at activation
 		$this->warnings_activation     = array(); // Warning to show when we activate module. array('always'='text') or array('FR'='textfr','ES'='textes'...)
