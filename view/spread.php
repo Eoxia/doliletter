@@ -64,10 +64,10 @@ foreach ($paginationParameters as $paginationParameterKey => $paginationParamete
 }
 
 // Initialize technical objects
-include_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterdocuments/signinsheetdocument.class.php';
-include_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/lib/doliletter_spread.lib.php';
+dol_include_once('/doliletter/class/doliletterdocuments/signinsheetdocument.class.php');
+dol_include_once('/doliletter/class/doliletterattendancesheet.class.php');
+dol_include_once('/saturne/class/saturnesignature.class.php');
+dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
 
 $document    = new SigninSheetDocument($db);
 $object      = new DoliletterAttendanceSheet($db, 'doliletter');

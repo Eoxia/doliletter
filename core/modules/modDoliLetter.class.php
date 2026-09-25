@@ -475,7 +475,7 @@ class modDoliLetter extends DolibarrModules {
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEETDOCUMENT_ADDON', 'mod_signinsheetdocument_zchuiou', 'chaine', 0, '', $conf->entity);
 
 		// Load Saturne libraries
-		require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+		dol_include_once('/saturne/class/saturnemail.class.php');
 
         $saturneMail = new SaturneMail($this->db);
 

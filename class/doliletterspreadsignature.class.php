@@ -21,7 +21,7 @@
  * \brief       Signature of a spread, able to carry the answers given by the signatory
  */
 
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+dol_include_once('/saturne/class/saturnesignature.class.php');
 
 /**
  * Class for DoliletterSpreadSignature
