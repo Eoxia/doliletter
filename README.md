@@ -2,14 +2,14 @@
 
 ## Informations
 
-Version du module: 23.1.0
+Version du module: 23.1.1
 
-Dernière mise à jour: 23/09/2026
+Dernière mise à jour: 25/09/2026
 
 Prérequis:
 * PHP min version 7.4
-* Dolibarr min version 20.0.0
-* Dolibarr max version 23.0.2
+* Dolibarr min version 23.0.0
+* Dolibarr max version 24.0.0
 
 Thème: Eldy Menu
 
