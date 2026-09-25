@@ -56,7 +56,7 @@ class modDoliLetter extends DolibarrModules {
 		$this->descriptionlong = $langs->trans('DoliLetterDescriptionLong');
 		$this->editor_name     = 'Eoxia';
 		$this->editor_url      = 'https://eoxia.com/';
-		$this->version         = '23.1.0';
+		$this->version         = '23.1.1';
 		$this->const_name      = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto           = 'doliletter256px@doliletter';
 
@@ -111,7 +111,8 @@ class modDoliLetter extends DolibarrModules {
 
 		// Prerequisites
 		$this->phpmin                = array(5, 6); // Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(13, -3); // Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(23, 0); // Minimum version of Dolibarr required by module
+		$this->max_dolibarr_version = array(24, 0); // Maximum version of Dolibarr supported by module
 
 		// Messages at activation
 		$this->warnings_activation     = array(); // Warning to show when we activate module. array('always'='text') or array('FR'='textfr','ES'='textes'...)
@@ -431,7 +432,7 @@ class modDoliLetter extends DolibarrModules {
 	 *  @param      string  $options    Options when enabling module ('', 'noboxes')
 	 *  @return     int             	1 if OK, 0 if KO
 	 */
-	public function init($options = '') {
+	public function init($options = ''): int {
 		global $conf, $langs, $user;
 
 		$this->_load_tables('/doliletter/sql/');
@@ -474,7 +475,7 @@ class modDoliLetter extends DolibarrModules {
         dolibarr_set_const($this->db, 'DOLILETTER_SIGNINSHEETDOCUMENT_ADDON', 'mod_signinsheetdocument_zchuiou', 'chaine', 0, '', $conf->entity);
 
 		// Load Saturne libraries
-		require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
+		dol_include_once('/saturne/class/saturnemail.class.php');
 
         $saturneMail = new SaturneMail($this->db);
 
@@ -523,7 +524,7 @@ class modDoliLetter extends DolibarrModules {
 	 *  @param      string	$options    Options when enabling module ('', 'noboxes')
 	 *  @return     int                 1 if OK, 0 if KO
 	 */
-	public function remove($options = '') {
+	public function remove($options = ''): int {
 		$sql = array();
 		return $this->_remove($sql, $options);
 	}

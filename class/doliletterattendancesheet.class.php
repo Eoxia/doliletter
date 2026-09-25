@@ -300,7 +300,7 @@ class DoliletterAttendanceSheet extends SaturneObject
     {
         global $user, $langs;
 
-        require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
+        dol_include_once('/saturne/class/saturnesignature.class.php');
 
         $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
         $dashboardConfig = property_exists($user->conf, $confName) ? json_decode($user->conf->$confName) : null;
@@ -341,7 +341,7 @@ class DoliletterAttendanceSheet extends SaturneObject
     {
         global $langs;
 
-        require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/saturne.lib.php';
+        dol_include_once('/saturne/lib/saturne.lib.php');
 
         $objectsMetadata    = saturne_get_objects_metadata();
 

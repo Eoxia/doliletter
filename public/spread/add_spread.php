@@ -69,12 +69,12 @@ if (isModEnabled('societe')) {
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
 
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnesignature.class.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/class/saturnemail.class.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/lib/medias.lib.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterattendancesheet.class.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/class/doliletterspreadsignature.class.php';
-require_once DOL_DOCUMENT_ROOT . '/custom/doliletter/lib/doliletter_spread.lib.php';
+dol_include_once('/saturne/class/saturnesignature.class.php');
+dol_include_once('/saturne/class/saturnemail.class.php');
+dol_include_once('/saturne/lib/medias.lib.php');
+dol_include_once('/doliletter/class/doliletterattendancesheet.class.php');
+dol_include_once('/doliletter/class/doliletterspreadsignature.class.php');
+dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user, $modulepart;
 

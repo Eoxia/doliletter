@@ -21,7 +21,7 @@
  *	\brief      File with class to manage kikela numbering for attendance sheets
  */
 
-require_once DOL_DOCUMENT_ROOT . '/custom/saturne/core/modules/saturne/modules_saturne.php';
+dol_include_once('/saturne/core/modules/saturne/modules_saturne.php');
 
 /**
  * 	Class to manage kikela numbering for attendance sheets
