@@ -37,12 +37,6 @@ parameters:
 			path: class/actions_doliletter.class.php
 
 		-
-			message: '#^Function dol_escape_htmltag invoked with 2 parameters, 1 required\.$#'
-			identifier: arguments.count
-			count: 2
-			path: class/doliletterattendancesheet.class.php
-
-		-
 			message: '#^Method DoliletterAttendanceSheet\:\:getLastSpreadList\(\) has parameter \$listOfSpreads with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -91,81 +85,9 @@ parameters:
 			path: class/doliletterattendancesheet.class.php
 
 		-
-			message: '#^Access to an undefined property User\:\:\$user_mobile\.$#'
-			identifier: property.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
 			message: '#^Argument of an invalid type int\<1, max\> supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 2
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:fetch_object\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:free\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:lasterror\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:num_rows\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:order\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:plimit\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:query\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:sanitize\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/dolilettersignature.class.php
-
-		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
 			path: class/dolilettersignature.class.php
 
 		-
@@ -529,84 +451,6 @@ parameters:
 			path: class/email_sending.class.php
 
 		-
-			message: '#^Call to an undefined method DoliDB\:\:fetch_object\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:free\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:jdate\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:lasterror\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:num_rows\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:order\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:plimit\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:query\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:sanitize\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: class/envelope.class.php
-
-		-
-			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: class/envelope.class.php
-
-		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 3
-			path: class/envelope.class.php
-
-		-
-			message: '#^Function dol_escape_htmltag invoked with 2 parameters, 1 required\.$#'
-			identifier: arguments.count
-			count: 2
-			path: class/envelope.class.php
-
-		-
 			message: '#^Left side of && is always true\.$#'
 			identifier: booleanAnd.leftAlwaysTrue
 			count: 1
@@ -793,54 +637,6 @@ parameters:
 			path: class/letter_sending.class.php
 
 		-
-			message: '#^Call to an undefined method DoliDB\:\:fetch_object\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/sending.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:free\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/sending.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/sending.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:lasterror\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/sending.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:num_rows\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/sending.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:order\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/sending.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:plimit\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/sending.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:query\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: class/sending.class.php
-
-		-
 			message: '#^Method EnvelopeSending\:\:create\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -970,24 +766,6 @@ parameters:
 			message: '#^Binary operation "\+" between string and 8 results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 2
-			path: core/modules/doliletter/doc/pdf_ares.modules.php
-
-		-
-			message: '#^Call to an undefined method Translate\:\:convToOutputCharset\(\)\.$#'
-			identifier: method.notFound
-			count: 5
-			path: core/modules/doliletter/doc/pdf_ares.modules.php
-
-		-
-			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/doliletter/doc/pdf_ares.modules.php
-
-		-
-			message: '#^Call to an undefined method User\:\:getFullName\(\)\.$#'
-			identifier: method.notFound
-			count: 1
 			path: core/modules/doliletter/doc/pdf_ares.modules.php
 
 		-
@@ -1227,12 +1005,6 @@ parameters:
 		-
 			message: '#^Call to method writeHTMLCell\(\) on an unknown class PDF\.$#'
 			identifier: class.notFound
-			count: 2
-			path: core/modules/doliletter/doc/pdf_ares.modules.php
-
-		-
-			message: '#^Class HookManager does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
 			count: 2
 			path: core/modules/doliletter/doc/pdf_ares.modules.php
 
@@ -1435,24 +1207,6 @@ parameters:
 			path: core/modules/doliletter/doc/pdf_deimos.modules.php
 
 		-
-			message: '#^Call to an undefined method Translate\:\:convToOutputCharset\(\)\.$#'
-			identifier: method.notFound
-			count: 5
-			path: core/modules/doliletter/doc/pdf_deimos.modules.php
-
-		-
-			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/doliletter/doc/pdf_deimos.modules.php
-
-		-
-			message: '#^Call to an undefined method User\:\:getFullName\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/doliletter/doc/pdf_deimos.modules.php
-
-		-
 			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -1689,12 +1443,6 @@ parameters:
 		-
 			message: '#^Call to method writeHTMLCell\(\) on an unknown class PDF\.$#'
 			identifier: class.notFound
-			count: 2
-			path: core/modules/doliletter/doc/pdf_deimos.modules.php
-
-		-
-			message: '#^Class HookManager does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
 			count: 2
 			path: core/modules/doliletter/doc/pdf_deimos.modules.php
 
@@ -1903,24 +1651,6 @@ parameters:
 			path: core/modules/doliletter/doc/pdf_nerio.modules.php
 
 		-
-			message: '#^Call to an undefined method Translate\:\:convToOutputCharset\(\)\.$#'
-			identifier: method.notFound
-			count: 5
-			path: core/modules/doliletter/doc/pdf_nerio.modules.php
-
-		-
-			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/doliletter/doc/pdf_nerio.modules.php
-
-		-
-			message: '#^Call to an undefined method User\:\:getFullName\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/doliletter/doc/pdf_nerio.modules.php
-
-		-
 			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -2161,12 +1891,6 @@ parameters:
 			path: core/modules/doliletter/doc/pdf_nerio.modules.php
 
 		-
-			message: '#^Class HookManager does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 2
-			path: core/modules/doliletter/doc/pdf_nerio.modules.php
-
-		-
 			message: '#^Method pdf_nerio\:\:_joinedFiles\(\) should return int but return statement is missing\.$#'
 			identifier: return.missing
 			count: 2
@@ -2356,24 +2080,6 @@ parameters:
 			message: '#^Binary operation "\+" between string and 8 results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 2
-			path: core/modules/doliletter/doc/pdf_phobos.modules.php
-
-		-
-			message: '#^Call to an undefined method Translate\:\:convToOutputCharset\(\)\.$#'
-			identifier: method.notFound
-			count: 5
-			path: core/modules/doliletter/doc/pdf_phobos.modules.php
-
-		-
-			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/doliletter/doc/pdf_phobos.modules.php
-
-		-
-			message: '#^Call to an undefined method User\:\:getFullName\(\)\.$#'
-			identifier: method.notFound
-			count: 1
 			path: core/modules/doliletter/doc/pdf_phobos.modules.php
 
 		-
@@ -2577,12 +2283,6 @@ parameters:
 		-
 			message: '#^Call to method writeHTMLCell\(\) on an unknown class PDF\.$#'
 			identifier: class.notFound
-			count: 2
-			path: core/modules/doliletter/doc/pdf_phobos.modules.php
-
-		-
-			message: '#^Class HookManager does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
 			count: 2
 			path: core/modules/doliletter/doc/pdf_phobos.modules.php
 
@@ -2887,240 +2587,6 @@ parameters:
 			path: core/modules/doliletter/modules_trackingnumber.php
 
 		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$boxes\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$config_page_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$conflictwith\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$const\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$const_name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$cronjobs\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$db\.$#'
-			identifier: property.notFound
-			count: 9
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$depends\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$description\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$descriptionlong\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$dictionaries\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$dirs\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$editor_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$error\.$#'
-			identifier: property.notFound
-			count: 2
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$errors\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$family\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$familyinfo\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$hidden\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$langfiles\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$max_dolibarr_version\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$menu\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$module_parts\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$module_position\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$need_dolibarr_version\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$phpmin\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$picto\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$requiredby\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$rights\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$rights_class\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$tabs\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$warnings_activation\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property modDoliLetter\:\:\$warnings_activation_ext\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Call to an undefined method modDoliLetter\:\:_init\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Call to an undefined method modDoliLetter\:\:_load_tables\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Call to an undefined method modDoliLetter\:\:_remove\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/modules/modDoliLetter.class.php
-
-		-
-			message: '#^Access to an undefined property User\:\:\$firstname\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
-
-		-
-			message: '#^Access to an undefined property User\:\:\$lastname\.$#'
-			identifier: property.notFound
-			count: 1
-			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
-
-		-
-			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: core/triggers/interface_99_modDoliLetter_DoliLetterTriggers.class.php
-
-		-
 			message: '#^PHPDoc tag @return has invalid value \(int              		\<0 if KO, 0 if no triggered ran, \>0 if OK\)\: Unexpected token "if", expected ''\>'' at offset 404 on line 11$#'
 			identifier: phpDoc.parseError
 			count: 1
@@ -3169,30 +2635,6 @@ parameters:
 			path: envelope_agenda.php
 
 		-
-			message: '#^Call to an undefined method DoliDB\:\:idate\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: envelope_card.php
-
-		-
-			message: '#^Call to an undefined method Translate\:\:loadLangs\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: envelope_card.php
-
-		-
-			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: envelope_card.php
-
-		-
-			message: '#^Call to an undefined method User\:\:user_get_property\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: envelope_card.php
-
-		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -3229,18 +2671,6 @@ parameters:
 			path: envelope_card.php
 
 		-
-			message: '#^Class Translate does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 2
-			path: envelope_card.php
-
-		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 5
-			path: envelope_card.php
-
-		-
 			message: '#^Comparison operation "\>" between array\<array\{name\: string, path\: string, level1name\: string, relativename\: string, fullname\: string, date\: string, size\: int, perm\: int, \.\.\.\}\> and 0 results in an error\.$#'
 			identifier: greater.invalid
 			count: 3
@@ -3256,12 +2686,6 @@ parameters:
 			message: '#^If condition is always true\.$#'
 			identifier: if.alwaysTrue
 			count: 6
-			path: envelope_card.php
-
-		-
-			message: '#^Method User\:\:fetchAll\(\) invoked with 7 parameters, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
 			path: envelope_card.php
 
 		-
@@ -3499,12 +2923,6 @@ parameters:
 			path: envelope_card.php
 
 		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 2
-			path: envelope_contact.php
-
-		-
 			message: '#^Negated boolean expression is always true\.$#'
 			identifier: booleanNot.alwaysTrue
 			count: 1
@@ -3581,24 +2999,6 @@ parameters:
 			identifier: variable.undefined
 			count: 9
 			path: envelope_document.php
-
-		-
-			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: envelope_list.php
-
-		-
-			message: '#^Call to an undefined method User\:\:getNomUrl\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: envelope_list.php
-
-		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: envelope_list.php
 
 		-
 			message: '#^Negated boolean expression is always true\.$#'
@@ -3709,12 +3109,6 @@ parameters:
 			path: envelope_note.php
 
 		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: envelope_objects.php
-
-		-
 			message: '#^Negated boolean expression is always true\.$#'
 			identifier: booleanNot.alwaysTrue
 			count: 1
@@ -3731,24 +3125,6 @@ parameters:
 			identifier: variable.undefined
 			count: 2
 			path: envelope_objects.php
-
-		-
-			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: envelope_sending.php
-
-		-
-			message: '#^Call to an undefined method User\:\:getNomUrl\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: envelope_sending.php
-
-		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 2
-			path: envelope_sending.php
 
 		-
 			message: '#^Negated boolean expression is always true\.$#'
@@ -3869,24 +3245,6 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: envelope_sending.php
-
-		-
-			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: envelope_signature.php
-
-		-
-			message: '#^Call to an undefined method User\:\:getNomUrl\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: envelope_signature.php
-
-		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: envelope_signature.php
 
 		-
 			message: '#^If condition is always false\.$#'
@@ -4231,12 +3589,6 @@ parameters:
 			path: public/signature/add_signature.php
 
 		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: public/signature/add_signature.php
-
-		-
 			message: '#^Negated boolean expression is always true\.$#'
 			identifier: booleanNot.alwaysTrue
 			count: 1
@@ -4339,24 +3691,6 @@ parameters:
 			path: public/signature/signature_success.php
 
 		-
-			message: '#^Access to an undefined property User\:\:\$firstname\.$#'
-			identifier: property.notFound
-			count: 3
-			path: public/spread/add_spread.php
-
-		-
-			message: '#^Access to an undefined property User\:\:\$lastname\.$#'
-			identifier: property.notFound
-			count: 3
-			path: public/spread/add_spread.php
-
-		-
-			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: public/spread/add_spread.php
-
-		-
 			message: '#^Call to method fetchAll\(\) on an unknown class FirePermitLine\.$#'
 			identifier: class.notFound
 			count: 1
@@ -4390,12 +3724,6 @@ parameters:
 			message: '#^Call to method getFirePermitDangerCategoryName\(\) on an unknown class Risk\.$#'
 			identifier: class.notFound
 			count: 1
-			path: public/spread/add_spread.php
-
-		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 4
 			path: public/spread/add_spread.php
 
 		-
@@ -4451,24 +3779,6 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: public/spread/add_spread.php
-
-		-
-			message: '#^Call to an undefined method User\:\:fetch\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: view/spread.php
-
-		-
-			message: '#^Call to an undefined method User\:\:getNomUrl\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: view/spread.php
-
-		-
-			message: '#^Class User constructor invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: view/spread.php
 
 		-
 			message: '#^Loose comparison using \=\= between '''' and ''pwa'' will always evaluate to false\.$#'
