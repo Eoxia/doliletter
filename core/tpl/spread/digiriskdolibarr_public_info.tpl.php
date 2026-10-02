@@ -62,6 +62,12 @@
 .pp-recap__line img { object-fit: contain; flex: 0 0 auto; }
 .pp-recap__line--risks img { width: 46px; height: 46px; }
 .pp-recap__line--protections img { width: 44px; height: 44px; }
+/* Name of the risk or of the protection, shown at once on hover: the title attribute only came after
+   a second without moving, and went unnoticed */
+.pp-recap__item { position: relative; display: inline-flex; }
+.pp-recap__item::after { content: attr(data-label); position: absolute; bottom: calc(100% + 6px); left: 50%; z-index: 10; width: max-content; max-width: 220px; padding: 6px 8px; font-size: 12px; line-height: 1.3; color: #fff; text-align: center; background: #1e293b; border-radius: 6px; transform: translateX(-50%); opacity: 0; visibility: hidden; transition: opacity 0.15s; pointer-events: none; }
+.pp-recap__item:hover::after { opacity: 1; visibility: visible; }
+.pp-recap__item[data-label=""]::after { display: none; }
 .pp-carousel { position: relative; }
 .pp-carousel__track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .pp-carousel__track::-webkit-scrollbar { display: none; }
@@ -229,7 +235,9 @@
                 }
                 $ppRecapRiskName = ($ppRecapRisk['name'] != -1) ? $ppRecapRisk['name'] : '';
             ?>
-            <img src="<?php echo $ppRecapRisk['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>" alt="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>">
+            <span class="pp-recap__item" data-label="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>">
+                <img src="<?php echo $ppRecapRisk['thumb']; ?>" alt="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>">
+            </span>
             <?php } ?>
         </div>
 
@@ -237,7 +245,9 @@
         <div class="pp-risk-block__label pp-recap__label--protections"><i class="fas fa-hard-hat"></i> <?php echo $langs->trans('SpreadRecapProtections'); ?></div>
         <div class="pp-recap__line pp-recap__line--protections">
             <?php foreach ($ppRecapProtections as $ppRecapProtection) { ?>
-            <img src="<?php echo $ppRecapProtection['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>" alt="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
+            <span class="pp-recap__item" data-label="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
+                <img src="<?php echo $ppRecapProtection['thumb']; ?>" alt="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
+            </span>
             <?php } ?>
         </div>
         <?php } ?>
