@@ -123,6 +123,8 @@
 .pp-cert-not-concerned-btn { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 10px; font-size: 12px; font-weight: 600; color: #4b5563; background: #fff; border: 1px solid #d1d5db; border-radius: 14px; cursor: pointer; }
 .pp-cert-not-concerned-btn:hover { border-color: #9ca3af; background: #f9fafb; }
 .pp-cert-not-concerned-btn--active { color: #fff; background: #6b7280; border-color: #6b7280; }
+/* The hover rule above would put the light background back under the white text of the active state */
+.pp-cert-not-concerned-btn--active:hover { color: #fff; background: #4b5563; border-color: #4b5563; }
 .pp-cert-upload--not-concerned { background: #f9fafb; }
 .pp-cert-upload--not-concerned .pp-cert-upload__label { color: #6b7280; }
 .pp-cert-upload--not-concerned .pp-cert-upload__row { display: none; }
