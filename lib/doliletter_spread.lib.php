@@ -32,6 +32,13 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 const DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE = 'external';
 
 /**
+ * Sub folder of a certification holding the documents (PDF...) uploaded for it, next to its photos.
+ *
+ * Kept apart so that the files list of the media block does not show the photos a second time.
+ */
+const DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR = 'documents';
+
+/**
  * Create the attendance sheet backing a spread the first time someone is added to it.
  *
  * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet, already fetched (may be empty)
@@ -324,6 +331,11 @@ function doliletter_spread_get_certification_states(array $certifications, array
         $certCode  = $certification['code'];
         $certDir   = doliletter_spread_get_certification_dir($certBaseDir, $signatoryId, $certCode);
         $certFiles = dol_is_dir($certDir) ? dol_dir_list($certDir, 'files', 0, '', '(\.meta|_preview.*\.png)$') : [];
+        // A certification received as a document (PDF...) is provided as well as one photographed
+        $certDocumentDir = $certDir . '/' . DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR;
+        if (empty($certFiles) && dol_is_dir($certDocumentDir)) {
+            $certFiles = dol_dir_list($certDocumentDir, 'files', 0, '', '(\.meta|_preview.*\.png)$');
+        }
 
         $states[] = [
             'code'          => $certCode,

@@ -50,8 +50,15 @@ if (!empty($ppCertifications)) { ?>
         <div class="pp-cert-upload__row">
         <?php
         // Saturne media block only (upload buttons + photo editor + gallery), as documented in
-        // saturne/admin/media.php. The page implements the action=uploadPhoto contract.
-        $certMediaBlock = saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . (is_string($certSignatoryId) && str_starts_with($certSignatoryId, 'tmp_') ? dol_sanitizeFileName($certSignatoryId) : (int) $certSignatoryId) . '-' . $certCode, '', ['show_photo' => true, 'show_audio' => false]);
+        // saturne/admin/media.php. The page implements the action=uploadPhoto contract, and the
+        // uploadFile / deleteFile one for the documents (a certification received as a PDF), kept
+        // in their own sub folder so the files list does not repeat the photos.
+        $certMediaBlock = saturne_render_media_block('digiriskdolibarr', $certSubDir, 'cert-' . (is_string($certSignatoryId) && str_starts_with($certSignatoryId, 'tmp_') ? dol_sanitizeFileName($certSignatoryId) : (int) $certSignatoryId) . '-' . $certCode, '', [
+            'show_photo'   => true,
+            'show_audio'   => false,
+            'show_file'    => true,
+            'file_sub_dir' => $certSubDir . '/' . DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR,
+        ]);
         echo doliletter_spread_public_media_block($certMediaBlock);
         ?>
         </div>

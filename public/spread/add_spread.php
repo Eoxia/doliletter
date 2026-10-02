@@ -52,9 +52,9 @@ if (file_exists('../../../saturne/saturne.main.inc.php')) {
 }
 
 // Get module parameters
-// The Saturne media block posts its own module_name with the photo upload; it must not be taken
-// as this page's module context (the upload handler reads it into its own variable instead).
-$moduleName   = (GETPOST('action', 'aZ09') == 'uploadPhoto' || GETPOST('subaction', 'alpha') == 'uploadPhoto') ? '' : GETPOST('module_name', 'alpha');
+// The Saturne media block posts its own module_name with the photo and document uploads; it must
+// not be taken as this page's module context (the upload handlers read it into their own variable).
+$moduleName   = (in_array(GETPOST('action', 'aZ09'), ['uploadPhoto', 'uploadFile', 'deleteFile'], true) || GETPOST('subaction', 'alpha') == 'uploadPhoto') ? '' : GETPOST('module_name', 'alpha');
 $objectType   = GETPOST('object_type', 'alpha');
 $documentType = GETPOST('document_type', 'alpha');
 
@@ -610,6 +610,61 @@ if (($action == 'uploadPhoto' || $subaction == 'uploadPhoto') && !empty($conf->g
         if (!$invalidFile) {
             $allowOverwrite = GETPOSTINT('overwrite') ? 1 : 0;
             dol_add_file_process($uploadDir, $allowOverwrite, 1, 'userfile', '', null, '', 1);
+        }
+    }
+    $action = '';
+}
+
+// Document (a certification received as a PDF...) posted or removed by the files part of the Saturne
+// media block of a certification. Tighter than the photos: only the documents folder of a
+// certification of the object spread here is writable, and only PDF files are accepted.
+if (($action == 'uploadFile' || $action == 'deleteFile') && $isDigiriskRiskObject && !empty($ppCertBaseDir)) {
+    require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+    // <signatory id or tmp_ id of a registration in progress>/<certification code>/documents
+    $docSubDir    = GETPOST('sub_dir', 'alpha');
+    $docSubPrefix = $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/certifications/';
+    $docMatches   = [];
+    if (strpos($docSubDir, $docSubPrefix) === 0 && strpos($docSubDir, '..') === false
+        && preg_match('/^(\d+|tmp_[A-Za-z0-9_]+)\/[^\/]+\/' . DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR . '$/', substr($docSubDir, strlen($docSubPrefix)), $docMatches)) {
+        $docDir = $ppUploadBase . '/' . $docSubDir;
+
+        if ($action == 'uploadFile' && getDolGlobalInt('MAIN_UPLOAD_DOC')) {
+            if (!dol_is_dir($docDir)) {
+                dol_mkdir($docDir);
+            }
+
+            // PDF only, checked on the name and on the real content: this page serves its files back
+            // through the Saturne image wrapper, which opens images and PDF but no office document
+            $uploadedFiles    = isset($_FILES['userfile']) ? $_FILES['userfile'] : [];
+            $uploadedNames    = !empty($uploadedFiles['name']) ? (array) $uploadedFiles['name'] : [];
+            $uploadedTmpNames = !empty($uploadedFiles['tmp_name']) ? (array) $uploadedFiles['tmp_name'] : [];
+            $invalidDocument  = empty($uploadedTmpNames);
+            foreach ($uploadedTmpNames as $uploadedIndex => $uploadedTmpName) {
+                if (empty($uploadedTmpName)) {
+                    continue;
+                }
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                if (dol_strtolower(pathinfo((string) ($uploadedNames[$uploadedIndex] ?? ''), PATHINFO_EXTENSION)) !== 'pdf'
+                    || $finfo->file($uploadedTmpName) !== 'application/pdf') {
+                    $invalidDocument = true;
+                    break;
+                }
+            }
+
+            if (!$invalidDocument) {
+                dol_add_file_process($docDir, 0, 1, 'userfile', '', null, '', 0);
+            }
+        } elseif ($action == 'deleteFile') {
+            // Removing is kept to the person answering: a logged in user, the signatory of the ?sign=
+            // link, or a registration still in progress in this browser
+            $docSignatory = $docMatches[1];
+            if ($isLogged || strpos($docSignatory, 'tmp_') === 0 || ($signTokenSignatoryId > 0 && (int) $docSignatory === (int) $signTokenSignatoryId)) {
+                $docName = dol_sanitizeFileName(GETPOST('filename', 'alphanohtml'));
+                if (dol_strlen($docName) && dol_is_file($docDir . '/' . $docName)) {
+                    dol_delete_file($docDir . '/' . $docName, 0, 0, 0, null, 1);
+                }
+            }
         }
     }
     $action = '';
