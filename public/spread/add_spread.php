@@ -150,6 +150,7 @@ $ppOrphanProtections  = [];
 $ppRecapProtections   = [];
 $certificationOptions = [];
 $ppCertBaseDir        = '';
+$ppCertSubDir         = '';
 $ppTexts              = [];
 if ($isDigiriskRiskObject) {
     saturne_load_langs(['digiriskdolibarr@digiriskdolibarr']);
@@ -255,7 +256,8 @@ if ($isDigiriskRiskObject) {
 
     // Base directory of uploaded certification photos, same resolution as saturne_render_media_block()
     $ppUploadBase  = !empty($conf->digiriskdolibarr->dir_output) ? $conf->digiriskdolibarr->dir_output : $conf->ecm->dir_output . '/digiriskdolibarr';
-    $ppCertBaseDir = $ppUploadBase . '/' . $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/certifications';
+    $ppCertSubDir  = $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/certifications';
+    $ppCertBaseDir = $ppUploadBase . '/' . $ppCertSubDir;
 }
 
 // Signatory the ?sign= token points to, resolved before the actions so a visitor can only answer for themselves
@@ -618,16 +620,16 @@ if (($action == 'uploadPhoto' || $subaction == 'uploadPhoto') && !empty($conf->g
 // Document (a certification received as a PDF...) posted or removed by the files part of the Saturne
 // media block of a certification. Tighter than the photos: only the documents folder of a
 // certification of the object spread here is writable, and only PDF files are accepted.
-if (($action == 'uploadFile' || $action == 'deleteFile') && $isDigiriskRiskObject && !empty($ppCertBaseDir)) {
+if (($action == 'uploadFile' || $action == 'deleteFile') && !empty($ppCertSubDir)) {
     require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
     // <signatory id or tmp_ id of a registration in progress>/<certification code>/documents
     $docSubDir    = GETPOST('sub_dir', 'alpha');
-    $docSubPrefix = $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/certifications/';
+    $docSubPrefix = $ppCertSubDir . '/';
     $docMatches   = [];
     if (strpos($docSubDir, $docSubPrefix) === 0 && strpos($docSubDir, '..') === false
         && preg_match('/^(\d+|tmp_[A-Za-z0-9_]+)\/[^\/]+\/' . DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR . '$/', substr($docSubDir, strlen($docSubPrefix)), $docMatches)) {
-        $docDir = $ppUploadBase . '/' . $docSubDir;
+        $docDir = $ppCertBaseDir . '/' . substr($docSubDir, strlen($docSubPrefix));
 
         if ($action == 'uploadFile' && getDolGlobalInt('MAIN_UPLOAD_DOC')) {
             if (!dol_is_dir($docDir)) {
@@ -662,7 +664,7 @@ if (($action == 'uploadFile' || $action == 'deleteFile') && $isDigiriskRiskObjec
             if ($isLogged || strpos($docSignatory, 'tmp_') === 0 || ($signTokenSignatoryId > 0 && (int) $docSignatory === (int) $signTokenSignatoryId)) {
                 $docName = dol_sanitizeFileName(GETPOST('filename', 'alphanohtml'));
                 if (dol_strlen($docName) && dol_is_file($docDir . '/' . $docName)) {
-                    dol_delete_file($docDir . '/' . $docName, 0, 0, 0, null, 1);
+                    dol_delete_file($docDir . '/' . $docName);
                 }
             }
         }
