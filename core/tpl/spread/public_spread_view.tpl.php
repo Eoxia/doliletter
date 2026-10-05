@@ -644,12 +644,43 @@ body {
 }
 
 /* En-tete : la page arrive par un lien brut, le logo et la raison sociale disent de qui elle vient */
+/* Trois colonnes, les deux laterales de meme largeur : l'intitule reste au centre de la carte
+   quels que soient la longueur du nom de la societe et la presence des boutons */
 .spread-brand {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "identity title actions";
     align-items: center;
     gap: 12px;
     padding-bottom: 14px;
     border-bottom: 1px solid #e5e5e5;
+}
+
+.spread-brand__identity {
+    grid-area: identity;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.spread-brand__title {
+    grid-area: title;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #4a55d1;
+    text-transform: uppercase;
+}
+
+/* Sur telephone, pas la place pour trois colonnes : l'intitule passe sur sa propre ligne */
+@media (max-width: 600px) {
+    .spread-brand {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "identity actions"
+            "title title";
+    }
 }
 
 .spread-brand__logo {
@@ -666,10 +697,11 @@ body {
 }
 
 .spread-brand__actions {
+    grid-area: actions;
+    justify-self: end;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-left: auto;
 }
 
 /* Boutons sans libelle : la cible tactile doit rester tenable au doigt, d'ou le carre de 38px */
@@ -795,12 +827,14 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
     <div class="public-card__header">
         <div class="public-card__content">
             <div class="spread-brand">
-                <?php if (dol_strlen($spreadLogoUrl)) { ?>
-                <img class="spread-brand__logo" src="<?php echo $spreadLogoUrl; ?>" alt="<?php echo dol_escape_htmltag($mysoc->name); ?>">
-                <?php } ?>
-                <span class="spread-brand__name"><?php echo dol_escape_htmltag($mysoc->name); ?></span>
-                
-                <span style="flex-grow: 1; text-align: center; font-weight: bold; font-size: 1.2em; color: #4a55d1; text-transform: uppercase;">
+                <div class="spread-brand__identity">
+                    <?php if (dol_strlen($spreadLogoUrl)) { ?>
+                    <img class="spread-brand__logo" src="<?php echo $spreadLogoUrl; ?>" alt="<?php echo dol_escape_htmltag($mysoc->name); ?>">
+                    <?php } ?>
+                    <span class="spread-brand__name"><?php echo dol_escape_htmltag($mysoc->name); ?></span>
+                </div>
+
+                <span class="spread-brand__title">
                     <?php echo $langs->transnoentities($objectsMetadata[$objectType]['langs'] ?? ucfirst($objectsMetadata[$objectType]['object']->element)); ?>
                 </span>
 
