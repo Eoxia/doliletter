@@ -230,11 +230,14 @@ if ($isDigiriskRiskObject) {
         }
     }
 
-    // Protections of plans created before they were attached to a risk: nothing links them to a
-    // block, they would silently disappear from the public page
+    // Protections no block of the page carries (plans created before they were attached to a risk):
+    // they would silently disappear from the public page. Category 0 is a risk like any other
+    // (chute de plain-pied, ponceuse), so the test is against the categories shown, not empty()
+    $ppRiskCategories    = array_column($ppRisks, 'category');
     $ppOrphanProtections = [];
     foreach ($ppProtections as $ppProtectionItem) {
-        if (empty($ppProtectionItem['risk_category']) && isset($ppProtectionMap[$ppProtectionItem['position']])) {
+        $ppProtectionCarried = isset($ppProtectionItem['risk_category']) && in_array((int) $ppProtectionItem['risk_category'], $ppRiskCategories, true);
+        if (!$ppProtectionCarried && isset($ppProtectionMap[$ppProtectionItem['position']])) {
             $ppOrphanProtections[] = [
                 'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
                 'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
