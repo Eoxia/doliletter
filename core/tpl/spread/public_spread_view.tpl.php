@@ -1363,27 +1363,9 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
     </div>
     <?php } ?>
 
-
-
-
-
-    <?php
-    // Signed list configuration
-    $showCount   = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATURE_COUNT', 1);
-    $showName    = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_NAME', 1);
-    $showContact = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_CONTACT', 0);
-
-    // Une personne diffusee doit pouvoir voir qui d'autre a pris connaissance du document. La liste
-    // modifiable ci-dessus est reservee aux gestionnaires : celle-ci est en lecture seule.
-    // L'affichage est conditionn� par les param�tres ou s'il s'agit d'un visiteur public.
-    if ((!$isLogged && !empty($signSignatory)) || $showCount || $showName || $showContact) {
-        require __DIR__ . '/public_spread_signatories.tpl.php';
-    }
-    ?>
-
     <?php if (!empty($signSignatory) && empty($signSignatory->signature)) { ?>
-    <!-- Single-person view: signing is the last step, at the very bottom, once the documents are
-         provided and the risks acknowledged above -->
+    <!-- Single-person view: signing is the last step, below the documents and the risks to
+         acknowledge, just above the list of signatories -->
     <div class="pp-single-person">
         <?php if (!empty($ppPendingCertifications)) { ?>
         <!-- Mandatory documents block signing until they are uploaded or waived -->
@@ -1417,6 +1399,20 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
         </div>
     </div>
     <?php } ?>
+
+    <?php
+    // Signed list configuration
+    $showCount   = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATURE_COUNT', 1);
+    $showName    = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_NAME', 1);
+    $showContact = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_CONTACT', 0);
+
+    // Une personne diffusee doit pouvoir voir qui d'autre a pris connaissance du document. La liste
+    // modifiable ci-dessus est reservee aux gestionnaires : celle-ci est en lecture seule.
+    // L'affichage est conditionn� par les param�tres ou s'il s'agit d'un visiteur public.
+    if ((!$isLogged && !empty($signSignatory)) || $showCount || $showName || $showContact) {
+        require __DIR__ . '/public_spread_signatories.tpl.php';
+    }
+    ?>
 </div>
 
 <?php
