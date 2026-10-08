@@ -1244,46 +1244,13 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
         </div>
     </div>
 
-            <?php if (!empty($signSignatory)) { ?>
-            <!-- Single-person view: only this signatory's signature + their certification photos -->
+            <?php if (!empty($signSignatory) && !empty($isDigiriskRiskObject) && !empty($ppCertifications)) { ?>
+            <!-- Single-person view: this signatory's certification documents (their signature is at the bottom) -->
             <div class="pp-single-person">
-                <?php if (!empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
-                    $certSignatoryId = $signSignatory->id;
-                    require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
-                } ?>
-
-                <?php if (empty($signSignatory->signature) && !empty($ppPendingCertifications)) { ?>
-                <!-- Mandatory documents block signing until they are uploaded or waived -->
-                <div class="pp-mandatory-pending">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <div>
-                        <?php echo $langs->trans('SpreadMandatoryCertificationsPending'); ?>
-                        <ul class="pp-mandatory-pending__list">
-                            <?php foreach ($ppPendingCertifications as $pendingCertification) { ?>
-                            <li data-cert-code="<?php echo dol_escape_htmltag($pendingCertification['code']); ?>"><?php echo dol_escape_htmltag($pendingCertification['label']); ?></li>
-                            <?php } ?>
-                        </ul>
-                    </div>
-                </div>
-                <?php } ?>
-
-                <?php if (empty($signSignatory->signature)) { ?>
-                <!-- Inline signature panel: no modal, the person signs directly on the page -->
-                <div class="pp-inline-signature">
-                    <div class="pp-inline-signature__title"><i class="fas fa-signature"></i> <?php echo $langs->trans('Signature'); ?></div>
-                    <div class="signature-element">
-                        <canvas id="signatureCanvas" class="canvas-container editable canvas-signature pp-inline-canvas" width="600" height="200"></canvas>
-                        <div class="signature-erase wpeo-button button-square-40 button-rounded button-red">
-                            <span><i class="fas fa-eraser"></i></span>
-                        </div>
-                    </div>
-                    <div class="pp-inline-signature__actions">
-                        <button type="button" class="wpeo-button button-disable validate-sign-btn" disabled>
-                            <i class="fas fa-check"></i> <?php echo $langs->trans('ValidateSignature'); ?>
-                        </button>
-                    </div>
-                </div>
-                <?php } ?>
+                <?php
+                $certSignatoryId = $signSignatory->id;
+                require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
+                ?>
             </div>
             <?php } ?>
 
@@ -1413,6 +1380,43 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
         require __DIR__ . '/public_spread_signatories.tpl.php';
     }
     ?>
+
+    <?php if (!empty($signSignatory) && empty($signSignatory->signature)) { ?>
+    <!-- Single-person view: signing is the last step, at the very bottom, once the documents are
+         provided and the risks acknowledged above -->
+    <div class="pp-single-person">
+        <?php if (!empty($ppPendingCertifications)) { ?>
+        <!-- Mandatory documents block signing until they are uploaded or waived -->
+        <div class="pp-mandatory-pending">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>
+                <?php echo $langs->trans('SpreadMandatoryCertificationsPending'); ?>
+                <ul class="pp-mandatory-pending__list">
+                    <?php foreach ($ppPendingCertifications as $pendingCertification) { ?>
+                    <li data-cert-code="<?php echo dol_escape_htmltag($pendingCertification['code']); ?>"><?php echo dol_escape_htmltag($pendingCertification['label']); ?></li>
+                    <?php } ?>
+                </ul>
+            </div>
+        </div>
+        <?php } ?>
+
+        <!-- Inline signature panel: no modal, the person signs directly on the page -->
+        <div class="pp-inline-signature">
+            <div class="pp-inline-signature__title"><i class="fas fa-signature"></i> <?php echo $langs->trans('Signature'); ?></div>
+            <div class="signature-element">
+                <canvas id="signatureCanvas" class="canvas-container editable canvas-signature pp-inline-canvas" width="600" height="200"></canvas>
+                <div class="signature-erase wpeo-button button-square-40 button-rounded button-red">
+                    <span><i class="fas fa-eraser"></i></span>
+                </div>
+            </div>
+            <div class="pp-inline-signature__actions">
+                <button type="button" class="wpeo-button button-disable validate-sign-btn" disabled>
+                    <i class="fas fa-check"></i> <?php echo $langs->trans('ValidateSignature'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 </div>
 
 <?php
@@ -2149,9 +2153,12 @@ $(document).ready(function () {
         if (inlineCanvas) {
             inlineCanvas.addEventListener('mouseup', updateValidateButtonState);
             inlineCanvas.addEventListener('touchend', updateValidateButtonState);
+            <?php if (empty($ppPendingRisks) && empty($ppPendingCertifications)) { ?>
+            // The panel is at the bottom of the page: jump to it only when nothing is left to read or provide
             setTimeout(function() {
                 inlineCanvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 500);
+            <?php } ?>
         }
         updateValidateButtonState();
     })();
