@@ -1056,7 +1056,9 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
     <?php } ?>
     <?php if (!empty($signSignatory)) { ?>
         <div class="pp-single-person-welcome" style="margin-bottom: 25px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-            <p style="font-size: 16px; margin-bottom: 15px;">Bonjour, <strong><?php echo dol_escape_htmltag(trim($signSignatory->firstname . ' ' . $signSignatory->lastname)); ?></strong></p>
+            <?php // Registered with an email or a phone only: greet them with it rather than with nothing
+            $signSignatoryGreeting = doliletter_spread_get_signatory_name($signSignatory) ?: ($signSignatory->email ?: $signSignatory->phone); ?>
+            <p style="font-size: 16px; margin-bottom: 15px;">Bonjour, <strong><?php echo dol_escape_htmltag($signSignatoryGreeting); ?></strong></p>
             
             <?php if (empty($signSignatory->signature)) { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
@@ -1896,6 +1898,12 @@ function registerPublicSignatory() {
 
     if (hasError) {
         $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SpreadPublicRegisterMissingFields')); ?>', {type: 'error'});
+        return;
+    }
+
+    // With no mandatory field configured, an empty form registered a signatory nobody can identify
+    if (!['firstname', 'lastname', 'email', 'phone'].some(key => (fields[key] || '').trim())) {
+        $.jnotify('<?php echo dol_escape_js($langs->transnoentities('SpreadPublicRegisterIdentityMissing')); ?>', {type: 'error'});
         return;
     }
 
