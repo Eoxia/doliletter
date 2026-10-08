@@ -80,6 +80,7 @@ SpreadSignatoriesTitle = Spread signatories
 SpreadSignatoriesCount = %s signature(s) out of %s
 SpreadNoSignatoryYet = Nobody has joined this spread yet.
 SpreadSignatoryPending = Waiting for signature
+ErrorSpreadSignatoryIdentityMissing = Fill in at least one field to identify the person
 
 #
 # Public registration

@@ -26,8 +26,11 @@
 
 global $db, $langs;
 
+// A signature nobody was assigned to is not a person of the spread: it showed as "Unknown"
+$listedSignatories = array_filter($signatories, 'doliletter_spread_signatory_has_identity');
+
 $signedCount = 0;
-foreach ($signatories as $signatoryItem) {
+foreach ($listedSignatories as $signatoryItem) {
     if (!empty($signatoryItem->signature)) {
         $signedCount++;
     }
@@ -40,7 +43,7 @@ foreach ($signatories as $signatoryItem) {
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <?php if (!isset($showCount) || $showCount) { ?>
-            <span class="spread-signatories__count"><?php echo $langs->trans('SpreadSignatoriesCount', $signedCount, count($signatories)); ?></span>
+            <span class="spread-signatories__count"><?php echo $langs->trans('SpreadSignatoriesCount', $signedCount, count($listedSignatories)); ?></span>
             <?php } ?>
             <?php if (!empty($isSignedPreventionPlan) && isset($registerUrl)) { ?>
             <a href="<?php echo $registerUrl; ?>" style="font-size: 13px; padding: 6px 12px; background: #3b82f6; color: white; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(59,130,246,0.2);">
@@ -50,11 +53,11 @@ foreach ($signatories as $signatoryItem) {
         </div>
     </div>
 
-    <?php if (empty($signatories)) { ?>
+    <?php if (empty($listedSignatories)) { ?>
     <div class="spread-signatories__empty"><?php echo $langs->trans('SpreadNoSignatoryYet'); ?></div>
     <?php } elseif (!isset($showName) || $showName || !empty($showContact) || !empty($showDocs)) { ?>
     <ul class="spread-signatories__list">
-        <?php foreach ($signatories as $signatoryItem) {
+        <?php foreach ($listedSignatories as $signatoryItem) {
             $hasSigned = !empty($signatoryItem->signature);
 
             $signatoryName  = '';

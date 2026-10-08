@@ -178,6 +178,17 @@ function doliletter_spread_get_signatory_name(SaturneSignature $signatory): stri
 }
 
 /**
+ * Whether a signatory designates someone: a Dolibarr user, or at least one identity field.
+ *
+ * @param  SaturneSignature $signatory Signatory to check
+ * @return bool                        False for a signature nobody was assigned to
+ */
+function doliletter_spread_signatory_has_identity(SaturneSignature $signatory): bool
+{
+    return $signatory->element_id > 0 || dol_strlen(trim($signatory->firstname . $signatory->lastname . $signatory->email . $signatory->phone)) > 0;
+}
+
+/**
  * Decode the JSON payload carried by a signatory.
  *
  * The Saturne signature table already owns a free `json` column, so the answers given by a
