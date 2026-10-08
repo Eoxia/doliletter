@@ -1119,25 +1119,40 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
 
                     // If there are already added signatories, display them
                     $signatories = array_reverse($signatories, true);
-                    foreach ($signatories as $index => $signatoryItem) {
+
+                    // Rows of a signatory to add, kept as templates: nothing is saved until the person is
+                    // chosen (internal) or filled in and validated (external)
+                    $newSignatoryRows = [];
+                    foreach (['user', DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE] as $newSignatoryElementType) {
+                        $newSignatoryRow               = new DoliletterSpreadSignature($db);
+                        $newSignatoryRow->id           = 0;
+                        $newSignatoryRow->element_type = $newSignatoryElementType;
+                        $newSignatoryRows[]            = $newSignatoryRow;
+                    }
+
+                    foreach (array_merge($newSignatoryRows, $signatories) as $signatoryItem) {
+                        $isNewSignatory = empty($signatoryItem->id);
                         // A signatory registered from the public page carries their own identity, no Dolibarr user behind it
                         $isExternalSignatory = ($signatoryItem->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
                         $isSignatoryReady = false;
                         $isEmailReady = false;
                         if ($isExternalSignatory) {
                             $isSignatoryReady = true;
-                            if ($confExtFirstnameMandatory && trim($signatoryItem->first_name) === '') $isSignatoryReady = false;
-                            if ($confExtLastnameMandatory && trim($signatoryItem->last_name) === '') $isSignatoryReady = false;
-                            if ($confExtEmailMandatory && trim($signatoryItem->email) === '') $isSignatoryReady = false;
-                            if ($confExtPhoneMandatory && trim($signatoryItem->phone) === '') $isSignatoryReady = false;
-                            $isEmailReady = (trim($signatoryItem->email) !== '');
+                            if ($confExtFirstnameMandatory && trim((string) $signatoryItem->firstname) === '') $isSignatoryReady = false;
+                            if ($confExtLastnameMandatory && trim((string) $signatoryItem->lastname) === '') $isSignatoryReady = false;
+                            if ($confExtEmailMandatory && trim((string) $signatoryItem->email) === '') $isSignatoryReady = false;
+                            if ($confExtPhoneMandatory && trim((string) $signatoryItem->phone) === '') $isSignatoryReady = false;
+                            $isEmailReady = (trim((string) $signatoryItem->email) !== '');
                         } else {
                             $isSignatoryReady = (!empty($signatoryItem->element_id) && $signatoryItem->element_id != -1);
                             $isEmailReady = $isSignatoryReady;
                         }
                         if (empty($signatoryItem->signature)) {
                         ?>
-                        <div class="user-signature-item signature-not-validated" data-user-index="<?php echo $signatoryItem->id; ?>">
+                        <?php if ($isNewSignatory) { ?>
+                        <template id="spread-new-signatory-<?php echo $isExternalSignatory ? 'external' : 'internal'; ?>">
+                        <?php } ?>
+                        <div class="user-signature-item signature-not-validated<?php echo $isNewSignatory ? ' user-signature-item--new' : ''; ?>" data-user-index="<?php echo $signatoryItem->id; ?>">
                             <div class="user-info">
                                 <div class="form-row">
                                     <div class="form-element">
@@ -1153,10 +1168,10 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                                                             <div style="display: flex; flex-direction: column; gap: 8px;">
                                                                 <div style="display: flex; gap: 8px;">
                                                                     <?php if ($confExtFirstnameVisible) { ?>
-                                                                    <input type="text" class="external-signatory-input" data-field="first_name" <?php echo $confExtFirstnameMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->first_name); ?>" placeholder="<?php echo $langs->trans('Firstname') . ($confExtFirstnameMandatory ? ' *' : ''); ?>" style="width: 50%;">
+                                                                    <input type="text" class="external-signatory-input" data-field="first_name" <?php echo $confExtFirstnameMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->firstname); ?>" placeholder="<?php echo $langs->trans('Firstname') . ($confExtFirstnameMandatory ? ' *' : ''); ?>" style="width: 50%;">
                                                                     <?php } ?>
                                                                     <?php if ($confExtLastnameVisible) { ?>
-                                                                    <input type="text" class="external-signatory-input" data-field="last_name" <?php echo $confExtLastnameMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->last_name); ?>" placeholder="<?php echo $langs->trans('Lastname') . ($confExtLastnameMandatory ? ' *' : ''); ?>" style="width: 50%;">
+                                                                    <input type="text" class="external-signatory-input" data-field="last_name" <?php echo $confExtLastnameMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->lastname); ?>" placeholder="<?php echo $langs->trans('Lastname') . ($confExtLastnameMandatory ? ' *' : ''); ?>" style="width: 50%;">
                                                                     <?php } ?>
                                                                 </div>
                                                                 <div style="display: flex; gap: 8px;">
@@ -1174,6 +1189,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                                                     print $form->select_dolusers(empty($signatoryItem->element_id) ? -1 : $signatoryItem->element_id, 'attendant_user_' . $signatoryItem->id, 1, [], 0, '', '', $conf->entity, 0, 0, '', 0, '', 'minwidth150 widthcentpercentminusx user-select-small', 1);
                                                 } ?>
                                             </div>
+                                            <?php if (!$isNewSignatory) { ?>
                                             <div class="signature-status">
                                                 <span class="badge badge-dot badge-status<?php echo $isSignatoryReady ? '1' : '0' ?> badge-status"></span>
                                                 <i class="fas fa-signature"></i>
@@ -1182,10 +1198,17 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                                             <button type="button" class="wpeo-button button-<?php echo $isSignatoryReady ? 'primary' : 'disable' ?> sign-btn">
                                                 <i class="fas fa-signature"></i>
                                             </button>
+                                            <?php } ?>
                                             <?php if (!empty($permissiontoadd)) { ?>
+                                                <?php if (!$isNewSignatory) { ?>
                                             <button type="button" class="wpeo-button button-<?php echo $isEmailReady ? 'primary' : 'disable' ?> send-email-btn" <?php echo $isEmailReady ? '' : 'disabled'; ?>>
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
+                                                <?php } elseif ($isExternalSignatory) { ?>
+                                            <button type="button" class="wpeo-button button-disable validate-new-signatory-btn" disabled title="<?php echo dol_escape_htmltag($langs->trans('Validate')); ?>">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                                <?php } ?>
                                             <button type="button" class="wpeo-button button-red remove-user-btn">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -1196,7 +1219,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                             </div>
                     <?php
                     // Prevention plan:                    // Prevention plan: one photo per required certification (document) for this signatory
-                    if (!empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
+                    if (!$isNewSignatory && !empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
                         print '<div class="pp-signatory-media-row" style="border-top: 1px dashed #e5e5e5; margin-top: 10px; padding-top: 10px;">';
                         print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> Envoyer les éléments demandés</div>';
                         $certSignatoryId = $signatoryItem->id;
@@ -1205,6 +1228,9 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     }
                     ?>
                         </div> <!-- close user-signature-item -->
+                        <?php if ($isNewSignatory) { ?>
+                        </template>
+                        <?php } ?>
                     <?php
                         } // close if (empty($signatoryItem->signature))
                     } // close foreach
@@ -1610,42 +1636,61 @@ function validateSignature() {
     }
 }
 
+/**
+ * Open a row to fill in for a new signatory. Nothing is saved yet: the signature is created once the
+ * person is chosen (internal) or filled in and validated (external), see createSignatory().
+ *
+ * @return {void}
+ */
 function addUser() {
     let type = $(this).data('type') || 'internal';
-    let token          = window.saturne.toolbox.getToken();
-    let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
+
+    // A single row to fill in at a time: switching type replaces it, nothing is lost
+    $('.user-signatures-list .user-signature-item--new').remove();
+
+    // Parsed from the template markup rather than cloned, so that the select2 script of the user list runs
+    $('.user-signatures-list').prepend($($('#spread-new-signatory-' + type).html()));
+}
+
+/**
+ * Create the signature of a new row, now that its person is known, and put the saved row in its place.
+ *
+ * @param {jQuery} $row   New row
+ * @param {String} type   internal or external
+ * @param {Object} fields Person: user_id, or first_name / last_name / email / phone
+ * @return {void}
+ */
+function createSignatory($row, type, fields) {
+    let token    = window.saturne.toolbox.getToken();
+    let knownIds = $('.user-signatures-list .user-signature-item').map(function () {
+        return String($(this).data('user-index'));
+    }).get();
 
     $.ajax({
         method: 'POST',
-        url: document.URL + querySeparator + 'action=add_spread_user&type=' + type + '&token=' + token,
-        processData: false,
-        contentType: 'application/json charset=utf-8',
+        url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=add_spread_user&type=' + type + '&token=' + token,
+        data: $.param(fields),
+        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
         success: function (resp) {
-            let $newList = $(resp).find('.user-signatures-list').children();
-            let firstItemIndex = -1;
-            let nextItemIndex = -1;
-            $newList.each(function(i) {
-                if ($(this).hasClass('user-signature-item')) {
-                    if (firstItemIndex === -1) {
-                        firstItemIndex = i;
-                    } else if (nextItemIndex === -1) {
-                        nextItemIndex = i;
-                    }
-                }
-            });
-            if (firstItemIndex !== -1) {
-                let $elementsToAdd = nextItemIndex !== -1 ? $newList.slice(firstItemIndex, nextItemIndex) : $newList.slice(firstItemIndex);
-                $(document).find('.user-signatures-list').prepend($elementsToAdd);
+            const error = getResponseMessage(resp, 'error');
+            if (error.length) {
+                $.jnotify(error.val(), {type: 'error'});
+                return;
             }
-            
-            let $newAddSection = $(resp).find('.add-user-section');
+
+            let $page = $(resp);
+            $row.replaceWith($page.find('.user-signatures-list .user-signature-item').filter(function () {
+                return !knownIds.includes(String($(this).data('user-index')));
+            }));
+
+            let $newAddSection = $page.find('.add-user-section');
             if ($newAddSection.length) {
                 $('.add-user-section').replaceWith($newAddSection);
             }
             refreshSignatoriesBlock(resp);
             updateBottomSignBtn();
         }
-    })
+    });
 }
 
 /**
@@ -1664,6 +1709,13 @@ function refreshSignatoriesBlock(resp) {
 }
 
 function removeUser() {
+    // A new row has no signature behind it yet: giving it up leaves nothing to delete
+    const $newRow = $(this).parents('.user-signature-item--new').eq(0);
+    if ($newRow.length) {
+        $newRow.remove();
+        return;
+    }
+
     const userIndex   = $(this).data('user-index') || $(this).parents('.user-signature-item').eq(0).data('user-index');
     const userItem    = document.querySelector(`[data-user-index="${userIndex}"]`);
     const token       = window.saturne.toolbox.getToken();
@@ -1960,6 +2012,15 @@ $(document).ready(function () {
         let val         = $(this).val();
         let token       = window.saturne.toolbox.getToken();
 
+        // Choosing the user of a new row is what validates it
+        let $newRow = $(this).parents('.user-signature-item--new').eq(0);
+        if ($newRow.length) {
+            if (parseInt(val, 10) > 0) {
+                createSignatory($newRow, 'internal', {user_id: val});
+            }
+            return;
+        }
+
         $.ajax({
             method: 'POST',
             url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=update_spread_user&signatory_id=' + signatoryId + '&user_id=' + val + '&token=' + token,
@@ -1989,6 +2050,13 @@ $(document).ready(function () {
         if ($ln.length && $ln.data('mandatory') == '1' && last_name.trim() === '') isReady = false;
         if ($em.length && $em.data('mandatory') == '1' && email.trim() === '') isReady = false;
         if ($ph.length && $ph.data('mandatory') == '1' && phone.trim() === '') isReady = false;
+
+        // A new row is only saved by its validate button, once it names someone
+        if ($container.hasClass('user-signature-item--new')) {
+            let canValidate = isReady && [first_name, last_name, email, phone].some(value => value.trim() !== '');
+            $container.find('.validate-new-signatory-btn').toggleClass('button-disable', !canValidate).toggleClass('button-green', canValidate).prop('disabled', !canValidate);
+            return;
+        }
 
         let $signBtn = $('.sign-btn');
         let isEmailReady = ($em.length ? email.trim() !== '' : false);
@@ -2031,6 +2099,15 @@ $(document).ready(function () {
     $(document).on('click', '.close-modal-spread, .cancel-signature-btn', closeSignatureModal);
     $(document).on('click', '.add-user-btn', addUser);
     $(document).on('click', '.remove-user-btn', removeUser);
+
+    $(document).on('click', '.validate-new-signatory-btn:not(.button-disable)', function () {
+        let $row   = $(this).parents('.user-signature-item--new').eq(0);
+        let fields = {};
+        $row.find('.external-signatory-input').each(function () {
+            fields[$(this).data('field')] = $(this).val();
+        });
+        createSignatory($row, 'external', fields);
+    });
 
     $(document).on('click', '.sign-btn:not(.button-disable)', openSignatureModal);
 

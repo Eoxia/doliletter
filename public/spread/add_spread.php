@@ -271,30 +271,76 @@ if (!empty($sign)) {
     $signTokenSignatoryId = ($tokenSignatory->id > 0) ? $tokenSignatory->id : 0;
 }
 
+// The signature is only created once the person is known: the user chosen for an internal signatory,
+// the identity filled in for an external one. Created at the first click, an empty signature showed
+// as "Unknown" in the list of signatories and stayed there when the addition was given up.
 if ($action == 'add_spread_user') {
-    $result = doliletter_spread_ensure_attendance_sheet($attendanceSheet, $objectsMetadata, $objectType, $id, $user);
-    if ($result < 0) {
-        setEventMessages($attendanceSheet->error, $attendanceSheet->errors, 'errors');
-        exit;
-    }
-
     $type = GETPOST('type', 'aZ09');
 
     $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
-    $tmpSignatory->element_id     = 0;
-    $tmpSignatory->element_type   = ($type === 'external') ? DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE : 'user';
-    $tmpSignatory->role           = '';
-    $tmpSignatory->object_type    = $attendanceSheet->element;
-    $tmpSignatory->fk_object      = $attendanceSheet->id;
-    $tmpSignatory->module_name    = $moduleNameLowerCase;
-    $tmpSignatory->status         = $tmpSignatory::STATUS_PENDING_SIGNATURE;
-    $tmpSignatory->signature_url  = generate_random_id();
+    if ($type === 'external') {
+        $tmpSignatory->element_id   = 0;
+        $tmpSignatory->element_type = DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE;
+        $tmpSignatory->firstname    = GETPOST('first_name', 'alphanohtml');
+        $tmpSignatory->lastname     = GETPOST('last_name', 'alphanohtml');
+        $tmpSignatory->email        = GETPOST('email', 'alphanohtml');
+        $tmpSignatory->phone        = GETPOST('phone', 'alphanohtml');
+
+        $requiredFields = [];
+        if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY')) $requiredFields['Firstname'] = $tmpSignatory->firstname;
+        if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_MANDATORY')) $requiredFields['Lastname'] = $tmpSignatory->lastname;
+        if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY')) $requiredFields['Email'] = $tmpSignatory->email;
+        if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_MANDATORY')) $requiredFields['Phone'] = $tmpSignatory->phone;
+
+        foreach ($requiredFields as $requiredLabel => $requiredValue) {
+            if (dol_strlen(trim($requiredValue)) == 0) {
+                echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorFieldRequired', $langs->transnoentities($requiredLabel))) . '">';
+                exit;
+            }
+        }
+        if (!doliletter_spread_signatory_has_identity($tmpSignatory)) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorSpreadSignatoryIdentityMissing')) . '">';
+            exit;
+        }
+        if (!empty($tmpSignatory->email) && !filter_var($tmpSignatory->email, FILTER_VALIDATE_EMAIL)) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorBadEMail', $tmpSignatory->email)) . '">';
+            exit;
+        }
+    } else {
+        $tmpUser = new User($db);
+        if (GETPOSTINT('user_id') <= 0 || $tmpUser->fetch(GETPOSTINT('user_id')) <= 0) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorFieldRequired', $langs->transnoentities('User'))) . '">';
+            exit;
+        }
+
+        $tmpSignatory->element_id   = $tmpUser->id;
+        $tmpSignatory->element_type = 'user';
+        $tmpSignatory->firstname    = $tmpUser->firstname;
+        $tmpSignatory->lastname     = $tmpUser->lastname;
+    }
+
+    $result = doliletter_spread_ensure_attendance_sheet($attendanceSheet, $objectsMetadata, $objectType, $id, $user);
+    if ($result < 0) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_get_object_error($attendanceSheet, $langs)) . '">';
+        exit;
+    }
+
+    $tmpSignatory->role          = '';
+    $tmpSignatory->object_type   = $attendanceSheet->element;
+    $tmpSignatory->fk_object     = $attendanceSheet->id;
+    $tmpSignatory->module_name   = $moduleNameLowerCase;
+    $tmpSignatory->status        = $tmpSignatory::STATUS_PENDING_SIGNATURE;
+    $tmpSignatory->signature_url = generate_random_id();
 
     $result = $tmpSignatory->create($user);
     if ($result < 0) {
-        setEventMessages($signatory->error, $signatory->errors, 'errors');
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_get_object_error($tmpSignatory, $langs)) . '">';
         exit;
     }
+
+    $attendanceSheet->context = ['user' => doliletter_spread_get_signatory_name($tmpSignatory), 'old_user' => ''];
+    $attendanceSheet->call_trigger('SPREAD_ADD_USER', $user);
+
     $action = '';
 }
 

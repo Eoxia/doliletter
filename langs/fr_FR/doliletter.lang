@@ -264,6 +264,7 @@ SpreadSignatoriesTitle          = Signataires de la diffusion
 SpreadSignatoriesCount          = %s signature(s) sur %s
 SpreadNoSignatoryYet            = Personne n'a encore rejoint cette diffusion.
 SpreadSignatoryPending          = En attente de signature
+ErrorSpreadSignatoryIdentityMissing = Renseignez au moins un champ pour identifier la personne
 
 # Public registration
 SpreadPublicRegister              = Rejoindre la diffusion
