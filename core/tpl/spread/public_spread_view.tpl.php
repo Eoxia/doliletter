@@ -558,6 +558,14 @@ body {
     color: #666;
 }
 
+/* Phone number the server would refuse, flagged before the round trip */
+input.spread-phone--invalid,
+.public-register__field input.spread-phone--invalid,
+.public-register__field input.spread-phone--invalid:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
 .quick-sign {
     background: white;
     border: 1px solid #e5e5e5;
@@ -1144,6 +1152,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                             if ($confExtLastnameMandatory && trim((string) $signatoryItem->lastname) === '') $isSignatoryReady = false;
                             if ($confExtEmailMandatory && trim((string) $signatoryItem->email) === '') $isSignatoryReady = false;
                             if ($confExtPhoneMandatory && trim((string) $signatoryItem->phone) === '') $isSignatoryReady = false;
+                            if (!doliletter_spread_is_valid_phone((string) $signatoryItem->phone)) $isSignatoryReady = false;
                             $isEmailReady = (trim((string) $signatoryItem->email) !== '');
                         } else {
                             $isSignatoryReady = (!empty($signatoryItem->element_id) && $signatoryItem->element_id != -1);
@@ -1181,7 +1190,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                                                                     <input type="email" class="external-signatory-input" data-field="email" <?php echo $confExtEmailMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->email); ?>" placeholder="<?php echo $langs->trans('Email') . ($confExtEmailMandatory ? ' *' : ''); ?>" style="width: 50%;">
                                                                     <?php } ?>
                                                                     <?php if ($confExtPhoneVisible) { ?>
-                                                                    <input type="text" class="external-signatory-input" data-field="phone" <?php echo $confExtPhoneMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->phone); ?>" placeholder="<?php echo $langs->trans('Phone') . ($confExtPhoneMandatory ? ' *' : ''); ?>" style="width: 50%;">
+                                                                    <input type="tel" class="external-signatory-input<?php echo doliletter_spread_is_valid_phone((string) $signatoryItem->phone) ? '' : ' spread-phone--invalid'; ?>" data-field="phone"<?php echo $confExtPhoneMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->phone); ?>" placeholder="<?php echo $langs->trans('Phone') . ($confExtPhoneMandatory ? ' *' : ''); ?>" style="width: 50%;">
                                                                     <?php } ?>
                                                                 </div>
                                                             </div>
@@ -1860,6 +1869,37 @@ function sendQuickSignEmail() {
     });
 }
 
+// Same pattern as the server, so a phone number is refused before the round trip
+const spreadPhoneRegex = new RegExp(<?php echo json_encode(DOLILETTER_SPREAD_PHONE_PATTERN); ?>);
+
+/**
+ * Whether a phone number entered on the spread is valid.
+ *
+ * @param {String} phone Phone number as typed
+ * @return {Boolean} True when empty (the mandatory check is the configuration's business) or valid
+ */
+function isValidSpreadPhone(phone) {
+    phone = (phone || '').trim();
+    return phone === '' || spreadPhoneRegex.test(phone);
+}
+
+/**
+ * Drop what a phone number cannot hold (letters...) as it is typed or pasted, keeping the caret in place.
+ *
+ * @param {HTMLInputElement} input Phone field
+ * @return {void}
+ */
+function sanitizeSpreadPhone(input) {
+    const cleaned = input.value.replace(/[^0-9+ .\-()]/g, '').replace(/(?!^)\+/g, '');
+    if (cleaned === input.value) {
+        return;
+    }
+
+    const caret = Math.max(0, (input.selectionStart || 0) - (input.value.length - cleaned.length));
+    input.value = cleaned;
+    input.setSelectionRange(caret, caret);
+}
+
 function registerPublicSignatory() {
     const button = $(this);
     const token  = window.saturne.toolbox.getToken();
@@ -1915,6 +1955,12 @@ function registerPublicSignatory() {
         return;
     }
     <?php } ?>
+
+    if (!isValidSpreadPhone(fields.phone)) {
+        $('#public-register-phone').addClass('spread-phone--invalid');
+        $.jnotify('<?php echo dol_escape_js($langs->transnoentities('ErrorSpreadBadPhone')); ?>', {type: 'error'});
+        return;
+    }
 
     window.saturne.loader.display(button);
 
@@ -2013,6 +2059,24 @@ $(document).ready(function () {
 
     $(document).on('click', '.public-register-btn', registerPublicSignatory);
 
+    // Bound before the autosave of the external signatories, so it only ever sends a cleaned number
+    $(document).on('input', '#public-register-phone, .external-signatory-input[data-field="phone"]', function () {
+        sanitizeSpreadPhone(this);
+        // The error only shows once the field is left, but goes away as soon as the number is right
+        if (isValidSpreadPhone(this.value)) {
+            $(this).removeClass('spread-phone--invalid');
+        }
+    });
+
+    $(document).on('change', '#public-register-phone, .external-signatory-input[data-field="phone"]', function () {
+        const isValid = isValidSpreadPhone(this.value);
+        $(this).toggleClass('spread-phone--invalid', !isValid);
+        // The registration form says it on submit; an external signatory has no submit, the number is saved as typed
+        if (!isValid && $(this).hasClass('external-signatory-input')) {
+            $.jnotify('<?php echo dol_escape_js($langs->transnoentities('ErrorSpreadBadPhone')); ?>', {type: 'error'});
+        }
+    });
+
     $(document).on('click', '.pp-cert-not-concerned-btn', toggleCertNotConcerned);
 
     $(document).on('change', '.user-select-small', function () {
@@ -2058,6 +2122,7 @@ $(document).ready(function () {
         if ($ln.length && $ln.data('mandatory') == '1' && last_name.trim() === '') isReady = false;
         if ($em.length && $em.data('mandatory') == '1' && email.trim() === '') isReady = false;
         if ($ph.length && $ph.data('mandatory') == '1' && phone.trim() === '') isReady = false;
+        if (!isValidSpreadPhone(phone)) isReady = false;
 
         // A new row is only saved by its validate button, once it names someone
         if ($container.hasClass('user-signature-item--new')) {
