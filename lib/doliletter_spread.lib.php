@@ -196,6 +196,31 @@ function doliletter_spread_signatory_has_identity(SaturneSignature $signatory): 
 }
 
 /**
+ * Visible and mandatory state of the identity fields of an external signatory, from the module setup.
+ *
+ * A field nobody configured yet is shown and mandatory: with every field optional, a person could
+ * register with a phone number only and nobody knew who signed. The setup switches save 0 when turned
+ * off, so a field the admin made optional stays optional.
+ *
+ * @return array<string, array{visible: bool, mandatory: bool}> Keyed by FIRSTNAME, LASTNAME, EMAIL and PHONE
+ */
+function doliletter_spread_get_ext_fields_config(): array
+{
+    $extFieldsConfig = [];
+    foreach (['FIRSTNAME', 'LASTNAME', 'EMAIL', 'PHONE'] as $extField) {
+        $visibleConst   = 'DOLILETTER_SPREAD_EXT_FIELD_' . $extField . '_VISIBLE';
+        $mandatoryConst = 'DOLILETTER_SPREAD_EXT_FIELD_' . $extField . '_MANDATORY';
+
+        $isVisible   = getDolGlobalInt($visibleConst) > 0 || getDolGlobalString($visibleConst) === '';
+        $isMandatory = getDolGlobalInt($mandatoryConst) > 0 || ($isVisible && getDolGlobalString($mandatoryConst) === '');
+
+        $extFieldsConfig[$extField] = ['visible' => $isVisible || $isMandatory, 'mandatory' => $isMandatory];
+    }
+
+    return $extFieldsConfig;
+}
+
+/**
  * Whether a phone number entered on the spread is valid.
  *
  * @param  string $phone Phone number as typed
