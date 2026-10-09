@@ -1,17 +1,19 @@
 <?php
 
 // Spread config: external fields
-$confExtFirstnameMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY');
-$confExtFirstnameVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_VISIBLE') || $confExtFirstnameMandatory || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_VISIBLE') === '');
+$extFieldsConfig = doliletter_spread_get_ext_fields_config();
 
-$confExtLastnameMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_MANDATORY');
-$confExtLastnameVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_VISIBLE') || $confExtLastnameMandatory || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_VISIBLE') === '');
+$confExtFirstnameMandatory = $extFieldsConfig['FIRSTNAME']['mandatory'];
+$confExtFirstnameVisible   = $extFieldsConfig['FIRSTNAME']['visible'];
 
-$confExtEmailMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY');
-$confExtEmailVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') || $confExtEmailMandatory || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') === '');
+$confExtLastnameMandatory = $extFieldsConfig['LASTNAME']['mandatory'];
+$confExtLastnameVisible   = $extFieldsConfig['LASTNAME']['visible'];
 
-$confExtPhoneMandatory = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_MANDATORY');
-$confExtPhoneVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_VISIBLE') || $confExtPhoneMandatory || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_PHONE_VISIBLE') === '');
+$confExtEmailMandatory = $extFieldsConfig['EMAIL']['mandatory'];
+$confExtEmailVisible   = $extFieldsConfig['EMAIL']['visible'];
+
+$confExtPhoneMandatory = $extFieldsConfig['PHONE']['mandatory'];
+$confExtPhoneVisible   = $extFieldsConfig['PHONE']['visible'];
 
 /* Copyright (C) 2021-2024 EVARISK <technique@evarisk.com>
  *
@@ -1190,7 +1192,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                                                                     <input type="email" class="external-signatory-input" data-field="email" <?php echo $confExtEmailMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->email); ?>" placeholder="<?php echo $langs->trans('Email') . ($confExtEmailMandatory ? ' *' : ''); ?>" style="width: 50%;">
                                                                     <?php } ?>
                                                                     <?php if ($confExtPhoneVisible) { ?>
-                                                                    <input type="tel" class="external-signatory-input<?php echo doliletter_spread_is_valid_phone((string) $signatoryItem->phone) ? '' : ' spread-phone--invalid'; ?>" data-field="phone"<?php echo $confExtPhoneMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->phone); ?>" placeholder="<?php echo $langs->trans('Phone') . ($confExtPhoneMandatory ? ' *' : ''); ?>" style="width: 50%;">
+                                                                    <input type="tel" class="external-signatory-input<?php echo doliletter_spread_is_valid_phone((string) $signatoryItem->phone) ? '' : ' spread-phone--invalid'; ?>" data-field="phone" <?php echo $confExtPhoneMandatory ? 'required data-mandatory="1"' : ''; ?> value="<?php echo dol_escape_htmltag($signatoryItem->phone); ?>" placeholder="<?php echo $langs->trans('Phone') . ($confExtPhoneMandatory ? ' *' : ''); ?>" style="width: 50%;">
                                                                     <?php } ?>
                                                                 </div>
                                                             </div>

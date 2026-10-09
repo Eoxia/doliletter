@@ -286,11 +286,12 @@ if ($action == 'add_spread_user') {
         $tmpSignatory->email        = GETPOST('email', 'alphanohtml');
         $tmpSignatory->phone        = GETPOST('phone', 'alphanohtml');
 
-        $requiredFields = [];
-        if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY')) $requiredFields['Firstname'] = $tmpSignatory->firstname;
-        if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_MANDATORY')) $requiredFields['Lastname'] = $tmpSignatory->lastname;
-        if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY')) $requiredFields['Email'] = $tmpSignatory->email;
-        if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_MANDATORY')) $requiredFields['Phone'] = $tmpSignatory->phone;
+        $extFieldsConfig = doliletter_spread_get_ext_fields_config();
+        $requiredFields  = [];
+        if ($extFieldsConfig['FIRSTNAME']['mandatory']) $requiredFields['Firstname'] = $tmpSignatory->firstname;
+        if ($extFieldsConfig['LASTNAME']['mandatory']) $requiredFields['Lastname'] = $tmpSignatory->lastname;
+        if ($extFieldsConfig['EMAIL']['mandatory']) $requiredFields['Email'] = $tmpSignatory->email;
+        if ($extFieldsConfig['PHONE']['mandatory']) $requiredFields['Phone'] = $tmpSignatory->phone;
 
         foreach ($requiredFields as $requiredLabel => $requiredValue) {
             if (dol_strlen(trim($requiredValue)) == 0) {
@@ -364,11 +365,12 @@ if ($action == 'register_public_signatory') {
     $tmpSignatoryId = $data['tmp_signatory_id'] ?? null;
     $notConcernedCodes = $data['not_concerned_codes'] ?? [];
 
-    $requiredFields = [];
-    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_FIRSTNAME_MANDATORY')) $requiredFields['Firstname'] = $firstname;
-    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_LASTNAME_MANDATORY')) $requiredFields['Lastname'] = $lastname;
-    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY')) $requiredFields['Email'] = $email;
-    if (getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_PHONE_MANDATORY')) $requiredFields['Phone'] = $phone;
+    $extFieldsConfig = doliletter_spread_get_ext_fields_config();
+    $requiredFields  = [];
+    if ($extFieldsConfig['FIRSTNAME']['mandatory']) $requiredFields['Firstname'] = $firstname;
+    if ($extFieldsConfig['LASTNAME']['mandatory']) $requiredFields['Lastname'] = $lastname;
+    if ($extFieldsConfig['EMAIL']['mandatory']) $requiredFields['Email'] = $email;
+    if ($extFieldsConfig['PHONE']['mandatory']) $requiredFields['Phone'] = $phone;
 
     foreach ($requiredFields as $requiredLabel => $requiredValue) {
         if (dol_strlen($requiredValue) == 0) {
@@ -383,8 +385,7 @@ if ($action == 'register_public_signatory') {
         exit;
     }
 
-    $emailVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') || getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY') || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') === '');
-    if ($emailVisible && !empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if ($extFieldsConfig['EMAIL']['visible'] &&!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorBadEMail', dol_escape_htmltag($email)) . '">';
         exit;
     }

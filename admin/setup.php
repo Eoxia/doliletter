@@ -35,6 +35,7 @@ global $conf, $db, $langs, $user;
 // Libraries
 require_once __DIR__ . '/../lib/doliletter.lib.php';
 require_once __DIR__ . '/../lib/doliletter_linked_object.lib.php';
+require_once __DIR__ . '/../lib/doliletter_spread.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
@@ -185,6 +186,14 @@ foreach ($defaultExtFields as $k => $v) {
     if (getDolGlobalString($k) === '') {
         dolibarr_set_const($db, $k, $v, 'chaine', 0, '', $conf->entity);
         $conf->global->$k = $v;
+    }
+}
+// Mandatory switches not set yet show what the spread applies: every field shown is mandatory
+foreach (doliletter_spread_get_ext_fields_config() as $extField => $extFieldConfig) {
+    $mandatoryConst = 'DOLILETTER_SPREAD_EXT_FIELD_' . $extField . '_MANDATORY';
+    if (getDolGlobalString($mandatoryConst) === '') {
+        dolibarr_set_const($db, $mandatoryConst, $extFieldConfig['mandatory'] ? '1' : '0', 'chaine', 0, '', $conf->entity);
+        $conf->global->$mandatoryConst = $extFieldConfig['mandatory'] ? '1' : '0';
     }
 }
 
