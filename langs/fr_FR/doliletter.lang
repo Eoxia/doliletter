@@ -265,6 +265,7 @@ SpreadSignatoriesCount          = %s signature(s) sur %s
 SpreadNoSignatoryYet            = Personne n'a encore rejoint cette diffusion.
 SpreadSignatoryPending          = En attente de signature
 ErrorSpreadSignatoryIdentityMissing = Renseignez au moins un champ pour identifier la personne
+ErrorSpreadBadPhone             = Numéro de téléphone invalide : 8 à 15 chiffres, éventuellement précédés d'un + et séparés par des espaces, points ou tirets
 
 # Public registration
 SpreadPublicRegister              = Rejoindre la diffusion

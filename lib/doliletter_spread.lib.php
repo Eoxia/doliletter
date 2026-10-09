@@ -39,6 +39,13 @@ const DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE = 'external';
 const DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR = 'documents';
 
 /**
+ * Pattern of a phone number entered on the spread, without delimiters so the page script builds the
+ * same RegExp: an optional leading "+", then 8 to 15 digits (E.164 caps a number at 15) that the
+ * usual separators (space, dot, dash, brackets) may split. No letter goes through.
+ */
+const DOLILETTER_SPREAD_PHONE_PATTERN = '^\+?(?:[ .\-()]*[0-9]){8,15}[ .\-()]*$';
+
+/**
  * Create the attendance sheet backing a spread the first time someone is added to it.
  *
  * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet, already fetched (may be empty)
@@ -186,6 +193,19 @@ function doliletter_spread_get_signatory_name(SaturneSignature $signatory): stri
 function doliletter_spread_signatory_has_identity(SaturneSignature $signatory): bool
 {
     return $signatory->element_id > 0 || dol_strlen(trim($signatory->firstname . $signatory->lastname . $signatory->email . $signatory->phone)) > 0;
+}
+
+/**
+ * Whether a phone number entered on the spread is valid.
+ *
+ * @param  string $phone Phone number as typed
+ * @return bool          True when empty (the mandatory check is the configuration's business) or matching DOLILETTER_SPREAD_PHONE_PATTERN
+ */
+function doliletter_spread_is_valid_phone(string $phone): bool
+{
+    $phone = trim($phone);
+
+    return $phone === '' || preg_match('/' . DOLILETTER_SPREAD_PHONE_PATTERN . '/', $phone) === 1;
 }
 
 /**

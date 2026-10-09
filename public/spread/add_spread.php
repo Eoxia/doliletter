@@ -306,6 +306,10 @@ if ($action == 'add_spread_user') {
             echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorBadEMail', $tmpSignatory->email)) . '">';
             exit;
         }
+        if (!doliletter_spread_is_valid_phone((string) $tmpSignatory->phone)) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorSpreadBadPhone')) . '">';
+            exit;
+        }
     } else {
         $tmpUser = new User($db);
         if (GETPOSTINT('user_id') <= 0 || $tmpUser->fetch(GETPOSTINT('user_id')) <= 0) {
@@ -382,6 +386,10 @@ if ($action == 'register_public_signatory') {
     $emailVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') || getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY') || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') === '');
     if ($emailVisible && !empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorBadEMail', dol_escape_htmltag($email)) . '">';
+        exit;
+    }
+    if (!doliletter_spread_is_valid_phone($phone)) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorSpreadBadPhone')) . '">';
         exit;
     }
 
@@ -502,7 +510,10 @@ if ($action == 'update_spread_user_external') {
         $signatory->firstname = GETPOST('first_name', 'alphanohtml');
         $signatory->lastname = GETPOST('last_name', 'alphanohtml');
         $signatory->email = GETPOST('email', 'alphanohtml');
-        $signatory->phone = GETPOST('phone', 'alphanohtml');
+        // Saved on every keystroke: a number still being typed (or with letters) keeps the last valid one
+        if (doliletter_spread_is_valid_phone(GETPOST('phone', 'alphanohtml'))) {
+            $signatory->phone = GETPOST('phone', 'alphanohtml');
+        }
         $signatory->update($user);
     }
     $action = '';
