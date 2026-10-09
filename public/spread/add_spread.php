@@ -373,6 +373,12 @@ if ($action == 'register_public_signatory') {
         }
     }
 
+    // With no mandatory field configured, an empty form registered a signatory nobody can identify
+    if (dol_strlen($firstname . $lastname . $email . $phone) == 0) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('SpreadPublicRegisterIdentityMissing')) . '">';
+        exit;
+    }
+
     $emailVisible = getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') || getDolGlobalInt('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_MANDATORY') || (getDolGlobalString('DOLILETTER_SPREAD_EXT_FIELD_EMAIL_VISIBLE') === '');
     if ($emailVisible && !empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorBadEMail', dol_escape_htmltag($email)) . '">';
@@ -386,7 +392,8 @@ if ($action == 'register_public_signatory') {
         exit;
     }
 
-    $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
+    // A DoliletterSpreadSignature saves the `json` column, where the "not concerned" answers live
+    $tmpSignatory = new DoliletterSpreadSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
 
     // Someone coming back with the same email lands on their own page again instead of piling up duplicates
     // But ONLY if an email was actually provided, otherwise we'd match the first person who didn't give an email!
@@ -420,12 +427,13 @@ if ($action == 'register_public_signatory') {
         if ($tmpSignatoryId && str_starts_with($tmpSignatoryId, 'tmp_') && $isDigiriskRiskObject) {
             require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
             
-            // Apply not concerned statuses
-            if (!empty($notConcernedCodes)) {
-                $opts = !empty($tmpSignatory->array_options['options_mobile_not_concerned']) ? json_decode($tmpSignatory->array_options['options_mobile_not_concerned'], true) : [];
-                $opts = array_unique(array_merge($opts, $notConcernedCodes));
-                $tmpSignatory->array_options['options_mobile_not_concerned'] = json_encode(array_values($opts));
-                $tmpSignatory->update($user, true); // No triggers needed
+            // Apply the "not concerned" answers given before registering, where the spread reads them
+            // (they were written to an extrafield signatures do not save, and were lost)
+            $requestedCertCodes = array_column(is_array($ppCertifications) ? $ppCertifications : [], 'code');
+            foreach ((is_array($notConcernedCodes) ? $notConcernedCodes : []) as $notConcernedCode) {
+                if (in_array($notConcernedCode, $requestedCertCodes, true)) {
+                    doliletter_spread_set_not_concerned_certification($tmpSignatory, (string) $notConcernedCode, true, $user);
+                }
             }
 
             // Rename temporary upload directory if it exists

@@ -91,6 +91,7 @@ SpreadPublicRegister = Join the spread
 SpreadPublicRegisterInfo = Fill in your details to reach your own signature and document page.
 SpreadPublicRegisterSubmit = Confirm my registration
 SpreadPublicRegisterMissingFields = Please fill in your lastname, firstname, email and phone
+SpreadPublicRegisterIdentityMissing = Fill in at least one field to register
 SpreadExternalSignatory = Registered from the public link
 
 ErrorSpreadRegisterFailed = Your registration could not be saved: %s

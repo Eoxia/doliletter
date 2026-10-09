@@ -271,6 +271,7 @@ SpreadPublicRegister              = Rejoindre la diffusion
 SpreadPublicRegisterInfo          = Renseignez vos coordonnées pour accéder à votre page personnelle de signature et de dépôt de documents.
 SpreadPublicRegisterSubmit        = Valider mon inscription
 SpreadPublicRegisterMissingFields = Renseignez vos nom, prénom, email et téléphone
+SpreadPublicRegisterIdentityMissing = Renseignez au moins un champ pour vous inscrire
 SpreadExternalSignatory           = Inscrit depuis le lien public
 
 ErrorSpreadRegisterFailed              = Votre inscription n'a pas pu être enregistrée : %s
