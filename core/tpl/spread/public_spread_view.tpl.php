@@ -822,6 +822,113 @@ input.spread-phone--invalid,
     color: #64748b;
 }
 
+/* Answers of one person, folded under their line: only rendered for a user allowed to read the object */
+.spread-signatory-details {
+    flex: 1 0 100%;
+    font-size: 13px;
+}
+
+.spread-signatory-details__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2563eb;
+    cursor: pointer;
+}
+
+.spread-signatories__item .spread-signatory-details__toggle i {
+    color: #2563eb;
+}
+
+.spread-signatory-details__chevron {
+    font-size: 10px;
+    transition: transform 0.15s;
+}
+
+.spread-signatory-details[open] .spread-signatory-details__chevron {
+    transform: rotate(180deg);
+}
+
+.spread-signatory-details__count {
+    padding: 0 7px;
+    font-size: 11px;
+    line-height: 18px;
+    color: #fff;
+    background: #2563eb;
+    border-radius: 9px;
+}
+
+.spread-signatory-details__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+.spread-signatory-details__line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 15px;
+    color: #475569;
+}
+
+.spread-signatories__item .spread-signatory-details__body i {
+    color: #64748b;
+}
+
+.spread-signatory-details__cert-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.spread-signatory-details__state {
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 10px;
+}
+
+.spread-signatory-details__state--provided {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.spread-signatory-details__state--missing {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.spread-signatory-details__state--none,
+.spread-signatory-details__state--not-concerned {
+    color: #475569;
+    background: #e2e8f0;
+}
+
+.spread-signatory-details__files {
+    margin: 6px 0 0;
+    padding: 0 0 0 22px;
+    list-style: none;
+}
+
+.spread-signatory-details__files a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    color: #2563eb;
+    overflow-wrap: anywhere;
+}
+
 /* Deux carres de 38px tiennent a cote du logo meme sur un telephone : plus besoin de les passer
    sur une ligne a eux comme le faisaient les boutons avec libelle */
 </style>

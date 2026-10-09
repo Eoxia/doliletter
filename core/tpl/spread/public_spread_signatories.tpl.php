@@ -131,7 +131,10 @@ foreach ($listedSignatories as $signatoryItem) {
                 </span>
                 <i class="fas <?php echo $hasSigned ? 'fa-check-circle' : 'fa-hourglass-half'; ?>" style="color: <?php echo $hasSigned ? '#10b981' : '#9ca3af'; ?>; min-width: 16px; text-align: center; font-size: 1.1em;"></i>
             </div>
-            
+
+            <?php if (!empty($permissiontoreadsignatorydetails)) {
+                require __DIR__ . '/public_spread_signatory_details.tpl.php';
+            } ?>
         </li>
         <?php } ?>
     </ul>
