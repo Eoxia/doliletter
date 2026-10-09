@@ -942,6 +942,10 @@ if ($isDigiriskRiskObject && !empty($ppCertifications)) {
     }
 }
 
+// The answers and documents of each person of the list are for whoever may read the object in Dolibarr
+// only: the links go through document.php, which checks that same right again
+$permissiontoreadsignatorydetails = $isLogged && $isDigiriskRiskObject && $user->hasRight('digiriskdolibarr', $ppElement, 'read');
+
 // Risks the identified visitor has already taken note of, so a reload does not undo their reading
 $ppAcknowledgedRisks = (!empty($signSignatory)) ? doliletter_spread_get_acknowledged_risks($signSignatory) : [];
 $ppPendingRisks      = ($isDigiriskRiskObject && !empty($signSignatory)) ? doliletter_spread_get_pending_risks($ppRisks, $ppAcknowledgedRisks) : [];

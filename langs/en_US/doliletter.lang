@@ -80,6 +80,11 @@ SpreadSignatoriesTitle = Spread signatories
 SpreadSignatoriesCount = %s signature(s) out of %s
 SpreadNoSignatoryYet = Nobody has joined this spread yet.
 SpreadSignatoryPending = Waiting for signature
+SpreadSignatoryDetails = Documents and answers
+SpreadSignatoryBlocksRead = %s acknowledged: %s out of %s
+SpreadSignatoryNoDetails = Nothing to show for this person
+SpreadCertProvided = Provided
+SpreadCertNotProvided = Not provided
 ErrorSpreadSignatoryIdentityMissing = Fill in at least one field to identify the person
 ErrorSpreadBadPhone = Invalid phone number: 8 to 15 digits, optionally starting with + and split by spaces, dots or dashes
 

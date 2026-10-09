@@ -370,6 +370,33 @@ function doliletter_spread_get_certification_dir(string $certBaseDir, $signatory
 }
 
 /**
+ * Files uploaded for one certification of one signatory: the photos, then the documents (PDF...) kept in
+ * their own sub folder.
+ *
+ * @param  string $certDir Directory of the certification, from doliletter_spread_get_certification_dir()
+ * @return array           One entry per file: name, path (relative to $certDir), is_image
+ */
+function doliletter_spread_get_certification_files(string $certDir): array
+{
+    $certFiles = [];
+    foreach (['', DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR . '/'] as $certFilesSubDir) {
+        if (!dol_is_dir($certDir . '/' . $certFilesSubDir)) {
+            continue;
+        }
+
+        foreach (dol_dir_list($certDir . '/' . $certFilesSubDir, 'files', 0, '', '(\.meta|_preview.*\.png)$', 'name') as $certFile) {
+            $certFiles[] = [
+                'name'     => $certFile['name'],
+                'path'     => $certFilesSubDir . $certFile['name'],
+                'is_image' => str_starts_with(dol_mimetype($certFile['name']), 'image/'),
+            ];
+        }
+    }
+
+    return $certFiles;
+}
+
+/**
  * Build the state of every certification required by a prevention plan, for one signatory.
  *
  * @param  array    $certifications       Certifications required by the prevention plan
@@ -377,27 +404,23 @@ function doliletter_spread_get_certification_dir(string $certBaseDir, $signatory
  * @param  string   $certBaseDir          Certifications directory of the prevention plan
  * @param  int      $signatoryId          ID of the signatory
  * @param  string[] $notConcernedCodes    Codes the signatory declared they are not concerned by
- * @return array                          One entry per certification: code, label, mandatory, has_file, not_concerned
+ * @return array                          One entry per certification: code, label, mandatory, has_file, files, not_concerned
  */
 function doliletter_spread_get_certification_states(array $certifications, array $certificationOptions, string $certBaseDir, $signatoryId, array $notConcernedCodes): array
 {
     $states = [];
 
     foreach ($certifications as $certification) {
-        $certCode  = $certification['code'];
-        $certDir   = doliletter_spread_get_certification_dir($certBaseDir, $signatoryId, $certCode);
-        $certFiles = dol_is_dir($certDir) ? dol_dir_list($certDir, 'files', 0, '', '(\.meta|_preview.*\.png)$') : [];
+        $certCode = $certification['code'];
         // A certification received as a document (PDF...) is provided as well as one photographed
-        $certDocumentDir = $certDir . '/' . DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR;
-        if (empty($certFiles) && dol_is_dir($certDocumentDir)) {
-            $certFiles = dol_dir_list($certDocumentDir, 'files', 0, '', '(\.meta|_preview.*\.png)$');
-        }
+        $certFiles = doliletter_spread_get_certification_files(doliletter_spread_get_certification_dir($certBaseDir, $signatoryId, $certCode));
 
         $states[] = [
             'code'          => $certCode,
             'label'         => $certificationOptions[$certCode] ?? $certCode,
             'mandatory'     => !empty($certification['mandatory']),
             'has_file'      => !empty($certFiles),
+            'files'         => $certFiles,
             'not_concerned' => in_array($certCode, $notConcernedCodes, true),
         ];
     }
