@@ -339,7 +339,7 @@ $enabledObjectTypes         = doliletter_get_enabled_spread_object_types();
 $linkedObjectExtraFieldName = DOLILETTER_SPREAD_LINK_USAGE_KEY;
 $linkedObjectUsage          = doliletter_get_spread_usage();
 
-require_once __DIR__ . '/../../saturne/core/tpl/admin/object/linked_object_view.tpl.php';
+require_once dol_buildpath('/saturne/core/tpl/admin/object/linked_object_view.tpl.php');
 
 print '<hr>';
 

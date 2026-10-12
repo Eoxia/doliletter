@@ -38,8 +38,8 @@ class modDoliLetter extends DolibarrModules {
 		global $langs, $conf;
 
 		$this->db = $db;
-		if (file_exists(__DIR__ . '/../../../saturne/lib/saturne_functions.lib.php')) {
-			require_once __DIR__ . '/../../../saturne/lib/saturne_functions.lib.php';
+		if (file_exists(dol_buildpath('/saturne/lib/saturne_functions.lib.php'))) {
+			require_once dol_buildpath('/saturne/lib/saturne_functions.lib.php');
 			saturne_load_langs(['doliletter@doliletter']);
 		} else {
 			$this->error++;

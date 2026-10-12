@@ -116,7 +116,7 @@ if ($resHook < 0) {
 
 if (empty($resHook)) {
 
-    require_once __DIR__ . '/../../saturne/core/tpl/documents/documents_action.tpl.php';
+    require_once dol_buildpath('/saturne/core/tpl/documents/documents_action.tpl.php');
 
 }
 
