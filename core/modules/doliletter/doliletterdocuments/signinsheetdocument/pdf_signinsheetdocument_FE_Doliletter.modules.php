@@ -26,6 +26,8 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 
 dol_include_once('/saturne/core/modules/saturne/modules_saturne.php');
 dol_include_once('/saturne/class/saturnesignature.class.php');
+dol_include_once('/doliletter/class/doliletterspreadsignature.class.php');
+dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
 
 /**
  * Class to generate attendance sheet PDF
@@ -109,6 +111,11 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$outputlangs->load("companies");
 		$outputlangs->load("bills");
 		$outputlangs->load("other");
+		$outputlangs->load("doliletter@doliletter");
+		// The proofs name the blocks of a Digirisk object (risks, types of work) by a Digirisk key
+		if (isModEnabled('digiriskdolibarr')) {
+			$outputlangs->load("digiriskdolibarr@digiriskdolibarr");
+		}
 
 		$isSpecimen = empty($object->ref) || $object->ref === 'SPECIMEN';
 		if ($isSpecimen) {
@@ -140,13 +147,45 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$pdf->SetFont('', '', $default_font_size);
 		
 		// Signatures Data
-		$signatory = new SaturneSignature($this->db);
+		// Spread signature: it keeps the `json` column, where the proof of each signature lives
+		$signatory = new DoliletterSpreadSignature($this->db);
 		$signatories = $signatory->fetchAll('', '', 0, 0, ['customsql' => 't.object_type = "doliletter_attendance_sheet" AND t.fk_object = ' . $object->id]);
 		if (!is_array($signatories)) $signatories = [];
+		// fetchAll() is declared as returning SaturneObject: keep the spread signatures it built
+		$signatories = array_filter($signatories, function ($sig) {
+			return $sig instanceof DoliletterSpreadSignature;
+		});
+
+		// Version of the document each person signed. The document of a prevention plan is generated
+		// again at each change: when it changed between two signatures, the versions are numbered and
+		// each line says which one it signed.
+		$documentVersions = [];
+		foreach ($signatories as $sig) {
+			$proof   = !empty($sig->signature) ? doliletter_spread_get_signature_proof($sig) : [];
+			$version = doliletter_spread_get_documents_version($proof['documents'] ?? []);
+			if (dol_strlen($version) && !isset($documentVersions[$version])) {
+				$documentVersions[$version] = (int) ($proof['documents'][0]['date'] ?? 0);
+			}
+		}
+		asort($documentVersions);
+		$documentVersions = array_flip(array_keys($documentVersions));
+
+		if (!empty($documentVersions)) {
+			$pdf->SetFillColor(240, 248, 255);
+			$pdf->SetXY($this->marge_gauche, $posy);
+			$pdf->SetFont('', 'B', $default_font_size);
+			$pdf->Cell(0, 6, $outputlangs->transnoentities(count($documentVersions) > 1 ? 'SigninSheetSignedDocumentVersions' : 'SigninSheetSignedDocumentVersion'), 0, 1, 'L', 1);
+			$pdf->SetFont('', '', $default_font_size);
+			foreach ($documentVersions as $version => $versionIndex) {
+				$pdf->SetX($this->marge_gauche);
+				$pdf->MultiCell(0, 5, (count($documentVersions) > 1 ? $outputlangs->transnoentities('SigninSheetVersionNumber', (string) ($versionIndex + 1)) . ' : ' : '') . $version, 0, 'L', true);
+			}
+			$posy = $pdf->GetY() + 5;
+		}
 
 		$pdf->SetXY($this->marge_gauche, $posy);
 		$pdf->SetFillColor(240, 240, 240);
-		
+
         // Motif
         if (!empty($object->label)) {
             $pdf->MultiCell(0, 8, "Motif de l'émargement : " . $object->label, 0, 'L');
@@ -171,8 +210,24 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$posy = $pdf->GetY();
 		$rowHeight = 20;
 
+		$proofFontSize = $default_font_size - 2;
+		$cellPaddings  = $pdf->getCellPaddings();
+
 		foreach ($signatories as $sig) {
-			if ($posy + $rowHeight > $this->page_hauteur - $this->marge_basse - 20) {
+			// Proof printed under the line: measured first, the line and its proof stay on the same page
+			$proofText   = $this->signatureProof($sig, $documentVersions, $object, $outputlangs);
+			$proofHeight = 0;
+			if (dol_strlen($proofText)) {
+				$pdf->SetFont('', '', $proofFontSize);
+				$pdf->setCellPaddings(2, 1, 2, 1);
+				$proofHeight = $pdf->getStringHeight($this->page_largeur - $this->marge_gauche - $this->marge_droite, $proofText);
+				$pdf->setCellPaddings($cellPaddings['L'], $cellPaddings['T'], $cellPaddings['R'], $cellPaddings['B']);
+				$pdf->SetFont('', '', $default_font_size);
+			}
+
+			if ($posy + $rowHeight + $proofHeight > $this->page_hauteur - $this->marge_basse - 20) {
+				// Each page gets its footer, not only the last one
+				$this->_pagefoot($pdf, $object, $outputlangs);
 				$pdf->AddPage();
 				$posy = $this->_pagehead($pdf, $object, $outputlangs);
 				
@@ -220,6 +275,20 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 			$pdf->Cell(35, $rowHeight, $dateStr, 1, 1, 'C');
 
 			$posy += $rowHeight;
+
+			if ($proofHeight > 0) {
+				$pdf->SetXY($this->marge_gauche, $posy);
+				$pdf->SetFillColor(248, 248, 248);
+				$pdf->SetTextColor(60, 60, 60);
+				$pdf->SetFont('', '', $proofFontSize);
+				$pdf->setCellPaddings(2, 1, 2, 1);
+				$pdf->MultiCell(0, 0, $proofText, 'LRB', 'L', true, 1);
+				$pdf->setCellPaddings($cellPaddings['L'], $cellPaddings['T'], $cellPaddings['R'], $cellPaddings['B']);
+				$pdf->SetTextColor(0, 0, 0);
+				$pdf->SetFont('', '', $default_font_size);
+
+				$posy = $pdf->GetY();
+			}
 		}
 
 		$this->_pagefoot($pdf, $object, $outputlangs);
@@ -233,6 +302,66 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$this->result = ['fullpath' => $file];
 		
 		return 1;
+	}
+
+	/**
+	 * Proof printed under the line of a person who signed: the version of the document they signed and
+	 * the boxes they ticked (blocks taken note of, answers to the requested documents).
+	 *
+	 * @param  DoliletterSpreadSignature $sig              Signatory
+	 * @param  array                     $documentVersions Version => index, as numbered in the versions block
+	 * @param  DoliletterAttendanceSheet $object           Attendance sheet
+	 * @param  Translate                 $outputlangs      Lang object to use for output
+	 * @return string                                      Proof, empty for a person who did not sign
+	 */
+	protected function signatureProof($sig, array $documentVersions, $object, Translate $outputlangs): string
+	{
+		if (empty($sig->signature)) {
+			return '';
+		}
+
+		$proofLines = [];
+		$proof      = doliletter_spread_get_signature_proof($sig);
+
+		// Signed before the proof was recorded: only the number of blocks ticked is known. A person who
+		// answered nothing signed a spread with nothing to tick (a ticket...): there is nothing to say.
+		if (empty($proof)) {
+			if (empty(doliletter_spread_get_signatory_data($sig))) {
+				return '';
+			}
+
+			$proofLines[] = $outputlangs->transnoentities('SigninSheetVersionNotRecorded');
+
+			$acknowledged = doliletter_spread_get_acknowledged_risks($sig);
+			if (!empty($acknowledged)) {
+				$blocksKey    = ($object->object_type === 'digiriskdolibarr_firepermit') ? 'MobileFPWorkTypes' : 'MobilePPRisks';
+				$proofLines[] = $outputlangs->transnoentities('SigninSheetBlocksReadCount', $outputlangs->transnoentities($blocksKey), (string) count($acknowledged));
+			}
+
+			return implode("\n", $proofLines);
+		}
+
+		$version = doliletter_spread_get_documents_version($proof['documents'] ?? []);
+		if (count($documentVersions) > 1 && isset($documentVersions[$version])) {
+			$proofLines[] = $outputlangs->transnoentities('SigninSheetSignedVersion', (string) ($documentVersions[$version] + 1));
+		}
+
+		if (!empty($proof['blocks_total'])) {
+			$blocksRead   = (array) ($proof['blocks_read'] ?? []);
+			$proofLines[] = $outputlangs->transnoentities('SpreadSignatoryBlocksRead', $outputlangs->transnoentities($proof['blocks'] ?? ''), (string) count($blocksRead), (string) $proof['blocks_total'])
+				. (!empty($blocksRead) ? ' (' . implode(', ', $blocksRead) . ')' : '');
+		}
+
+		$answerLabels   = ['not_concerned' => 'SpreadNotConcerned', 'provided' => 'SpreadCertProvided', 'not_provided' => 'SpreadCertNotProvided'];
+		$certifications = [];
+		foreach ((array) ($proof['certifications'] ?? []) as $certification) {
+			$certifications[] = $certification['label'] . ' (' . $outputlangs->transnoentities($answerLabels[$certification['answer']] ?? $certification['answer']) . ')';
+		}
+		if (!empty($certifications)) {
+			$proofLines[] = $outputlangs->transnoentities('SigninSheetRequestedDocuments', implode(', ', $certifications));
+		}
+
+		return implode("\n", $proofLines);
 	}
 
 	protected function _pagehead(&$pdf, $object, $outputlangs)

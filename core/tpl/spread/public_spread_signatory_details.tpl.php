@@ -32,6 +32,9 @@ $detailsFileCount  = array_sum(array_map(function (array $certState) {
 }, $detailsCertStates));
 $detailsShowContact = empty($showContact) && (!empty($signatoryEmail) || !empty($signatoryPhone));
 $detailsRisksRead   = count(array_intersect(array_column($ppRisks, 'category'), doliletter_spread_get_acknowledged_risks($signatoryItem)));
+// Version of the document the person had in front of them when signing, recorded with the signature
+$detailsProof       = !empty($signatoryItem->signature) ? doliletter_spread_get_signature_proof($signatoryItem) : [];
+$detailsVersion     = doliletter_spread_get_documents_version($detailsProof['documents'] ?? []);
 ?>
 <details class="spread-signatory-details">
     <summary class="spread-signatory-details__toggle">
@@ -50,6 +53,12 @@ $detailsRisksRead   = count(array_intersect(array_column($ppRisks, 'category'), 
             <?php if (!empty($signatoryPhone)) { ?>
             <span><i class="fas fa-phone"></i> <?php echo dol_escape_htmltag($signatoryPhone); ?></span>
             <?php } ?>
+        </div>
+        <?php } ?>
+
+        <?php if (dol_strlen($detailsVersion)) { ?>
+        <div class="spread-signatory-details__line">
+            <span><i class="fas fa-file-signature"></i> <?php echo dol_escape_htmltag($langs->transnoentities('SpreadSignatorySignedVersion', $detailsVersion)); ?></span>
         </div>
         <?php } ?>
 
@@ -92,7 +101,7 @@ $detailsRisksRead   = count(array_intersect(array_column($ppRisks, 'category'), 
         </div>
         <?php } ?>
 
-        <?php if (!$detailsShowContact && empty($ppRisks) && empty($detailsCertStates)) { ?>
+        <?php if (!$detailsShowContact && !dol_strlen($detailsVersion) && empty($ppRisks) && empty($detailsCertStates)) { ?>
         <div class="spread-signatory-details__line"><?php echo $langs->trans('SpreadSignatoryNoDetails'); ?></div>
         <?php } ?>
     </div>

@@ -271,6 +271,16 @@ SpreadCertProvided              = Fourni
 SpreadCertNotProvided           = Non fourni
 ErrorSpreadSignatoryIdentityMissing = Renseignez au moins un champ pour identifier la personne
 ErrorSpreadBadPhone             = Numéro de téléphone invalide : 8 à 15 chiffres, éventuellement précédés d'un + et séparés par des espaces, points ou tirets
+SpreadSignatorySignedVersion    = Version du document signé : %s
+
+# Feuille d'émargement : preuve de chaque signature
+SigninSheetSignedDocumentVersion  = Version du document signé
+SigninSheetSignedDocumentVersions = Versions du document signées
+SigninSheetVersionNumber          = Version %s
+SigninSheetSignedVersion          = Document signé : version %s
+SigninSheetVersionNotRecorded     = Version du document signé : non enregistrée (signature antérieure)
+SigninSheetBlocksReadCount        = %s pris en connaissance : %s
+SigninSheetRequestedDocuments     = Documents demandés : %s
 
 # Public registration
 SpreadPublicRegister              = Rejoindre la diffusion

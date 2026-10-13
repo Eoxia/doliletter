@@ -604,6 +604,7 @@ if ($action == 'validate_signature') {
         }
 
         // Mandatory documents must be either uploaded or declared not applicable before signing
+        $certificationStates = [];
         if ($isDigiriskRiskObject && !empty($ppCertifications)) {
             $certificationStates   = doliletter_spread_get_certification_states($ppCertifications, $certificationOptions, $ppCertBaseDir, $signatory->id, doliletter_spread_get_not_concerned_certifications($signatory));
             $pendingCertifications = doliletter_spread_get_pending_certifications($certificationStates);
@@ -616,6 +617,18 @@ if ($action == 'validate_signature') {
         $signature = $data['signature'] ?? '';
 
         if (!empty($signature)) {
+            // Proof printed on the attendance sheet: version of the document read and boxes ticked,
+            // taken now because the document of a prevention plan is generated again at each change
+            $signatoryData                    = doliletter_spread_get_signatory_data($signatory);
+            $signatoryData['signature_proof'] = doliletter_spread_build_signature_proof(
+                doliletter_spread_get_featured_documents($db, $objectsMetadata[$objectType]['table_element'], (int) $id),
+                $ppRisks,
+                doliletter_spread_get_acknowledged_risks($signatory),
+                $certificationStates,
+                $ppTexts['blocks'] ?? ''
+            );
+            $signatory->json = json_encode($signatoryData);
+
             $signatory->signature      = $signature;
             $signatory->status         = $signatory::STATUS_SIGNED;
             $signatory->signature_date = dol_now();
