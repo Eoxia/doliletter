@@ -137,6 +137,8 @@ class modDoliLetter extends DolibarrModules {
 			// CONST SIGNIN SHEET
 			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_ADDON_PDF', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
 			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_DEFAULT_MODEL', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
+			// Model preselected in the Diffusion tab, whose list is the one of the "signinsheet" type
+			$i++ => ['DOLILETTER_SIGNINSHEET_DEFAULT_MODEL', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
@@ -463,9 +465,13 @@ class modDoliLetter extends DolibarrModules {
 		delDocumentModel('standard', 'signinsheet');
 		delDocumentModel('FE_Doliletter', 'signinsheetdocument');
 		delDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheetdocument');
+		delDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheet');
 
 		addDocumentModel('signinsheet_odt', 'signinsheet', 'ODT templates', 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH');
-		addDocumentModel('standard', 'signinsheet', '', '');
+		// The Diffusion tab lists the models of the "signinsheet" type: the PDF attendance sheet must be
+		// registered there to be offered at all. "standard" is not added back, no generator answers to
+		// that name since the PDF model was renamed FE_Doliletter ("Failed to load doc generator").
+		addDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheet', 'SigninSheetDocument', '');
 		addDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheetdocument', '', '');
 
 		dolibarr_set_const($this->db, 'DOLILETTER_VERSION', $this->version, 'chaine', 0, '', $conf->entity);

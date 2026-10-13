@@ -90,6 +90,7 @@ ErrorSpreadBadPhone = Invalid phone number: 8 to 15 digits, optionally starting 
 SpreadSignatorySignedVersion = Version of the signed document: %s
 
 # Attendance sheet: proof of each signature
+SigninSheetDocument = Attendance sheet
 SigninSheetSignedDocumentVersion = Version of the signed document
 SigninSheetSignedDocumentVersions = Versions of the signed document
 SigninSheetVersionNumber = Version %s
