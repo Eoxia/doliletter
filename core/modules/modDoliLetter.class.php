@@ -509,6 +509,9 @@ class modDoliLetter extends DolibarrModules {
         }
 
 		$result = $this->_init($sql, $options);
+		if ($result > 0) {
+			$this->grantModuleReadRights();
+		}
 
 		// Replayed on a fresh descriptor, so that the constants written above are taken into account.
 		doliletter_sync_spread_objects();
@@ -527,5 +530,40 @@ class modDoliLetter extends DolibarrModules {
 	public function remove($options = ''): int {
 		$sql = array();
 		return $this->_remove($sql, $options);
+	}
+
+	/**
+	 * Grant the module read rights (lire, read) to every user and group already holding a DoliLetter right.
+	 *
+	 * Both rights were appended after the others (#520) and the index requires doliletter->read.
+	 * Dolibarr creates a new right on activation but never grants it, so every existing
+	 * non-admin user lost access to the module. Idempotent: rows already present are skipped.
+	 *
+	 * @return void
+	 */
+	private function grantModuleReadRights(): void
+	{
+		global $conf;
+
+		$entity     = (int) $conf->entity;
+		$readRights = [(int) ($this->numero . '09'), (int) ($this->numero . '10')];
+
+		$moduleRights  = 'SELECT rd.id FROM ' . MAIN_DB_PREFIX . 'rights_def AS rd';
+		$moduleRights .= " WHERE rd.module = 'doliletter' AND rd.entity = " . $entity;
+		$moduleRights .= ' AND rd.id NOT IN (' . implode(', ', $readRights) . ')';
+
+		foreach (['user_rights' => 'fk_user', 'usergroup_rights' => 'fk_usergroup'] as $table => $owner) {
+			foreach ($readRights as $rightId) {
+				$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . $table . ' (entity, ' . $owner . ', fk_id)';
+				$sql .= ' SELECT DISTINCT ' . $entity . ', r.' . $owner . ', ' . $rightId;
+				$sql .= ' FROM ' . MAIN_DB_PREFIX . $table . ' AS r';
+				$sql .= ' WHERE r.entity = ' . $entity . ' AND r.fk_id IN (' . $moduleRights . ')';
+				$sql .= ' AND NOT EXISTS (SELECT 1 FROM ' . MAIN_DB_PREFIX . $table . ' AS g';
+				$sql .= ' WHERE g.entity = r.entity AND g.' . $owner . ' = r.' . $owner . ' AND g.fk_id = ' . $rightId . ')';
+				if (!$this->db->query($sql)) {
+					dol_syslog(__METHOD__ . ' ' . $this->db->lasterror(), LOG_ERR);
+				}
+			}
+		}
 	}
 }
