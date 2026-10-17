@@ -355,6 +355,115 @@ function doliletter_spread_get_pending_risks(array $risks, array $acknowledged):
 }
 
 /**
+ * Documents put forward at the top of the spread page: the files of the object carrying a share key
+ * and flagged as favorite. For a prevention plan, it is the generated PDF the attendees read.
+ *
+ * @param  DoliDB $db           Database handler
+ * @param  string $tableElement Table of the spread object
+ * @param  int    $objectId     ID of the spread object
+ * @return array                One entry per document: name, date (timestamp of its generation)
+ */
+function doliletter_spread_get_featured_documents(DoliDB $db, string $tableElement, int $objectId): array
+{
+    $sql  = 'SELECT t.filename, t.date_c FROM ' . MAIN_DB_PREFIX . 'ecm_files as t';
+    $sql .= ' INNER JOIN ' . MAIN_DB_PREFIX . 'ecm_files_extrafields as ef ON ef.fk_object = t.rowid';
+    $sql .= ' WHERE t.share IS NOT NULL';
+    $sql .= " AND t.src_object_type = '" . $db->escape($tableElement) . "'";
+    $sql .= ' AND t.src_object_id = ' . $objectId;
+    $sql .= ' AND ef.favorite = 1';
+    $sql .= ' ORDER BY t.rowid';
+
+    $documents = [];
+    $resql     = $db->query($sql);
+    while ($resql && ($obj = $db->fetch_object($resql))) {
+        $documents[] = ['name' => $obj->filename, 'date' => $db->jdate($obj->date_c)];
+    }
+
+    return $documents;
+}
+
+/**
+ * State of one certification answer: a "not concerned" declaration wins over an uploaded file.
+ *
+ * @param  array  $certificationState State built by doliletter_spread_get_certification_states()
+ * @return string                     not_concerned, provided or not_provided
+ */
+function doliletter_spread_get_certification_answer(array $certificationState): string
+{
+    if (!empty($certificationState['not_concerned'])) {
+        return 'not_concerned';
+    }
+
+    return !empty($certificationState['has_file']) ? 'provided' : 'not_provided';
+}
+
+/**
+ * Proof of what a signatory had in front of them and ticked when signing: the version of the
+ * documents put forward, the blocks (risks, types of work) taken note of and the certification answers.
+ *
+ * Taken at the signature and kept as is: the document of a prevention plan is generated again at
+ * each change, and its risks may change after the signature.
+ *
+ * @param  array  $documents           Documents put forward, from doliletter_spread_get_featured_documents()
+ * @param  array  $risks               Blocks of the object, each holding a 'category' and a 'name'
+ * @param  int[]  $acknowledged        Danger category positions taken note of
+ * @param  array  $certificationStates States built by doliletter_spread_get_certification_states()
+ * @param  string $blocksKey           Translation key naming the blocks (risks, types of work)
+ * @return array                       Proof to keep in the signatory payload
+ */
+function doliletter_spread_build_signature_proof(array $documents, array $risks, array $acknowledged, array $certificationStates, string $blocksKey): array
+{
+    $blocksRead = [];
+    foreach ($risks as $risk) {
+        if (in_array((int) $risk['category'], $acknowledged, true)) {
+            $blocksRead[] = $risk['name'];
+        }
+    }
+
+    $certifications = [];
+    foreach ($certificationStates as $certificationState) {
+        $certifications[] = ['label' => $certificationState['label'], 'answer' => doliletter_spread_get_certification_answer($certificationState)];
+    }
+
+    return [
+        'documents'      => $documents,
+        'blocks'         => $blocksKey,
+        'blocks_total'   => count($risks),
+        'blocks_read'    => $blocksRead,
+        'certifications' => $certifications,
+    ];
+}
+
+/**
+ * Proof kept at the signature, from doliletter_spread_build_signature_proof().
+ *
+ * @param  SaturneSignature $signatory Signatory to read
+ * @return array                       Proof, empty for a signature given before it was recorded
+ */
+function doliletter_spread_get_signature_proof(SaturneSignature $signatory): array
+{
+    $data = doliletter_spread_get_signatory_data($signatory);
+
+    return (!empty($data['signature_proof']) && is_array($data['signature_proof'])) ? $data['signature_proof'] : [];
+}
+
+/**
+ * Readable version of the documents a signatory signed: name of each file and date of its generation.
+ *
+ * @param  array  $documents Documents of a proof
+ * @return string            Versions, empty when no document was put forward
+ */
+function doliletter_spread_get_documents_version(array $documents): string
+{
+    $versions = [];
+    foreach ($documents as $document) {
+        $versions[] = $document['name'] . (!empty($document['date']) ? ' (' . dol_print_date($document['date'], 'dayhour') . ')' : '');
+    }
+
+    return implode(', ', $versions);
+}
+
+/**
  * Directory holding the photos uploaded for one certification of one signatory.
  *
  * Must stay aligned with the sub directory given to saturne_render_media_block().
