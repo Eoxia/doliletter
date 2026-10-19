@@ -164,8 +164,8 @@ if ($isDigiriskRiskObject) {
     // Un plan de prevention parle de risques, un permis de feu de types de travaux : les libelles
     // sont resolus ici pour que l'affichage public reste le meme d'un objet a l'autre
     $ppTexts = $isFirePermit
-        ? ['blocks' => 'MobileFPWorkTypes', 'photos' => 'SpreadWorkTypePhotos', 'acknowledge' => 'SpreadWorkTypeAcknowledgeText', 'recap' => 'SpreadRecapWorkTypes', 'toRead' => 'SpreadWorkTypesToRead', 'remaining' => 'SpreadWorkTypesRemaining', 'objectName' => 'FirePermit']
-        : ['blocks' => 'MobilePPRisks',     'photos' => 'SpreadRiskPhotos',     'acknowledge' => 'SpreadRiskAcknowledgeText',     'recap' => 'SpreadRecapRisks',     'toRead' => 'SpreadRisksToRead',     'remaining' => 'SpreadRisksRemaining',     'objectName' => 'PreventionPlan'];
+        ? ['blocks' => 'MobileFPWorkTypes', 'photos' => 'SpreadWorkTypePhotos', 'acknowledge' => 'SpreadWorkTypeAcknowledgeText', 'recap' => 'SpreadRecapWorkTypes', 'toRead' => 'SpreadWorkTypesToRead', 'remaining' => 'SpreadWorkTypesRemaining', 'objectName' => 'FirePermit',     'stepRead' => 'SpreadStepReadFirePermit',     'stepBlocksRead' => 'SpreadStepWorkTypesRead', 'stepBlocksToRead' => 'SpreadStepWorkTypesToRead']
+        : ['blocks' => 'MobilePPRisks',     'photos' => 'SpreadRiskPhotos',     'acknowledge' => 'SpreadRiskAcknowledgeText',     'recap' => 'SpreadRecapRisks',     'toRead' => 'SpreadRisksToRead',     'remaining' => 'SpreadRisksRemaining',     'objectName' => 'PreventionPlan', 'stepRead' => 'SpreadStepReadPreventionPlan', 'stepBlocksRead' => 'SpreadStepRisksRead',     'stepBlocksToRead' => 'SpreadStepRisksToRead'];
 
     // Protections + certifications from the extrafields
     $ppObject->fetch_optionals();
@@ -949,6 +949,89 @@ $permissiontoreadsignatorydetails = $isLogged && $isDigiriskRiskObject && $user-
 // Risks the identified visitor has already taken note of, so a reload does not undo their reading
 $ppAcknowledgedRisks = (!empty($signSignatory)) ? doliletter_spread_get_acknowledged_risks($signSignatory) : [];
 $ppPendingRisks      = ($isDigiriskRiskObject && !empty($signSignatory)) ? doliletter_spread_get_pending_risks($ppRisks, $ppAcknowledgedRisks) : [];
+
+// Signature workflow shown at the top of the page: who signs, reading of the object, then validation and
+// signature. Only for someone who can go through it: the person of a ?sign= link, a user allowed to add
+// signatories, an anonymous visitor allowed to register or to ask for their link.
+$spreadSteps     = [];
+$spreadStepsMode = '';
+if (!empty($signSignatory)) {
+    $spreadStepsMode = 'sign';
+} elseif (empty($sign) && $permissiontoadd) {
+    $spreadStepsMode = 'manager';
+} elseif (empty($sign) && !$isLogged && ($publicRegisterEnabled || getDolGlobalInt('DOLILETTER_SPREAD_QUICK_SIGN'))) {
+    $spreadStepsMode = 'register';
+}
+
+if (!empty($spreadStepsMode)) {
+    // Person the steps are about. For a user adding signatories, the first one left to sign: the
+    // bottom sign button opens that one (same order as the list, oldest first)
+    $stepSignatory = $signSignatory;
+    if ($spreadStepsMode == 'manager') {
+        foreach ($signatories as $signatoryItem) {
+            if (empty($signatoryItem->signature) && (empty($stepSignatory) || $signatoryItem->id < $stepSignatory->id)) {
+                $stepSignatory = $signatoryItem;
+            }
+        }
+    }
+
+    $stepSigned                = ($spreadStepsMode == 'sign' && !empty($signSignatory->signature));
+    $stepName                  = !empty($stepSignatory) ? (doliletter_spread_get_signatory_name($stepSignatory) ?: ($stepSignatory->email ?: (string) $stepSignatory->phone)) : '';
+    $stepPendingCertifications = !empty($stepSignatory) ? doliletter_spread_get_pending_certifications($ppCertificationStates[$stepSignatory->id] ?? []) : [];
+    // Risks acknowledged so far: only recorded for the person of a link, the other modes start from none
+    $stepRisksRead             = ($spreadStepsMode == 'sign') ? count($ppRisks) - count($ppPendingRisks) : 0;
+
+    // A signature is final, even if the object received a risk or asked for a document since
+    $stepStates = $stepSigned ? ['who' => 'done', 'read' => 'done', 'sign' => 'done'] : doliletter_spread_get_step_states([
+        'who'  => !empty($stepSignatory) && doliletter_spread_signatory_has_identity($stepSignatory) && empty($stepPendingCertifications),
+        'read' => empty($ppRisks) || ($spreadStepsMode == 'sign' && empty($ppPendingRisks)),
+        'sign' => false,
+    ]);
+
+    if ($spreadStepsMode == 'register') {
+        $stepWhoStatus = $langs->transnoentities($publicRegisterEnabled ? 'SpreadStepWhoRegister' : 'SpreadStepWhoQuickSign');
+    } elseif (empty($stepSignatory)) {
+        $stepWhoStatus = $langs->transnoentities('SpreadStepWhoAdd');
+    } elseif (!empty($stepPendingCertifications) && !$stepSigned) {
+        $stepWhoStatus = $langs->transnoentities('SpreadStepDocumentsToProvide', (string) count($stepPendingCertifications));
+    } elseif (!doliletter_spread_signatory_has_identity($stepSignatory)) {
+        $stepWhoStatus = $langs->transnoentities('SpreadStepWhoIncomplete');
+    } else {
+        $stepWhoStatus = $stepName;
+    }
+
+    // Before registering, what is ticked is not recorded: the count would come back to zero on the
+    // personal page, the number of blocks to read is all there is to announce
+    $stepReadStatus = '';
+    if (!empty($ppRisks)) {
+        $stepReadStatus = ($spreadStepsMode == 'register') ? $langs->transnoentities($ppTexts['stepBlocksToRead'], (string) count($ppRisks)) : $langs->transnoentities($ppTexts['stepBlocksRead'], (string) $stepRisksRead, (string) count($ppRisks));
+    }
+
+    if ($stepSigned) {
+        $stepSignStatus = $langs->transnoentities('SpreadStepSignedOn', dol_print_date($signSignatory->signature_date, 'dayhour'));
+    } else {
+        $stepSignStatus = ($stepStates['sign'] == 'current') ? $langs->transnoentities('SpreadStepToSign') : '';
+    }
+
+    $spreadSteps = [
+        'mode'   => $spreadStepsMode,
+        'signed' => $stepSigned,
+        'name'   => $stepName,
+        'steps'  => [
+            'who'  => ['label' => $langs->transnoentities('SpreadStepWho'), 'status' => $stepWhoStatus, 'state' => $stepStates['who']],
+            'read' => ['label' => $langs->transnoentities($ppTexts['stepRead'] ?? 'SpreadStepReadDocument'), 'status' => $stepReadStatus, 'state' => $stepStates['read']],
+            'sign' => ['label' => $langs->transnoentities('SpreadStepSign'), 'status' => $stepSignStatus, 'state' => $stepStates['sign']],
+        ],
+        // Texts the page script needs to follow the progress without reloading
+        'texts'  => [
+            'whoAdd'        => $langs->transnoentities('SpreadStepWhoAdd'),
+            'whoIncomplete' => $langs->transnoentities('SpreadStepWhoIncomplete'),
+            'documents'     => $langs->transnoentities('SpreadStepDocumentsToProvide', '%s'),
+            'read'          => !empty($ppTexts['stepBlocksRead']) ? $langs->transnoentities($ppTexts['stepBlocksRead'], '%s', '%s') : '',
+            'toSign'        => $langs->transnoentities('SpreadStepToSign'),
+        ],
+    ];
+}
 
 /*
  * View

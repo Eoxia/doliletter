@@ -160,3 +160,22 @@ SpreadObjectSignedTitle = %s signed!
 SpreadObjectSignedText = The attendee signed the %s, acknowledging the risk analysis and providing every requested element.
 SpreadSeeObject = See the %s
 SpreadNextStepFollowObject = Consult and follow<br>the %s
+
+# Signature steps at the top of the spread: who signs, reading, validation and signature
+SpreadStepsTitle = Signature steps
+SpreadStepWho = Who signs
+SpreadStepReadPreventionPlan = Read the plan
+SpreadStepReadFirePermit = Read the permit
+SpreadStepReadDocument = Read the document
+SpreadStepSign = Validate + sign
+SpreadStepWhoRegister = Register
+SpreadStepWhoQuickSign = Get your link by email
+SpreadStepWhoAdd = Add a signatory
+SpreadStepWhoIncomplete = Identity to complete
+SpreadStepDocumentsToProvide = %s document(s) to provide
+SpreadStepRisksRead = %s / %s risks read
+SpreadStepRisksToRead = %s risks to read
+SpreadStepWorkTypesRead = %s / %s types of work read
+SpreadStepWorkTypesToRead = %s types of work to read
+SpreadStepToSign = To sign
+SpreadStepSignedOn = Signed on %s

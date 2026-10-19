@@ -440,3 +440,34 @@ function doliletter_spread_get_pending_certifications(array $certificationStates
         return $certificationState['mandatory'] && empty($certificationState['has_file']) && empty($certificationState['not_concerned']);
     }));
 }
+
+/**
+ * State of each step of the signature workflow shown at the top of the spread public page.
+ *
+ * A step is only done once the ones before it are: risks read while nobody is identified yet do not
+ * make the reading done, the person has yet to be known. The page script applies the same rule when it
+ * refreshes the steps (spreadSteps.getStates()).
+ *
+ * @param  array<string, bool> $done Whether each step meets its own condition, in order: who, read, sign
+ * @return array<string, string>     Same keys: 'done', 'current' for the first step not done, 'todo' after it
+ */
+function doliletter_spread_get_step_states(array $done): array
+{
+    $states       = [];
+    $previousDone = true;
+    $hasCurrent   = false;
+    foreach ($done as $step => $isDone) {
+        $isDone = $previousDone && $isDone;
+        if ($isDone) {
+            $states[$step] = 'done';
+        } elseif (!$hasCurrent) {
+            $states[$step] = 'current';
+            $hasCurrent    = true;
+        } else {
+            $states[$step] = 'todo';
+        }
+        $previousDone = $isDone;
+    }
+
+    return $states;
+}
