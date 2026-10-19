@@ -444,6 +444,12 @@ window.ppRiskAck = {
 
         $('.pp-risks-pending').toggleClass('hidden', pending === 0).find('.pp-risks-pending__count').text(pending);
         $('.pp-inline-signature').toggleClass('hidden', pending > 0);
+
+        // The steps at the top of the page follow the reading: without a ?sign= link, ticking a block
+        // sends nothing the steps could catch
+        if (window.spreadSteps) {
+            window.spreadSteps.refresh();
+        }
     }
 };
 </script>

@@ -350,3 +350,22 @@ SpreadObjectSignedTitle               = %s signé !
 SpreadObjectSignedText                = L'intervenant a signé le %s en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
 SpreadSeeObject                       = Voir le %s
 SpreadNextStepFollowObject            = Consulter et suivre<br>le %s
+
+# Etapes de la signature en haut de la diffusion : qui signe, lecture, validation et signature
+SpreadStepsTitle                      = Étapes de la signature
+SpreadStepWho                         = Qui va signer
+SpreadStepReadPreventionPlan          = Lecture du plan
+SpreadStepReadFirePermit              = Lecture du permis
+SpreadStepReadDocument                = Lecture du document
+SpreadStepSign                        = Validation + signature
+SpreadStepWhoRegister                 = Inscrivez-vous
+SpreadStepWhoQuickSign                = Recevez votre lien par email
+SpreadStepWhoAdd                      = Ajoutez un signataire
+SpreadStepWhoIncomplete               = Identité à compléter
+SpreadStepDocumentsToProvide          = %s document(s) à fournir
+SpreadStepRisksRead                   = %s / %s risques lus
+SpreadStepRisksToRead                 = %s risques à lire
+SpreadStepWorkTypesRead               = %s / %s travaux lus
+SpreadStepWorkTypesToRead             = %s travaux à lire
+SpreadStepToSign                      = À signer
+SpreadStepSignedOn                    = Signé le %s

@@ -988,6 +988,8 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
             </div>
             <?php } ?>
 
+            <?php require __DIR__ . '/public_spread_steps.tpl.php'; ?>
+
 
 
             <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
@@ -1118,32 +1120,13 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
         </div>
     <?php } ?>
             <?php
-            // Documents mis en avant : affiches en premier, avant le detail de l'objet, pour que
-            // la personne diffusee tombe dessus sans avoir a faire defiler la page
-            if (!empty($linkedFilesFavorite)) {
-                foreach ($linkedFilesFavorite as $key => $file) {
-                    if (dol_mimetype($file->filename) != 'video/mp4') {
-                        // L'URL d'un <object> se donne dans data : avec data-src le navigateur
-                        // n'appelle jamais le document et le cadre reste vide.
-                        // attachment=0 : sans lui document.php repond Content-Disposition: attachment
-                        // et le navigateur telecharge le fichier au lieu de l'afficher dans le cadre.
-                        $filePreviewUrl = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share) . '&attachment=0';
-                    ?>
-                    <object
-                        name="objectpreview"
-                        type="<?php echo dol_mimetype($file->filename); ?>"
-                        width="100%"
-                        height="600px"
-                        data="<?php echo $filePreviewUrl; ?>">
-                        <a href="<?php echo $filePreviewUrl; ?>" target="_blank"><?php echo dol_escape_htmltag($file->filename); ?></a>
-                    </object>
-                    <?php } else { ?>
-                        <video src="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share); ?>" controls width="100%" height="600px">
-                            Your browser does not support the video tag.
-                        </video>
-                    <?php } ?>
-            <?php }} ?>
+            // Une fois signe, le document reste sous l'ecran de succes. Sinon il ouvre l'etape de
+            // lecture, apres la personne qui signe et les documents qu'on lui demande.
+            if ($isSignedPreventionPlan && empty(GETPOST('hide_success')) && !empty($linkedFilesFavorite)) {
+                require __DIR__ . '/public_spread_featured_documents.tpl.php';
+            } ?>
 <?php if (!($isSignedPreventionPlan && empty(GETPOST('hide_success')))) { ?>
+    <div id="spread-step-who" class="spread-steps__anchor"></div>
     <?php if (!$isLogged) { ?>
         <?php if (!empty($publicRegisterEnabled) && empty($sign)) {
             require __DIR__ . '/public_spread_register.tpl.php';
@@ -1272,7 +1255,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                         <?php if ($isNewSignatory) { ?>
                         <template id="spread-new-signatory-<?php echo $isExternalSignatory ? 'external' : 'internal'; ?>">
                         <?php } ?>
-                        <div class="user-signature-item signature-not-validated<?php echo $isNewSignatory ? ' user-signature-item--new' : ''; ?>" data-user-index="<?php echo $signatoryItem->id; ?>">
+                        <div class="user-signature-item signature-not-validated<?php echo $isNewSignatory ? ' user-signature-item--new' : ''; ?>" data-user-index="<?php echo $signatoryItem->id; ?>" data-signatory-name="<?php echo dol_escape_htmltag(doliletter_spread_get_signatory_name($signatoryItem) ?: ($signatoryItem->email ?: (string) $signatoryItem->phone)); ?>">
                             <div class="user-info">
                                 <div class="form-row">
                                     <div class="form-element">
@@ -1374,6 +1357,13 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
             </div>
             <?php } ?>
 
+            <!-- Lecture : le document mis en avant, les liens et fichiers joints, puis les risques a
+                 prendre en compte -->
+            <div id="spread-step-read" class="spread-steps__anchor"></div>
+            <?php if (!empty($linkedFilesFavorite)) {
+                require __DIR__ . '/public_spread_featured_documents.tpl.php';
+            } ?>
+
             <?php if (!empty($linkedLinksFavorite)) { ?>
                 <div class="linked-links-section">
                     <?php foreach ($linkedLinksFavorite as $link) { 
@@ -1429,6 +1419,9 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                 require __DIR__ . '/digiriskdolibarr_public_info.tpl.php';
             } ?>
 
+            <?php if ($spreadStepsMode == 'manager') { ?>
+            <div id="spread-step-sign" class="spread-steps__anchor"></div>
+            <?php } ?>
             <div id="bottomSignBtnPlaceholder" style="text-align: right; margin-top: 15px; margin-bottom: 30px;"></div>
 
 
@@ -1486,6 +1479,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
     <?php if (!empty($signSignatory) && empty($signSignatory->signature)) { ?>
     <!-- Single-person view: signing is the last step, below the documents and the risks to
          acknowledge, just above the list of signatories -->
+    <div id="spread-step-sign" class="spread-steps__anchor"></div>
     <div class="pp-single-person">
         <?php if (!empty($ppPendingCertifications)) { ?>
         <!-- Mandatory documents block signing until they are uploaded or waived -->
