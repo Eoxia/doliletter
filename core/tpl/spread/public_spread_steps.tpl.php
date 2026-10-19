@@ -56,6 +56,8 @@ if (empty($spreadSteps)) {
 .spread-steps__status:empty { display: none; }
 /* Une etape atteinte depuis la barre epinglee arrive sous elle, pas dessous */
 .spread-steps__anchor { scroll-margin-top: 72px; }
+/* Risques et recapitulatif : rien a lire tant qu'on ne sait pas qui signe */
+.spread-steps__read-content--locked { display: none; }
 
 /* Barre epinglee : une ligne, pastilles et intitules seulement */
 .spread-steps--pinned { position: fixed; top: 0; left: 50%; z-index: 100; width: 100%; max-width: 900px; padding: 8px 16px; box-sizing: border-box; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); transform: translateX(-50%); }
@@ -120,10 +122,7 @@ window.spreadSteps = {
             $(this).prop('disabled', !document.getElementById($(this).data('target')));
         });
         nav.on('click', '.spread-steps__link', function() {
-            var target = document.getElementById($(this).data('target'));
-            if (target) {
-                target.scrollIntoView({behavior: 'smooth', block: 'start'});
-            }
+            window.spreadSteps.goTo($(this).closest('.spread-steps__step').data('step'));
         });
 
         // Documents uploaded, signatories added or completed, answers saved: all of it goes through AJAX
@@ -131,6 +130,23 @@ window.spreadSteps = {
 
         window.spreadSteps.pin(nav);
         window.spreadSteps.refresh();
+    },
+
+    /**
+     * Bring to the part of the page of a step.
+     */
+    goTo: function(step) {
+        var target = document.getElementById('spread-step-' + step);
+        if (target) {
+            target.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+    },
+
+    /**
+     * Whether the blocks to read are still hidden, the "Who signs" step not being done.
+     */
+    isReadLocked: function() {
+        return $('.spread-steps__read-content--locked').length > 0;
     },
 
     /**
@@ -198,6 +214,9 @@ window.spreadSteps = {
         // 3. Validation and signature: only the signature itself completes it, and it reloads the page
         var states  = window.spreadSteps.getStates(done);
         status.sign = (states.sign === 'current') ? texts.toSign : '';
+
+        // The blocks to read show up once the person who signs is known
+        $('.spread-steps__read-content').toggleClass('spread-steps__read-content--locked', states.who !== 'done');
 
         $.each(states, function(step, state) {
             var item = nav.find('.spread-steps__step[data-step="' + step + '"]');
