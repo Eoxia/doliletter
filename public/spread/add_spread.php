@@ -89,6 +89,8 @@ $permissiontoadd           = $user->hasRight('doliletter', 'spread', 'write');
 $permissiontoshowsignature = $user->hasRight('doliletter', 'spreadsignature', 'read');
 $isLogged                  = !empty($_SESSION['dol_login']);
 $publicRegisterEnabled     = getDolGlobalInt('DOLILETTER_SPREAD_PUBLIC_REGISTER') > 0;
+// Same rights as document.php asks for to serve a file of DoliLetter
+$permissiontoreadsigninsheet = $isLogged && ($user->hasRight('doliletter', 'lire') || $user->hasRight('doliletter', 'read'));
 
 // Load translation files required by the page
 // companies holds the Firstname / Lastname / Phone labels of the public registration form
@@ -622,6 +624,9 @@ if ($action == 'validate_signature') {
             // Keep signature_url unchanged: the ?sign= link must stay valid so the signatory
             // still lands on their own single-person page (signed state) after signing.
             $signatory->update($user);
+
+            // The PDF attendance sheet follows the signatures: a failure is logged, the signature stays
+            doliletter_spread_generate_signin_sheet($attendanceSheet, $user, $langs);
         }
     }
     $action = '';
@@ -857,6 +862,22 @@ if ($action == 'login') {
     header("Location: " . dol_buildpath('', 3));
 }
 
+// PDF attendance sheet downloaded from the list of signatories. Generated again first: it is otherwise
+// only refreshed at each signature, a signatory added or removed since would be missing or still on it.
+if ($action == 'download_signin_sheet') {
+    if (!$permissiontoreadsigninsheet || $attendanceSheet->id <= 0) {
+        accessforbidden('', 0, 0, 1);
+    }
+
+    $signinSheetFile = doliletter_spread_get_signin_sheet_file($attendanceSheet);
+    if (doliletter_spread_generate_signin_sheet($attendanceSheet, $user, $langs) <= 0 && !dol_is_file($conf->doliletter->dir_output . '/' . $signinSheetFile)) {
+        accessforbidden($langs->transnoentities('ErrorSpreadSigninSheetNotGenerated'), 0, 0, 1);
+    }
+
+    header('Location: ' . DOL_URL_ROOT . '/document.php?modulepart=doliletter&entity=' . $conf->entity . '&file=' . urlencode($signinSheetFile));
+    exit;
+}
+
 $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
 $linkedFiles = [];
 if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
@@ -945,6 +966,9 @@ if ($isDigiriskRiskObject && !empty($ppCertifications)) {
 // The answers and documents of each person of the list are for whoever may read the object in Dolibarr
 // only: the links go through document.php, which checks that same right again
 $permissiontoreadsignatorydetails = $isLogged && $isDigiriskRiskObject && $user->hasRight('digiriskdolibarr', $ppElement, 'read');
+
+// PDF attendance sheet offered in the list of signatories, to whoever document.php will serve it to
+$signinSheetDownloadUrl = ($permissiontoreadsigninsheet && $attendanceSheet->id > 0) ? dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . urlencode($objectType) . '&action=download_signin_sheet' : '';
 
 // Risks the identified visitor has already taken note of, so a reload does not undo their reading
 $ppAcknowledgedRisks = (!empty($signSignatory)) ? doliletter_spread_get_acknowledged_risks($signSignatory) : [];
