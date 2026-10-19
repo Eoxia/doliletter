@@ -269,6 +269,9 @@ SpreadSignatoryBlocksRead       = %s pris en connaissance : %s sur %s
 SpreadSignatoryNoDetails        = Rien à afficher pour cette personne
 SpreadCertProvided              = Fourni
 SpreadCertNotProvided           = Non fourni
+SpreadSigninSheetDownload       = Feuille d'émargement (PDF)
+SpreadSigninSheetDownloadHelp   = Télécharger la feuille d'émargement avec toutes les signatures données à ce jour
+ErrorSpreadSigninSheetNotGenerated = La feuille d'émargement n'a pas pu être générée
 ErrorSpreadSignatoryIdentityMissing = Renseignez au moins un champ pour identifier la personne
 ErrorSpreadBadPhone             = Numéro de téléphone invalide : 8 à 15 chiffres, éventuellement précédés d'un + et séparés par des espaces, points ou tirets
 

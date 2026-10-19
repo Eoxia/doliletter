@@ -85,6 +85,9 @@ SpreadSignatoryBlocksRead = %s acknowledged: %s out of %s
 SpreadSignatoryNoDetails = Nothing to show for this person
 SpreadCertProvided = Provided
 SpreadCertNotProvided = Not provided
+SpreadSigninSheetDownload = Attendance sheet (PDF)
+SpreadSigninSheetDownloadHelp = Download the attendance sheet with every signature given so far
+ErrorSpreadSigninSheetNotGenerated = The attendance sheet could not be generated
 ErrorSpreadSignatoryIdentityMissing = Fill in at least one field to identify the person
 ErrorSpreadBadPhone = Invalid phone number: 8 to 15 digits, optionally starting with + and split by spaces, dots or dashes
 

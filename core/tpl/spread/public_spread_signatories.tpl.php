@@ -21,7 +21,7 @@
  * \brief   Liste en lecture seule des personnes de la diffusion.
  *          Une personne diffusee ne voyait que sa propre ligne : elle ne pouvait pas savoir qui
  *          d'autre avait pris connaissance du document, alors que c'est le sujet de la diffusion.
- *          Expects: $db, $langs, $signatories, $tmpUser.
+ *          Expects: $db, $langs, $signatories, $tmpUser, $signinSheetDownloadUrl (empty when not offered).
  */
 
 global $db, $langs;
@@ -44,6 +44,11 @@ foreach ($listedSignatories as $signatoryItem) {
         <div style="display: flex; align-items: center; gap: 15px;">
             <?php if (!isset($showCount) || $showCount) { ?>
             <span class="spread-signatories__count"><?php echo $langs->trans('SpreadSignatoriesCount', $signedCount, count($listedSignatories)); ?></span>
+            <?php } ?>
+            <?php if (!empty($signinSheetDownloadUrl) && $signedCount > 0) { ?>
+            <a href="<?php echo $signinSheetDownloadUrl; ?>" class="spread-signatories__download" title="<?php echo dol_escape_htmltag($langs->transnoentities('SpreadSigninSheetDownloadHelp')); ?>">
+                <i class="fas fa-file-pdf"></i> <?php echo $langs->trans('SpreadSigninSheetDownload'); ?>
+            </a>
             <?php } ?>
             <?php if (!empty($isSignedPreventionPlan) && isset($registerUrl)) { ?>
             <a href="<?php echo $registerUrl; ?>" style="font-size: 13px; padding: 6px 12px; background: #3b82f6; color: white; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(59,130,246,0.2);">

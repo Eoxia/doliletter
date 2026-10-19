@@ -46,6 +46,14 @@ const DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR = 'documents';
 const DOLILETTER_SPREAD_PHONE_PATTERN = '^\+?(?:[ .\-()]*[0-9]){8,15}[ .\-()]*$';
 
 /**
+ * PDF model of the attendance sheet generated at each signature and downloaded from the public page.
+ *
+ * Named here rather than read from the default model of the Diffusion tab, which may be the ODT one:
+ * the file offered for download must be the PDF one.
+ */
+const DOLILETTER_SPREAD_SIGNIN_SHEET_PDF_MODEL = 'signinsheetdocument_FE_Doliletter';
+
+/**
  * Create the attendance sheet backing a spread the first time someone is added to it.
  *
  * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet, already fetched (may be empty)
@@ -93,6 +101,54 @@ function doliletter_spread_ensure_attendance_sheet(DoliletterAttendanceSheet $at
     }
 
     return $attendanceSheet->create($user);
+}
+
+/**
+ * Path of the PDF attendance sheet of a spread, below the documents directory of DoliLetter.
+ *
+ * The PDF model writes one file per attendance sheet, named after its ref, and overwrites it at each
+ * generation: it is also the file listed in the Diffusion tab.
+ *
+ * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet of the spread
+ * @return string                                     Relative path, as document.php expects it
+ */
+function doliletter_spread_get_signin_sheet_file(DoliletterAttendanceSheet $attendanceSheet): string
+{
+    $sheetRef = dol_sanitizeFileName($attendanceSheet->ref);
+
+    return 'signinsheet/' . $sheetRef . '/' . $sheetRef . '.pdf';
+}
+
+/**
+ * Generate the PDF attendance sheet of a spread again, so it carries every signature given so far.
+ *
+ * The sheet was only produced by hand from the Diffusion tab: the copy found there missed whoever had
+ * signed since. A failure is logged and returned, it must not undo the signature it follows.
+ *
+ * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet of the spread, fetched
+ * @param  User                      $user            User generating, anonymous on the public page
+ * @param  Translate                 $outputLangs     Language of the document
+ * @return int                                        1 if OK, <= 0 if KO
+ */
+function doliletter_spread_generate_signin_sheet(DoliletterAttendanceSheet $attendanceSheet, User $user, Translate $outputLangs): int
+{
+    global $db;
+
+    if ($attendanceSheet->id <= 0) {
+        return -1;
+    }
+
+    dol_include_once('/doliletter/class/doliletterdocuments/signinsheetdocument.class.php');
+
+    $document   = new SigninSheetDocument($db);
+    $moreParams = ['object' => $attendanceSheet, 'user' => $user, 'zone' => 'private', 'specimen' => 0];
+
+    $result = $document->generateDocument(DOLILETTER_SPREAD_SIGNIN_SHEET_PDF_MODEL, $outputLangs, 0, 0, 0, $moreParams);
+    if ($result <= 0) {
+        dol_syslog('doliletter_spread: attendance sheet ' . $attendanceSheet->ref . ' not generated - ' . $document->error, LOG_ERR);
+    }
+
+    return $result;
 }
 
 /**

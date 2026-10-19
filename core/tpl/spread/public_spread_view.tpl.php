@@ -773,6 +773,34 @@ input.spread-phone--invalid,
     color: #64748b;
 }
 
+/* Download of the PDF attendance sheet. The text colour is set on every state of the link: the link
+   colour of the theme otherwise wins and leaves a dark blue text on the blue button */
+.spread-signatories a.spread-signatories__download,
+.spread-signatories a.spread-signatories__download:visited,
+.spread-signatories a.spread-signatories__download:hover,
+.spread-signatories a.spread-signatories__download:focus {
+    color: #fff;
+    text-decoration: none;
+}
+
+.spread-signatories a.spread-signatories__download {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #3b82f6;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    transition: background 0.15s;
+}
+
+.spread-signatories a.spread-signatories__download:hover,
+.spread-signatories a.spread-signatories__download:focus {
+    background: #2563eb;
+}
+
 .spread-signatories__empty {
     padding-top: 12px;
     font-size: 13px;
@@ -1523,7 +1551,8 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
     // Une personne diffusee doit pouvoir voir qui d'autre a pris connaissance du document. La liste
     // modifiable ci-dessus est reservee aux gestionnaires : celle-ci est en lecture seule.
     // L'affichage est conditionn� par les param�tres ou s'il s'agit d'un visiteur public.
-    if ((!$isLogged && !empty($signSignatory)) || $showCount || $showName || $showContact) {
+    // Hidden list or not, the PDF attendance sheet stays downloadable from it
+    if ((!$isLogged && !empty($signSignatory)) || $showCount || $showName || $showContact || !empty($signinSheetDownloadUrl)) {
         require __DIR__ . '/public_spread_signatories.tpl.php';
     }
     ?>
