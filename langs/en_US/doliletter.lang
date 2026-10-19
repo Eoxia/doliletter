@@ -175,6 +175,7 @@ SpreadStepWhoRegister = Register
 SpreadStepWhoQuickSign = Get your link by email
 SpreadStepWhoAdd = Add a signatory
 SpreadStepWhoIncomplete = Identity to complete
+SpreadStepWhoFirst = Finish the "Who signs" step first: the reading opens next.
 SpreadStepDocumentsToProvide = %s document(s) to provide
 SpreadStepRisksRead = %s / %s risks read
 SpreadStepRisksToRead = %s risks to read

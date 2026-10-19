@@ -1636,6 +1636,13 @@ function openSignatureModal(userIndex = null) {
     // arrivait alors du serveur, une fois la signature tracee, sous forme d'un message en haut
     // d'une page tres longue. On bloque desormais avant d'ouvrir, et on montre le risque en cause.
     if (window.ppRiskAck && window.ppRiskAck.pendingCount() > 0) {
+        // The risks only show once the "Who signs" step is done: point at it, not at a hidden block
+        if (window.spreadSteps && window.spreadSteps.isReadLocked()) {
+            $.jnotify(<?php echo json_encode($langs->transnoentities('SpreadStepWhoFirst')); ?>, {type: 'warning'});
+            window.spreadSteps.goTo('who');
+            return;
+        }
+
         $.jnotify(<?php echo json_encode($langs->transnoentities('SpreadRiskMustAcknowledgeFirst', '%s')); ?>.replace('%s', window.ppRiskAck.pendingCount()), {type: 'warning'});
         window.ppRiskAck.focusPending();
         return;

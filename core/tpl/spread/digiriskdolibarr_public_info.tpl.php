@@ -25,8 +25,12 @@
  *          Certification photos are uploaded per signatory (Saturne media block) in the signatories list.
  *          Each block ends with an acknowledgement the visitor must give before being able to sign.
  *          Expects: $langs, $ppRisks, $ppOrphanProtections, $ppRecapProtections, $ppTexts,
- *                   $signSignatory, $ppAcknowledgedRisks.
+ *                   $signSignatory, $ppAcknowledgedRisks, $spreadSteps.
  */
+
+// Nothing to read before the "Who signs" step is done: a block ticked before knowing who signs would
+// count for nobody. The steps script lifts the lock as soon as the step is done (spreadSteps.refresh).
+$ppReadLocked = !empty($spreadSteps) && $spreadSteps['steps']['who']['state'] != 'done';
 ?>
 <style>
 .pp-public-block { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 16px; margin: 16px 0; }
@@ -148,7 +152,7 @@
 .pp-invalid-link { display: flex; align-items: center; gap: 8px; margin: 16px 0; padding: 14px; font-size: 14px; font-weight: 600; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; }
 </style>
 
-<div class="pp-public-info">
+<div class="pp-public-info spread-steps__read-content<?php echo $ppReadLocked ? ' spread-steps__read-content--locked' : ''; ?>">
     <?php foreach ($ppRisks as $ppRiskIndex => $ppRiskItem) { ?>
     <div class="pp-risk-block">
         <div class="pp-risk-block__header">

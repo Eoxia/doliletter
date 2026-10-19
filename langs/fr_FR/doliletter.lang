@@ -365,6 +365,7 @@ SpreadStepWhoRegister                 = Inscrivez-vous
 SpreadStepWhoQuickSign                = Recevez votre lien par email
 SpreadStepWhoAdd                      = Ajoutez un signataire
 SpreadStepWhoIncomplete               = Identité à compléter
+SpreadStepWhoFirst                    = Terminez d'abord l'étape « Qui va signer » : la lecture s'ouvre ensuite.
 SpreadStepDocumentsToProvide          = %s document(s) à fournir
 SpreadStepRisksRead                   = %s / %s risques lus
 SpreadStepRisksToRead                 = %s risques à lire
