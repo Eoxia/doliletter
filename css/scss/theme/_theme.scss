@@ -1,0 +1,7 @@
+/* DoliLetter modern theme: the DoliLetter components on top of the shared theme of Saturne, imported
+   last so that it wins over the legacy partials. Every rule is scoped by $dl-scope (see _tokens.scss). */
+
+@import "tokens";
+@import "spread";
+@import "envelope";
+@import "admin";

@@ -1,0 +1,115 @@
+/* DoliLetter modern theme: the letters (envelope_card.php and its tabs, envelope_list.php). These pages
+   call llxHeader() themselves and put the mod-doliletter-envelope class on the body. */
+
+$dl-envelope-page: '.mod-doliletter-envelope';
+
+#{$dl-scope}#{$dl-envelope-page} {
+  /* ---- List ---- */
+
+  /* The contact filter is built without a width class: it would stretch the search row, and the page,
+     past the screen */
+  tr.liste_titre_filter .select2-container {
+    max-width: 220px;
+  }
+
+  /* ---- Card ---- */
+
+  /* select2 copies the quatrevingtpercent class of the contact select onto its box: the box took 80% of
+     the container while the arrow stays at its right edge */
+  .select2-container .select2-selection.quatrevingtpercent {
+    width: 100%;
+  }
+
+  /* Content of the letter, as a soft panel inside the field card */
+  table.tableforfield .longmessagecut {
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid $dl-border-soft;
+    border-radius: $dl-radius-sm;
+    background: $dl-surface-soft;
+    color: $dl-text;
+    line-height: 1.55;
+  }
+
+  /* Copy of the signature link (banner of the card, sender row of the Sign tab) */
+  .copy-to-clipboard-button {
+    @include dl-icon-button;
+    width: 26px;
+    height: 26px;
+    margin-left: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+
+  .copied-to-clipboard {
+    margin-left: 6px;
+    color: $dl-success;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ---- Sign tab (envelope_signature.php) ---- */
+
+  /* The signatories are field tables with a header row: the corner cells carry the rounded corners,
+     so that the grey header does not overflow the card */
+  .signatures-container table.tableforfield {
+    margin-bottom: 18px;
+
+    > tbody > tr:first-child > td:first-child {
+      border-top-left-radius: calc(#{$dl-radius-lg} - 1px);
+    }
+
+    > tbody > tr:first-child > td:last-child {
+      border-top-right-radius: calc(#{$dl-radius-lg} - 1px);
+    }
+
+    > tbody > tr:last-child > td:first-child {
+      border-bottom-left-radius: calc(#{$dl-radius-lg} - 1px);
+    }
+
+    > tbody > tr:last-child > td:last-child {
+      border-bottom-right-radius: calc(#{$dl-radius-lg} - 1px);
+    }
+
+    > tbody > tr.liste_titre > td {
+      @include dl-label;
+      background: $dl-surface-soft;
+      border-bottom: 1px solid $dl-border !important;
+    }
+
+    > tbody > tr.oddeven > td.role {
+      color: $dl-text-soft;
+    }
+  }
+
+  /* Signature already drawn: framed like the media thumbnails of Saturne */
+  img.doliletter-signature-image {
+    box-sizing: border-box;
+    padding: 4px;
+    border: 1px solid $dl-border-strong;
+    border-radius: $dl-radius-sm;
+    background: $dl-surface;
+    cursor: pointer;
+    transition: border-color $dl-transition, box-shadow $dl-transition;
+
+    &:hover {
+      border-color: $dl-primary;
+      box-shadow: $dl-ring;
+    }
+  }
+
+  /* Drawing area of the signature modal */
+  canvas.doliletter-signature-canvas {
+    border: 1px dashed $dl-border-strong;
+    border-radius: $dl-radius;
+    background: $dl-surface-soft;
+  }
+
+  /* ---- Linked objects tab (envelope_objects.php) ---- */
+
+  div.fiche > div.titre.inline-block {
+    margin-top: 14px;
+    font-size: 15px;
+  }
+}

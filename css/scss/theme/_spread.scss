@@ -1,0 +1,122 @@
+/* DoliLetter modern theme: the Spread tab of the linked objects (view/spread.php) and the list of the
+   spreads (view/spread/spread_list.php). Both pages carry the class of the attendance sheet object. */
+
+$dl-spread-page: '.mod-doliletter-doliletter_attendance_sheet';
+
+#{$dl-scope}#{$dl-spread-page} {
+  /* ---- Banner of the linked object ---- */
+
+  div.refidno .doliletter-spread-note {
+    color: $dl-text-soft;
+    opacity: 1;
+
+    strong {
+      margin-right: 4px;
+      font-weight: 600;
+      color: $dl-muted;
+    }
+  }
+
+  /* Link to the public page of the spread, as a tinted pill */
+  div.refidno .doliletter-spread-public-link {
+    margin: 6px 0 4px;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: $dl-radius-pill;
+      background: $dl-primary-soft;
+      color: $dl-primary-strong;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color $dl-transition, color $dl-transition;
+
+      &::after {
+        content: '\f35d';
+        font-family: 'Font Awesome 5 Free';
+        font-size: 10px;
+        font-weight: 900;
+      }
+
+      &:hover {
+        background: $dl-primary;
+        color: #ffffff;
+      }
+    }
+  }
+
+  /* ---- Signatories ---- */
+
+  /* Picto of the first column header, which keeps the purple of the Dolibarr members otherwise */
+  .spread-table-container tr.liste_titre .fa-user {
+    margin-right: 4px;
+    color: $dl-faint;
+  }
+
+  /* Presence: tinted round chips instead of a bare green tick / red cross */
+  .doliletter-presence {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 12px;
+  }
+
+  .doliletter-presence--present {
+    background: $dl-success-soft;
+    color: $dl-success;
+  }
+
+  .doliletter-presence--absent {
+    background: $dl-danger-soft;
+    color: $dl-danger;
+  }
+
+  /* Individual link of a signatory: compact icon button instead of a big blue block */
+  .wpeo-button.doliletter-signature-link {
+    @include dl-icon-button;
+    font-size: 13px;
+  }
+
+  /* Files and last events side by side under the signatories */
+  .spread-table-container .fichehalfleft,
+  .spread-table-container .fichehalfright {
+    margin-top: 6px;
+  }
+
+  /* ---- List of the spreads ---- */
+
+  /* The picto of the attendance sheet keeps its own colour inline: the title tile takes the Saturne blue */
+  table.table-fiche-title td.col-picto > .fas[style*='color'] {
+    color: $dl-primary !important;
+  }
+
+  /* Public URL column: one line, cut at its start so that the part that tells the rows apart (id and
+     object type) stays visible. The full URL is in the tooltip. The right-to-left direction only moves
+     the ellipsis to the left: the left-to-right mark keeps the leading slash in place. */
+  a.doliletter-public-url {
+    display: inline-block;
+    max-width: 280px;
+    overflow: hidden;
+    color: $dl-primary-strong;
+    font-size: 12.5px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    direction: rtl;
+
+    &::before {
+      content: '\200E';
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
