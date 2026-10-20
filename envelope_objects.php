@@ -217,7 +217,8 @@ $formproject = new FormProjets($db);
 
 $title = $langs->trans("Envelope");
 $help_url = '';
-llxHeader('', $title, $help_url);
+// Saturne back office theme, as saturne_header() would add it: body class and stylesheets
+llxHeader('', $title, $help_url, '', 0, 0, [], ['/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css'], '', 'saturne-theme mod-doliletter-envelope');
 
 // Part to show record
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {

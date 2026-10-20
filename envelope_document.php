@@ -133,7 +133,8 @@ $form = new Form($db);
 $title = $langs->trans("Envelope").' - '.$langs->trans("Files");
 $help_url = '';
 //$help_url='EN:Module_Third_Parties|FR:Module_Tiers|ES:Empresas';
-llxHeader('', $title, $help_url);
+// Saturne back office theme, as saturne_header() would add it: body class and stylesheets
+llxHeader('', $title, $help_url, '', 0, 0, [], ['/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css'], '', 'saturne-theme mod-doliletter-envelope');
 
 if ($object->id) {
 	/*
