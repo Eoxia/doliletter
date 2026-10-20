@@ -2,7 +2,10 @@
 @import "module/module";
 @import "page/page";
 
-.dropdown-toggle::after {
+/* The module dropdowns carry their own caret: hide the one eldy adds. Kept off the Dolibarr dropdowns
+   (user menu of the top bar), which lost their chevron on every page of the module. */
+.wpeo-dropdown .dropdown-toggle::after,
+.wpeo-button.dropdown-toggle::after {
   display: none;
 }
 
@@ -12,4 +15,7 @@
   border-radius: 10px;
   padding: 6px 12px;
 }
+
+// Modern back office theme, imported last so that it wins over the legacy rules above
+@import "theme/theme";
 
