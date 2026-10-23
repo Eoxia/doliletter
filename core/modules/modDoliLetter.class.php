@@ -102,7 +102,7 @@ class modDoliLetter extends DolibarrModules {
 
 		// Dependencies
 		$this->hidden       = false;
-		$this->depends      = array('modFckeditor', 'modProjet'); // List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
+		$this->depends      = array('modFckeditor', 'modProjet', 'modSaturne'); // List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
 		$this->requiredby   = array(); // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = array(); // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -434,6 +434,11 @@ class modDoliLetter extends DolibarrModules {
 	 */
 	public function init($options = ''): int {
 		global $conf, $langs, $user;
+
+		// Dolibarr runs init() before activating $this->depends : activate them first, the spread links below need isModEnabled() on them
+		if (function_exists('saturne_activate_module_dependencies') && saturne_activate_module_dependencies($this) < 0) {
+			return -1;
+		}
 
 		$this->_load_tables('/doliletter/sql/');
 
