@@ -169,8 +169,9 @@ class modDoliLetter extends DolibarrModules {
 			$this->tabs[] = array('data'=>'contact:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=contact');  	  	// To add a new tab identified by code tabname1
 		// The Diffusion tabs are the only ones the module installs : the reset keeps the envelope
 		// tabs declared above out of the database, exactly as init() did before this block moved here.
-		$this->tabs  = [];
-		$pictoSpread = '<i class="fas fa-check-circle"></i> ';
+		$this->tabs           = [];
+		$pictoSpread          = '<i class="fas fa-check-circle"></i> ';
+		$pictoSpreadDocuments = '<i class="fas fa-file-alt"></i> ';
 
 		// Tabs and hooks are declared for the enabled spreads only, they are driven from admin/setup.php
 		dol_include_once('/saturne/lib/object.lib.php');
@@ -199,6 +200,7 @@ class modDoliLetter extends DolibarrModules {
 			}
 
 			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+			$this->tabs[] = ['data' => $tabType . ':+spreaddocuments:' . $pictoSpreadDocuments . $langs->trans('SpreadDocuments') . ':doliletter@doliletter:1:/custom/doliletter/view/spread_documents.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
 
 			$this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
 			$this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];

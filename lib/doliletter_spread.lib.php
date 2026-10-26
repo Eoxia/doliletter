@@ -54,6 +54,17 @@ const DOLILETTER_SPREAD_PHONE_PATTERN = '^\+?(?:[ .\-()]*[0-9]){8,15}[ .\-()]*$'
 const DOLILETTER_SPREAD_SIGNIN_SHEET_PDF_MODEL = 'signinsheetdocument_FE_Doliletter';
 
 /**
+ * What the people of a spread get of a document of the diffused object: nothing, a file to download, or
+ * the document shown in full on the page, to read before signing.
+ *
+ * The public page serves the files of the object that have a share key, and shows in full the ones
+ * flagged with the "favorite" extra field of Saturne: a mode is that pair, set from the Diffusion tab.
+ */
+const DOLILETTER_SPREAD_DOCUMENT_HIDDEN   = 'hidden';
+const DOLILETTER_SPREAD_DOCUMENT_DOWNLOAD = 'download';
+const DOLILETTER_SPREAD_DOCUMENT_READ     = 'read';
+
+/**
  * Create the attendance sheet backing a spread the first time someone is added to it.
  *
  * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet, already fetched (may be empty)
@@ -181,6 +192,204 @@ function doliletter_spread_get_file_icon(string $extension): string
     ];
 
     return $icons[$extension] ?? 'fas fa-file text-muted';
+}
+
+/**
+ * Directory a document added from the documents tab of a spread is saved in: the one of the attached
+ * files tab of the diffused object, so that the document is found there too.
+ *
+ * An object of a Saturne module keeps them under <module>/<element>/<ref>, as saturne_document.php does,
+ * a Dolibarr object where its Documents tab does. The few objects the core gives no directory (contact,
+ * lot...) get one below DoliLetter: the public page serves the files by their share key anyway.
+ *
+ * @param  CommonObject $object Diffused object, fetched
+ * @return string               Absolute directory, without trailing slash
+ */
+function doliletter_spread_get_document_dir(CommonObject $object): string
+{
+    global $conf;
+
+    $entity = (int) ($object->entity ?: $conf->entity);
+    if ($object instanceof SaturneObject && !empty($conf->{$object->module}->multidir_output[$entity])) {
+        $documentDir = $conf->{$object->module}->multidir_output[$entity] . '/' . $object->element . '/' . get_exdir(0, 0, 0, 1, $object);
+    } else {
+        $documentDir = (string) getMultidirOutput($object, '', 1);
+    }
+
+    if (dol_strlen($documentDir) == 0 || strpos($documentDir, 'error-') === 0) {
+        $documentDir = $conf->doliletter->multidir_output[$entity] . '/spread/' . $object->element . '/' . (int) $object->id;
+    }
+
+    return rtrim($documentDir, '/');
+}
+
+/**
+ * Files and links of the diffused object, with what the people of the spread get of each one.
+ *
+ * They are the ones the public page picks from: the files indexed on the object and the links recorded
+ * with its spread type. The documents generated from the object card are added: they stay indexed on
+ * their Saturne document, hence hidden, until they are diffused.
+ *
+ * @param  CommonObject $object       Diffused object, fetched
+ * @param  string       $tableElement Table of the object, as the files are indexed on it
+ * @param  string       $objectType   Spread type of the object, as the public page reads its links
+ * @return array<int, array{type: string, id: int, name: string, date: int, generated: bool, mode: string, url: string}> Newest first
+ */
+function doliletter_spread_get_documents(CommonObject $object, string $tableElement, string $objectType): array
+{
+    global $db;
+
+    require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+    require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
+
+    $documents = [];
+
+    $sql  = 'SELECT f.rowid FROM ' . MAIN_DB_PREFIX . 'ecm_files as f';
+    $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . "saturne_object_documents as d ON f.src_object_type = 'saturne_object_documents' AND d.rowid = f.src_object_id";
+    $sql .= ' WHERE f.entity IN (' . getEntity('ecmfiles') . ')';
+    $sql .= " AND ((f.src_object_type = '" . $db->escape($tableElement) . "' AND f.src_object_id = " . ((int) $object->id) . ')';
+    $sql .= " OR (d.parent_type = '" . $db->escape($object->element) . "' AND d.parent_id = " . ((int) $object->id) . '))';
+
+    $resql = $db->query($sql);
+    while ($resql && ($obj = $db->fetch_object($resql))) {
+        $ecmFile = new EcmFiles($db);
+        if ($ecmFile->fetch($obj->rowid) <= 0) {
+            continue;
+        }
+
+        $mode = DOLILETTER_SPREAD_DOCUMENT_HIDDEN;
+        if ($ecmFile->src_object_type == $tableElement && dol_strlen((string) $ecmFile->share) > 0) {
+            $mode = empty($ecmFile->array_options['options_favorite']) ? DOLILETTER_SPREAD_DOCUMENT_DOWNLOAD : DOLILETTER_SPREAD_DOCUMENT_READ;
+        }
+
+        $documents[] = [
+            'type'      => 'file',
+            'id'        => (int) $ecmFile->id,
+            'name'      => $ecmFile->filename,
+            'date'      => (int) $ecmFile->date_c,
+            'generated' => ($ecmFile->gen_or_uploaded == 'generated'),
+            'mode'      => $mode,
+            'url'       => ($mode != DOLILETTER_SPREAD_DOCUMENT_HIDDEN) ? DOL_URL_ROOT . '/document.php?hashp=' . urlencode($ecmFile->share) : '',
+        ];
+    }
+
+    $links = [];
+    $link  = new Link($db);
+    $link->fetchAll($links, $objectType, $object->id);
+    foreach ($links as $linkedItem) {
+        $linkedItem->fetch_optionals();
+
+        // A link is always offered on the public page, it can only be shown in full or not
+        $documents[] = [
+            'type'      => 'link',
+            'id'        => (int) $linkedItem->id,
+            'name'      => dol_strlen($linkedItem->label) ? $linkedItem->label : $linkedItem->url,
+            'date'      => (int) $linkedItem->datea,
+            'generated' => false,
+            'mode'      => empty($linkedItem->array_options['options_favorite']) ? DOLILETTER_SPREAD_DOCUMENT_DOWNLOAD : DOLILETTER_SPREAD_DOCUMENT_READ,
+            'url'       => $linkedItem->url,
+        ];
+    }
+
+    usort($documents, fn ($a, $b) => $b['date'] <=> $a['date']);
+
+    return $documents;
+}
+
+/**
+ * Set what the people of a spread get of one document of the diffused object.
+ *
+ * To be served, a file must be indexed on the object and have a share key: a generated document is
+ * moved onto the object for that, as Digirisk does for the documents of its mobile forms. Hiding a file
+ * removes its share key, so its public link stops working.
+ *
+ * @param  CommonObject $object       Diffused object, fetched
+ * @param  string       $tableElement Table of the object, as the files are indexed on it
+ * @param  string       $objectType   Spread type of the object, as the public page reads its links
+ * @param  string       $type         'file' or 'link'
+ * @param  int          $id           ID of the file in the index, or of the link
+ * @param  string       $mode         One of the DOLILETTER_SPREAD_DOCUMENT_* modes
+ * @param  User         $user         User doing the change
+ * @return int                        Negative if KO, positive if OK
+ */
+function doliletter_spread_set_document_mode(CommonObject $object, string $tableElement, string $objectType, string $type, int $id, string $mode, User $user): int
+{
+    global $db;
+
+    // Only a document of the object: any other ID would let the tab publish a file of another record
+    $isDocumentOfObject = false;
+    foreach (doliletter_spread_get_documents($object, $tableElement, $objectType) as $document) {
+        $isDocumentOfObject = $isDocumentOfObject || ($document['type'] == $type && $document['id'] == $id);
+    }
+    if (!$isDocumentOfObject || !in_array($mode, [DOLILETTER_SPREAD_DOCUMENT_HIDDEN, DOLILETTER_SPREAD_DOCUMENT_DOWNLOAD, DOLILETTER_SPREAD_DOCUMENT_READ], true)) {
+        return -1;
+    }
+
+    if ($type == 'link') {
+        $link = new Link($db);
+        if ($mode == DOLILETTER_SPREAD_DOCUMENT_HIDDEN || $link->fetch($id) <= 0) {
+            return -1;
+        }
+
+        $link->fetch_optionals();
+        $link->array_options['options_favorite'] = ($mode == DOLILETTER_SPREAD_DOCUMENT_READ) ? 1 : 0;
+
+        return $link->insertExtraFields();
+    }
+
+    $ecmFile = new EcmFiles($db);
+    if ($ecmFile->fetch($id) <= 0) {
+        return -1;
+    }
+
+    if ($mode == DOLILETTER_SPREAD_DOCUMENT_HIDDEN) {
+        $ecmFile->share = '';
+    } else {
+        $ecmFile->src_object_type = $tableElement;
+        $ecmFile->src_object_id   = $object->id;
+        if (dol_strlen((string) $ecmFile->share) == 0) {
+            require_once DOL_DOCUMENT_ROOT . '/core/lib/security2.lib.php';
+            $ecmFile->share = getRandomPassword(true);
+        }
+    }
+    // update() saves the extra fields as well
+    $ecmFile->array_options['options_favorite'] = ($mode == DOLILETTER_SPREAD_DOCUMENT_READ) ? 1 : 0;
+
+    return $ecmFile->update($user);
+}
+
+/**
+ * Add documents to the spread from its documents tab: saved with the attached files of the diffused
+ * object, then shown in full on the public page, which is what a document is added there for.
+ *
+ * @param  CommonObject $object       Diffused object, fetched
+ * @param  string       $tableElement Table of the object, as the files are indexed on it
+ * @param  string       $objectType   Spread type of the object
+ * @param  string       $inputName    Name of the file input of the form
+ * @param  User         $user         User adding the documents
+ * @return int                        Negative if KO (dol_add_file_process() tells why), else the number of documents added
+ */
+function doliletter_spread_add_documents(CommonObject $object, string $tableElement, string $objectType, string $inputName, User $user): int
+{
+    $knownFiles = array_filter(doliletter_spread_get_documents($object, $tableElement, $objectType), fn ($document) => $document['type'] == 'file');
+    $knownIds   = array_column($knownFiles, 'id');
+
+    // Indexed on the object (third argument): the upload itself reports its errors and its success
+    if (dol_add_file_process(doliletter_spread_get_document_dir($object), 0, 1, $inputName, '', null, '', 1, $object) <= 0) {
+        return -1;
+    }
+
+    $added = 0;
+    foreach (doliletter_spread_get_documents($object, $tableElement, $objectType) as $document) {
+        if ($document['type'] == 'file' && !in_array($document['id'], $knownIds, true)) {
+            if (doliletter_spread_set_document_mode($object, $tableElement, $objectType, 'file', $document['id'], DOLILETTER_SPREAD_DOCUMENT_READ, $user) < 0) {
+                return -1;
+            }
+            $added++;
+        }
+    }
+
+    return $added;
 }
 
 /**
