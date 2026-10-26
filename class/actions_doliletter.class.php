@@ -203,7 +203,7 @@ class ActionsDoliletter
 
 		if (isModEnabled('doliletter') && strpos($parameters['context'], 'emailtemplates') !== false) {
 			if ($user->hasRight('doliletter', 'spread', 'write')) {
-				$value['doliletter_spread'] = '<i class="fas fa-check-circle" style="color: #63ACC9;"></i>  ' . dol_escape_htmltag($langs->trans('Spread'));
+				$value['doliletter_spread'] = '<i class="fas fa-bullhorn" style="color: #63ACC9;"></i>  ' . dol_escape_htmltag($langs->trans('Spread'));
 			}
 		}
 
