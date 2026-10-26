@@ -1,0 +1,184 @@
+/* Diffusion and documents tabs of an object: the public page of the spread and the documents offered on it */
+
+/* Soft rounded button, in the tone of the badges and status pills of the banner. Inline-block, never
+   flex: the copy button of the core gets it too, and a flex container breaks its copy (see below) */
+@mixin spread-chip {
+  display: inline-block;
+  margin: 0;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 0;
+  border-radius: 999px;
+  transition: background-color 0.15s ease;
+
+  i,
+  .pictomodule {
+    color: inherit;
+    opacity: 1;
+  }
+
+  i {
+    margin-right: 6px;
+  }
+}
+
+@mixin spread-chip-primary {
+  color: #1d4ed8;
+  background: #eff6ff;
+
+  &:hover {
+    background: #dbeafe;
+  }
+}
+
+@mixin spread-chip-neutral {
+  color: #334155;
+  background: #f1f5f9;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+}
+
+.spread-chip {
+  @include spread-chip;
+
+  &--primary {
+    @include spread-chip-primary;
+  }
+
+  &--neutral {
+    @include spread-chip-neutral;
+  }
+
+  /* Files being sent: the page reloads once they are up */
+  &--busy {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+}
+
+/* Above the "a:link" of eldy and the ".refid a" of the banner, which turn the text of a link dark blue */
+a.spread-chip--primary:link,
+a.spread-chip--primary:visited,
+a.spread-chip--primary:hover,
+a.spread-chip--primary:focus {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+/* Buttons of the banner, under the title: open the public page, copy its address */
+.spread-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 10px;
+
+  /* Copy button of the core: the address stays hidden, clicking the label or the icon copies it */
+  .clipboardCP {
+    @include spread-chip;
+    @include spread-chip-neutral;
+  }
+
+  .clipboardCP .clipboardCPButton,
+  .clipboardCP .clipboardCPTick {
+    padding-left: 6px;
+  }
+}
+
+.spread-documents {
+  &__help {
+    margin: 0 0 12px;
+  }
+
+  /* The add button is the label of a file input kept out of sight, but still reachable with the keyboard */
+  &__add {
+    display: inline-block;
+    margin: 0;
+  }
+
+  &__add-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    opacity: 0;
+
+    &:focus-visible + .spread-chip {
+      outline: 2px solid #93c5fd;
+      outline-offset: 2px;
+    }
+  }
+
+  &__name {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Segmented control: the options sit in a grey track, the current one is raised in white */
+.spread-document-mode {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+  padding: 3px;
+  background: #f1f5f9;
+  border-radius: 8px;
+
+  &__option {
+    margin: 0;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #64748b;
+    white-space: nowrap;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    i {
+      margin-right: 5px;
+      color: inherit;
+    }
+
+    &:not(#{&}--current):not(:disabled):hover {
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    &--current {
+      font-weight: 600;
+      cursor: default;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Colour of the current option: grey when hidden, blue for a download, green for a document to read */
+    &--current#{&}--hidden {
+      color: #475569;
+    }
+
+    &--current#{&}--download {
+      color: #1d4ed8;
+    }
+
+    &--current#{&}--read {
+      color: #047857;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}

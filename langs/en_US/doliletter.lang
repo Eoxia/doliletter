@@ -75,6 +75,27 @@ ErrorSpreadMailNotConfigured = email sending is not configured on this Dolibarr
 SpreadBackToDolibarr = Back to Dolibarr
 SpreadEditPlan = Edit the plan
 
+# Diffusion and documents tabs: public page and diffused documents
+SpreadCopyPublicLink = Copy the link
+SpreadOpenPublicPage = Open the spread page
+SpreadDocuments = Documents of the spread
+SpreadDocumentsHelp = Pick for each document what the people of the spread see. "To read" shows it in full on the page, before the signature.
+SpreadDocument = Document
+SpreadDocumentAdd = Add a document
+SpreadDocumentOnPublicPage = On the spread page
+SpreadNoDocument = No document yet: add the one people must read before signing.
+SpreadDocumentGenerated = Generated
+SpreadDocumentHidden = Hidden
+SpreadDocumentHiddenHelp = Not on the spread page: its public link is removed
+SpreadDocumentDownload = To download
+SpreadDocumentDownloadHelp = Offered for download on the spread page
+SpreadDocumentRead = To read
+SpreadDocumentReadHelp = Shown in full on the spread page, to read before signing
+SpreadDocumentLink = As a link
+SpreadDocumentLinkHelp = Offered as a link on the spread page
+SpreadDocumentModeSaved = Document of the spread updated
+ErrorSpreadDocumentMode = This document could not be updated
+
 # Spread signatories
 SpreadSignatoriesTitle = Spread signatories
 SpreadSignatoriesCount = %s signature(s) out of %s
