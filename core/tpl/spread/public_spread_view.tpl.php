@@ -1421,7 +1421,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     <?php foreach ($linkedFiles as $file) { 
                         $downloadUrl = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share);
                         $fileExtension = strtolower(pathinfo($file->filename, PATHINFO_EXTENSION));
-                        $iconClass = getFileIcon($fileExtension);
+                        $iconClass = doliletter_spread_get_file_icon($fileExtension);
                     ?>
                     <div class="file-box">
                         <div class="file-name" title="<?php echo htmlspecialchars($file->filename); ?>">
@@ -1557,29 +1557,6 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
     }
     ?>
 </div>
-
-<?php
-function getFileIcon($extension) {
-    $icons = [
-        'pdf' => 'fas fa-file-pdf text-danger',
-        'doc' => 'fas fa-file-word text-primary',
-        'docx' => 'fas fa-file-word text-primary',
-        'xls' => 'fas fa-file-excel text-success',
-        'xlsx' => 'fas fa-file-excel text-success',
-        'ppt' => 'fas fa-file-powerpoint text-warning',
-        'pptx' => 'fas fa-file-powerpoint text-warning',
-        'txt' => 'fas fa-file-alt text-secondary',
-        'jpg' => 'fas fa-file-image text-info',
-        'jpeg' => 'fas fa-file-image text-info',
-        'png' => 'fas fa-file-image text-info',
-        'gif' => 'fas fa-file-image text-info',
-        'zip' => 'fas fa-file-archive text-dark',
-        'rar' => 'fas fa-file-archive text-dark',
-        '7z' => 'fas fa-file-archive text-dark',
-    ];
-    return isset($icons[$extension]) ? $icons[$extension] : 'fas fa-file text-muted';
-}
-?>
 
 <!-- Modal de signature (not rendered when a sign token is used: the signature panel is inline there) -->
 <?php if (empty($sign)) { ?>

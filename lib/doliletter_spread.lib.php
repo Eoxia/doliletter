@@ -152,6 +152,38 @@ function doliletter_spread_generate_signin_sheet(DoliletterAttendanceSheet $atte
 }
 
 /**
+ * Font Awesome icon of a file offered for download on the public page.
+ *
+ * Was declared at the bottom of public_spread_view.tpl.php, inside a block: the function only existed
+ * once that line was reached, after the files list calling it, which then died on an undefined function.
+ *
+ * @param  string $extension Extension of the file, lowercase
+ * @return string            Classes of the icon
+ */
+function doliletter_spread_get_file_icon(string $extension): string
+{
+    $icons = [
+        'pdf'  => 'fas fa-file-pdf text-danger',
+        'doc'  => 'fas fa-file-word text-primary',
+        'docx' => 'fas fa-file-word text-primary',
+        'xls'  => 'fas fa-file-excel text-success',
+        'xlsx' => 'fas fa-file-excel text-success',
+        'ppt'  => 'fas fa-file-powerpoint text-warning',
+        'pptx' => 'fas fa-file-powerpoint text-warning',
+        'txt'  => 'fas fa-file-alt text-secondary',
+        'jpg'  => 'fas fa-file-image text-info',
+        'jpeg' => 'fas fa-file-image text-info',
+        'png'  => 'fas fa-file-image text-info',
+        'gif'  => 'fas fa-file-image text-info',
+        'zip'  => 'fas fa-file-archive text-dark',
+        'rar'  => 'fas fa-file-archive text-dark',
+        '7z'   => 'fas fa-file-archive text-dark',
+    ];
+
+    return $icons[$extension] ?? 'fas fa-file text-muted';
+}
+
+/**
  * Readable reason why an object refused to be saved.
  *
  * The public registration used to answer a bare "Error": the caller could neither tell the visitor
