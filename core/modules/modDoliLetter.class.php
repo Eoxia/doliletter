@@ -170,8 +170,8 @@ class modDoliLetter extends DolibarrModules {
 		// The Diffusion tabs are the only ones the module installs : the reset keeps the envelope
 		// tabs declared above out of the database, exactly as init() did before this block moved here.
 		$this->tabs           = [];
-		$pictoSpread          = '<i class="fas fa-check-circle"></i> ';
-		$pictoSpreadDocuments = '<i class="fas fa-file-alt"></i> ';
+		$pictoSpread          = '<i class="fas fa-bullhorn"></i> ';
+		$pictoSpreadDocuments = '<i class="fas fa-file-export"></i> ';
 
 		// Tabs and hooks are declared for the enabled spreads only, they are driven from admin/setup.php
 		dol_include_once('/saturne/lib/object.lib.php');
