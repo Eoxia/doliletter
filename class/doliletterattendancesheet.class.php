@@ -68,7 +68,7 @@ class DoliletterAttendanceSheet extends SaturneObject
 	/**
 	 * @var string Name of icon for certificate. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'certificate@saturne' if picto is file 'img/object_certificate.png'.
 	 */
-	public string $picto = 'fontawesome_fa-check-circle_fas_#63ACC9';
+	public string $picto = 'fontawesome_fa-bullhorn_fas_#63ACC9';
 
     public const STATUS_DELETED   = -1;
     public const STATUS_DRAFT     = 0;

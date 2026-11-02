@@ -102,7 +102,7 @@ class modDoliLetter extends DolibarrModules {
 
 		// Dependencies
 		$this->hidden       = false;
-		$this->depends      = array('modFckeditor', 'modProjet'); // List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
+		$this->depends      = array('modFckeditor', 'modProjet', 'modSaturne'); // List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
 		$this->requiredby   = array(); // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = array(); // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -169,8 +169,9 @@ class modDoliLetter extends DolibarrModules {
 			$this->tabs[] = array('data'=>'contact:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=contact');  	  	// To add a new tab identified by code tabname1
 		// The Diffusion tabs are the only ones the module installs : the reset keeps the envelope
 		// tabs declared above out of the database, exactly as init() did before this block moved here.
-		$this->tabs  = [];
-		$pictoSpread = '<i class="fas fa-check-circle"></i> ';
+		$this->tabs           = [];
+		$pictoSpread          = '<i class="fas fa-bullhorn"></i> ';
+		$pictoSpreadDocuments = '<i class="fas fa-file-export"></i> ';
 
 		// Tabs and hooks are declared for the enabled spreads only, they are driven from admin/setup.php
 		dol_include_once('/saturne/lib/object.lib.php');
@@ -199,6 +200,7 @@ class modDoliLetter extends DolibarrModules {
 			}
 
 			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+			$this->tabs[] = ['data' => $tabType . ':+spreaddocuments:' . $pictoSpreadDocuments . $langs->trans('SpreadDocuments') . ':doliletter@doliletter:1:/custom/doliletter/view/spread_documents.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
 
 			$this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
 			$this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
@@ -434,6 +436,17 @@ class modDoliLetter extends DolibarrModules {
 	 */
 	public function init($options = ''): int {
 		global $conf, $langs, $user;
+
+		// Saturne provides the functions used below : refuse the activation rather than a fatal error when it is missing
+		if (!function_exists('saturne_load_langs')) {
+			$this->error = $langs->trans('activateModuleDependNotSatisfied', $this->name, 'modSaturne', $this->name);
+			return -1;
+		}
+
+		// Dolibarr runs init() before activating $this->depends : activate them first, the spread links below need isModEnabled() on them
+		if (function_exists('saturne_activate_module_dependencies') && saturne_activate_module_dependencies($this) < 0) {
+			return -1;
+		}
 
 		$this->_load_tables('/doliletter/sql/');
 

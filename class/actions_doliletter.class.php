@@ -203,11 +203,36 @@ class ActionsDoliletter
 
 		if (isModEnabled('doliletter') && strpos($parameters['context'], 'emailtemplates') !== false) {
 			if ($user->hasRight('doliletter', 'spread', 'write')) {
-				$value['doliletter_spread'] = '<i class="fas fa-check-circle" style="color: #63ACC9;"></i>  ' . dol_escape_htmltag($langs->trans('Spread'));
+				$value['doliletter_spread'] = '<i class="fas fa-bullhorn" style="color: #63ACC9;"></i>  ' . dol_escape_htmltag($langs->trans('Spread'));
 			}
 		}
 
         $this->results = $value;
+        return 0;
+    }
+
+    /**
+     * Overloading the saturneEmailTemplateSettings function : replacing the parent's function with the one below
+     *
+     * Declares the DoliLetter settings designating an email template, shown by their label in the "Used by" column of
+     * the Saturne email templates overview
+     *
+     * @param  array $parameters Hook metadata (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     */
+    public function saturneEmailTemplateSettings(array $parameters): int
+    {
+        global $langs;
+
+        $langs->load('doliletter@doliletter');
+
+        $this->results = [
+            'DOLILETTER_EMAIL_TEMPLATE_SPREAD' => [
+                'label' => 'DoliLetter · ' . $langs->transnoentities('ConfigEmailSpread'),
+                'url'   => dol_buildpath('/doliletter/admin/setup.php', 1),
+            ],
+        ];
+
         return 0;
     }
 

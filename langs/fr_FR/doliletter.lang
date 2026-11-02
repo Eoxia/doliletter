@@ -259,6 +259,27 @@ ErrorSpreadMailNotConfigured    = la messagerie n'est pas configurée sur ce Dol
 SpreadBackToDolibarr            = Retour à Dolibarr
 SpreadEditPlan                  = Modifier le plan
 
+# Onglets Diffusion et documents : page publique et documents diffusés
+SpreadCopyPublicLink            = Copier le lien
+SpreadOpenPublicPage            = Ouvrir la page de diffusion
+SpreadDocuments                 = Documents de la diffusion
+SpreadDocumentsHelp             = Choisissez pour chaque document ce que voient les personnes de la diffusion. « À lire » l'affiche en entier sur la page, avant la signature.
+SpreadDocument                  = Document
+SpreadDocumentAdd               = Ajouter un document
+SpreadDocumentOnPublicPage      = Sur la page de diffusion
+SpreadNoDocument                = Aucun document pour l'instant : ajoutez celui que les personnes doivent lire avant de signer.
+SpreadDocumentGenerated         = Généré
+SpreadDocumentHidden            = Masqué
+SpreadDocumentHiddenHelp        = Absent de la page de diffusion : son lien public est retiré
+SpreadDocumentDownload          = En téléchargement
+SpreadDocumentDownloadHelp      = Proposé en téléchargement sur la page de diffusion
+SpreadDocumentRead              = À lire
+SpreadDocumentReadHelp          = Affiché en entier sur la page de diffusion, à lire avant de signer
+SpreadDocumentLink              = En lien
+SpreadDocumentLinkHelp          = Proposé en lien sur la page de diffusion
+SpreadDocumentModeSaved         = Document de la diffusion mis à jour
+ErrorSpreadDocumentMode         = Ce document n'a pas pu être mis à jour
+
 # Signataires de la diffusion
 SpreadSignatoriesTitle          = Signataires de la diffusion
 SpreadSignatoriesCount          = %s signature(s) sur %s
