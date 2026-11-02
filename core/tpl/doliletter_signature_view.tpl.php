@@ -6,7 +6,7 @@
 <?php elseif ( $element->signature == $langs->trans("DocumentGenerated") && $object->status > 0 ) :
 	print $element->getLibStatut(5);
 elseif (!empty($element->signature) && $element->signature != $langs->trans("DocumentGenerated")) : ?>
-	<img class="wpeo-modal-event modal-open" value="<?php echo $element->id ?>" src='<?php echo $element->signature ?>' width="100px" height="100px" style="border: #0b419b solid 2px">
+	<img class="wpeo-modal-event modal-open doliletter-signature-image" value="<?php echo $element->id ?>" src='<?php echo $element->signature ?>' width="100px" height="100px">
 <?php endif; ?>
 
 <div class="modal-signature" value="<?php echo $element->id ?>">
@@ -20,7 +20,7 @@ elseif (!empty($element->signature) && $element->signature != $langs->trans("Doc
 			<!-- Modal-ADD Signature Content-->
 			<div class="modal-content" id="#modalContent">
 				<input type="hidden" id="signature_data<?php echo $element->id ?>" value="<?php echo $element->signature ?>">
-				<canvas style="height: 95%; width: 95%; border: #0b419b solid 2px"></canvas>
+				<canvas class="doliletter-signature-canvas"></canvas>
 			</div>
 			<!-- Modal-Footer-->
 			<div class="modal-footer">

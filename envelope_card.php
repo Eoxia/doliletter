@@ -1135,9 +1135,11 @@ $title_create = $langs->trans("NewEnvelope");
 $title_edit   = $langs->trans("ModifyEnvelope");
 $help_url     = '';
 $morejs   = array("/doliletter/js/signature-pad.min.js", "/doliletter/js/doliletter.js.php");
-$morecss  = array("/doliletter/css/doliletter.css");
+// Saturne back office theme, as saturne_header() would add it: body class and stylesheets. The
+// compiled stylesheet of the module replaces the stale css/doliletter.css, still used by the public pages
+$morecss  = array('/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css');
 
-llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
+llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss, '', 'saturne-theme mod-doliletter-envelope');
 
 // Part to create
 if ($action == 'create') {

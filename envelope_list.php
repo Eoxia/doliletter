@@ -285,7 +285,8 @@ $now = dol_now();
 $help_url = '';
 $title = $langs->trans('EnvelopeList');
 $morejs = array();
-$morecss = array();
+// Saturne back office theme, as saturne_header() would add it: body class and stylesheets
+$morecss = array('/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css');
 
 // Build and execute select
 // --------------------------------------------------------------------
@@ -411,7 +412,7 @@ if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $
 // Output page
 // --------------------------------------------------------------------
 
-llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss, '', '');
+llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss, '', 'saturne-theme mod-doliletter-envelope');
 
 if (!empty($fromtype)) {
 	print dol_get_fiche_head($head, 'envelopeList', $langs->trans("Envelope"), -1, $objectLinked->picto);
@@ -528,7 +529,7 @@ print '<table class="tagtable nobottomiftotal liste'.($moreforfilter ? " listwit
 
 // Fields title search
 // --------------------------------------------------------------------
-print '<tr class="liste_titre">';
+print '<tr class="liste_titre_filter">';
 foreach ($object->fields as $key => $val) {
 	$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
 	if ($key == 'status') {

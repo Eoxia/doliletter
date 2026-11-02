@@ -38,13 +38,13 @@ $moreHtmlRef .= showValueWithClipboardCPButton($publicUrl, 0, $langs->trans('Spr
 $moreHtmlRef .= '</div>';
 
 // Note privée
-$moreHtmlRef .= '<div class=" opacitymedium">';
+$moreHtmlRef .= '<div class="opacitymedium doliletter-spread-note">';
 $moreHtmlRef .= '<strong>' . $langs->trans('NotePrivate') . ':</strong>';
 $moreHtmlRef .= dol_string_nohtmltag($object->note_private, 1);
 $moreHtmlRef .= '</div>';
 
 // Note publique
-$moreHtmlRef .= '<div class=" opacitymedium">';
+$moreHtmlRef .= '<div class="opacitymedium doliletter-spread-note">';
 $moreHtmlRef .= '<strong>' . $langs->trans('NotePublic') . ':</strong>';
 $moreHtmlRef .= dol_string_nohtmltag($object->note_public, 1);
 $moreHtmlRef .= '</div>';

@@ -131,7 +131,7 @@ class ActionsDoliletter
                 return 1;
             } elseif ($parameters['key'] == 'public_url') {
                 $url = DOL_URL_ROOT . '/custom/doliletter/public/spread/add_spread.php?id=' . $object->fk_object . '&object_type=' . $object->object_type;
-                print '<a href="' . $url . '" target="_blank">' . $url . '</a>';
+                print '<a class="doliletter-public-url" href="' . $url . '" target="_blank" title="' . dol_escape_htmltag($url) . '">' . $url . '</a>';
             }
         }
 

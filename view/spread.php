@@ -177,7 +177,7 @@ print '<div class="fichecenter">';
 print '<table class="centpercent noborder">';
 
 print '<tr class="liste_titre">';
-print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user infobox-adherent" style=""></span> Utilisateur</td>';
+print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user infobox-adherent"></span> Utilisateur</td>';
 print '<td class="">Date de d\'ajout</td>';
 print '<td class="center">État</td>';
 print '<td class="center">Présence</td>';
@@ -217,9 +217,9 @@ foreach ($signatories as $signatory) {
 
     print '<td class="center">';
     if (!$signatory->attendance) {
-        print '<span class="fas fa-check" style="color:green;" title="' . $langs->trans('Present') . '"></span>';
+        print '<span class="fas fa-check doliletter-presence doliletter-presence--present" title="' . $langs->trans('Present') . '"></span>';
     } else {
-        print '<span class="fas fa-times" style="color:red;" title="' . $langs->trans('Absent') . '"></span>';
+        print '<span class="fas fa-times doliletter-presence doliletter-presence--absent" title="' . $langs->trans('Absent') . '"></span>';
     }
     print '</td>';
 
