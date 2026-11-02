@@ -160,7 +160,8 @@ if ($object->id > 0) {
 	$title = $langs->trans("Agenda");
 	//if (! empty($conf->global->MAIN_HTML_TITLE) && preg_match('/thirdpartynameonly/',$conf->global->MAIN_HTML_TITLE) && $object->name) $title=$object->name." - ".$title;
 	$help_url = 'EN:Module_Agenda_En';
-	llxHeader('', $title, $help_url);
+	// Saturne back office theme, as saturne_header() would add it: body class and stylesheets
+	llxHeader('', $title, $help_url, '', 0, 0, [], ['/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css'], '', 'saturne-theme mod-doliletter-envelope');
 
 	if (!empty($conf->notification->enabled)) {
 		$langs->load("mails");

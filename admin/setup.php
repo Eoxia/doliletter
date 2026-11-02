@@ -94,9 +94,8 @@ if (in_array($action, ['toggle_link', 'toggle_all_links', 'clean_unused_links'])
 
 if ($action == 'save') {
 
-    if (!empty($_POST['email_template'])) {
-        dolibarr_set_const($db, 'DOLILETTER_EMAIL_TEMPLATE_SPREAD', $_POST['email_template'], 'chaine', 0, '', $conf->entity);
-    }
+    // A template id, read back with getDolGlobalInt(). The empty choice of the list posts -1: back to 0, the module's default content
+    dolibarr_set_const($db, 'DOLILETTER_EMAIL_TEMPLATE_SPREAD', max(0, GETPOSTINT('email_template')), 'chaine', 0, '', $conf->entity);
 
     setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
     header('Location: ' . $_SERVER["PHP_SELF"]);

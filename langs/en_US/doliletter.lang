@@ -75,6 +75,27 @@ ErrorSpreadMailNotConfigured = email sending is not configured on this Dolibarr
 SpreadBackToDolibarr = Back to Dolibarr
 SpreadEditPlan = Edit the plan
 
+# Diffusion and documents tabs: public page and diffused documents
+SpreadCopyPublicLink = Copy the link
+SpreadOpenPublicPage = Open the spread page
+SpreadDocuments = Documents of the spread
+SpreadDocumentsHelp = Pick for each document what the people of the spread see. "To read" shows it in full on the page, before the signature.
+SpreadDocument = Document
+SpreadDocumentAdd = Add a document
+SpreadDocumentOnPublicPage = On the spread page
+SpreadNoDocument = No document yet: add the one people must read before signing.
+SpreadDocumentGenerated = Generated
+SpreadDocumentHidden = Hidden
+SpreadDocumentHiddenHelp = Not on the spread page: its public link is removed
+SpreadDocumentDownload = To download
+SpreadDocumentDownloadHelp = Offered for download on the spread page
+SpreadDocumentRead = To read
+SpreadDocumentReadHelp = Shown in full on the spread page, to read before signing
+SpreadDocumentLink = As a link
+SpreadDocumentLinkHelp = Offered as a link on the spread page
+SpreadDocumentModeSaved = Document of the spread updated
+ErrorSpreadDocumentMode = This document could not be updated
+
 # Spread signatories
 SpreadSignatoriesTitle = Spread signatories
 SpreadSignatoriesCount = %s signature(s) out of %s
@@ -85,6 +106,9 @@ SpreadSignatoryBlocksRead = %s acknowledged: %s out of %s
 SpreadSignatoryNoDetails = Nothing to show for this person
 SpreadCertProvided = Provided
 SpreadCertNotProvided = Not provided
+SpreadSigninSheetDownload = Attendance sheet (PDF)
+SpreadSigninSheetDownloadHelp = Download the attendance sheet with every signature given so far
+ErrorSpreadSigninSheetNotGenerated = The attendance sheet could not be generated
 ErrorSpreadSignatoryIdentityMissing = Fill in at least one field to identify the person
 ErrorSpreadBadPhone = Invalid phone number: 8 to 15 digits, optionally starting with + and split by spaces, dots or dashes
 SpreadSignatorySignedVersion = Version of the signed document: %s
@@ -171,3 +195,23 @@ SpreadObjectSignedTitle = %s signed!
 SpreadObjectSignedText = The attendee signed the %s, acknowledging the risk analysis and providing every requested element.
 SpreadSeeObject = See the %s
 SpreadNextStepFollowObject = Consult and follow<br>the %s
+
+# Signature steps at the top of the spread: who signs, reading, validation and signature
+SpreadStepsTitle = Signature steps
+SpreadStepWho = Who signs
+SpreadStepReadPreventionPlan = Read the plan
+SpreadStepReadFirePermit = Read the permit
+SpreadStepReadDocument = Read the document
+SpreadStepSign = Validate + sign
+SpreadStepWhoRegister = Register
+SpreadStepWhoQuickSign = Get your link by email
+SpreadStepWhoAdd = Add a signatory
+SpreadStepWhoIncomplete = Identity to complete
+SpreadStepWhoFirst = Finish the "Who signs" step first: the reading opens next.
+SpreadStepDocumentsToProvide = %s document(s) to provide
+SpreadStepRisksRead = %s / %s risks read
+SpreadStepRisksToRead = %s risks to read
+SpreadStepWorkTypesRead = %s / %s types of work read
+SpreadStepWorkTypesToRead = %s types of work to read
+SpreadStepToSign = To sign
+SpreadStepSignedOn = Signed on %s

@@ -134,30 +134,8 @@ saturne_header(0,'', $title, $helpUrl ?? '', '', 0, 0, [], [], '', 'mod-' . $obj
 
 if (!empty($fromType) && isset($objectsMetadata[$fromType]['object'])) {
     $objectsMetadata[$fromType]['object']->fetch($fromId);
-    saturne_get_fiche_head($objectsMetadata[$fromType]['object'], 'spread', '');
-    $linkBack = '<a href="' . dol_buildpath($fromType . '/list.php?restore_lastsearch_values=1', 1) . '">' . $langs->trans('BackToList') . '</a>';
-
-    $moreHtmlRef = '';
-
-    // Note privée
-    $moreHtmlRef .= '<div class=" opacitymedium">';
-    $moreHtmlRef .= '<strong>' . $langs->trans('NotePrivate') . ':</strong>';
-    $moreHtmlRef .= dol_string_nohtmltag($object->note_private, 1);
-    $moreHtmlRef .= '</div>';
-
-    // Note publique
-    $moreHtmlRef .= '<div class=" opacitymedium">';
-    $moreHtmlRef .= '<strong>' . $langs->trans('NotePublic') . ':</strong>';
-    $moreHtmlRef .= dol_string_nohtmltag($object->note_public, 1);
-    $moreHtmlRef .= '</div>';
-
-    // Lien vers l'interface publique sans CSS
-    $publicUrl    = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $fromId . '&object_type=' . $fromType;
-    $moreHtmlRef .= '<div class="">';
-    $moreHtmlRef .= '<a href="' . $publicUrl . '" target="_blank">' . $langs->trans('AccessPublicInterface') . '</a>';
-    $moreHtmlRef .= '</div>';
-
-    saturne_banner_tab($objectsMetadata[$fromType]['object'], 'fromtype=' . $fromType . '&fromid', $linkBack, 1, 'rowid', ($fromType == 'productlot' ? 'batch' : 'ref'), $moreHtmlRef);
+    $spreadTab = 'spread';
+    require __DIR__ . '/../core/tpl/spread/spread_banner.tpl.php';
 
     $moreUrlParameters = '&fromtype=' . $fromType . '&fromid=' . $fromId . '&mode=' . $mode;
 }
@@ -199,7 +177,7 @@ print '<div class="fichecenter">';
 print '<table class="centpercent noborder">';
 
 print '<tr class="liste_titre">';
-print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user infobox-adherent" style=""></span> Utilisateur</td>';
+print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user infobox-adherent"></span> Utilisateur</td>';
 print '<td class="">Date de d\'ajout</td>';
 print '<td class="center">État</td>';
 print '<td class="center">Présence</td>';
@@ -239,9 +217,9 @@ foreach ($signatories as $signatory) {
 
     print '<td class="center">';
     if (!$signatory->attendance) {
-        print '<span class="fas fa-check" style="color:green;" title="' . $langs->trans('Present') . '"></span>';
+        print '<span class="fas fa-check doliletter-presence doliletter-presence--present" title="' . $langs->trans('Present') . '"></span>';
     } else {
-        print '<span class="fas fa-times" style="color:red;" title="' . $langs->trans('Absent') . '"></span>';
+        print '<span class="fas fa-times doliletter-presence doliletter-presence--absent" title="' . $langs->trans('Absent') . '"></span>';
     }
     print '</td>';
 

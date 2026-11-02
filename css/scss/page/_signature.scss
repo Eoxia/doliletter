@@ -46,3 +46,15 @@
   height: auto;
   border: 1px solid rgba(0, 0, 0, 0.4) !important;
 }
+
+/* Sign tab of a letter (core/tpl/doliletter_signature_view.tpl.php): signature already drawn and
+   drawing area of the modal. The canvas size is read by signature-pad, keep it relative. */
+.doliletter-signature-image {
+  border: 2px solid #0b419b;
+}
+
+.doliletter-signature-canvas {
+  width: 95%;
+  height: 95%;
+  border: 2px solid #0b419b;
+}
