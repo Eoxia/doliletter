@@ -111,6 +111,17 @@ SpreadSigninSheetDownloadHelp = Download the attendance sheet with every signatu
 ErrorSpreadSigninSheetNotGenerated = The attendance sheet could not be generated
 ErrorSpreadSignatoryIdentityMissing = Fill in at least one field to identify the person
 ErrorSpreadBadPhone = Invalid phone number: 8 to 15 digits, optionally starting with + and split by spaces, dots or dashes
+SpreadSignatorySignedVersion = Version of the signed document: %s
+
+# Attendance sheet: proof of each signature
+SigninSheetDocument = Attendance sheet
+SigninSheetSignedDocumentVersion = Version of the signed document
+SigninSheetSignedDocumentVersions = Versions of the signed document
+SigninSheetVersionNumber = Version %s
+SigninSheetSignedVersion = Signed document: version %s
+SigninSheetVersionNotRecorded = Version of the signed document: not recorded (earlier signature)
+SigninSheetBlocksReadCount = %s acknowledged: %s
+SigninSheetRequestedDocuments = Requested documents: %s
 
 #
 # Public registration
