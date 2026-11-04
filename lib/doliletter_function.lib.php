@@ -359,7 +359,7 @@ function dolilettershowdocuments($modulepart, $modulesubdir, $filedir, $urlsourc
 
 				// Preview
 				if (!empty($conf->use_javascript_ajax) && ($conf->browser->layout != 'phone')) {
-					$tmparray = getAdvancedPreviewUrl($modulepart, $relativepath, 1, '&entity='.$entity);
+					$tmparray = getAdvancedPreviewUrl($modulepart, $relativepath, 1, '&entity='.((is_object($object) && !empty($object->entity)) ? $object->entity : $conf->entity));
 					if ($tmparray && $tmparray['url']) {
 						$out .= '<a href="'.$tmparray['url'].'"'.($tmparray['css'] ? ' class="'.$tmparray['css'].'"' : '').($tmparray['mime'] ? ' mime="'.$tmparray['mime'].'"' : '').($tmparray['target'] ? ' target="'.$tmparray['target'].'"' : '').'>';
 						//$out.= img_picto('','detail');

@@ -384,6 +384,8 @@ class DoliletterSignature extends CommonObject
 			$this->labelStatus[self::STATUS_UNSIGNED] = $langs->transnoentities('Unsigned');
 			$this->labelStatus[self::STATUS_ABSENT] = $langs->transnoentities('Absent');
 			$this->labelStatus[self::STATUS_JUSTIFIED_ABSENT] = $langs->transnoentities('JustifiedAbsent');
+			// No short label of its own: the short form repeats the long one
+			$this->labelStatusShort = $this->labelStatus;
 		}
 
 		$statusType = 'status'.$status;

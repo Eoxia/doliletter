@@ -62,6 +62,7 @@ $langs->loadLangs(array("doliletter@doliletter", "other"));
 
 // Get parameters
 $id          = GETPOST('id', 'int');
+$lineid      = GETPOST('lineid', 'int');
 $action      = GETPOST('action', 'aZ09');
 $massaction  = GETPOST('massaction', 'alpha'); // The bulk action (combo box choice into lists)
 $confirm     = GETPOST('confirm', 'alpha');
@@ -371,13 +372,13 @@ if (empty($reshook)) {
 			$outputlangs = $langs;
 			$newlang = '';
 
-			if ($conf->global->MAIN_MULTILANGS && empty($newlang) && GETPOST('lang_id', 'aZ09')) {
+			if (getDolGlobalInt('MAIN_MULTILANGS') && empty($newlang) && GETPOST('lang_id', 'aZ09')) {
 				$newlang = GETPOST('lang_id', 'aZ09');
 			}
-			if ($conf->global->MAIN_MULTILANGS && empty($newlang) && isset($object->thirdparty->default_lang)) {
+			if (getDolGlobalInt('MAIN_MULTILANGS') && empty($newlang) && isset($object->thirdparty->default_lang)) {
 				$newlang = $object->thirdparty->default_lang; // for proposal, order, invoice, ...
 			}
-			if ($conf->global->MAIN_MULTILANGS && empty($newlang) && isset($object->default_lang)) {
+			if (getDolGlobalInt('MAIN_MULTILANGS') && empty($newlang) && isset($object->default_lang)) {
 				$newlang = $object->default_lang; // for thirdparty
 			}
 			if (!empty($newlang)) {
@@ -407,6 +408,7 @@ if (empty($reshook)) {
 				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
 					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref;
 					$filelist = dol_dir_list($filedir, 'files');
+					$filename = '';
 					if (!empty($filelist)) {
 						foreach ($filelist as $file) {
 							if (!preg_match('/specimen/', $file['name'])) {
@@ -416,10 +418,13 @@ if (empty($reshook)) {
 						}
 					}
 
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $id);
-					require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-					$ecmfile->share = getRandomPassword(true);
-					$ecmfile->update($user);
+					// A draft only has its specimen: there is no document to share yet
+					if (dol_strlen($filename) > 0) {
+						$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $id);
+						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
+						$ecmfile->share = getRandomPassword(true);
+						$ecmfile->update($user);
+					}
 				}
 				if (empty($donotredirect)) {	// This is set when include is done by bulk action "Bill Orders"
 					setEventMessages($langs->trans("FileGenerated"), null);
@@ -1334,7 +1339,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$formquestion = array(
 			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("ConfirmLockEnvelope") . '</span>'),
 			array('type' => 'other', 'name' => 'OK', 'label' => '', 'value' => $img, 'moreattr' => 'readonly'),
-			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("LockDescription", dol_print_date($object->date_creation), dol_print_date($signatory->signature_date)) . '</span>'),
+			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("LockDescription", dol_print_date($object->date_creation), dol_print_date(!empty($signatory->signature_date) ? $signatory->signature_date : '')) . '</span>'),
 		);
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockEnvelope'),'', 'confirm_setLocked', $formquestion, 'yes', 'actionButtonLock', 400, 550);
