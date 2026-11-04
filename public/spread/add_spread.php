@@ -178,7 +178,7 @@ if ($isDigiriskRiskObject) {
     }
 
     // Map protection position -> signalisation picto/name
-    $signalisationFile = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/js/json/signalisationCategories.json';
+    $signalisationFile = dol_buildpath('/digiriskdolibarr/js/json/signalisationCategories.json', 0);
     $ppProtectionMap   = [];
     if (file_exists($signalisationFile)) {
         foreach ((json_decode(file_get_contents($signalisationFile), true) ?: []) as $signalisationCategory) {
