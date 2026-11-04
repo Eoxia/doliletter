@@ -155,7 +155,7 @@ llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
 
 $element = $signatory->fetchSignatory($signatory->role, $signatory->fk_object, $type);
 $element = array_shift($element);
-$url = DOL_URL_ROOT . '/custom/doliletter/public/signature/signature_success.php?document_name=' .  $object->ref . '-' . $object->label . '&id=' . $object->id . '&type=' . $type;
+$url = dol_buildpath('/doliletter/public/signature/signature_success.php', 1) . '?document_name=' .  $object->ref . '-' . $object->label . '&id=' . $object->id . '&type=' . $type;
 
 if (dol_strlen($element->signature)) {
 	header("Location: ".$url);

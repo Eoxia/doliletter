@@ -178,7 +178,7 @@ if ($isDigiriskRiskObject) {
     }
 
     // Map protection position -> signalisation picto/name
-    $signalisationFile = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/js/json/signalisationCategories.json';
+    $signalisationFile = dol_buildpath('/digiriskdolibarr/js/json/signalisationCategories.json', 0);
     $ppProtectionMap   = [];
     if (file_exists($signalisationFile)) {
         foreach ((json_decode(file_get_contents($signalisationFile), true) ?: []) as $signalisationCategory) {
@@ -202,7 +202,7 @@ if ($isDigiriskRiskObject) {
                     continue;
                 }
                 $riskProtections[] = [
-                    'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
+                    'thumb'   => dol_buildpath('/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'], 1),
                     'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
                     'comment' => $ppProtectionItem['comment'] ?? '',
                 ];
@@ -215,13 +215,13 @@ if ($isDigiriskRiskObject) {
             $riskPhotoPath = $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/risks/' . $riskCategory . '/';
             if (dol_is_dir($riskPhotoDir)) {
                 foreach (dol_dir_list($riskPhotoDir, 'files', 0, '', '(\.meta|_preview.*\.png)$', 'name') as $riskPhotoFile) {
-                    $riskPhotos[] = DOL_URL_ROOT . '/custom/saturne/utils/viewimage.php?modulepart=digiriskdolibarr&entity=' . $conf->entity . '&file=' . urlencode($riskPhotoPath . $riskPhotoFile['name']);
+                    $riskPhotos[] = dol_buildpath('/saturne/utils/viewimage.php', 1) . '?modulepart=digiriskdolibarr&entity=' . $conf->entity . '&file=' . urlencode($riskPhotoPath . $riskPhotoFile['name']);
                 }
             }
 
             $ppRisks[] = [
                 'category'    => $riskCategory,
-                'thumb'       => ($thumb != -1) ? DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . ($isFirePermit ? 'typeDeTravaux' : 'categorieDangers') . '/' . $thumb . '.png' : '',
+                'thumb'       => ($thumb != -1) ? dol_buildpath('/digiriskdolibarr/img/' . ($isFirePermit ? 'typeDeTravaux' : 'categorieDangers') . '/' . $thumb . '.png', 1) : '',
                 'name'        => $isFirePermit ? $ppRisk->getFirePermitDangerCategoryName($ppLineItem) : $ppRisk->getDangerCategoryName($ppLineItem),
                 'comment'     => $ppLineItem->description,
                 // Le materiel employe est ce qui fait le travail par point chaud : il se lit avec le type de travaux
@@ -241,7 +241,7 @@ if ($isDigiriskRiskObject) {
         $ppProtectionCarried = isset($ppProtectionItem['risk_category']) && in_array((int) $ppProtectionItem['risk_category'], $ppRiskCategories, true);
         if (!$ppProtectionCarried && isset($ppProtectionMap[$ppProtectionItem['position']])) {
             $ppOrphanProtections[] = [
-                'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
+                'thumb'   => dol_buildpath('/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'], 1),
                 'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
                 'comment' => $ppProtectionItem['comment'] ?? '',
             ];
@@ -820,7 +820,7 @@ if ($action == 'send_email') {
         $substitutionarray                              = getCommonSubstitutionArray($langs, 0, null, $objectsMetadata[$objectType]['object']);
         $substitutionarray['__OBJECT_ELEMENT__']        = dol_strtolower($langs->transnoentities(ucfirst($objectsMetadata[$objectType]['object']->element)));
         $substitutionarray['__REF__']                   = $objectsMetadata[$objectType]['object']->ref;
-        $signatoryLink                                  = dol_buildpath('/custom/doliletter/public/spread/add_spread.php', 3) . '?sign=' . $signatory->signature_url . '&id=' . $objectsMetadata[$objectType]['object']->id . '&object_type=' . $objectType;
+        $signatoryLink                                  = dol_buildpath('/doliletter/public/spread/add_spread.php', 3) . '?sign=' . $signatory->signature_url . '&id=' . $objectsMetadata[$objectType]['object']->id . '&object_type=' . $objectType;
         $substitutionarray['__SATURNE_SIGNATORY_URL__'] = '<a href=' . $signatoryLink . ' target="_blank">' . $langs->transnoentities('SignatureEmailURL') . '</a>';
         complete_substitutions_array($substitutionarray, $langs, $objectsMetadata[$objectType]['object'], $parameters);
 

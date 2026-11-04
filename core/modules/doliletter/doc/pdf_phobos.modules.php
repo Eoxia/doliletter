@@ -660,7 +660,7 @@ class pdf_phobos extends ModelePDFEnvelope
 			$pdf->SetAutoPageBreak(false, 0);
 
 			// Set watermark
-			$img_file = DOL_DOCUMENT_ROOT . '/custom/doliletter/img/specimen-big.png';
+			$img_file = dol_buildpath('/doliletter/img/specimen-big.png', 0);
 			$pdf->Image($img_file, 0, 0, 223, 280, '', '', '', false, 300, '', false, false, 0);
 		}
 

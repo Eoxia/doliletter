@@ -288,7 +288,7 @@ if (empty($reshook)) {
 	if ($action == 'confirm_delete' && GETPOST("confirm") == "yes")
 	{
 		$object->setStatusCommon($user, -1);
-		$urltogo = DOL_URL_ROOT . '/custom/doliletter/envelope_list.php';
+		$urltogo = dol_buildpath('/doliletter/envelope_list.php', 1);
 		header("Location: " . $urltogo);
 		exit;
 	}
@@ -1329,7 +1329,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 	if (($action == 'setLocked' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
 		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 
-		$img = '<img alt="" src="./../../custom/doliletter/img/lock_envelope.png" />';
+		$img = '<img alt="" src="' . dol_buildpath('/doliletter/img/lock_envelope.png', 1) . '" />';
 
 		$formquestion = array(
 			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("ConfirmLockEnvelope") . '</span>'),
@@ -1399,7 +1399,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 	if ($object->status > 1) {
 		$signatory = $signatory->fetchSignatory('E_RECEIVER', $id);
 		$signatory = array_shift($signatory);
-		$signature_url = dol_buildpath('/custom/doliletter/public/signature/add_signature.php?track_id=' . $signatory->signature_url . '&type=envelope', 1);
+		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $signatory->signature_url . '&type=envelope';
 	}
 
 	if ($object->status == 3 || $object->status == 6) {
@@ -1487,7 +1487,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 			$button_edit_with_confirm = '<span class="butAction" id="actionButtonInProgress">' . $langs->trans("Modify"). '</span>' . "\n";
 			$button_edit_disabled = '<a class="butActionRefused classfortooltip"  title="'. $langs->trans('CantEditAlreadySigned').'"'.'>' . $langs->trans("Modify") . '</a>' . "\n";
 			print ($object->status == 0 ?  $button_edit : ($object->status == 1 ? $button_edit_with_confirm : $button_edit_disabled));
-			print '<a class="'. ($object->status == 0 ? 'butAction" id="actionButtonSign" href="' . DOL_URL_ROOT . '/custom/doliletter/envelope_signature.php'.'?id='.$object->id.'&mode=init&token='.newToken().'"' : 'butActionRefused classfortooltip" title="'. $langs->trans('AlreadySigned').'"')  .' >' . $langs->trans("Sign") . '</a>' . "\n";
+			print '<a class="'. ($object->status == 0 ? 'butAction" id="actionButtonSign" href="' . dol_buildpath('/doliletter/envelope_signature.php', 1) . '?id='.$object->id.'&mode=init&token='.newToken().'"' : 'butActionRefused classfortooltip" title="'. $langs->trans('AlreadySigned').'"')  .' >' . $langs->trans("Sign") . '</a>' . "\n";
 			print '<span class="' . ($object->status == 1 ? 'butAction"  id="actionButtonLock"' : 'butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans("EnvelopeMustBeSigned")) . '"') . '>' . $langs->trans("Lock") . '</span>';
 			print '<a class="'. ($object->status == 2 || $object->status == 4 ? 'butAction" id="actionButtonSendMail" href="' . $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&model='.$modelselected.'&token='.newToken().'"'  : 'butActionRefused classfortooltip" title="'. $langs->trans('MustBeSignedBeforeSending').'"') . ' >' . $langs->trans("SendMail") . '</a>' . "\n";
 			print '<a class="'. ($object->status == 2 ? 'butAction" id="actionButtonSendLetter" href="' . $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=letterpresend&mode=init&model='.$modelselected.'&token='.newToken().'"' : 'butActionRefused classfortooltip" title="'. $langs->trans('MustBeSignedBeforeSending').'"').' >' . $langs->trans("SendLetter") . '</a>' . "\n";
@@ -1522,7 +1522,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		print '<table><tr>';
 
 		print '<td class="titlefield">';
-		print '<img width="150" alt="" src="./../../custom/doliletter/img/acknowledgement_receipt_confirmation.png" />';
+		print '<img width="150" alt="" src="' . dol_buildpath('/doliletter/img/acknowledgement_receipt_confirmation.png', 1) . '" />';
 		print '</td>';
 
 		print '<td class="titlefield">' . $form->editfieldkey($langs->trans("AcknowledgementReceipt"), 'AcknowledgementReceipt', '', $object, 0) . '</td>';
@@ -1574,7 +1574,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		print '<table><tr>';
 
 		print '<td class="titlefield">';
-		print '<img width="150" alt="" src="./../../custom/doliletter/img/sending_proof_confirmation.png" />';
+		print '<img width="150" alt="" src="' . dol_buildpath('/doliletter/img/sending_proof_confirmation.png', 1) . '" />';
 		print '</td>';
 
 		print '<td class="titlefield">' . $form->editfieldkey($langs->trans("SendingProof"), 'SendingProof', '', $object, 0) . '</td>';
@@ -1785,7 +1785,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY).'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
 		$substitutionarray['__PERSONALIZED__'] = ''; // deprecated
 		$substitutionarray['__CONTACTCIVNAME__'] = '';
-		$substitutionarray['__SIGNATURE_LINK__'] = dol_buildpath('/custom/doliletter/public/signature/add_signature.php?track_id=' . $receiver->signature_url  . '&type=' . $object->element, 3);
+		$substitutionarray['__SIGNATURE_LINK__'] = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id=' . $receiver->signature_url  . '&type=' . $object->element;
 		$parameters = array(
 			'mode' => 'formemail'
 		);

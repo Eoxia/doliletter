@@ -63,7 +63,7 @@ if (!empty($mysoc->logo_squarred_small)) {
     $spreadLogoFile = 'logos/' . $mysoc->logo;
 }
 $spreadLogoUrl = dol_strlen($spreadLogoFile)
-    ? DOL_URL_ROOT . '/custom/saturne/utils/viewimage.php?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode($spreadLogoFile)
+    ? dol_buildpath('/saturne/utils/viewimage.php', 1) . '?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode($spreadLogoFile)
     : '';
 
 // Retours vers l'application, reserves aux personnes connectees : un visiteur anonyme n'aurait
@@ -78,7 +78,7 @@ if ($isLogged && !empty($objectsMetadata[$objectType]['create_url'])) {
         $spreadCardUrl = dol_buildpath(str_replace('?action=create', '', $objectsMetadata[$objectType]['create_url']), 1) . '?id=' . $id;
 
         if (!empty($isDigiriskRiskObject)) {
-            $spreadMobileUrl = dol_buildpath('/custom/digiriskdolibarr/view/' . $ppElement . '/' . $ppElement . '_mobile_create.php', 1) . '?id=' . $id;
+            $spreadMobileUrl = dol_buildpath('/digiriskdolibarr/view/' . $ppElement . '/' . $ppElement . '_mobile_create.php', 1) . '?id=' . $id;
         }
     }
 }

@@ -167,13 +167,13 @@ class modDoliLetter extends DolibarrModules {
 
 		// Array to add new pages in new tabs
 		$this->tabs = array();
-			$this->tabs[] = array('data'=>'thirdparty:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=thirdparty');
-			$this->tabs[] = array('data'=>'product:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=product');
-			$this->tabs[] = array('data'=>'project:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=project');
-			$this->tabs[] = array('data'=>'propal:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=propal');
-			$this->tabs[] = array('data'=>'order:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=order');
-			$this->tabs[] = array('data'=>'invoice:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=facture');  	  	// To add a new tab identified by code tabname1
-			$this->tabs[] = array('data'=>'contact:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=contact');  	  	// To add a new tab identified by code tabname1
+			$this->tabs[] = array('data'=>'thirdparty:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=thirdparty');
+			$this->tabs[] = array('data'=>'product:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=product');
+			$this->tabs[] = array('data'=>'project:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=project');
+			$this->tabs[] = array('data'=>'propal:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=propal');
+			$this->tabs[] = array('data'=>'order:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=order');
+			$this->tabs[] = array('data'=>'invoice:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=facture');  	  	// To add a new tab identified by code tabname1
+			$this->tabs[] = array('data'=>'contact:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=contact');  	  	// To add a new tab identified by code tabname1
 		// The Diffusion tabs are the only ones the module installs : the reset keeps the envelope
 		// tabs declared above out of the database, exactly as init() did before this block moved here.
 		$this->tabs           = [];
@@ -206,8 +206,8 @@ class modDoliLetter extends DolibarrModules {
 				$tabType = $objectMetadata['tab_type'];
 			}
 
-			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
-			$this->tabs[] = ['data' => $tabType . ':+spreaddocuments:' . $pictoSpreadDocuments . $langs->trans('SpreadDocuments') . ':doliletter@doliletter:1:/custom/doliletter/view/spread_documents.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+			$this->tabs[] = ['data' => $tabType . ':+spreaddocuments:' . $pictoSpreadDocuments . $langs->trans('SpreadDocuments') . ':doliletter@doliletter:1:/doliletter/view/spread_documents.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
 
 			$this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
 			$this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
