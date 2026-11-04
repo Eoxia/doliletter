@@ -148,11 +148,6 @@ if (empty($conf->global->DOLILETTER_SIGNATURE_ENABLE_PUBLIC_INTERFACE)) {
 	exit;
 }
 
-$morejs  = array("/doliletter/js/signature-pad.min.js", "/doliletter/js/doliletter.js.php");
-$morecss = array("/doliletter/css/doliletter.css");
-
-llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
-
 $element = $signatory->fetchSignatory($signatory->role, $signatory->fk_object, $type);
 $element = array_shift($element);
 $url = DOL_URL_ROOT . '/custom/doliletter/public/signature/signature_success.php?document_name=' .  $object->ref . '-' . $object->label . '&id=' . $object->id . '&type=' . $type;
@@ -161,6 +156,15 @@ if (dol_strlen($element->signature)) {
 	header("Location: ".$url);
 	exit;
 }
+
+// Header printed after the redirection above: once sent, the Location header could no longer go out
+$morejs  = array("/doliletter/js/signature-pad.min.js", "/doliletter/js/doliletter.js.php");
+$morecss = array("/doliletter/css/doliletter.css");
+
+llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
+
+// Any other value than "private" makes the signature script go to the success page
+$zone = 'public';
 ?>
 <div class="digirisk-signature-container">
 	<input hidden id="redirectURL" value="<?php echo $url ?>">
@@ -170,6 +174,8 @@ if (dol_strlen($element->signature)) {
 				<div class="wpeo-gridlayout grid-2 file-generation">
 					<?php if ($type == 'envelope') : ?>
 						<?php $filelist = dol_dir_list($upload_dir . '/' . $object->element . '/' . $object->ref, 'files');
+						$envelope_file = null;
+						$filename      = '';
 						if (!empty($filelist)) {
 							foreach ($filelist as $file) {
 								if (!preg_match('/specimen/', $file['name'])) {
@@ -177,11 +183,14 @@ if (dol_strlen($element->signature)) {
 									$filename = $file['name'];
 								}
 							}
-							$envelope_file = $ecmfile;
-							$envelope_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $object->id);
+							// A draft only has its specimen: there is no document to share yet
+							if (dol_strlen($filename) > 0) {
+								$envelope_file = $ecmfile;
+								$envelope_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $object->id);
+							}
 						}
 						?>
-						<?php if(dol_strlen($envelope_file->share)) : ?>
+						<?php if (is_object($envelope_file) && dol_strlen($envelope_file->share)) : ?>
 							<strong class="grid-align-middle"><?php echo $langs->trans("LinkedDocument"); ?></strong>
 
 						<?php endif; ?>
