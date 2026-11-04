@@ -78,7 +78,7 @@ if ($isLogged && !empty($objectsMetadata[$objectType]['create_url'])) {
         $spreadCardUrl = dol_buildpath(str_replace('?action=create', '', $objectsMetadata[$objectType]['create_url']), 1) . '?id=' . $id;
 
         if (!empty($isDigiriskRiskObject)) {
-            $spreadMobileUrl = dol_buildpath('/custom/digiriskdolibarr/view/' . $ppElement . '/' . $ppElement . '_mobile_create.php', 1) . '?id=' . $id;
+            $spreadMobileUrl = dol_buildpath('/digiriskdolibarr/view/' . $ppElement . '/' . $ppElement . '_mobile_create.php', 1) . '?id=' . $id;
         }
     }
 }

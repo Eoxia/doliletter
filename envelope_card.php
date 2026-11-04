@@ -1399,7 +1399,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 	if ($object->status > 1) {
 		$signatory = $signatory->fetchSignatory('E_RECEIVER', $id);
 		$signatory = array_shift($signatory);
-		$signature_url = dol_buildpath('/custom/doliletter/public/signature/add_signature.php?track_id=' . $signatory->signature_url . '&type=envelope', 1);
+		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $signatory->signature_url . '&type=envelope';
 	}
 
 	if ($object->status == 3 || $object->status == 6) {
@@ -1785,7 +1785,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY).'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
 		$substitutionarray['__PERSONALIZED__'] = ''; // deprecated
 		$substitutionarray['__CONTACTCIVNAME__'] = '';
-		$substitutionarray['__SIGNATURE_LINK__'] = dol_buildpath('/custom/doliletter/public/signature/add_signature.php?track_id=' . $receiver->signature_url  . '&type=' . $object->element, 3);
+		$substitutionarray['__SIGNATURE_LINK__'] = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id=' . $receiver->signature_url  . '&type=' . $object->element;
 		$parameters = array(
 			'mode' => 'formemail'
 		);

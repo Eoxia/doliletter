@@ -820,7 +820,7 @@ if ($action == 'send_email') {
         $substitutionarray                              = getCommonSubstitutionArray($langs, 0, null, $objectsMetadata[$objectType]['object']);
         $substitutionarray['__OBJECT_ELEMENT__']        = dol_strtolower($langs->transnoentities(ucfirst($objectsMetadata[$objectType]['object']->element)));
         $substitutionarray['__REF__']                   = $objectsMetadata[$objectType]['object']->ref;
-        $signatoryLink                                  = dol_buildpath('/custom/doliletter/public/spread/add_spread.php', 3) . '?sign=' . $signatory->signature_url . '&id=' . $objectsMetadata[$objectType]['object']->id . '&object_type=' . $objectType;
+        $signatoryLink                                  = dol_buildpath('/doliletter/public/spread/add_spread.php', 3) . '?sign=' . $signatory->signature_url . '&id=' . $objectsMetadata[$objectType]['object']->id . '&object_type=' . $objectType;
         $substitutionarray['__SATURNE_SIGNATORY_URL__'] = '<a href=' . $signatoryLink . ' target="_blank">' . $langs->transnoentities('SignatureEmailURL') . '</a>';
         complete_substitutions_array($substitutionarray, $langs, $objectsMetadata[$objectType]['object'], $parameters);
 

@@ -142,7 +142,7 @@ if (!empty($fromType) && isset($objectsMetadata[$fromType]['object'])) {
 
 print '<div class="fichecenter">';
 
-$backtocard = dol_buildpath('/custom/' . $moduleNameLowerCase . '/view/' . $object->element . '/' . $object->element . '_card.php?id=' . $object->id, 1);
+$backtocard = dol_buildpath('/' . $moduleNameLowerCase . '/view/' . $object->element . '/' . $object->element . '_card.php', 1) . '?id=' . $object->id;
 
 $parameters = ['backtocard' => $backtocard];
 $reshook    = $hookmanager->executeHooks('saturneAttendantsBackToCard', $parameters, $object); // Note that $action and $object may have been modified by some hooks

@@ -209,7 +209,7 @@ if ($action == 'send') {
 			require_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
 
 			$from = $conf->global->MAIN_MAIL_EMAIL_FROM;
-			$url = dol_buildpath('/custom/doliletter/public/signature/add_signature.php?track_id='.$signatory->signature_url, 3);
+			$url = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id='.$signatory->signature_url;
 
 			$message = $langs->trans('SignatureEmailMessage') . ' ' . $url;
 			$subject = $langs->trans('SignatureEmailSubject') . ' ' . $object->ref;
@@ -418,7 +418,7 @@ if ((empty($action) || ($action != 'create' && $action != 'edit'))) {
 		//print '</td><td class="center">';
 		//print $element->getLibStatut(5);
 		print '</td>';
-		$signature_url = dol_buildpath('/custom/doliletter/public/signature/add_signature.php?track_id='.$element->signature_url.'&type=envelope', 1);
+		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id='.$element->signature_url.'&type=envelope';
 		print '<td class="center"><a href="'. $signature_url .'">';
 		print $signature_url;
 		print '</a></td>';

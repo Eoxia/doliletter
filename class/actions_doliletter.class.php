@@ -250,7 +250,7 @@ class ActionsDoliletter
 
 		if (strpos($parameters['context'], 'mainloginpage') !== false) {	    // do something only for the context 'somecontext1' or 'somecontext2'
 			if (!empty($_COOKIE['doliletter_login_backtopage'])) {
-                $value = dol_buildpath('/custom/doliletter/public/spread/add_spread_login.php', 1);
+                $value = dol_buildpath('/doliletter/public/spread/add_spread_login.php', 1);
             }
 		}
 
