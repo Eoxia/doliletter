@@ -891,18 +891,19 @@ if ($action == 'download_signin_sheet') {
     exit;
 }
 
-$ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
-$linkedFiles = [];
-if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
-    $linkedFiles = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($objectType, $id, $objectsMetadata, $ecmFiles) {
-
-        $objectType = $objectsMetadata[$objectType]['table_element'];
-
-        $ecmFilesLine->table_element = $ecmFiles->table_element;
-        $ecmFilesLine->fetch_optionals();
-
-        return $ecmFilesLine->src_object_type == $objectType && $ecmFilesLine->src_object_id == $id;
-    });
+// Shared files of the spread object only, filtered in SQL: the whole instance may share thousands of
+// files, and reading the extra fields of each one exhausted the memory of the public page
+$linkedFiles        = [];
+$spreadTableElement = $objectsMetadata[$objectType]['table_element'] ?? '';
+if (dol_strlen($spreadTableElement) > 0 && $id > 0) {
+    $ecmFiles->fetchAll('', '', 0, 0, "(t.share:isnot:null) AND (t.src_object_type:=:'" . $spreadTableElement . "') AND (t.src_object_id:=:" . ((int) $id) . ')');
+    if (is_array($ecmFiles->lines)) {
+        foreach ($ecmFiles->lines as $ecmFilesLine) {
+            $ecmFilesLine->table_element = $ecmFiles->table_element;
+            $ecmFilesLine->fetch_optionals();
+            $linkedFiles[] = $ecmFilesLine;
+        }
+    }
 }
 $linkedFilesFavorite = array_filter($linkedFiles, function ($ecmFilesLine) {
     return $ecmFilesLine->array_options['options_favorite'] == 1;
@@ -926,7 +927,7 @@ $linkedLinks = array_filter($linkedLinks, function ($linkedItem) {
 $signSignatory = null;
 if (!empty($sign)) {
     $tmpSignatory = new DoliletterSpreadSignature($db);
-    $directSignatoryId = $tmpSignatory->fetch(0, '', ' AND t.signature_url = "' . $sign . '"');
+    $directSignatoryId = $tmpSignatory->fetch(0, '', ' AND t.signature_url = "' . $db->escape($sign) . '"');
     if ($tmpSignatory->id > 0) {
         $signSignatory = $tmpSignatory; // Single-person view: only this signatory's signature + certification photos
     }
