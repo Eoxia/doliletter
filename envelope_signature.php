@@ -321,7 +321,7 @@ print dol_get_fiche_end(); ?>
 		</div>
 		<?php
 		if ($signatory->checkSignatoriesSignatures($object->id)) {
-			print '<a style="width = 100%;margin-right:0" href="'.DOL_URL_ROOT . '/custom/doliletter/envelope_signature.php?id='.$id.'">'.'</a>';
+			print '<a style="width = 100%;margin-right:0" href="'.dol_buildpath('/doliletter/envelope_signature.php', 1) . '?id='.$id.'">'.'</a>';
 		}
 		?>
 	</div>

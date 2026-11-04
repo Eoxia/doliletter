@@ -202,7 +202,7 @@ if ($isDigiriskRiskObject) {
                     continue;
                 }
                 $riskProtections[] = [
-                    'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
+                    'thumb'   => dol_buildpath('/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'], 1),
                     'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
                     'comment' => $ppProtectionItem['comment'] ?? '',
                 ];
@@ -215,13 +215,13 @@ if ($isDigiriskRiskObject) {
             $riskPhotoPath = $ppElement . '/' . dol_sanitizeFileName($ppObject->ref) . '/risks/' . $riskCategory . '/';
             if (dol_is_dir($riskPhotoDir)) {
                 foreach (dol_dir_list($riskPhotoDir, 'files', 0, '', '(\.meta|_preview.*\.png)$', 'name') as $riskPhotoFile) {
-                    $riskPhotos[] = DOL_URL_ROOT . '/custom/saturne/utils/viewimage.php?modulepart=digiriskdolibarr&entity=' . $conf->entity . '&file=' . urlencode($riskPhotoPath . $riskPhotoFile['name']);
+                    $riskPhotos[] = dol_buildpath('/saturne/utils/viewimage.php', 1) . '?modulepart=digiriskdolibarr&entity=' . $conf->entity . '&file=' . urlencode($riskPhotoPath . $riskPhotoFile['name']);
                 }
             }
 
             $ppRisks[] = [
                 'category'    => $riskCategory,
-                'thumb'       => ($thumb != -1) ? DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . ($isFirePermit ? 'typeDeTravaux' : 'categorieDangers') . '/' . $thumb . '.png' : '',
+                'thumb'       => ($thumb != -1) ? dol_buildpath('/digiriskdolibarr/img/' . ($isFirePermit ? 'typeDeTravaux' : 'categorieDangers') . '/' . $thumb . '.png', 1) : '',
                 'name'        => $isFirePermit ? $ppRisk->getFirePermitDangerCategoryName($ppLineItem) : $ppRisk->getDangerCategoryName($ppLineItem),
                 'comment'     => $ppLineItem->description,
                 // Le materiel employe est ce qui fait le travail par point chaud : il se lit avec le type de travaux
@@ -241,7 +241,7 @@ if ($isDigiriskRiskObject) {
         $ppProtectionCarried = isset($ppProtectionItem['risk_category']) && in_array((int) $ppProtectionItem['risk_category'], $ppRiskCategories, true);
         if (!$ppProtectionCarried && isset($ppProtectionMap[$ppProtectionItem['position']])) {
             $ppOrphanProtections[] = [
-                'thumb'   => DOL_URL_ROOT . '/custom/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'],
+                'thumb'   => dol_buildpath('/digiriskdolibarr/img/' . $ppProtectionMap[$ppProtectionItem['position']]['name_thumbnail'], 1),
                 'name'    => $ppProtectionMap[$ppProtectionItem['position']]['name'],
                 'comment' => $ppProtectionItem['comment'] ?? '',
             ];
