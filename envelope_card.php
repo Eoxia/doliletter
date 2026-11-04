@@ -1329,7 +1329,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 	if (($action == 'setLocked' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
 		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 
-		$img = '<img alt="" src="./../../custom/doliletter/img/lock_envelope.png" />';
+		$img = '<img alt="" src="' . dol_buildpath('/doliletter/img/lock_envelope.png', 1) . '" />';
 
 		$formquestion = array(
 			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("ConfirmLockEnvelope") . '</span>'),
@@ -1522,7 +1522,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		print '<table><tr>';
 
 		print '<td class="titlefield">';
-		print '<img width="150" alt="" src="./../../custom/doliletter/img/acknowledgement_receipt_confirmation.png" />';
+		print '<img width="150" alt="" src="' . dol_buildpath('/doliletter/img/acknowledgement_receipt_confirmation.png', 1) . '" />';
 		print '</td>';
 
 		print '<td class="titlefield">' . $form->editfieldkey($langs->trans("AcknowledgementReceipt"), 'AcknowledgementReceipt', '', $object, 0) . '</td>';
@@ -1574,7 +1574,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		print '<table><tr>';
 
 		print '<td class="titlefield">';
-		print '<img width="150" alt="" src="./../../custom/doliletter/img/sending_proof_confirmation.png" />';
+		print '<img width="150" alt="" src="' . dol_buildpath('/doliletter/img/sending_proof_confirmation.png', 1) . '" />';
 		print '</td>';
 
 		print '<td class="titlefield">' . $form->editfieldkey($langs->trans("SendingProof"), 'SendingProof', '', $object, 0) . '</td>';

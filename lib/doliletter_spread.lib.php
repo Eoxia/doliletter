@@ -465,9 +465,17 @@ function doliletter_spread_public_error(string $code, string $subject, string $r
  */
 function doliletter_spread_public_media_block(string $mediaBlockHtml): string
 {
-    // Les URL apparaissent en clair dans le src et echappees dans le data-json de la galerie :
-    // couper avant le nom de script couvre les deux formes
-    return str_replace('document.php?modulepart=', 'custom/saturne/utils/viewimage.php?modulepart=', $mediaBlockHtml);
+    // Le script de Saturne est resolu dans la racine ou il est installe, qui n'est pas toujours htdocs/custom
+    $documentUrl  = DOL_URL_ROOT . '/document.php?modulepart=';
+    $viewImageUrl = dol_buildpath('/saturne/utils/viewimage.php', 1) . '?modulepart=';
+
+    // Les URL apparaissent en clair dans le src et echappees par json_encode() dans le data-json de la
+    // galerie : les deux formes sont remplacees
+    return str_replace(
+        [$documentUrl, str_replace('/', '\/', $documentUrl)],
+        [$viewImageUrl, str_replace('/', '\/', $viewImageUrl)],
+        $mediaBlockHtml
+    );
 }
 
 /**
