@@ -67,7 +67,7 @@ $permissiontoread = $user->rights->doliletter->envelope->read;
 $permissiontoadd = $user->rights->doliletter->envelope->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->doliletter->envelope->delete || ($permissiontoadd && isset($object->status));
 $permissionnote = $user->rights->doliletter->envelope->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->envelope->letter->write; // Used by the include of actions_dellink.inc.php
+$permissiondellink = $user->rights->doliletter->envelope->write; // Used by the include of actions_dellink.inc.php
 $upload_dir = $conf->doliletter->multidir_output[$conf->entity];
 
 // Security check (enable the most restrictive one)
@@ -306,7 +306,8 @@ if (!empty($object->id)) $res = $object->fetch_optionals();
 
 $head = envelopePrepareHead($object);
 print dol_get_fiche_head($head, 'envelopeSign', $langs->trans("Sign"), -1, "doliletter@doliletter");
-dol_strlen($object->label) ? $morehtmlref = ' - ' . $object->label : '';
+$morehtmlref  = dol_strlen($object->label) ? ' - ' . $object->label : '';
+$morehtmlleft = '';
 
 dol_banner_tab($object, 'ref', '', 0, 'ref', 'ref', $morehtmlref, '', 0, $morehtmlleft);
 
