@@ -2983,12 +2983,6 @@ parameters:
 			path: envelope_document.php
 
 		-
-			message: '#^Variable \$liste_limit might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: envelope_document.php
-
-		-
 			message: '#^Variable \$upload_dir might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -3713,48 +3707,6 @@ parameters:
 			identifier: booleanAnd.alwaysFalse
 			count: 1
 			path: view/spread/spread_list.php
-
-		-
-			message: '#^Cannot access property \$datec on object\|false\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: class/envelope.class.php
-
-		-
-			message: '#^Cannot access property \$datem on object\|false\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: class/envelope.class.php
-
-		-
-			message: '#^Cannot access property \$datev on object\|false\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: class/envelope.class.php
-
-		-
-			message: '#^Cannot access property \$fk_user_author on object\|false\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: class/envelope.class.php
-
-		-
-			message: '#^Cannot access property \$fk_user_cloture on object\|false\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: class/envelope.class.php
-
-		-
-			message: '#^Cannot access property \$fk_user_valid on object\|false\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: class/envelope.class.php
-
-		-
-			message: '#^Cannot access property \$rowid on object\|false\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: class/envelope.class.php
 
 		-
 			message: '#^Parameter \#1 \$socid of method Form\:\:selectcontacts\(\) expects int, string given\.$#'

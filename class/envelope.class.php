@@ -481,8 +481,8 @@ class Envelope extends CommonObject
 		$sql .= ' WHERE t.rowid = '.((int) $id);
 		$result = $this->db->query($sql);
 		if ($result) {
-			if ($this->db->num_rows($result)) {
-				$obj = $this->db->fetch_object($result);
+			$obj = $this->db->fetch_object($result);
+			if ($obj) {
 				$this->id = $obj->rowid;
 
 				$this->user_creation_id     = $obj->fk_user_creat;
