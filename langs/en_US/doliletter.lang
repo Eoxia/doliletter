@@ -95,6 +95,7 @@ SpreadDocumentLink = As a link
 SpreadDocumentLinkHelp = Offered as a link on the spread page
 SpreadDocumentModeSaved = Document of the spread updated
 ErrorSpreadDocumentMode = This document could not be updated
+ErrorSpreadDocumentTooLarge = File too large: the maximum size allowed for an upload is %s
 
 # Spread signatories
 SpreadSignatoriesTitle = Spread signatories

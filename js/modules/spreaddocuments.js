@@ -51,10 +51,24 @@ window.doliletter.spreadDocuments.event = function() {
 /**
  * Send the files picked, with a spinner on the button until the page comes back
  *
+ * A selection heavier than what the server accepts is refused here: past post_max_size PHP drops the
+ * whole request, token included, and the user would land on a technical error page.
+ *
  * @returns {void}
  */
 window.doliletter.spreadDocuments.sendDocuments = function() {
   if (this.files.length === 0) {
+    return;
+  }
+
+  const maxSize = Number($(this).data('max-size'));
+  let totalSize = 0;
+  for (let i = 0; i < this.files.length; i++) {
+    totalSize += this.files[i].size;
+  }
+  if (maxSize > 0 && totalSize > maxSize) {
+    $.jnotify($(this).data('error-too-large'), 'error', true);
+    this.value = '';
     return;
   }
 
