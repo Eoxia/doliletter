@@ -69,6 +69,11 @@ $permissiontomanagedocuments = $user->hasRight('doliletter', 'spread', 'write');
 // Security check
 saturne_check_access($permissiontoread && is_object($spreadObject));
 
+// Largest upload the server accepts, in bytes (0 = no limit known), and the message of a refusal
+$maxUploadSizeKb = (float) getMaxFileSizeArray()['maxmin'];
+$maxUploadSize   = (int) ($maxUploadSizeKb * 1024);
+$maxUploadError  = $langs->transnoentities('ErrorSpreadDocumentTooLarge', price(round($maxUploadSizeKb / 1024, 1), 0, $langs, 0, 0) . ' ' . $langs->transnoentities('Mb'));
+
 /*
  * Actions
  */
@@ -81,6 +86,12 @@ if ($resHook < 0) {
 
 if (empty($resHook)) {
     $backToDocuments = $_SERVER['PHP_SELF'] . '?fromid=' . $fromId . '&fromtype=' . urlencode($fromType);
+
+    // Past post_max_size PHP has dropped the whole upload, action included: without the CSRF token check,
+    // which would have stopped it in main.inc.php, the page came back without a word
+    if (GETPOSTINT('uploadform') && $_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES)) {
+        setEventMessages($maxUploadError, null, 'errors');
+    }
 
     // Documents added from the tab are shown in full on the public page, see doliletter_spread_add_documents()
     if ($action == 'add_spread_document' && $permissiontomanagedocuments && getDolGlobalString('MAIN_UPLOAD_DOC')) {

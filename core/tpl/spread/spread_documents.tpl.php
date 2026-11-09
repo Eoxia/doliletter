@@ -22,7 +22,8 @@
  *          here, and what the people of the spread get of each one is picked from three buttons. It
  *          replaces the star of the attached files tab, which had to be found and only worked once the
  *          file was shared. Rendered by view/spread_documents.php (inherits its scope).
- *          Expects: $langs, $spreadDocuments, $permissiontomanagedocuments, $fromId, $fromType.
+ *          Expects: $langs, $spreadDocuments, $permissiontomanagedocuments, $fromId, $fromType,
+ *          $maxUploadSize, $maxUploadError.
  */
 
 $documentsFormUrl = $_SERVER['PHP_SELF'] . '?fromid=' . ((int) $fromId) . '&fromtype=' . urlencode($fromType);
@@ -39,10 +40,17 @@ $documentModes = [
 // at once, see js/modules/spreaddocuments.js
 $addDocumentButton = '';
 if ($canAddDocuments) {
-    $addDocumentButton  = '<form class="spread-documents__add" method="POST" enctype="multipart/form-data" action="' . $documentsFormUrl . '">';
+    // Beyond post_max_size PHP drops the whole POST, token included: the request then dies in the CSRF
+    // check of main.inc.php with a technical message. The script refuses such a selection beforehand with
+    // a readable one, and uploadform=1 makes main.inc.php speak of a file too large if it still happens.
+    $addDocumentButton  ='<form class="spread-documents__add" method="POST" enctype="multipart/form-data" action="' . $documentsFormUrl . '&uploadform=1">';
     $addDocumentButton .= '<input type="hidden" name="token" value="' . newToken() . '">';
     $addDocumentButton .= '<input type="hidden" name="action" value="add_spread_document">';
-    $addDocumentButton .= '<input id="spread-document-input" class="spread-documents__add-input" type="file" name="spread_document[]" multiple>';
+    if ($maxUploadSize > 0) {
+        $addDocumentButton .= '<input type="hidden" name="MAX_FILE_SIZE" value="' . $maxUploadSize . '">'; // Must precede the file input
+    }
+    $addDocumentButton .= '<input id="spread-document-input" class="spread-documents__add-input" type="file" name="spread_document[]" multiple';
+    $addDocumentButton .= ' data-max-size="' . $maxUploadSize . '" data-error-too-large="' . dol_escape_htmltag($maxUploadError) . '">';
     $addDocumentButton .= '<label class="spread-chip spread-chip--primary" for="spread-document-input"><i class="fas fa-plus"></i>' . $langs->trans('SpreadDocumentAdd') . '</label>';
     $addDocumentButton .= '</form>';
 }

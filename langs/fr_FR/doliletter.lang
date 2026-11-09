@@ -279,6 +279,7 @@ SpreadDocumentLink              = En lien
 SpreadDocumentLinkHelp          = Proposé en lien sur la page de diffusion
 SpreadDocumentModeSaved         = Document de la diffusion mis à jour
 ErrorSpreadDocumentMode         = Ce document n'a pas pu être mis à jour
+ErrorSpreadDocumentTooLarge     = Fichier trop volumineux : la taille maximale autorisée pour un envoi est de %s
 
 # Signataires de la diffusion
 SpreadSignatoriesTitle          = Signataires de la diffusion
