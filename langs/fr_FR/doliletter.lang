@@ -280,6 +280,12 @@ SpreadDocumentLinkHelp          = Proposé en lien sur la page de diffusion
 SpreadDocumentModeSaved         = Document de la diffusion mis à jour
 ErrorSpreadDocumentMode         = Ce document n'a pas pu être mis à jour
 ErrorSpreadDocumentTooLarge     = Fichier trop volumineux : la taille maximale autorisée pour un envoi est de %s
+SpreadFileKindPdf               = Document PDF
+SpreadFileKindText              = Document texte
+SpreadFileKindSheet             = Tableur
+SpreadFileKindSlides            = Présentation
+SpreadFileKindArchive           = Archive
+SpreadFileKindOther             = Fichier
 
 # Signataires de la diffusion
 SpreadSignatoriesTitle          = Signataires de la diffusion

@@ -96,6 +96,12 @@ SpreadDocumentLinkHelp = Offered as a link on the spread page
 SpreadDocumentModeSaved = Document of the spread updated
 ErrorSpreadDocumentMode = This document could not be updated
 ErrorSpreadDocumentTooLarge = File too large: the maximum size allowed for an upload is %s
+SpreadFileKindPdf = PDF document
+SpreadFileKindText = Text document
+SpreadFileKindSheet = Spreadsheet
+SpreadFileKindSlides = Presentation
+SpreadFileKindArchive = Archive
+SpreadFileKindOther = File
 
 # Spread signatories
 SpreadSignatoriesTitle = Spread signatories
