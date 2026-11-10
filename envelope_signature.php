@@ -299,6 +299,9 @@ $morecss  = array('/saturne/css/saturne.min.css', '/doliletter/css/doliletter.mi
 
 llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss, '', 'saturne-theme mod-doliletter-envelope');
 
+// Token read by doliletter.js.php for the addSignature AJAX call
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+
 if (!empty($object->id)) $res = $object->fetch_optionals();
 
 // Object card
