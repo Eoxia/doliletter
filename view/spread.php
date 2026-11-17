@@ -85,7 +85,7 @@ $form = new Form($db);
 
 $hookmanager->initHooks([$contextpage]); // Note that conf->hooks_modules contains array
 
-$object->fetch(0, '', ' AND object_type = ' . "'" . $fromType  . "'" . ' AND fk_object = ' . $fromId);
+$object->fetch(0, '', " AND object_type = '" . $db->escape($fromType) . "' AND fk_object = " . ((int) $fromId));
 
 // Extra fields
 require_once DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_array_fields.tpl.php';
