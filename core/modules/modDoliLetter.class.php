@@ -191,8 +191,6 @@ class modDoliLetter extends DolibarrModules {
 			$enabledObjectTypes = saturne_get_enabled_linked_object_types($spreadableObjects, 'DOLILETTER_SPREAD_LINK_');
 		}
 
-		dol_include_once('/doliletter/lib/doliletter_linked_object.lib.php');
-
 		foreach ($enabledObjectTypes as $objectType) {
 			$objectMetadata = $spreadableObjects[$objectType];
 			$tabType        = doliletter_get_spread_tab_type($objectType, $objectMetadata);
