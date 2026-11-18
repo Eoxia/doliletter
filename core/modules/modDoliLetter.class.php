@@ -181,13 +181,10 @@ class modDoliLetter extends DolibarrModules {
 		$pictoSpreadDocuments = '<i class="fas fa-file-export"></i> ';
 
 		// Tabs and hooks are declared for the enabled spreads only, they are driven from admin/setup.php
-		dol_include_once('/saturne/lib/object.lib.php');
-		dol_include_once('/saturne/lib/linked_object.lib.php');
+		// and follow its list: an object without card loses the tabs it was given before.
+		dol_include_once('/doliletter/lib/doliletter_linked_object.lib.php');
 
-		$spreadableObjects = [];
-		if (function_exists('saturne_get_objects_metadata') && function_exists('saturne_filter_linkable_objects')) {
-			$spreadableObjects = saturne_filter_linkable_objects(saturne_get_objects_metadata(), ['doliletter_']);
-		}
+		$spreadableObjects = function_exists('doliletter_get_spreadable_objects') ? doliletter_get_spreadable_objects() : [];
 
 		$enabledObjectTypes = [];
 		if (function_exists('saturne_get_enabled_linked_object_types')) {
