@@ -144,6 +144,9 @@ class modDoliLetter extends DolibarrModules {
 			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_DEFAULT_MODEL', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
 			// Model preselected in the Diffusion tab, whose list is the one of the "signinsheet" type
 			$i++ => ['DOLILETTER_SIGNINSHEET_DEFAULT_MODEL', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
+			// Numbering of the ODT model of that type (doc_signinsheet_odt): Saturne reads it to name the file,
+			// without it the generation died on an empty class name
+			$i++ => ['DOLILETTER_SIGNINSHEET_ADDON', 'chaine', 'mod_signinsheet_standard', '', 0, 'current'],
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
