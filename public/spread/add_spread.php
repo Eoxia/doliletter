@@ -131,7 +131,7 @@ if (!isset($objectsMetadata[$objectType]['object'])) {
     accessforbidden($langs->transnoentities('ErrorSpreadObjectTypeUnknown'), 0, 0, 1);
 }
 
-$attendanceSheet->fetch(0, '', ' AND object_type = ' . "'" . $objectType  . "'" . ' AND fk_object = ' . $id);
+$attendanceSheet->fetch(0, '', " AND object_type = '" . $db->escape($objectType) . "' AND fk_object = " . ((int) $id));
 
 $objectsMetadata[$objectType]['object']->fetch($id);
 $objectRef   = $objectsMetadata[$objectType]['object']->ref;
