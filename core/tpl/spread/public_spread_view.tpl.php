@@ -1085,7 +1085,7 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="fas fa-file-signature"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Référence</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><?php echo $langs->trans('SpreadSuccessReference'); ?></div>
                     <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($objectRef); ?></div>
                 </div>
 
@@ -1094,7 +1094,7 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="fas fa-user"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Intervenant</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><?php echo $langs->trans('SpreadSuccessAttendee'); ?></div>
                     <div style="font-size: 15px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
                 </div>
 
@@ -1103,8 +1103,8 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="far fa-calendar-alt"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Date de signature</div>
-                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y', 'tzuserrel') . ' à ' . dol_print_date($signSignatory->signature_date, '%H:%M', 'tzuserrel'); ?></div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><?php echo $langs->trans('SignatureDate'); ?></div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo $langs->trans('SpreadDateAtHour', dol_print_date($signSignatory->signature_date, 'day', 'tzuserrel'), dol_print_date($signSignatory->signature_date, 'hour', 'tzuserrel')); ?></div>
                 </div>
 
                 <!-- 4: Statut -->
@@ -1112,8 +1112,8 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="fas fa-check-square"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Statut</div>
-                    <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><?php echo $langs->trans('SpreadSuccessStatus'); ?></div>
+                    <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i><?php echo $langs->trans('Signed'); ?></div>
                 </div>
 
             </div>
@@ -1124,14 +1124,14 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                     <div style="width: 20px; height: 20px; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
                         <i class="fas fa-info"></i>
                     </div>
-                    Étapes suivantes
+                    <?php echo $langs->trans('SpreadNextStepsTitle'); ?>
                 </div>
                 
                 <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-radius: 10px; padding: 25px 20px; flex-wrap: wrap;">
                     
                     <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
                         <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-user-friends"></i></div>
-                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les<br>autres intervenants</div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;"><?php echo $langs->trans('SpreadNextStepInformOthers'); ?></div>
                     </div>
                     <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
                     
@@ -1143,13 +1143,13 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                     
                     <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
                         <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-shield-alt"></i></div>
-                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les<br>mesures de prévention</div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;"><?php echo $langs->trans('SpreadNextStepApplyMeasures'); ?></div>
                     </div>
                     <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
                     
                     <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
                         <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-clipboard-check"></i></div>
-                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre<br>les actions</div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;"><?php echo $langs->trans('SpreadNextStepCarryOutActions'); ?></div>
                     </div>
                 </div>
             </div>
@@ -1161,7 +1161,7 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                 </a>
                 
                 <a href="<?php echo $registerUrl; ?>" style="font-size: 15px; padding: 12px 28px; background: #0135b6; border: none; color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(1, 53, 182, 0.3);">
-                    <i class="fas fa-user-plus" style="margin-right: 10px; font-size: 18px;"></i> Ajouter un nouvel intervenant
+                    <i class="fas fa-user-plus" style="margin-right: 10px; font-size: 18px;"></i> <?php echo $langs->trans('SpreadAddNewAttendee'); ?>
                 </a>
             </div>
             <script>
@@ -1196,7 +1196,7 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                 <div class="quick-sign-email-group">
                     <div class="quick-sign-email-field">
                         <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
-                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
+                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="<?php echo dol_escape_htmltag($langs->transnoentities('SpreadEmailPlaceholder')); ?>" required>
                     </div>
                     <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
                         <i class="fas fa-paper-plane"></i>
@@ -1211,7 +1211,7 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
         <div class="pp-single-person-welcome" style="margin-bottom: 25px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
             <?php // Registered with an email or a phone only: greet them with it rather than with nothing
             $signSignatoryGreeting = doliletter_spread_get_signatory_name($signSignatory) ?: ($signSignatory->email ?: $signSignatory->phone); ?>
-            <p style="font-size: 16px; margin-bottom: 15px;">Bonjour, <strong><?php echo dol_escape_htmltag($signSignatoryGreeting); ?></strong></p>
+            <p style="font-size: 16px; margin-bottom: 15px;"><?php echo $langs->trans('SpreadHello'); ?> <strong><?php echo dol_escape_htmltag($signSignatoryGreeting); ?></strong></p>
             
             <?php if (empty($signSignatory->signature)) { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
@@ -1232,7 +1232,7 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
             </p>
             <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
                 <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-                Vous avez signé ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y %H:%M', 'tzuserrel'); ?>.
+                <?php echo $langs->trans('SpreadYouSignedOn', dol_print_date($signSignatory->signature_date, 'dayhour', 'tzuserrel')); ?>
             </div>
             <?php } ?>
         </div>
@@ -1248,14 +1248,14 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                     }
                 }
                 $addBtnClass = $hasUnsigned ? "button-disable" : "";
-                $addBtnAttr = $hasUnsigned ? "disabled=\"disabled\" title=\"Veuillez d'abord valider la signature en attente\"" : "";
+                $addBtnAttr = $hasUnsigned ? 'disabled="disabled" title="' . dol_escape_htmltag($langs->transnoentities('SpreadValidatePendingSignatureFirst')) . '"' : '';
             ?>
                 <div class="add-user-section tabsAction" style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <button type="button" class="wpeo-button button-blue add-user-btn <?php echo $addBtnClass; ?>" data-type="internal" <?php echo $addBtnAttr; ?>>
-                        <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire interne'); ?>
+                        <i class="fas fa-plus"></i> <?php echo $langs->trans('SpreadAddInternalSignatory'); ?>
                     </button>
                     <button type="button" class="wpeo-button button-blue add-user-btn <?php echo $addBtnClass; ?>" data-type="external" <?php echo $addBtnAttr; ?>>
-                        <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire externe'); ?>
+                        <i class="fas fa-plus"></i> <?php echo $langs->trans('SpreadAddExternalSignatory'); ?>
                     </button>
                     <button type="button" class="wpeo-button button-blue copy-link-btn" style="padding: 8px 12px; font-size: 0.9em;" title="<?php echo dol_escape_htmltag($langs->trans('CopyLink')); ?>" onclick="navigator.clipboard.writeText(window.location.href).then(function() { $.jnotify('<?php echo dol_escape_js($langs->trans('LinkCopiedToClipboard')); ?>', 'success'); });">
                         <i class="fas fa-copy"></i>
@@ -1377,7 +1377,7 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                     // Prevention plan:                    // Prevention plan: one photo per required certification (document) for this signatory
                     if (!$isNewSignatory && !empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
                         print '<div class="pp-signatory-media-row" style="border-top: 1px dashed #e5e5e5; margin-top: 10px; padding-top: 10px;">';
-                        print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> Envoyer les éléments demandés</div>';
+                        print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> ' . $langs->trans('SpreadSendRequestedElements') . '</div>';
                         $certSignatoryId = $signatoryItem->id;
                         require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
                         print '</div>';
@@ -2380,28 +2380,4 @@ $(document).ready(function () {
     <?php } ?>
 });
 
-</script>
-
-
-<script>
-(function() {
-    function formatDates() {
-        var dateEls = document.querySelectorAll('.local-date-formatter:not(.formatted)');
-        dateEls.forEach(function(el) {
-            var ts = parseInt(el.getAttribute('data-timestamp'), 10);
-            if (!isNaN(ts) && ts > 0) {
-                var d = new Date(ts * 1000);
-                var day = ("0" + d.getDate()).slice(-2);
-                var month = ("0" + (d.getMonth() + 1)).slice(-2);
-                var year = d.getFullYear();
-                var hours = ("0" + d.getHours()).slice(-2);
-                var minutes = ("0" + d.getMinutes()).slice(-2);
-                el.innerText = day + '/' + month + '/' + year + ' à ' + hours + ':' + minutes;
-                el.classList.add('formatted');
-            }
-        });
-    }
-    document.addEventListener("DOMContentLoaded", formatDates);
-    formatDates(); // run immediately in case DOM is already loaded
-})();
 </script>

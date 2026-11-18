@@ -224,3 +224,22 @@ SpreadStepWorkTypesRead = %s / %s types of work read
 SpreadStepWorkTypesToRead = %s types of work to read
 SpreadStepToSign = To sign
 SpreadStepSignedOn = Signed on %s
+
+# Public spread page: success screen, welcome of the individual link, buttons (texts once hard-coded)
+SpreadSuccessReference = Reference
+SpreadSuccessAttendee = Attendee
+SpreadSuccessStatus = Status
+SpreadDateAtHour = %s at %s
+SpreadNextStepsTitle = Next steps
+SpreadNextStepInformOthers = Inform the<br>other attendees
+SpreadNextStepApplyMeasures = Apply the<br>prevention measures
+SpreadNextStepCarryOutActions = Carry out and follow<br>the actions
+SpreadAddNewAttendee = Add a new attendee
+SpreadHello = Hello,
+SpreadYouSignedOn = You signed this document on %s.
+SpreadValidatePendingSignatureFirst = Please validate the pending signature first
+SpreadAddInternalSignatory = Internal signatory
+SpreadAddExternalSignatory = External signatory
+SpreadSendRequestedElements = Send the requested elements
+SpreadEmailPlaceholder = your.email@example.com
+SpreadVideoNotSupported = Your browser cannot play this video.

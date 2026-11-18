@@ -413,3 +413,22 @@ SpreadStepWorkTypesRead               = %s / %s travaux lus
 SpreadStepWorkTypesToRead             = %s travaux à lire
 SpreadStepToSign                      = À signer
 SpreadStepSignedOn                    = Signé le %s
+
+# Page publique de la diffusion : écran de succès, accueil du lien individuel, boutons (textes autrefois en dur)
+SpreadSuccessReference                = Référence
+SpreadSuccessAttendee                 = Intervenant
+SpreadSuccessStatus                   = Statut
+SpreadDateAtHour                      = %s à %s
+SpreadNextStepsTitle                  = Étapes suivantes
+SpreadNextStepInformOthers            = Informer les<br>autres intervenants
+SpreadNextStepApplyMeasures           = Appliquer les<br>mesures de prévention
+SpreadNextStepCarryOutActions         = Réaliser et suivre<br>les actions
+SpreadAddNewAttendee                  = Ajouter un nouvel intervenant
+SpreadHello                           = Bonjour,
+SpreadYouSignedOn                     = Vous avez signé ce document le %s.
+SpreadValidatePendingSignatureFirst   = Veuillez d'abord valider la signature en attente
+SpreadAddInternalSignatory            = Signataire interne
+SpreadAddExternalSignatory            = Signataire externe
+SpreadSendRequestedElements           = Envoyer les éléments demandés
+SpreadEmailPlaceholder                = votre.email@exemple.com
+SpreadVideoNotSupported               = Votre navigateur ne sait pas lire cette vidéo.
