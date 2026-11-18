@@ -58,6 +58,8 @@ QuickSignature = Quick signature
 SpreadQuickSignatureInfo = Enter your email to receive a signature link
 ConnectForMoreInfo = <a href="%s">Log in</a> for more information
 EmailSpreadLabel = DOLILETTER_Spread
+# Displayed label of the template: the code above is the one written to the database on activation
+DOLILETTER_Spread = Document spread
 EmailSpreadTopic = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEMENT__ __REF__
 EmailSpreadContent = Hello,<br />Please find the signature link of the spread document below.<br />__SATURNE_SIGNATORY_URL__
 

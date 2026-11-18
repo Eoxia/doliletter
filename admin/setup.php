@@ -264,7 +264,8 @@ $result      = $saturneMail->fetchAll('', '', 0, 0, ['customsql' => 't.type_temp
 
 $options = [];
 foreach ($result as $item) {
-    $options[$item->id] = $item->label;
+    // The stored label is a code (DOLILETTER_Spread): translated when a key exists, a renamed template keeps its own label
+    $options[$item->id] = $langs->transnoentitiesnoconv($item->label);
 }
 
 

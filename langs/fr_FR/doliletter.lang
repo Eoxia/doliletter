@@ -218,6 +218,8 @@ NuberOfSpreads                 = Nombre de diffusions
 NuberOfPersonsSpreaded         = Nombre de personnes concernés
 
 EmailSpreadLabel               = DOLILETTER_Spread
+# Libellé affiché du modèle : le code ci-dessus est celui écrit en base à l'activation
+DOLILETTER_Spread              = Diffusion de document
 EmailSpreadTopic               = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEMENT__ __REF__
 EmailSpreadContent             = Bonjour,<br />Veuillez trouver ci-joint le lien de signature de la difusion du document.<br />__SATURNE_SIGNATORY_URL__
 
