@@ -980,8 +980,17 @@ input.spread-phone--invalid,
 <?php
 $isSignedPreventionPlan = (!empty($isDigiriskRiskObject) && !empty($signSignatory) && $signSignatory->status == DoliletterSpreadSignature::STATUS_SIGNED);
 
-// Le libelle de l'objet suit ce qui est diffuse : plan de prevention ou permis de feu
-$spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->transnoentities($ppTexts['objectName'])) : '';
+// Le type de l'objet diffuse vient des metadonnees Saturne (tache, document unique...), qui chargent
+// aussi la langue de l'objet. Saturne remplit toujours 'langs', vide quand l'objet n'en declare pas :
+// la classe de l'objet prend alors le relais
+$spreadObjectType = $langs->transnoentities(!empty($objectsMetadata[$objectType]['langs']) ? $objectsMetadata[$objectType]['langs'] : ucfirst($objectsMetadata[$objectType]['object']->element));
+
+// Le libelle de l'objet suit ce qui est diffuse : plan de prevention ou permis de feu, sinon le type
+// de l'objet. Sans lui, les phrases d'accueil s'arretaient sur « ce : » pour tout autre objet
+$spreadObjectName = dol_strtolower(!empty($ppTexts['objectName']) ? $langs->transnoentities($ppTexts['objectName']) : $spreadObjectType);
+
+// Un objet sans libelle (le document unique n'en a pas) se nomme par sa reference
+$spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
 ?>
 <div class="public-card__container" data-public-interface="true">
 
@@ -996,7 +1005,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                 </div>
 
                 <span class="spread-brand__title">
-                    <?php echo $langs->transnoentities($objectsMetadata[$objectType]['langs'] ?? ucfirst($objectsMetadata[$objectType]['object']->element)); ?>
+                    <?php echo dol_escape_htmltag($spreadObjectType); ?>
                 </span>
 
                 <?php if (dol_strlen($spreadCardUrl) || dol_strlen($spreadMobileUrl)) { ?>
@@ -1207,7 +1216,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
             <?php if (empty($signSignatory->signature)) { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
                 <?php echo $langs->trans('SpreadRegisteredOnObject', $spreadObjectName); ?><br>
-                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+                <strong><?php echo dol_escape_htmltag($spreadObjectTitle); ?></strong>
             </p>
                 <?php if (!empty($ppRisks)) { ?>
                 <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>" style="font-size: 15px; color: #b91c1c; background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 15px;">
@@ -1219,7 +1228,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
             <?php } else { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
                 <?php echo $langs->trans('SpreadViewingObject', $spreadObjectName); ?><br>
-                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+                <strong><?php echo dol_escape_htmltag($spreadObjectTitle); ?></strong>
             </p>
             <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
                 <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
