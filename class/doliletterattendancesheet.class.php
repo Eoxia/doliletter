@@ -22,7 +22,7 @@
  */
 
 // Load Saturne libraries.
-require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
+dol_include_once('/saturne/class/saturneobject.class.php');
 
 /**
  * Class for SaturneAttendanceSheet.
@@ -68,7 +68,7 @@ class DoliletterAttendanceSheet extends SaturneObject
 	/**
 	 * @var string Name of icon for certificate. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'certificate@saturne' if picto is file 'img/object_certificate.png'.
 	 */
-	public string $picto = 'fontawesome_fa-check-circle_fas_#63ACC9';
+	public string $picto = 'fontawesome_fa-bullhorn_fas_#63ACC9';
 
     public const STATUS_DELETED   = -1;
     public const STATUS_DRAFT     = 0;
@@ -342,8 +342,9 @@ class DoliletterAttendanceSheet extends SaturneObject
         global $langs;
 
         dol_include_once('/saturne/lib/saturne.lib.php');
+        dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
 
-        $objectsMetadata    = saturne_get_objects_metadata();
+        $objectsMetadata    = doliletter_spread_get_objects_metadata();
 
         // Graph Title parameters
         $array['title'] = $langs->transnoentities('3LastSpreadList');

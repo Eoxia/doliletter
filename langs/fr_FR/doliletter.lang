@@ -218,6 +218,8 @@ NuberOfSpreads                 = Nombre de diffusions
 NuberOfPersonsSpreaded         = Nombre de personnes concernés
 
 EmailSpreadLabel               = DOLILETTER_Spread
+# Libellé affiché du modèle : le code ci-dessus est celui écrit en base à l'activation
+DOLILETTER_Spread              = Diffusion de document
 EmailSpreadTopic               = [__[MAIN_INFO_SOCIETE_NOM]__] Signature __OBJECT_ELEMENT__ __REF__
 EmailSpreadContent             = Bonjour,<br />Veuillez trouver ci-joint le lien de signature de la difusion du document.<br />__SATURNE_SIGNATORY_URL__
 
@@ -259,17 +261,66 @@ ErrorSpreadMailNotConfigured    = la messagerie n'est pas configurée sur ce Dol
 SpreadBackToDolibarr            = Retour à Dolibarr
 SpreadEditPlan                  = Modifier le plan
 
+# Onglets Diffusion et documents : page publique et documents diffusés
+SpreadCopyPublicLink            = Copier le lien
+SpreadOpenPublicPage            = Ouvrir la page de diffusion
+SpreadDocuments                 = Documents de la diffusion
+SpreadDocumentsHelp             = Choisissez pour chaque document ce que voient les personnes de la diffusion. « À lire » l'affiche en entier sur la page, avant la signature.
+SpreadDocument                  = Document
+SpreadDocumentAdd               = Ajouter un document
+SpreadDocumentOnPublicPage      = Sur la page de diffusion
+SpreadNoDocument                = Aucun document pour l'instant : ajoutez celui que les personnes doivent lire avant de signer.
+SpreadDocumentGenerated         = Généré
+SpreadDocumentHidden            = Masqué
+SpreadDocumentHiddenHelp        = Absent de la page de diffusion : son lien public est retiré
+SpreadDocumentDownload          = En téléchargement
+SpreadDocumentDownloadHelp      = Proposé en téléchargement sur la page de diffusion
+SpreadDocumentRead              = À lire
+SpreadDocumentReadHelp          = Affiché en entier sur la page de diffusion, à lire avant de signer
+SpreadDocumentLink              = En lien
+SpreadDocumentLinkHelp          = Proposé en lien sur la page de diffusion
+SpreadDocumentModeSaved         = Document de la diffusion mis à jour
+ErrorSpreadDocumentMode         = Ce document n'a pas pu être mis à jour
+ErrorSpreadDocumentTooLarge     = Fichier trop volumineux : la taille maximale autorisée pour un envoi est de %s
+SpreadFileKindPdf               = Document PDF
+SpreadFileKindText              = Document texte
+SpreadFileKindSheet             = Tableur
+SpreadFileKindSlides            = Présentation
+SpreadFileKindArchive           = Archive
+SpreadFileKindOther             = Fichier
+
 # Signataires de la diffusion
 SpreadSignatoriesTitle          = Signataires de la diffusion
 SpreadSignatoriesCount          = %s signature(s) sur %s
 SpreadNoSignatoryYet            = Personne n'a encore rejoint cette diffusion.
 SpreadSignatoryPending          = En attente de signature
+SpreadSignatoryDetails          = Documents et réponses
+SpreadSignatoryBlocksRead       = %s pris en connaissance : %s sur %s
+SpreadSignatoryNoDetails        = Rien à afficher pour cette personne
+SpreadCertProvided              = Fourni
+SpreadCertNotProvided           = Non fourni
+SpreadSigninSheetDownload       = Feuille d'émargement (PDF)
+SpreadSigninSheetDownloadHelp   = Télécharger la feuille d'émargement avec toutes les signatures données à ce jour
+ErrorSpreadSigninSheetNotGenerated = La feuille d'émargement n'a pas pu être générée
+ErrorSpreadSignatoryIdentityMissing = Renseignez au moins un champ pour identifier la personne
+ErrorSpreadBadPhone             = Numéro de téléphone invalide : 8 à 15 chiffres, éventuellement précédés d'un + et séparés par des espaces, points ou tirets
+SpreadSignatorySignedVersion    = Version du document signé : %s
+
+# Feuille d'émargement : preuve de chaque signature
+SigninSheetSignedDocumentVersion  = Version du document signé
+SigninSheetSignedDocumentVersions = Versions du document signées
+SigninSheetVersionNumber          = Version %s
+SigninSheetSignedVersion          = Document signé : version %s
+SigninSheetVersionNotRecorded     = Version du document signé : non enregistrée (signature antérieure)
+SigninSheetBlocksReadCount        = %s pris en connaissance : %s
+SigninSheetRequestedDocuments     = Documents demandés : %s
 
 # Public registration
 SpreadPublicRegister              = Rejoindre la diffusion
 SpreadPublicRegisterInfo          = Renseignez vos coordonnées pour accéder à votre page personnelle de signature et de dépôt de documents.
 SpreadPublicRegisterSubmit        = Valider mon inscription
 SpreadPublicRegisterMissingFields = Renseignez vos nom, prénom, email et téléphone
+SpreadPublicRegisterIdentityMissing = Renseignez au moins un champ pour vous inscrire
 SpreadExternalSignatory           = Inscrit depuis le lien public
 
 ErrorSpreadRegisterFailed              = Votre inscription n'a pas pu être enregistrée : %s
@@ -342,3 +393,23 @@ SpreadObjectSignedTitle               = %s signé !
 SpreadObjectSignedText                = L'intervenant a signé le %s en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
 SpreadSeeObject                       = Voir le %s
 SpreadNextStepFollowObject            = Consulter et suivre<br>le %s
+
+# Etapes de la signature en haut de la diffusion : qui signe, lecture, validation et signature
+SpreadStepsTitle                      = Étapes de la signature
+SpreadStepWho                         = Qui va signer
+SpreadStepReadPreventionPlan          = Lecture du plan
+SpreadStepReadFirePermit              = Lecture du permis
+SpreadStepReadDocument                = Lecture du document
+SpreadStepSign                        = Validation + signature
+SpreadStepWhoRegister                 = Inscrivez-vous
+SpreadStepWhoQuickSign                = Recevez votre lien par email
+SpreadStepWhoAdd                      = Ajoutez un signataire
+SpreadStepWhoIncomplete               = Identité à compléter
+SpreadStepWhoFirst                    = Terminez d'abord l'étape « Qui va signer » : la lecture s'ouvre ensuite.
+SpreadStepDocumentsToProvide          = %s document(s) à fournir
+SpreadStepRisksRead                   = %s / %s risques lus
+SpreadStepRisksToRead                 = %s risques à lire
+SpreadStepWorkTypesRead               = %s / %s travaux lus
+SpreadStepWorkTypesToRead             = %s travaux à lire
+SpreadStepToSign                      = À signer
+SpreadStepSignedOn                    = Signé le %s

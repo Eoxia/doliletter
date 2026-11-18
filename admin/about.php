@@ -61,7 +61,8 @@ $form = new Form($db);
 $page_name = "DoliLetterAbout";
 $help_url  = '';
 
-llxHeader('', $langs->trans($page_name), $help_url);
+// Saturne back office theme, as saturne_header() would add it: body class and stylesheets
+llxHeader('', $langs->trans($page_name), $help_url, '', 0, 0, [], ['/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css'], '', 'saturne-theme');
 
 // Subheader
 $linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';

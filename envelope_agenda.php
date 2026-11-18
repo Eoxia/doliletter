@@ -66,6 +66,7 @@ $langs->loadLangs(array("envelope@envelope", "other"));
 // Get parameters
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
+$socid = GETPOST('socid', 'int');
 $action = GETPOST('action', 'aZ09');
 $cancel = GETPOST('cancel', 'aZ09');
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -115,7 +116,7 @@ $permissiontoread = $user->rights->doliletter->envelope->read;
 $permissiontoadd = $user->rights->doliletter->envelope->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->doliletter->envelope->delete || ($permissiontoadd && isset($object->status));
 $permissionnote = $user->rights->doliletter->envelope->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->envelope->letter->write; // Used by the include of actions_dellink.inc.php
+$permissiondellink = $user->rights->doliletter->envelope->write; // Used by the include of actions_dellink.inc.php
 $upload_dir = $conf->doliletter->multidir_output[$conf->entity];
 
 // Security check (enable the most restrictive one)
@@ -160,7 +161,8 @@ if ($object->id > 0) {
 	$title = $langs->trans("Agenda");
 	//if (! empty($conf->global->MAIN_HTML_TITLE) && preg_match('/thirdpartynameonly/',$conf->global->MAIN_HTML_TITLE) && $object->name) $title=$object->name." - ".$title;
 	$help_url = 'EN:Module_Agenda_En';
-	llxHeader('', $title, $help_url);
+	// Saturne back office theme, as saturne_header() would add it: body class and stylesheets
+	llxHeader('', $title, $help_url, '', 0, 0, [], ['/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css'], '', 'saturne-theme mod-doliletter-envelope');
 
 	if (!empty($conf->notification->enabled)) {
 		$langs->load("mails");

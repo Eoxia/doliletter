@@ -35,6 +35,7 @@ global $conf, $db, $langs, $user;
 // Libraries
 require_once __DIR__ . '/../lib/doliletter.lib.php';
 require_once __DIR__ . '/../lib/doliletter_linked_object.lib.php';
+require_once __DIR__ . '/../lib/doliletter_spread.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
@@ -93,9 +94,8 @@ if (in_array($action, ['toggle_link', 'toggle_all_links', 'clean_unused_links'])
 
 if ($action == 'save') {
 
-    if (!empty($_POST['email_template'])) {
-        dolibarr_set_const($db, 'DOLILETTER_EMAIL_TEMPLATE_SPREAD', $_POST['email_template'], 'chaine', 0, '', $conf->entity);
-    }
+    // A template id, read back with getDolGlobalInt(). The empty choice of the list posts -1: back to 0, the module's default content
+    dolibarr_set_const($db, 'DOLILETTER_EMAIL_TEMPLATE_SPREAD', max(0, GETPOSTINT('email_template')), 'chaine', 0, '', $conf->entity);
 
     setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
     header('Location: ' . $_SERVER["PHP_SELF"]);
@@ -187,6 +187,14 @@ foreach ($defaultExtFields as $k => $v) {
         $conf->global->$k = $v;
     }
 }
+// Mandatory switches not set yet show what the spread applies: every field shown is mandatory
+foreach (doliletter_spread_get_ext_fields_config() as $extField => $extFieldConfig) {
+    $mandatoryConst = 'DOLILETTER_SPREAD_EXT_FIELD_' . $extField . '_MANDATORY';
+    if (getDolGlobalString($mandatoryConst) === '') {
+        dolibarr_set_const($db, $mandatoryConst, $extFieldConfig['mandatory'] ? '1' : '0', 'chaine', 0, '', $conf->entity);
+        $conf->global->$mandatoryConst = $extFieldConfig['mandatory'] ? '1' : '0';
+    }
+}
 
 // Ext fields configuration
 print '<tr class="oddeven"><td>';
@@ -256,7 +264,8 @@ $result      = $saturneMail->fetchAll('', '', 0, 0, ['customsql' => 't.type_temp
 
 $options = [];
 foreach ($result as $item) {
-    $options[$item->id] = $item->label;
+    // The stored label is a code (DOLILETTER_Spread): translated when a key exists, a renamed template keeps its own label
+    $options[$item->id] = $langs->transnoentitiesnoconv($item->label);
 }
 
 
@@ -330,7 +339,7 @@ $enabledObjectTypes         = doliletter_get_enabled_spread_object_types();
 $linkedObjectExtraFieldName = DOLILETTER_SPREAD_LINK_USAGE_KEY;
 $linkedObjectUsage          = doliletter_get_spread_usage();
 
-require_once __DIR__ . '/../../saturne/core/tpl/admin/object/linked_object_view.tpl.php';
+require_once dol_buildpath('/saturne/core/tpl/admin/object/linked_object_view.tpl.php');
 
 print '<hr>';
 
