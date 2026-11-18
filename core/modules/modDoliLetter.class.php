@@ -32,7 +32,7 @@ class modDoliLetter extends DolibarrModules {
 	/**
 	 * @var int[] Minimum version of Saturne required by module, same format as need_dolibarr_version: checked by init() and by the Saturne index page
 	 */
-	public $need_saturne_version = array(23, 7, 0);
+	public $need_saturne_version = array(23, 8, 0);
 
 	/**
 	 * Constructor. Define names, constants, directories, boxes, permissions
