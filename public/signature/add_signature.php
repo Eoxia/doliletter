@@ -106,7 +106,7 @@ if ($action == 'addSignature') {
 		$result = $signatory->update($user, false);
 		if ($result > 0) {
 			$signatory->setSigned($user, false);
-			$object->setStatusCommon($user, 5);
+			$object->setStatusCommon($user, 5, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 			$object->call_trigger('ENVELOPE_RECIPIENT_SIGN', $user);
 			if (method_exists($object, 'generateDocument'))
 			{
