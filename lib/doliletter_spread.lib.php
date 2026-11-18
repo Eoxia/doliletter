@@ -788,7 +788,8 @@ function doliletter_spread_get_certification_dir(string $certBaseDir, $signatory
  * their own sub folder.
  *
  * @param  string $certDir Directory of the certification, from doliletter_spread_get_certification_dir()
- * @return array           One entry per file: name, path (relative to $certDir), is_image
+ * @return array           One entry per file: name, path (relative to $certDir), is_image, thumb_path (small
+ *                         thumbnail relative to $certDir, empty when there is none)
  */
 function doliletter_spread_get_certification_files(string $certDir): array
 {
@@ -799,10 +800,15 @@ function doliletter_spread_get_certification_files(string $certDir): array
         }
 
         foreach (dol_dir_list($certDir . '/' . $certFilesSubDir, 'files', 0, '', '(\.meta|_preview.*\.png)$', 'name') as $certFile) {
+            $isImage = str_starts_with(dol_mimetype($certFile['name']), 'image/');
+            // Small thumbnail made at upload: a list of answers shows the photo without loading it full size
+            $thumbPath = $isImage ? $certFilesSubDir . getImageFileNameForSize($certFile['name'], '_small') : '';
+
             $certFiles[] = [
-                'name'     => $certFile['name'],
-                'path'     => $certFilesSubDir . $certFile['name'],
-                'is_image' => str_starts_with(dol_mimetype($certFile['name']), 'image/'),
+                'name'       => $certFile['name'],
+                'path'       => $certFilesSubDir . $certFile['name'],
+                'is_image'   => $isImage,
+                'thumb_path' => ($thumbPath !== '' && dol_is_file($certDir . '/' . $thumbPath)) ? $thumbPath : '',
             ];
         }
     }

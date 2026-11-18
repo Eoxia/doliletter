@@ -22,7 +22,7 @@
  *          provided for each requested element (name + link), the elements declared not concerned and
  *          the risks taken note of. Only included for a logged user allowed to read the object: the
  *          links go through document.php, which checks that right again.
- *          Expects: $conf, $langs, $signatoryItem, $signatoryEmail, $signatoryPhone, $showContact,
+ *          Expects: $conf, $langs, $signatoryItem, $signatoryEmail, $signatoryPhone, $showEmail, $showPhone,
  *                   $ppCertificationStates, $ppCertSubDir, $ppRisks, $ppTexts.
  */
 
@@ -30,7 +30,10 @@ $detailsCertStates = $ppCertificationStates[$signatoryItem->id] ?? [];
 $detailsFileCount  = array_sum(array_map(function (array $certState) {
     return count($certState['files']);
 }, $detailsCertStates));
-$detailsShowContact = empty($showContact) && (!empty($signatoryEmail) || !empty($signatoryPhone));
+// Here the email and the phone the public list does not show already
+$detailsEmail       = empty($showEmail) ? $signatoryEmail : '';
+$detailsPhone       = empty($showPhone) ? $signatoryPhone : '';
+$detailsShowContact = !empty($detailsEmail) || !empty($detailsPhone);
 $detailsRisksRead   = count(array_intersect(array_column($ppRisks, 'category'), doliletter_spread_get_acknowledged_risks($signatoryItem)));
 // Version of the document the person had in front of them when signing, recorded with the signature
 $detailsProof       = !empty($signatoryItem->signature) ? doliletter_spread_get_signature_proof($signatoryItem) : [];
@@ -47,11 +50,11 @@ $detailsVersion     = doliletter_spread_get_documents_version($detailsProof['doc
     <div class="spread-signatory-details__body">
         <?php if ($detailsShowContact) { ?>
         <div class="spread-signatory-details__line">
-            <?php if (!empty($signatoryEmail)) { ?>
-            <span><i class="fas fa-envelope"></i> <?php echo dol_escape_htmltag($signatoryEmail); ?></span>
+            <?php if (!empty($detailsEmail)) { ?>
+            <span><i class="fas fa-envelope"></i> <?php echo dol_escape_htmltag($detailsEmail); ?></span>
             <?php } ?>
-            <?php if (!empty($signatoryPhone)) { ?>
-            <span><i class="fas fa-phone"></i> <?php echo dol_escape_htmltag($signatoryPhone); ?></span>
+            <?php if (!empty($detailsPhone)) { ?>
+            <span><i class="fas fa-phone"></i> <?php echo dol_escape_htmltag($detailsPhone); ?></span>
             <?php } ?>
         </div>
         <?php } ?>
@@ -88,14 +91,26 @@ $detailsVersion     = doliletter_spread_get_documents_version($detailsProof['doc
             <?php if (!empty($certState['files'])) { ?>
             <ul class="spread-signatory-details__files">
                 <?php foreach ($certState['files'] as $certFile) {
-                    $certFileUrl = DOL_URL_ROOT . '/document.php?modulepart=digiriskdolibarr&entity=' . ((int) $conf->entity) . '&attachment=0&file=' . urlencode($ppCertSubDir . '/' . ((int) $signatoryItem->id) . '/' . dol_sanitizeFileName($certState['code']) . '/' . $certFile['path']); ?>
+                    $certFileBaseUrl = DOL_URL_ROOT . '/document.php?modulepart=digiriskdolibarr&entity=' . ((int) $conf->entity) . '&attachment=0&file=';
+                    $certFileDir     = $ppCertSubDir . '/' . ((int) $signatoryItem->id) . '/' . dol_sanitizeFileName($certState['code']) . '/';
+                    $certFileUrl     = $certFileBaseUrl . urlencode($certFileDir . $certFile['path']);
+                    // A photo is shown, not named: opening a link only to look at it was one step too many
+                    if ($certFile['is_image']) {
+                        $certThumbUrl = $certFileBaseUrl . urlencode($certFileDir . (!empty($certFile['thumb_path']) ? $certFile['thumb_path'] : $certFile['path'])); ?>
+                <li class="spread-signatory-details__photo">
+                    <a href="<?php echo dol_escape_htmltag($certFileUrl); ?>" target="_blank" rel="noopener" title="<?php echo dol_escape_htmltag($certFile['name']); ?>">
+                        <img src="<?php echo dol_escape_htmltag($certThumbUrl); ?>" alt="<?php echo dol_escape_htmltag($certFile['name']); ?>" loading="lazy">
+                    </a>
+                </li>
+                    <?php } else { ?>
                 <li>
                     <a href="<?php echo dol_escape_htmltag($certFileUrl); ?>" target="_blank" rel="noopener" title="<?php echo dol_escape_htmltag($certFile['name']); ?>">
-                        <i class="fas <?php echo $certFile['is_image'] ? 'fa-file-image' : 'fa-file-alt'; ?>"></i>
+                        <i class="fas fa-file-alt"></i>
                         <span><?php echo dol_escape_htmltag($certFile['name']); ?></span>
                     </a>
                 </li>
-                <?php } ?>
+                    <?php }
+                } ?>
             </ul>
             <?php } ?>
         </div>

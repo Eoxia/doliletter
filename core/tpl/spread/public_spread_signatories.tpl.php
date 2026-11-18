@@ -21,7 +21,7 @@
  * \brief   Liste en lecture seule des personnes de la diffusion.
  *          Une personne diffusee ne voyait que sa propre ligne : elle ne pouvait pas savoir qui
  *          d'autre avait pris connaissance du document, alors que c'est le sujet de la diffusion.
- *          Expects: $db, $langs, $signatories, $tmpUser, $signinSheetDownloadUrl (empty when not offered).
+ *          Expects: $db, $langs, $signatories, $tmpUser, $showPhone, $showEmail, $signinSheetDownloadUrl (empty when not offered).
  */
 
 global $db, $langs;
@@ -60,7 +60,7 @@ foreach ($listedSignatories as $signatoryItem) {
 
     <?php if (empty($listedSignatories)) { ?>
     <div class="spread-signatories__empty"><?php echo $langs->trans('SpreadNoSignatoryYet'); ?></div>
-    <?php } elseif (!isset($showName) || $showName || !empty($showContact) || !empty($showDocs)) { ?>
+    <?php } elseif (!isset($showName) || $showName || !empty($showPhone) || !empty($showEmail) || !empty($showDocs)) { ?>
     <ul class="spread-signatories__list">
         <?php foreach ($listedSignatories as $signatoryItem) {
             $hasSigned = !empty($signatoryItem->signature);
@@ -114,14 +114,14 @@ foreach ($listedSignatories as $signatoryItem) {
                     <?php echo dol_strlen($signatoryName) ? $signatoryName : $langs->trans('Unknown'); ?>
                 </span>
                 
-                <?php if (!empty($showContact) && (!empty($signatoryEmail) || !empty($signatoryPhone))) { ?>
+                <?php if ((!empty($showEmail) && !empty($signatoryEmail)) || (!empty($showPhone) && !empty($signatoryPhone))) { ?>
                     <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px; font-size: 13px; color: #6b7280;">
-                        <?php if (!empty($signatoryEmail)) { ?>
+                        <?php if (!empty($showEmail) && !empty($signatoryEmail)) { ?>
                         <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
                             <i class="fas fa-envelope opacitymedium"></i> <?php echo dol_escape_htmltag($signatoryEmail); ?>
                         </span>
                         <?php } ?>
-                        <?php if (!empty($signatoryPhone)) { ?>
+                        <?php if (!empty($showPhone) && !empty($signatoryPhone)) { ?>
                         <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
                             <i class="fas fa-phone opacitymedium" style="transform: scaleX(-1);"></i> <?php echo dol_escape_htmltag($signatoryPhone); ?>
                         </span>
