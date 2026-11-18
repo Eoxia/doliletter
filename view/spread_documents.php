@@ -50,7 +50,7 @@ $object = new DoliletterAttendanceSheet($db, 'doliletter');
 
 $hookmanager->initHooks(['spreaddocuments']); // Note that conf->hooks_modules contains array
 
-$objectsMetadata = saturne_get_objects_metadata();
+$objectsMetadata = doliletter_spread_get_objects_metadata();
 
 // Diffused object, whose documents are offered to the people of the spread
 $spreadObject = null;
