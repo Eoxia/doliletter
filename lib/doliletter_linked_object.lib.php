@@ -57,7 +57,48 @@ function doliletter_get_spreadable_objects(): array
         $conf->cache['doliletterObjectsMetadata'] = saturne_get_objects_metadata();
     }
 
-    return saturne_filter_linkable_objects($conf->cache['doliletterObjectsMetadata'], [DOLILETTER_SPREAD_LINK_EXCLUDED_PREFIX]);
+    $linkableObjects = saturne_filter_linkable_objects(
+        $conf->cache['doliletterObjectsMetadata'],
+        [DOLILETTER_SPREAD_LINK_EXCLUDED_PREFIX]
+    );
+
+    return array_filter($linkableObjects, 'doliletter_object_has_card');
+}
+
+/**
+ * Tell whether an object has a card whose tabs can carry the spread tabs
+ *
+ * The spread pages draw the head of their object with saturne_get_fiche_head(), which calls the
+ * {element}_prepare_head() or {element}PrepareHead() function of the object lib. An object of a
+ * module with neither, such as a Digirisk risk assessment only shown inside its risk, has no card:
+ * its spread tabs would show nowhere. Dolibarr core objects all have a card, under head functions
+ * whose names do not always follow that rule (facture_prepare_head() for the invoice), so they are
+ * kept, except the ones declared without any lib, such as the stock movement.
+ *
+ * @param  array<string, mixed> $objectMetadata Entry of saturne_get_objects_metadata()
+ * @return bool                                 True if the object has a card with tabs
+ */
+function doliletter_object_has_card(array $objectMetadata): bool
+{
+    $libPath = (string) ($objectMetadata['lib_path'] ?? '');
+    if ($libPath === '') {
+        return false;
+    }
+
+    if (strpos($libPath, 'core/lib/') === 0) {
+        return true;
+    }
+
+    $libFile = dol_buildpath('/' . $libPath);
+    if (!file_exists($libFile)) {
+        return false;
+    }
+    require_once $libFile;
+
+    // A tab type may name the module of its object after an @, ex. bom@mrp
+    $element = explode('@', (string) ($objectMetadata['tab_type'] ?? ''))[0];
+
+    return function_exists($element . '_prepare_head') || function_exists($element . 'PrepareHead');
 }
 
 /**
