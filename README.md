@@ -2,9 +2,9 @@
 
 ## Informations
 
-Version du module: 23.1.1
+Version du module: 23.2.0
 
-Dernière mise à jour: 25/09/2026
+Dernière mise à jour: 18/11/2026
 
 Prérequis:
 * PHP min version 7.4

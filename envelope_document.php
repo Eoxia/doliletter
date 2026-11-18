@@ -77,7 +77,7 @@ $page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("pa
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
-$offset = $liste_limit * $page;
+$offset = $limit * $page;
 $pageprev = $page - 1;
 $pagenext = $page + 1;
 if (!$sortorder) {
@@ -107,7 +107,7 @@ $permissiontoread = $user->rights->doliletter->envelope->read;
 $permissiontoadd = $user->rights->doliletter->envelope->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->doliletter->envelope->delete || ($permissiontoadd && isset($object->status));
 $permissionnote = $user->rights->doliletter->envelope->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->envelope->letter->write; // Used by the include of actions_dellink.inc.php
+$permissiondellink = $user->rights->doliletter->envelope->write; // Used by the include of actions_dellink.inc.php
 //$upload_dir = $conf->doliletter->multidir_output[$conf->entity];
 
 // Security check (enable the most restrictive one)
@@ -133,7 +133,8 @@ $form = new Form($db);
 $title = $langs->trans("Envelope").' - '.$langs->trans("Files");
 $help_url = '';
 //$help_url='EN:Module_Third_Parties|FR:Module_Tiers|ES:Empresas';
-llxHeader('', $title, $help_url);
+// Saturne back office theme, as saturne_header() would add it: body class and stylesheets
+llxHeader('', $title, $help_url, '', 0, 0, [], ['/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css'], '', 'saturne-theme mod-doliletter-envelope');
 
 if ($object->id) {
 	/*

@@ -25,8 +25,12 @@
  *          Certification photos are uploaded per signatory (Saturne media block) in the signatories list.
  *          Each block ends with an acknowledgement the visitor must give before being able to sign.
  *          Expects: $langs, $ppRisks, $ppOrphanProtections, $ppRecapProtections, $ppTexts,
- *                   $signSignatory, $ppAcknowledgedRisks.
+ *                   $signSignatory, $ppAcknowledgedRisks, $spreadSteps.
  */
+
+// Nothing to read before the "Who signs" step is done: a block ticked before knowing who signs would
+// count for nobody. The steps script lifts the lock as soon as the step is done (spreadSteps.refresh).
+$ppReadLocked = !empty($spreadSteps) && $spreadSteps['steps']['who']['state'] != 'done';
 ?>
 <style>
 .pp-public-block { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 16px; margin: 16px 0; }
@@ -62,6 +66,12 @@
 .pp-recap__line img { object-fit: contain; flex: 0 0 auto; }
 .pp-recap__line--risks img { width: 46px; height: 46px; }
 .pp-recap__line--protections img { width: 44px; height: 44px; }
+/* Name of the risk or of the protection, shown at once on hover: the title attribute only came after
+   a second without moving, and went unnoticed */
+.pp-recap__item { position: relative; display: inline-flex; }
+.pp-recap__item::after { content: attr(data-label); position: absolute; bottom: calc(100% + 6px); left: 50%; z-index: 10; width: max-content; max-width: 220px; padding: 6px 8px; font-size: 12px; line-height: 1.3; color: #fff; text-align: center; background: #1e293b; border-radius: 6px; transform: translateX(-50%); opacity: 0; visibility: hidden; transition: opacity 0.15s; pointer-events: none; }
+.pp-recap__item:hover::after { opacity: 1; visibility: visible; }
+.pp-recap__item[data-label=""]::after { display: none; }
 .pp-carousel { position: relative; }
 .pp-carousel__track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .pp-carousel__track::-webkit-scrollbar { display: none; }
@@ -123,6 +133,8 @@
 .pp-cert-not-concerned-btn { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 10px; font-size: 12px; font-weight: 600; color: #4b5563; background: #fff; border: 1px solid #d1d5db; border-radius: 14px; cursor: pointer; }
 .pp-cert-not-concerned-btn:hover { border-color: #9ca3af; background: #f9fafb; }
 .pp-cert-not-concerned-btn--active { color: #fff; background: #6b7280; border-color: #6b7280; }
+/* The hover rule above would put the light background back under the white text of the active state */
+.pp-cert-not-concerned-btn--active:hover { color: #fff; background: #4b5563; border-color: #4b5563; }
 .pp-cert-upload--not-concerned { background: #f9fafb; }
 .pp-cert-upload--not-concerned .pp-cert-upload__label { color: #6b7280; }
 .pp-cert-upload--not-concerned .pp-cert-upload__row { display: none; }
@@ -140,7 +152,7 @@
 .pp-invalid-link { display: flex; align-items: center; gap: 8px; margin: 16px 0; padding: 14px; font-size: 14px; font-weight: 600; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; }
 </style>
 
-<div class="pp-public-info">
+<div class="pp-public-info spread-steps__read-content<?php echo $ppReadLocked ? ' spread-steps__read-content--locked' : ''; ?>">
     <?php foreach ($ppRisks as $ppRiskIndex => $ppRiskItem) { ?>
     <div class="pp-risk-block">
         <div class="pp-risk-block__header">
@@ -227,7 +239,9 @@
                 }
                 $ppRecapRiskName = ($ppRecapRisk['name'] != -1) ? $ppRecapRisk['name'] : '';
             ?>
-            <img src="<?php echo $ppRecapRisk['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>" alt="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>">
+            <span class="pp-recap__item" data-label="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>">
+                <img src="<?php echo $ppRecapRisk['thumb']; ?>" alt="<?php echo dol_escape_htmltag($ppRecapRiskName); ?>">
+            </span>
             <?php } ?>
         </div>
 
@@ -235,7 +249,9 @@
         <div class="pp-risk-block__label pp-recap__label--protections"><i class="fas fa-hard-hat"></i> <?php echo $langs->trans('SpreadRecapProtections'); ?></div>
         <div class="pp-recap__line pp-recap__line--protections">
             <?php foreach ($ppRecapProtections as $ppRecapProtection) { ?>
-            <img src="<?php echo $ppRecapProtection['thumb']; ?>" title="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>" alt="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
+            <span class="pp-recap__item" data-label="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
+                <img src="<?php echo $ppRecapProtection['thumb']; ?>" alt="<?php echo dol_escape_htmltag($ppRecapProtection['name']); ?>">
+            </span>
             <?php } ?>
         </div>
         <?php } ?>
@@ -432,6 +448,12 @@ window.ppRiskAck = {
 
         $('.pp-risks-pending').toggleClass('hidden', pending === 0).find('.pp-risks-pending__count').text(pending);
         $('.pp-inline-signature').toggleClass('hidden', pending > 0);
+
+        // The steps at the top of the page follow the reading: without a ?sign= link, ticking a block
+        // sends nothing the steps could catch
+        if (window.spreadSteps) {
+            window.spreadSteps.refresh();
+        }
     }
 };
 </script>

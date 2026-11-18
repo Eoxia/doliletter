@@ -102,12 +102,6 @@ function envelopePrepareHead($object)
 //	$head[$h][2] = 'envelopeContact';
 //	$h++;
 
-//	//Sending archive selection
-//	$head[$h][0] = dol_buildpath("/doliletter/envelope_sending.php", 1).'?id='.$object->id;
-//	$head[$h][1] = $langs->trans("Sending");
-//	$head[$h][2] = 'sending';
-//	$h++;
-
 
 	// Show more tabs from modules
 	// Entries must be declared in modules descriptor with line

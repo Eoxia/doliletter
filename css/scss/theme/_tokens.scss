@@ -1,0 +1,79 @@
+/* DoliLetter modern theme: design tokens.
+   The generic restyle of the back office (titles, tabs, lists, forms, buttons, modals) is the shared
+   theme of Saturne. saturne_header() puts its saturne-theme class on the logged-in pages only (the
+   pages of the module that call llxHeader() directly pass it themselves): the public pages, which have
+   their own design, never get it. The DoliLetter components below aim at the same scope. */
+$dl-scope: 'body#mainbody.saturne-theme';
+
+/* The module stylesheet is compiled apart from Saturne: the colours, radii and shadows are the CSS
+   custom properties that the shared theme exposes on that scope */
+$dl-bg: var(--saturne-bg);
+$dl-surface: var(--saturne-surface);
+$dl-surface-soft: var(--saturne-surface-soft);
+$dl-border: var(--saturne-border);
+$dl-border-soft: var(--saturne-border-soft);
+$dl-border-strong: var(--saturne-border-strong);
+$dl-text: var(--saturne-text);
+$dl-text-soft: var(--saturne-text-soft);
+$dl-muted: var(--saturne-muted);
+$dl-faint: var(--saturne-faint);
+
+$dl-primary: var(--saturne-primary);
+$dl-primary-strong: var(--saturne-primary-strong);
+$dl-primary-soft: var(--saturne-primary-soft);
+$dl-success: var(--saturne-success);
+$dl-success-soft: var(--saturne-success-soft);
+$dl-danger: var(--saturne-danger);
+$dl-danger-soft: var(--saturne-danger-soft);
+
+$dl-radius-lg: var(--saturne-radius-lg);
+$dl-radius: var(--saturne-radius);
+$dl-radius-sm: var(--saturne-radius-sm);
+$dl-radius-pill: var(--saturne-radius-pill);
+
+$dl-shadow-sm: var(--saturne-shadow-sm);
+$dl-shadow: var(--saturne-shadow);
+$dl-shadow-hover: var(--saturne-shadow-hover);
+$dl-ring: var(--saturne-ring);
+
+$dl-transition: 0.15s ease;
+
+/* Uppercase micro label, used for table headers and field labels */
+@mixin dl-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $dl-muted;
+}
+
+/* White rounded surface */
+@mixin dl-card {
+  background: $dl-surface;
+  border: 1px solid $dl-border;
+  border-radius: $dl-radius-lg;
+  box-shadow: $dl-shadow-sm;
+}
+
+/* Small square icon button, tinted with the Saturne blue */
+@mixin dl-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: $dl-radius-sm;
+  background: $dl-primary-soft;
+  color: $dl-primary-strong;
+  box-shadow: none;
+  transition: background-color $dl-transition, color $dl-transition;
+
+  &:hover {
+    background: $dl-primary;
+    color: #ffffff;
+    box-shadow: none;
+  }
+}

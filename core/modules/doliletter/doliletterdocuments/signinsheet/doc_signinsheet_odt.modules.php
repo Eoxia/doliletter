@@ -27,7 +27,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/doc.lib.php';
 
 // Load saturne libraries
-require_once __DIR__ . '/../../../../../../saturne/core/modules/saturne/modules_saturne.php';
+dol_include_once('/saturne/core/modules/saturne/modules_saturne.php');
 
 /**
  *	Class to build documents using ODF templates generator
@@ -82,7 +82,9 @@ class doc_signinsheet_odt extends SaturneDocumentModel
 	{
 		global $object;
 
-		$objectsMetadata    = saturne_get_objects_metadata();
+		dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
+
+		$objectsMetadata    = doliletter_spread_get_objects_metadata();
 
 		if (empty($objectsMetadata[$object->object_type]['object'])) {
 			return -1;
