@@ -207,7 +207,7 @@ foreach ($signatories as $signatory) {
     }
     print '</td>';
 
-    print '<td>' . dol_print_date($signatory->date_creation, 'dayhour') . '</td>';
+    print '<td>' . dol_print_date($signatory->date_creation, 'dayhour', 'tzuserrel') . '</td>';
 
     if ($signatory->status == SaturneSignature::STATUS_SIGNED) {
         print '<td class="center"><span class="badge badge-status4 badge-status" title="Signé">Signé</span></td>';

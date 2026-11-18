@@ -1095,7 +1095,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                         <i class="far fa-calendar-alt"></i>
                     </div>
                     <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Date de signature</div>
-                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y', 'tzuserrel') . ' à ' . dol_print_date($signSignatory->signature_date, '%H:%M', 'tzuserrel'); ?></div>
                 </div>
 
                 <!-- 4: Statut -->
@@ -1223,7 +1223,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
             </p>
             <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
                 <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-                Vous avez signé ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y  %H:%M'); ?>.
+                Vous avez signé ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y %H:%M', 'tzuserrel'); ?>.
             </div>
             <?php } ?>
         </div>
