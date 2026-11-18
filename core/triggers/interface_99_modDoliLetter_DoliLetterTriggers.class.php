@@ -52,7 +52,7 @@ class InterfaceDoliLetterTriggers extends DolibarrTriggers
 		$this->name = preg_replace('/^Interface/i', '', get_class($this));
 		$this->family = "demo";
 		$this->description = "Doliletter triggers.";
-		$this->version = '23.1.1';
+		$this->version = '23.2.0';
 		$this->picto = 'Doliletter@Doliletter';
 	}
 
