@@ -342,8 +342,9 @@ class DoliletterAttendanceSheet extends SaturneObject
         global $langs;
 
         dol_include_once('/saturne/lib/saturne.lib.php');
+        dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
 
-        $objectsMetadata    = saturne_get_objects_metadata();
+        $objectsMetadata    = doliletter_spread_get_objects_metadata();
 
         // Graph Title parameters
         $array['title'] = $langs->transnoentities('3LastSpreadList');

@@ -82,7 +82,9 @@ class doc_signinsheet_odt extends SaturneDocumentModel
 	{
 		global $object;
 
-		$objectsMetadata    = saturne_get_objects_metadata();
+		dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
+
+		$objectsMetadata    = doliletter_spread_get_objects_metadata();
 
 		if (empty($objectsMetadata[$object->object_type]['object'])) {
 			return -1;

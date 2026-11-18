@@ -115,8 +115,9 @@ class ActionsDoliletter
             } elseif ($parameters['key'] == 'label') {
 
                 dol_include_once('/saturne/lib/saturne.lib.php');
+                dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
 
-                $objectsMetadata    = saturne_get_objects_metadata();
+                $objectsMetadata    = doliletter_spread_get_objects_metadata();
 
                 $objectsMetadata[$object->object_type]['object']->fetch($object->id);
                 $objectLabel = $objectsMetadata[$object->object_type]['object']->{$objectsMetadata[$object->object_type]['label_field']} ?? '';
@@ -124,8 +125,9 @@ class ActionsDoliletter
 
             } elseif ($parameters['key'] == 'object_type') {
                 dol_include_once('/saturne/lib/saturne.lib.php');
+                dol_include_once('/doliletter/lib/doliletter_spread.lib.php');
 
-                $objectsMetadata    = saturne_get_objects_metadata();
+                $objectsMetadata    = doliletter_spread_get_objects_metadata();
 
                 $this->results['object_type'] = $langs->trans($objectsMetadata[$object->object_type]['langs']);
                 return 1;

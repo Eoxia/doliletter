@@ -65,6 +65,36 @@ const DOLILETTER_SPREAD_DOCUMENT_DOWNLOAD = 'download';
 const DOLILETTER_SPREAD_DOCUMENT_READ     = 'read';
 
 /**
+ * Get the Saturne objects metadata, also reachable under the link name a spread stores
+ *
+ * A spread stores the link name of its object (facture, commande, societe...) in object_type, and the
+ * spread tabs pass it as fromtype, while saturne_get_objects_metadata() keys most Dolibarr objects under
+ * another name (invoice, order, thirdparty...). Each entry is added under its link name too, flagged as
+ * an alias like the ones of Saturne, so that a loop over the objects still processes it once.
+ *
+ * @return array<string, array<string, mixed>> Objects metadata, plus one alias per link name
+ */
+function doliletter_spread_get_objects_metadata(): array
+{
+    if (!function_exists('saturne_get_objects_metadata')) {
+        return [];
+    }
+
+    $objectsMetadata = saturne_get_objects_metadata();
+    foreach ($objectsMetadata as $objectType => $objectMetadata) {
+        $linkName = $objectMetadata['link_name'] ?? '';
+        if ($linkName === '' || isset($objectsMetadata[$linkName])) {
+            continue;
+        }
+
+        $objectsMetadata[$linkName]             = $objectMetadata;
+        $objectsMetadata[$linkName]['alias_of'] = $objectType;
+    }
+
+    return $objectsMetadata;
+}
+
+/**
  * Create the attendance sheet backing a spread the first time someone is added to it.
  *
  * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet, already fetched (may be empty)

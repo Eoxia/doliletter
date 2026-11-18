@@ -206,3 +206,41 @@ function doliletter_run_spread_backward(): array
 
     return $enabledObjectTypes;
 }
+
+/**
+ * Get the tab type under which the card of an object shows the spread tabs
+ *
+ * It must be the type the head function of the card passes to complete_head_from_modules(), or the
+ * tabs never show. The tab_type of the Saturne metadata gives it for most Dolibarr objects, except
+ * the few listed below. An object of a module shows them under {tab_type}@{module}, the module being
+ * the folder that holds the lib of the object: the key of the object does not always start with it
+ * (call_list of ReedCRM), and the class name is not always the element (CommandeFournisseur).
+ *
+ * @param  string               $objectType     Key of the object in saturne_get_objects_metadata()
+ * @param  array<string, mixed> $objectMetadata Entry of saturne_get_objects_metadata()
+ * @return string                               Tab type, ex. supplier_order or risk@digiriskdolibarr
+ */
+function doliletter_get_spread_tab_type(string $objectType, array $objectMetadata): string
+{
+    // Dolibarr cards whose head function does not use the tab_type of the Saturne metadata
+    $dolibarrTabTypes = ['bom' => 'bom', 'ficheinter' => 'intervention', 'supplier_order' => 'supplier_order'];
+    if (isset($dolibarrTabTypes[$objectType])) {
+        return $dolibarrTabTypes[$objectType];
+    }
+
+    $tabType = (string) ($objectMetadata['tab_type'] ?? '');
+    if (strpos($tabType, '@') !== false) {
+        return $tabType;
+    }
+
+    // A Dolibarr folder holding a lib, such as core/ or bom/, has no module descriptor
+    $libPath = (string) ($objectMetadata['lib_path'] ?? '');
+    if (preg_match('~([^/]+)/lib/[^/]+$~', $libPath, $matches) !== 1) {
+        return $tabType;
+    }
+    if (!is_dir(dol_buildpath('/' . $matches[1] . '/core/modules'))) {
+        return $tabType;
+    }
+
+    return $tabType . '@' . $matches[1];
+}

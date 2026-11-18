@@ -122,7 +122,7 @@ if (isModEnabled('societe')) {
     $contact    = new Contact($db);
 }
 
-$objectsMetadata    = saturne_get_objects_metadata();
+$objectsMetadata    = doliletter_spread_get_objects_metadata();
 
 // A module contributing its objects through the Saturne metadata hook only does so on the pages
 // whose hook context it declares, and this one has none. Without the metadata the diffused object
