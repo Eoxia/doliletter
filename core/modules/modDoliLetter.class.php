@@ -194,17 +194,11 @@ class modDoliLetter extends DolibarrModules {
 			$enabledObjectTypes = saturne_get_enabled_linked_object_types($spreadableObjects, 'DOLILETTER_SPREAD_LINK_');
 		}
 
+		dol_include_once('/doliletter/lib/doliletter_linked_object.lib.php');
+
 		foreach ($enabledObjectTypes as $objectType) {
 			$objectMetadata = $spreadableObjects[$objectType];
-
-			if (preg_match('/_/', $objectType)) {
-				$splittedElementType = explode('_', $objectType);
-				$moduleName = $splittedElementType[0];
-				$objectName = dol_strtolower($objectMetadata['class_name']);
-				$tabType    = $objectName . '@' . $moduleName;
-			} else {
-				$tabType = $objectMetadata['tab_type'];
-			}
+			$tabType        = doliletter_get_spread_tab_type($objectType, $objectMetadata);
 
 			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
 			$this->tabs[] = ['data' => $tabType . ':+spreaddocuments:' . $pictoSpreadDocuments . $langs->trans('SpreadDocuments') . ':doliletter@doliletter:1:/doliletter/view/spread_documents.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
