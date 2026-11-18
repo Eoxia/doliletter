@@ -61,6 +61,8 @@ $id           = GETPOST('id');
 $type         = GETPOST('type');
 
 $ecmfile = new EcmFiles($db);
+// NOREQUIREUSER leaves $user unset, while the footer asks it for its rights
+$user = new User($db);
 
 $upload_dir = $conf->doliletter->multidir_output[isset($object->entity) ? $object->entity : 1];
 
@@ -97,7 +99,11 @@ llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
 		<table class="wpeo-gridlayout grid-2 file-generation">
 			<?php if ($type == 'envelope') : ?>
 				<?php
-				$envelope_filelist = dol_dir_list($upload_dir . '/' . $object->element . '/' . $object->ref, 'files');
+				$envelope_filelist               = dol_dir_list($upload_dir . '/' . $object->element . '/' . $object->ref, 'files');
+				$envelope_filename               = '';
+				$envelope_file                   = null;
+				$acknowledgementreceipt_filename = '';
+				$acknowledgementreceipt_file     = null;
 
 				if (!empty($envelope_filelist)) {
 					foreach ($envelope_filelist as $file) {
@@ -105,8 +111,10 @@ llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
 							$envelope_filename = $file['name'];
 						}
 					}
-					$envelope_file = new EcmFiles($db);
-					$envelope_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$envelope_filename, '', '', 'doliletter_envelope', $object->id);
+					if (dol_strlen($envelope_filename) > 0) {
+						$envelope_file = new EcmFiles($db);
+						$envelope_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$envelope_filename, '', '', 'doliletter_envelope', $object->id);
+					}
 				}
 
 				$acknowledgementreceipt_filelist = dol_dir_list($upload_dir . '/' . $object->element . '/' . $object->ref . '/acknowledgementreceipt', 'files');
@@ -117,11 +125,12 @@ llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
 							$acknowledgementreceipt_filename = $file['name'];
 						}
 					}
-					$acknowledgementreceipt_file = new EcmFiles($db);
-					$acknowledgementreceipt_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$acknowledgementreceipt_filename, '', '', 'doliletter_envelope', $object->id);
-
+					if (dol_strlen($acknowledgementreceipt_filename) > 0) {
+						$acknowledgementreceipt_file = new EcmFiles($db);
+						$acknowledgementreceipt_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$acknowledgementreceipt_filename, '', '', 'doliletter_envelope', $object->id);
+					}
 				}
-				if (dol_strlen($envelope_file->share) > 0) : ?>
+				if (is_object($envelope_file) && dol_strlen($envelope_file->share) > 0) : ?>
 					<tr>
 						<td>
 							<strong class="grid-align-middle"><?php echo $langs->trans("YourEnvelope"); ?></strong>
@@ -133,7 +142,7 @@ llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
 						</td>
 					</tr>
 				<?php endif; ?>
-				<?php if (dol_strlen($acknowledgementreceipt_file->share)) : ?>
+				<?php if (is_object($acknowledgementreceipt_file) && dol_strlen($acknowledgementreceipt_file->share)) : ?>
 					<tr>
 						<td>
 							<strong class="grid-align-middle"><?php echo $langs->trans("YourAcknowledgementReceipt"); ?></strong>

@@ -21,13 +21,16 @@
  * \brief   Liste en lecture seule des personnes de la diffusion.
  *          Une personne diffusee ne voyait que sa propre ligne : elle ne pouvait pas savoir qui
  *          d'autre avait pris connaissance du document, alors que c'est le sujet de la diffusion.
- *          Expects: $db, $langs, $signatories, $tmpUser.
+ *          Expects: $db, $langs, $signatories, $tmpUser, $showPhone, $showEmail, $signinSheetDownloadUrl (empty when not offered).
  */
 
 global $db, $langs;
 
+// A signature nobody was assigned to is not a person of the spread: it showed as "Unknown"
+$listedSignatories = array_filter($signatories, 'doliletter_spread_signatory_has_identity');
+
 $signedCount = 0;
-foreach ($signatories as $signatoryItem) {
+foreach ($listedSignatories as $signatoryItem) {
     if (!empty($signatoryItem->signature)) {
         $signedCount++;
     }
@@ -40,7 +43,12 @@ foreach ($signatories as $signatoryItem) {
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <?php if (!isset($showCount) || $showCount) { ?>
-            <span class="spread-signatories__count"><?php echo $langs->trans('SpreadSignatoriesCount', $signedCount, count($signatories)); ?></span>
+            <span class="spread-signatories__count"><?php echo $langs->trans('SpreadSignatoriesCount', $signedCount, count($listedSignatories)); ?></span>
+            <?php } ?>
+            <?php if (!empty($signinSheetDownloadUrl) && $signedCount > 0) { ?>
+            <a href="<?php echo $signinSheetDownloadUrl; ?>" class="spread-signatories__download" title="<?php echo dol_escape_htmltag($langs->transnoentities('SpreadSigninSheetDownloadHelp')); ?>">
+                <i class="fas fa-file-pdf"></i> <?php echo $langs->trans('SpreadSigninSheetDownload'); ?>
+            </a>
             <?php } ?>
             <?php if (!empty($isSignedPreventionPlan) && isset($registerUrl)) { ?>
             <a href="<?php echo $registerUrl; ?>" style="font-size: 13px; padding: 6px 12px; background: #3b82f6; color: white; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(59,130,246,0.2);">
@@ -50,11 +58,11 @@ foreach ($signatories as $signatoryItem) {
         </div>
     </div>
 
-    <?php if (empty($signatories)) { ?>
+    <?php if (empty($listedSignatories)) { ?>
     <div class="spread-signatories__empty"><?php echo $langs->trans('SpreadNoSignatoryYet'); ?></div>
-    <?php } elseif (!isset($showName) || $showName || !empty($showContact) || !empty($showDocs)) { ?>
+    <?php } elseif (!isset($showName) || $showName || !empty($showPhone) || !empty($showEmail) || !empty($showDocs)) { ?>
     <ul class="spread-signatories__list">
-        <?php foreach ($signatories as $signatoryItem) {
+        <?php foreach ($listedSignatories as $signatoryItem) {
             $hasSigned = !empty($signatoryItem->signature);
 
             $signatoryName  = '';
@@ -106,14 +114,14 @@ foreach ($signatories as $signatoryItem) {
                     <?php echo dol_strlen($signatoryName) ? $signatoryName : $langs->trans('Unknown'); ?>
                 </span>
                 
-                <?php if (!empty($showContact) && (!empty($signatoryEmail) || !empty($signatoryPhone))) { ?>
+                <?php if ((!empty($showEmail) && !empty($signatoryEmail)) || (!empty($showPhone) && !empty($signatoryPhone))) { ?>
                     <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px; font-size: 13px; color: #6b7280;">
-                        <?php if (!empty($signatoryEmail)) { ?>
+                        <?php if (!empty($showEmail) && !empty($signatoryEmail)) { ?>
                         <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
                             <i class="fas fa-envelope opacitymedium"></i> <?php echo dol_escape_htmltag($signatoryEmail); ?>
                         </span>
                         <?php } ?>
-                        <?php if (!empty($signatoryPhone)) { ?>
+                        <?php if (!empty($showPhone) && !empty($signatoryPhone)) { ?>
                         <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
                             <i class="fas fa-phone opacitymedium" style="transform: scaleX(-1);"></i> <?php echo dol_escape_htmltag($signatoryPhone); ?>
                         </span>
@@ -128,7 +136,10 @@ foreach ($signatories as $signatoryItem) {
                 </span>
                 <i class="fas <?php echo $hasSigned ? 'fa-check-circle' : 'fa-hourglass-half'; ?>" style="color: <?php echo $hasSigned ? '#10b981' : '#9ca3af'; ?>; min-width: 16px; text-align: center; font-size: 1.1em;"></i>
             </div>
-            
+
+            <?php if (!empty($permissiontoreadsignatorydetails)) {
+                require __DIR__ . '/public_spread_signatory_details.tpl.php';
+            } ?>
         </li>
         <?php } ?>
     </ul>

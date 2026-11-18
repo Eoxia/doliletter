@@ -30,6 +30,11 @@ include_once DOL_DOCUMENT_ROOT.'/core/modules/DolibarrModules.class.php';
  */
 class modDoliLetter extends DolibarrModules {
 	/**
+	 * @var int[] Minimum version of Saturne required by module, same format as need_dolibarr_version: checked by init() and by the Saturne index page
+	 */
+	public $need_saturne_version = array(23, 8, 0);
+
+	/**
 	 * Constructor. Define names, constants, directories, boxes, permissions
 	 *
 	 * @param DoliDB $db Database handler
@@ -38,8 +43,8 @@ class modDoliLetter extends DolibarrModules {
 		global $langs, $conf;
 
 		$this->db = $db;
-		if (file_exists(__DIR__ . '/../../../saturne/lib/saturne_functions.lib.php')) {
-			require_once __DIR__ . '/../../../saturne/lib/saturne_functions.lib.php';
+		if (file_exists(dol_buildpath('/saturne/lib/saturne_functions.lib.php'))) {
+			require_once dol_buildpath('/saturne/lib/saturne_functions.lib.php');
 			saturne_load_langs(['doliletter@doliletter']);
 		} else {
 			$this->error++;
@@ -56,7 +61,7 @@ class modDoliLetter extends DolibarrModules {
 		$this->descriptionlong = $langs->trans('DoliLetterDescriptionLong');
 		$this->editor_name     = 'Eoxia';
 		$this->editor_url      = 'https://eoxia.com/';
-		$this->version         = '23.1.1';
+		$this->version         = '23.2.0';
 		$this->const_name      = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto           = 'doliletter256px@doliletter';
 
@@ -102,7 +107,7 @@ class modDoliLetter extends DolibarrModules {
 
 		// Dependencies
 		$this->hidden       = false;
-		$this->depends      = array('modFckeditor', 'modProjet'); // List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
+		$this->depends      = array('modFckeditor', 'modProjet', 'modSaturne'); // List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
 		$this->requiredby   = array(); // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = array(); // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -137,6 +142,8 @@ class modDoliLetter extends DolibarrModules {
 			// CONST SIGNIN SHEET
 			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_ADDON_PDF', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
 			$i++ => ['DOLILETTER_SIGNINSHEETDOCUMENT_DEFAULT_MODEL', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
+			// Model preselected in the Diffusion tab, whose list is the one of the "signinsheet" type
+			$i++ => ['DOLILETTER_SIGNINSHEET_DEFAULT_MODEL', 'chaine', 'signinsheetdocument_FE_Doliletter', '', $conf->entity],
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
             $i++ => ['DOLILETTER_AUTOMATIC_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
             $i++ => ['DOLILETTER_MANUAL_PDF_GENERATION', 'integer', 1, '', 0, 'current'],
@@ -160,26 +167,24 @@ class modDoliLetter extends DolibarrModules {
 
 		// Array to add new pages in new tabs
 		$this->tabs = array();
-			$this->tabs[] = array('data'=>'thirdparty:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=thirdparty');
-			$this->tabs[] = array('data'=>'product:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=product');
-			$this->tabs[] = array('data'=>'project:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=project');
-			$this->tabs[] = array('data'=>'propal:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=propal');
-			$this->tabs[] = array('data'=>'order:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=order');
-			$this->tabs[] = array('data'=>'invoice:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=facture');  	  	// To add a new tab identified by code tabname1
-			$this->tabs[] = array('data'=>'contact:+envelopeList:Envelope:@doliletter:1:/custom/doliletter/envelope_list.php?fromid=__ID__&fromtype=contact');  	  	// To add a new tab identified by code tabname1
+			$this->tabs[] = array('data'=>'thirdparty:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=thirdparty');
+			$this->tabs[] = array('data'=>'product:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=product');
+			$this->tabs[] = array('data'=>'project:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=project');
+			$this->tabs[] = array('data'=>'propal:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=propal');
+			$this->tabs[] = array('data'=>'order:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=order');
+			$this->tabs[] = array('data'=>'invoice:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=facture');  	  	// To add a new tab identified by code tabname1
+			$this->tabs[] = array('data'=>'contact:+envelopeList:Envelope:@doliletter:1:/doliletter/envelope_list.php?fromid=__ID__&fromtype=contact');  	  	// To add a new tab identified by code tabname1
 		// The Diffusion tabs are the only ones the module installs : the reset keeps the envelope
 		// tabs declared above out of the database, exactly as init() did before this block moved here.
-		$this->tabs  = [];
-		$pictoSpread = '<i class="fas fa-check-circle"></i> ';
+		$this->tabs           = [];
+		$pictoSpread          = '<i class="fas fa-bullhorn"></i> ';
+		$pictoSpreadDocuments = '<i class="fas fa-file-export"></i> ';
 
 		// Tabs and hooks are declared for the enabled spreads only, they are driven from admin/setup.php
-		dol_include_once('/saturne/lib/object.lib.php');
-		dol_include_once('/saturne/lib/linked_object.lib.php');
+		// and follow its list: an object without card loses the tabs it was given before.
+		dol_include_once('/doliletter/lib/doliletter_linked_object.lib.php');
 
-		$spreadableObjects = [];
-		if (function_exists('saturne_get_objects_metadata') && function_exists('saturne_filter_linkable_objects')) {
-			$spreadableObjects = saturne_filter_linkable_objects(saturne_get_objects_metadata(), ['doliletter_']);
-		}
+		$spreadableObjects = function_exists('doliletter_get_spreadable_objects') ? doliletter_get_spreadable_objects() : [];
 
 		$enabledObjectTypes = [];
 		if (function_exists('saturne_get_enabled_linked_object_types')) {
@@ -188,17 +193,10 @@ class modDoliLetter extends DolibarrModules {
 
 		foreach ($enabledObjectTypes as $objectType) {
 			$objectMetadata = $spreadableObjects[$objectType];
+			$tabType        = doliletter_get_spread_tab_type($objectType, $objectMetadata);
 
-			if (preg_match('/_/', $objectType)) {
-				$splittedElementType = explode('_', $objectType);
-				$moduleName = $splittedElementType[0];
-				$objectName = dol_strtolower($objectMetadata['class_name']);
-				$tabType    = $objectName . '@' . $moduleName;
-			} else {
-				$tabType = $objectMetadata['tab_type'];
-			}
-
-			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/custom/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+			$this->tabs[] = ['data' => $tabType . ':+spread:' . $pictoSpread . $langs->trans('Spread') . ':doliletter@doliletter:1:/doliletter/view/spread.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+			$this->tabs[] = ['data' => $tabType . ':+spreaddocuments:' . $pictoSpreadDocuments . $langs->trans('SpreadDocuments') . ':doliletter@doliletter:1:/doliletter/view/spread_documents.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
 
 			$this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
 			$this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
@@ -435,6 +433,27 @@ class modDoliLetter extends DolibarrModules {
 	public function init($options = ''): int {
 		global $conf, $langs, $user;
 
+		// Saturne provides the functions used below : refuse the activation rather than a fatal error when it is missing
+		if (!function_exists('saturne_load_langs')) {
+			$this->error = $langs->trans('activateModuleDependNotSatisfied', $this->name, 'modSaturne', $this->name);
+			return -1;
+		}
+
+		// Saturne ships separately: refuse one older than need_saturne_version, it lacks functions this release calls
+		require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
+		dol_include_once('/saturne/core/modules/modSaturne.class.php');
+		$saturneVersion = class_exists('modSaturne') ? (new modSaturne($this->db))->version : '';
+		if (versioncompare(explode('.', $saturneVersion), $this->need_saturne_version) < 0) {
+			$langs->load('admin'); // activateModuleDependNotSatisfied, not loaded when the Saturne index page runs init()
+			$this->error = $langs->trans('activateModuleDependNotSatisfied', $this->name, 'modSaturne >= ' . versiontostring($this->need_saturne_version) . ' (' . ($saturneVersion ?: '-') . ')', $this->name);
+			return -1;
+		}
+
+		// Dolibarr runs init() before activating $this->depends : activate them first, the spread links below need isModEnabled() on them
+		if (function_exists('saturne_activate_module_dependencies') && saturne_activate_module_dependencies($this) < 0) {
+			return -1;
+		}
+
 		$this->_load_tables('/doliletter/sql/');
 
 		delDocumentModel('phobos', 'envelope');
@@ -463,9 +482,13 @@ class modDoliLetter extends DolibarrModules {
 		delDocumentModel('standard', 'signinsheet');
 		delDocumentModel('FE_Doliletter', 'signinsheetdocument');
 		delDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheetdocument');
+		delDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheet');
 
 		addDocumentModel('signinsheet_odt', 'signinsheet', 'ODT templates', 'DOLILETTER_SIGNINSHEET_ADDON_ODT_PATH');
-		addDocumentModel('standard', 'signinsheet', '', '');
+		// The Diffusion tab lists the models of the "signinsheet" type: the PDF attendance sheet must be
+		// registered there to be offered at all. "standard" is not added back, no generator answers to
+		// that name since the PDF model was renamed FE_Doliletter ("Failed to load doc generator").
+		addDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheet', 'SigninSheetDocument', '');
 		addDocumentModel('signinsheetdocument_FE_Doliletter', 'signinsheetdocument', '', '');
 
 		dolibarr_set_const($this->db, 'DOLILETTER_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
@@ -509,6 +532,9 @@ class modDoliLetter extends DolibarrModules {
         }
 
 		$result = $this->_init($sql, $options);
+		if ($result > 0) {
+			$this->grantModuleReadRights();
+		}
 
 		// Replayed on a fresh descriptor, so that the constants written above are taken into account.
 		doliletter_sync_spread_objects();
@@ -527,5 +553,40 @@ class modDoliLetter extends DolibarrModules {
 	public function remove($options = ''): int {
 		$sql = array();
 		return $this->_remove($sql, $options);
+	}
+
+	/**
+	 * Grant the module read rights (lire, read) to every user and group already holding a DoliLetter right.
+	 *
+	 * Both rights were appended after the others (#520) and the index requires doliletter->read.
+	 * Dolibarr creates a new right on activation but never grants it, so every existing
+	 * non-admin user lost access to the module. Idempotent: rows already present are skipped.
+	 *
+	 * @return void
+	 */
+	private function grantModuleReadRights(): void
+	{
+		global $conf;
+
+		$entity     = (int) $conf->entity;
+		$readRights = [(int) ($this->numero . '09'), (int) ($this->numero . '10')];
+
+		$moduleRights  = 'SELECT rd.id FROM ' . MAIN_DB_PREFIX . 'rights_def AS rd';
+		$moduleRights .= " WHERE rd.module = 'doliletter' AND rd.entity = " . $entity;
+		$moduleRights .= ' AND rd.id NOT IN (' . implode(', ', $readRights) . ')';
+
+		foreach (['user_rights' => 'fk_user', 'usergroup_rights' => 'fk_usergroup'] as $table => $owner) {
+			foreach ($readRights as $rightId) {
+				$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . $table . ' (entity, ' . $owner . ', fk_id)';
+				$sql .= ' SELECT DISTINCT ' . $entity . ', r.' . $owner . ', ' . $rightId;
+				$sql .= ' FROM ' . MAIN_DB_PREFIX . $table . ' AS r';
+				$sql .= ' WHERE r.entity = ' . $entity . ' AND r.fk_id IN (' . $moduleRights . ')';
+				$sql .= ' AND NOT EXISTS (SELECT 1 FROM ' . MAIN_DB_PREFIX . $table . ' AS g';
+				$sql .= ' WHERE g.entity = r.entity AND g.' . $owner . ' = r.' . $owner . ' AND g.fk_id = ' . $rightId . ')';
+				if (!$this->db->query($sql)) {
+					dol_syslog(__METHOD__ . ' ' . $this->db->lasterror(), LOG_ERR);
+				}
+			}
+		}
 	}
 }

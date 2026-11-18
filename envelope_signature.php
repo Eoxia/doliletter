@@ -67,7 +67,7 @@ $permissiontoread = $user->rights->doliletter->envelope->read;
 $permissiontoadd = $user->rights->doliletter->envelope->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->doliletter->envelope->delete || ($permissiontoadd && isset($object->status));
 $permissionnote = $user->rights->doliletter->envelope->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->envelope->letter->write; // Used by the include of actions_dellink.inc.php
+$permissiondellink = $user->rights->doliletter->envelope->write; // Used by the include of actions_dellink.inc.php
 $upload_dir = $conf->doliletter->multidir_output[$conf->entity];
 
 // Security check (enable the most restrictive one)
@@ -209,7 +209,7 @@ if ($action == 'send') {
 			require_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
 
 			$from = $conf->global->MAIN_MAIL_EMAIL_FROM;
-			$url = dol_buildpath('/custom/doliletter/public/signature/add_signature.php?track_id='.$signatory->signature_url, 3);
+			$url = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id='.$signatory->signature_url;
 
 			$message = $langs->trans('SignatureEmailMessage') . ' ' . $url;
 			$subject = $langs->trans('SignatureEmailSubject') . ' ' . $object->ref;
@@ -293,9 +293,14 @@ if ($action == 'deleteAttendant') {
 $title    = $langs->trans("EnvelopeSignature");
 $help_url = '';
 $morejs   = array("/doliletter/js/signature-pad.min.js", "/doliletter/js/doliletter.js.php");
-$morecss  = array("/doliletter/css/doliletter.css");
+// Saturne back office theme, as saturne_header() would add it: body class and stylesheets. The
+// compiled stylesheet of the module replaces the stale css/doliletter.css, still used by the public pages
+$morecss  = array('/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css');
 
-llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
+llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss, '', 'saturne-theme mod-doliletter-envelope');
+
+// Token read by doliletter.js.php for the addSignature AJAX call
+print '<input type="hidden" name="token" value="' . newToken() . '">';
 
 if (!empty($object->id)) $res = $object->fetch_optionals();
 
@@ -304,7 +309,8 @@ if (!empty($object->id)) $res = $object->fetch_optionals();
 
 $head = envelopePrepareHead($object);
 print dol_get_fiche_head($head, 'envelopeSign', $langs->trans("Sign"), -1, "doliletter@doliletter");
-dol_strlen($object->label) ? $morehtmlref = ' - ' . $object->label : '';
+$morehtmlref  = dol_strlen($object->label) ? ' - ' . $object->label : '';
+$morehtmlleft = '';
 
 dol_banner_tab($object, 'ref', '', 0, 'ref', 'ref', $morehtmlref, '', 0, $morehtmlleft);
 
@@ -319,7 +325,7 @@ print dol_get_fiche_end(); ?>
 		</div>
 		<?php
 		if ($signatory->checkSignatoriesSignatures($object->id)) {
-			print '<a style="width = 100%;margin-right:0" href="'.DOL_URL_ROOT . '/custom/doliletter/envelope_signature.php?id='.$id.'">'.'</a>';
+			print '<a style="width = 100%;margin-right:0" href="'.dol_buildpath('/doliletter/envelope_signature.php', 1) . '?id='.$id.'">'.'</a>';
 		}
 		?>
 	</div>
@@ -416,7 +422,7 @@ if ((empty($action) || ($action != 'create' && $action != 'edit'))) {
 		//print '</td><td class="center">';
 		//print $element->getLibStatut(5);
 		print '</td>';
-		$signature_url = dol_buildpath('/custom/doliletter/public/signature/add_signature.php?track_id='.$element->signature_url.'&type=envelope', 1);
+		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id='.$element->signature_url.'&type=envelope';
 		print '<td class="center"><a href="'. $signature_url .'">';
 		print $signature_url;
 		print '</a></td>';

@@ -1,0 +1,34 @@
+/* DoliLetter modern theme: setup page of the module (admin/setup.php) */
+
+#{$dl-scope} {
+  /* Fields of the external signatories: a table nested in a row of the public interface settings.
+     It reads as an inset panel of that row instead of a second white card. Same selector as the card
+     rule of Saturne (tables.scss), narrowed to that nested table, so that it wins over it. */
+  td > table.noborder:not(.nobordernopadding):not(.paymenttable):not(.margintable):has(> tbody > tr > td.ext-visible-cell) {
+    margin-bottom: 6px;
+    background: $dl-surface-soft;
+    box-shadow: none;
+
+    > tbody > tr.liste_titre,
+    > tbody > tr.oddeven {
+      background: transparent;
+    }
+
+    /* The cells sit in the last row of the outer table: eldy and Saturne round their corners as if
+       they were the corners of that table */
+    > tbody > tr > td {
+      border-radius: 0;
+      background: transparent;
+    }
+
+    > tbody > tr.liste_titre > td {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    > tbody > tr:not(.liste_titre) > td {
+      padding-top: 7px;
+      padding-bottom: 7px;
+    }
+  }
+}

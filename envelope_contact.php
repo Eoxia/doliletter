@@ -139,7 +139,8 @@ if ($action == 'deletecontact' && $user->rights->contrat->creer) {
  * View
  */
 
-llxHeader('', $langs->trans("Contract"), "");
+// Saturne back office theme, as saturne_header() would add it: body class and stylesheets
+llxHeader('', $langs->trans("Contract"), "", '', 0, 0, [], ['/saturne/css/saturne.min.css', '/doliletter/css/doliletter.min.css'], '', 'saturne-theme mod-doliletter-envelope');
 
 $form = new Form($db);
 $formcompany = new FormCompany($db);
