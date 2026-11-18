@@ -271,7 +271,7 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 			}
 
 			// Date
-			$dateStr = !empty($sig->signature_date) ? dol_print_date($sig->signature_date, 'dayhour') : '';
+			$dateStr = !empty($sig->signature_date) ? dol_print_date($sig->signature_date, 'dayhour', 'tzuserrel') : '';
 			$pdf->Cell(35, $rowHeight, $dateStr, 1, 1, 'C');
 
 			$posy += $rowHeight;
