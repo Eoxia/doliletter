@@ -619,7 +619,7 @@ class pdf_phobos extends ModelePDFEnvelope
 		$contact->fetch($object->fk_contact);
 
 		$pdf->SetXY($this->marge_gauche, $posy);
-		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 5,  $sender->firstname . ' ' . $sender->lastname . ' ' . $outputlangs->trans('The') . ' ' . dol_print_date($sender->signature_date), 0, 'L', 0);
+		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 5,  $sender->firstname . ' ' . $sender->lastname . ' ' . $outputlangs->trans('The') . ' ' . dol_print_date($sender->signature_date, '', 'tzuserrel', $outputlangs), 0, 'L', 0);
 
 		$pdf->SetXY($this->marge_gauche, $posy + 5);
 		$pdf->Image($test, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
