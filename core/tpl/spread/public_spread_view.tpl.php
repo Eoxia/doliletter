@@ -957,6 +957,22 @@ input.spread-phone--invalid,
     overflow-wrap: anywhere;
 }
 
+/* Photos side by side, the other documents keep one line each */
+.spread-signatory-details__files .spread-signatory-details__photo {
+    display: inline-block;
+    margin: 0 8px 8px 0;
+    vertical-align: top;
+}
+
+.spread-signatory-details__photo img {
+    display: block;
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
 /* Deux carres de 38px tiennent a cote du logo meme sur un telephone : plus besoin de les passer
    sur une ligne a eux comme le faisaient les boutons avec libelle */
 </style>
@@ -1546,13 +1562,16 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
     // Signed list configuration
     $showCount   = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATURE_COUNT', 1);
     $showName    = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_NAME', 1);
+    // Phone and email shared one setting: it stays the default of each until they are set on their own
     $showContact = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_CONTACT', 0);
+    $showPhone   = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_PHONE', $showContact);
+    $showEmail   = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_SHOW_SIGNATORY_EMAIL', $showContact);
 
     // Une personne diffusee doit pouvoir voir qui d'autre a pris connaissance du document. La liste
     // modifiable ci-dessus est reservee aux gestionnaires : celle-ci est en lecture seule.
     // L'affichage est conditionn� par les param�tres ou s'il s'agit d'un visiteur public.
     // Hidden list or not, the PDF attendance sheet stays downloadable from it
-    if ((!$isLogged && !empty($signSignatory)) || $showCount || $showName || $showContact || !empty($signinSheetDownloadUrl)) {
+    if ((!$isLogged && !empty($signSignatory)) || $showCount || $showName || $showPhone || $showEmail || !empty($signinSheetDownloadUrl)) {
         require __DIR__ . '/public_spread_signatories.tpl.php';
     }
     ?>
