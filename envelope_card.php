@@ -78,12 +78,19 @@ $object         = new Envelope($db);
 $contact        = new Contact($db);
 $project        = new Project($db);
 $signatory      = new EnvelopeSignature($db);
-$refEnvelopeMod = new $conf->global->DOLILETTER_ENVELOPE_ADDON();
 $extrafields    = new ExtraFields($db);
 $usertmp        = new User($db);
 $letter         = new LetterSending($db);
 $ecmfile        = new EcmFiles($db);
 $thirdparty     = new Societe($db);
+
+// Numbering module of the envelopes. Only the standard one is loaded above: a missing or unknown
+// constant falls back on it instead of a fatal "new ''"
+$refEnvelopeModName = getDolGlobalString('DOLILETTER_ENVELOPE_ADDON', 'mod_envelope_standard');
+if (!class_exists($refEnvelopeModName)) {
+	$refEnvelopeModName = 'mod_envelope_standard';
+}
+$refEnvelopeMod = new $refEnvelopeModName();
 
 $object->fetch($id);
 if ($object->fk_contact > 0) {
