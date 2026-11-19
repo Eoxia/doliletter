@@ -224,7 +224,7 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 			}
 
 			$pdf->SetXY($this->marge_gauche, $posy);
-			$pdf->Cell(15, $rowHeight, $sig->id, 1, 0, 'C');
+			$pdf->Cell(15, $rowHeight, (string) $sig->id, 1, 0, 'C');
 			$pdf->Cell(35, $rowHeight, $sig->lastname, 1, 0, 'C');
 			$pdf->Cell(35, $rowHeight, $sig->firstname, 1, 0, 'C');
 			
@@ -453,12 +453,12 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$pdf->SetFillColor(63, 114, 134);
 		$pdf->SetTextColor(255, 255, 255);
 		$pdf->SetFont('', 'B', $default_font_size);
-		$pdf->Cell(15, 10, $outputlangs->transnoentities('Ref'), 1, 0, 'C', 1);
-		$pdf->Cell(35, 10, $outputlangs->transnoentities('Lastname'), 1, 0, 'C', 1);
-		$pdf->Cell(35, 10, $outputlangs->transnoentities('Firstname'), 1, 0, 'C', 1);
-		$pdf->Cell(30, 10, $outputlangs->transnoentities('Attendance'), 1, 0, 'C', 1);
-		$pdf->Cell(40, 10, $outputlangs->transnoentities('Signature'), 1, 0, 'C', 1);
-		$pdf->Cell(35, 10, $outputlangs->transnoentities('SignatureDate'), 1, 1, 'C', 1);
+		$pdf->Cell(15, 10, $outputlangs->transnoentities('Ref'), 1, 0, 'C', true);
+		$pdf->Cell(35, 10, $outputlangs->transnoentities('Lastname'), 1, 0, 'C', true);
+		$pdf->Cell(35, 10, $outputlangs->transnoentities('Firstname'), 1, 0, 'C', true);
+		$pdf->Cell(30, 10, $outputlangs->transnoentities('Attendance'), 1, 0, 'C', true);
+		$pdf->Cell(40, 10, $outputlangs->transnoentities('Signature'), 1, 0, 'C', true);
+		$pdf->Cell(35, 10, $outputlangs->transnoentities('SignatureDate'), 1, 1, 'C', true);
 
 		$pdf->SetTextColor(0, 0, 0);
 		$pdf->SetFont('', '', $default_font_size);
