@@ -150,11 +150,17 @@ class doc_signinsheet_odt extends SaturneDocumentModel
                 return 0;
             }
 
-			$tempdir = $conf->digiriskdolibarr->multidir_output[$object->entity ?? 1] . '/temp/';
+			// Temp dir of this module: Saturne empties it once the document is written (it was the one of Digirisk,
+			// which does not exist without Digirisk and is never emptied by this generation)
+			$multidirOutput = $conf->doliletter->multidir_output;
+			$tempdir        = ($multidirOutput[$object->entity ?? $conf->entity] ?? $multidirOutput[$conf->entity] ?? '') . '/temp/';
+			dol_mkdir($tempdir);
 
             foreach ($signatories as $k => $signatory) {
 
-				if ($signatory->element_id == 0) {
+				// Skip the rows still waiting for a user to be picked, as the Diffusion tab does. A person registered
+				// from the public link has no user either, but signs like the others
+				if (empty($signatory->element_id) && $signatory->element_type != DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE) {
 					continue;
 				}
 
