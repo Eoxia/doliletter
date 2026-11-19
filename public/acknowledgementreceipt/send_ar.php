@@ -307,7 +307,8 @@ if ($action == 'addSignature') {
 
 	$signatory->fetch($signatory->id);
 	$signatory->signature = $request_body;
-	$signatory->signature_date = dol_now('tzuser');
+	// GMT timestamp, printed in the timezone of the user (tzuserrel)
+	$signatory->signature_date = dol_now();
 
 	if (!$error) {
 

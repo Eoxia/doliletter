@@ -142,7 +142,8 @@ if ($action == 'addSignature') {
 
 	$signatory->fetch($signatory->id);
 	$signatory->signature = $request_body;
-	$signatory->signature_date = dol_now('tzuser');
+	// GMT timestamp, printed in the timezone of the user (tzuserrel): dol_now('tzuser') shifted it by that timezone
+	$signatory->signature_date = dol_now();
 
 	if (!$error) {
 
@@ -224,7 +225,7 @@ if ($action == 'send') {
 				if (!empty($conf->global->MAIN_MAIL_SMTPS_ID)) {
 					$result = $mailfile->sendfile();
 					if ($result) {
-						$signatory->last_email_sent_date = dol_now('tzuser');
+						$signatory->last_email_sent_date = dol_now();
 						$signatory->update($user, true);
 						$signatory->setPendingSignature($user, false);
 						setEventMessages($langs->trans('SendEmailAt').' '.$signatory->email,array());
@@ -376,7 +377,7 @@ if ((empty($action) || ($action != 'create' && $action != 'edit'))) {
 	print '   ' . '<button class="copy-to-clipboard-button"><i class="fas fa-clipboard clipboard-copy"></i></button>';
 	print '<span class="copied-to-clipboard" style="display:none">'. '  ' . $langs->trans('CopiedToClipboard').'</span>';
 	print '</td><td class="center">';
-	print dol_print_date($element->signature_date, 'dayhour');
+	print dol_print_date($element->signature_date ?? '', 'dayhour', 'tzuserrel');
 	//print '</td><td class="center">';
 	//print $element->getLibStatut(5);
 	print '</td>';
@@ -416,9 +417,9 @@ if ((empty($action) || ($action != 'create' && $action != 'edit'))) {
 		print '</td><td class="role" value="E_RECEIVER">';
 		print $langs->trans("Receiver");
 		print '</td><td class="center">';
-		print dol_print_date($object->last_email_sent_date, 'dayhour');
+		print dol_print_date($element->last_email_sent_date ?? '', 'dayhour', 'tzuserrel');
 		print '</td><td class="center">';
-		print dol_print_date($element->signature_date, 'dayhour');
+		print dol_print_date($element->signature_date ?? '', 'dayhour', 'tzuserrel');
 		//print '</td><td class="center">';
 		//print $element->getLibStatut(5);
 		print '</td>';

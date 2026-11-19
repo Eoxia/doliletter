@@ -1339,7 +1339,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$formquestion = array(
 			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("ConfirmLockEnvelope") . '</span>'),
 			array('type' => 'other', 'name' => 'OK', 'label' => '', 'value' => $img, 'moreattr' => 'readonly'),
-			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("LockDescription", dol_print_date($object->date_creation), dol_print_date(!empty($signatory->signature_date) ? $signatory->signature_date : '')) . '</span>'),
+			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("LockDescription", dol_print_date($object->date_creation), dol_print_date(!empty($signatory->signature_date) ? $signatory->signature_date : '', '', 'tzuserrel')) . '</span>'),
 		);
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockEnvelope'),'', 'confirm_setLocked', $formquestion, 'yes', 'actionButtonLock', 400, 550);
