@@ -177,11 +177,11 @@ print '<div class="fichecenter">';
 print '<table class="centpercent noborder">';
 
 print '<tr class="liste_titre">';
-print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user infobox-adherent"></span> Utilisateur</td>';
-print '<td class="">Date de d\'ajout</td>';
-print '<td class="center">État</td>';
-print '<td class="center">Présence</td>';
-print '<td class="center">Lien individuel</td>';
+print '<td class="minwidth300 widthcentpercentminusx"><span class="fas fa-user infobox-adherent"></span> ' . $langs->trans('User') . '</td>';
+print '<td class="">' . $langs->trans('SpreadSignatoryAddedOn') . '</td>';
+print '<td class="center">' . $langs->trans('Status') . '</td>';
+print '<td class="center">' . $langs->trans('Attendance') . '</td>';
+print '<td class="center">' . $langs->trans('SpreadIndividualLink') . '</td>';
 print '</tr>';
 
 foreach ($signatories as $signatory) {
@@ -210,9 +210,9 @@ foreach ($signatories as $signatory) {
     print '<td>' . dol_print_date($signatory->date_creation, 'dayhour', 'tzuserrel') . '</td>';
 
     if ($signatory->status == SaturneSignature::STATUS_SIGNED) {
-        print '<td class="center"><span class="badge badge-status4 badge-status" title="Signé">Signé</span></td>';
+        print '<td class="center"><span class="badge badge-status4 badge-status" title="' . dol_escape_htmltag($langs->trans('SpreadStatusSigned')) . '">' . $langs->trans('SpreadStatusSigned') . '</span></td>';
     } else {
-        print '<td class="center"><span class="badge badge-status1 badge-status" title="En attente de signature">En attente</span></td>';
+        print '<td class="center"><span class="badge badge-status1 badge-status" title="' . dol_escape_htmltag($langs->trans('SpreadSignatoryPending')) . '">' . $langs->trans('SpreadStatusPending') . '</span></td>';
     }
 
     print '<td class="center">';

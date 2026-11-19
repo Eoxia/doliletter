@@ -243,3 +243,14 @@ SpreadAddExternalSignatory = External signatory
 SpreadSendRequestedElements = Send the requested elements
 SpreadEmailPlaceholder = your.email@example.com
 SpreadVideoNotSupported = Your browser cannot play this video.
+
+# Back office: Diffusion tab, attendance sheet (PDF and ODT), messages of the public page (texts once hard-coded)
+SpreadSignatoryAddedOn = Date added
+SpreadIndividualLink = Individual link
+SpreadStatusSigned = Signed
+SpreadStatusPending = Pending
+SpreadResponseTypeNotHandled = Response type not handled:
+SigninSheetPurpose = Purpose of the attendance sheet:
+SigninSheetAttendeesList = List of attendees
+SigninSheetPublicNote = Public note
+SigninSheetGeneratedElectronically = Electronically generated document

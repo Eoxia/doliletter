@@ -432,3 +432,14 @@ SpreadAddExternalSignatory            = Signataire externe
 SpreadSendRequestedElements           = Envoyer les éléments demandés
 SpreadEmailPlaceholder                = votre.email@exemple.com
 SpreadVideoNotSupported               = Votre navigateur ne sait pas lire cette vidéo.
+
+# Back-office : onglet Diffusion, feuille d'émargement PDF et ODT, messages de la page publique (textes autrefois en dur)
+SpreadSignatoryAddedOn                = Date d'ajout
+SpreadIndividualLink                  = Lien individuel
+SpreadStatusSigned                    = Signé
+SpreadStatusPending                   = En attente
+SpreadResponseTypeNotHandled          = Type de réponse non géré :
+SigninSheetPurpose                    = Motif de l'émargement :
+SigninSheetAttendeesList              = Liste des personnes présentes
+SigninSheetPublicNote                 = Note publique
+SigninSheetGeneratedElectronically    = Document généré électroniquement

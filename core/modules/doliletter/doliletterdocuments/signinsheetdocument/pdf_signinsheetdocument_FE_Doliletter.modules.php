@@ -111,7 +111,10 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$outputlangs->load("companies");
 		$outputlangs->load("bills");
 		$outputlangs->load("other");
+		$outputlangs->load("products");
 		$outputlangs->load("doliletter@doliletter");
+		// Attendance and its values (Present, Delay, Absent) are the keys of the Saturne signatures
+		$outputlangs->load("signature@saturne");
 		// The proofs name the blocks of a Digirisk object (risks, types of work) by a Digirisk key
 		if (isModEnabled('digiriskdolibarr')) {
 			$outputlangs->load("digiriskdolibarr@digiriskdolibarr");
@@ -188,26 +191,11 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 
         // Motif
         if (!empty($object->label)) {
-            $pdf->MultiCell(0, 8, "Motif de l'émargement : " . $object->label, 0, 'L');
+            $pdf->MultiCell(0, 8, $outputlangs->transnoentities('SigninSheetPurpose') . ' ' . $object->label, 0, 'L');
             $posy = $pdf->GetY() + 2;
         }
 
-		// Table Header
-		$pdf->SetXY($this->marge_gauche, $posy);
-		$pdf->SetFillColor(63, 114, 134);
-		$pdf->SetTextColor(255, 255, 255);
-		$pdf->SetFont('', 'B', $default_font_size);
-		$pdf->Cell(15, 10, 'Réf.', 1, 0, 'C', 1);
-		$pdf->Cell(35, 10, 'Nom', 1, 0, 'C', 1);
-		$pdf->Cell(35, 10, 'Prénom', 1, 0, 'C', 1);
-		$pdf->Cell(30, 10, 'Présence', 1, 0, 'C', 1);
-		$pdf->Cell(40, 10, 'Signature', 1, 0, 'C', 1);
-		$pdf->Cell(35, 10, 'Date de signature', 1, 1, 'C', 1);
-
-		$pdf->SetTextColor(0, 0, 0);
-		$pdf->SetFont('', '', $default_font_size);
-
-		$posy = $pdf->GetY();
+		$posy = $this->printTableHeader($pdf, $outputlangs, $posy);
 		$rowHeight = 20;
 
 		$proofFontSize = $default_font_size - 2;
@@ -230,22 +218,9 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 				$this->_pagefoot($pdf, $object, $outputlangs);
 				$pdf->AddPage();
 				$posy = $this->_pagehead($pdf, $object, $outputlangs);
-				
+
 				// Redraw Table Header
-				$pdf->SetXY($this->marge_gauche, $posy);
-				$pdf->SetFillColor(63, 114, 134);
-				$pdf->SetTextColor(255, 255, 255);
-				$pdf->SetFont('', 'B', $default_font_size);
-				$pdf->Cell(15, 10, 'Réf.', 1, 0, 'C', 1);
-				$pdf->Cell(35, 10, 'Nom', 1, 0, 'C', 1);
-				$pdf->Cell(35, 10, 'Prénom', 1, 0, 'C', 1);
-				$pdf->Cell(30, 10, 'Présence', 1, 0, 'C', 1);
-				$pdf->Cell(40, 10, 'Signature', 1, 0, 'C', 1);
-				$pdf->Cell(35, 10, 'Date de signature', 1, 1, 'C', 1);
-				
-				$pdf->SetTextColor(0, 0, 0);
-				$pdf->SetFont('', '', $default_font_size);
-				$posy = $pdf->GetY();
+				$posy = $this->printTableHeader($pdf, $outputlangs, $posy);
 			}
 
 			$pdf->SetXY($this->marge_gauche, $posy);
@@ -253,7 +228,8 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 			$pdf->Cell(35, $rowHeight, $sig->lastname, 1, 0, 'C');
 			$pdf->Cell(35, $rowHeight, $sig->firstname, 1, 0, 'C');
 			
-			$presence = ($sig->attendance == 0) ? 'Présent' : 'Absent/Retard';
+			$presenceKeys = [SaturneSignature::ATTENDANCE_PRESENT => 'Present', SaturneSignature::ATTENDANCE_DELAY => 'Delay', SaturneSignature::ATTENDANCE_ABSENT => 'Absent'];
+			$presence     = $outputlangs->transnoentities($presenceKeys[(int) $sig->attendance] ?? 'Absent');
 			$pdf->Cell(30, $rowHeight, $presence, 1, 0, 'C');
 			
 			// Signature cell
@@ -382,8 +358,8 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$pdf->SetXY(80, $this->marge_haute + 5);
 		$pdf->SetFont('', 'B', 18);
 		$pdf->SetTextColor(31, 56, 100);
-		$pdf->Cell(0, 10, "FEUILLE D'ÉMARGEMENT", 0, 1, 'C');
-		
+		$pdf->Cell(0, 10, dol_strtoupper($outputlangs->transnoentities('SigninSheetDocument')), 0, 1, 'C');
+
 		$pdf->SetTextColor(0, 0, 0);
 		$pdf->SetFont('', '', $default_font_size);
 
@@ -399,35 +375,37 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 
 		$pdf->SetXY($this->marge_gauche + 5, $posy + 2);
 		$pdf->SetFont('', 'B', $default_font_size);
-		$pdf->Cell(30, 5, "Société :", 0, 0, 'L');
+		$pdf->Cell(30, 5, $outputlangs->transnoentities('Company') . ' :', 0, 0, 'L');
 		$pdf->SetFont('', '', $default_font_size);
 		$pdf->Cell(60, 5, $mysoc->name, 0, 0, 'L');
-		
+
+		// Second professional id, the SIRET of a French company, under the label of its country (the ODT model
+		// prints the same one): the first one, the SIREN, was printed under a "Siret" label
 		$pdf->SetFont('', 'B', $default_font_size);
-		$pdf->Cell(20, 5, "Siret :", 0, 0, 'L');
+		$pdf->Cell(20, 5, $outputlangs->transcountrynoentities('ProfId2Short', $mysoc->country_code) . ' :', 0, 0, 'L');
 		$pdf->SetFont('', '', $default_font_size);
-		$pdf->Cell(40, 5, $mysoc->idprof1, 0, 1, 'L');
+		$pdf->Cell(40, 5, $mysoc->idprof2, 0, 1, 'L');
 
 		$pdf->SetXY($this->marge_gauche + 5, $posy + 8);
 		$pdf->SetFont('', 'B', $default_font_size);
-		$pdf->Cell(30, 5, "Adresse :", 0, 0, 'L');
+		$pdf->Cell(30, 5, $outputlangs->transnoentities('Address') . ' :', 0, 0, 'L');
 		$pdf->SetFont('', '', $default_font_size);
 		$pdf->Cell(60, 5, $mysoc->address, 0, 1, 'L');
 
 		$pdf->SetXY($this->marge_gauche + 5, $posy + 14);
 		$pdf->SetFont('', 'B', $default_font_size);
-		$pdf->Cell(30, 5, "E-mail :", 0, 0, 'L');
+		$pdf->Cell(30, 5, $outputlangs->transnoentities('Email') . ' :', 0, 0, 'L');
 		$pdf->SetFont('', '', $default_font_size);
 		$pdf->Cell(60, 5, $mysoc->email, 0, 0, 'L');
 
 		$pdf->SetFont('', 'B', $default_font_size);
-		$pdf->Cell(20, 5, "Tél :", 0, 0, 'L');
+		$pdf->Cell(20, 5, $outputlangs->transnoentities('PhoneShort') . ' :', 0, 0, 'L');
 		$pdf->SetFont('', '', $default_font_size);
 		$pdf->Cell(40, 5, $mysoc->phone, 0, 1, 'L');
 
 		$pdf->SetXY($this->marge_gauche + 5, $posy + 20);
 		$pdf->SetFont('', 'B', $default_font_size);
-		$pdf->Cell(30, 5, "Site Web :", 0, 0, 'L');
+		$pdf->Cell(30, 5, $outputlangs->transnoentities('WebSite') . ' :', 0, 0, 'L');
 		$pdf->SetFont('', '', $default_font_size);
 		$pdf->Cell(60, 5, $mysoc->url, 0, 1, 'L');
 
@@ -437,7 +415,7 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 			$pdf->SetFillColor(240, 248, 255);
 			$pdf->SetXY($this->marge_gauche, $posy);
 			$pdf->SetFont('', 'B', $default_font_size);
-			$pdf->Cell(0, 6, "NOTE PUBLIQUE", 0, 1, 'L', 1);
+			$pdf->Cell(0, 6, dol_strtoupper($outputlangs->transnoentities('SigninSheetPublicNote')), 0, 1, 'L', 1);
 			$pdf->SetFont('', '', $default_font_size);
 			$pdf->SetXY($this->marge_gauche, $posy + 6);
 			$pdf->MultiCell(0, 5, dol_htmlcleanlastbr($object->note_public), 0, 'L', 1);
@@ -452,10 +430,39 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		$default_font_size = pdf_getPDFFontSize($outputlangs);
 		$pdf->SetXY($this->marge_gauche, -20);
 		$pdf->SetFont('', '', $default_font_size - 1);
-		$pdf->Cell(0, 5, "Document généré électroniquement", 0, 1, 'L');
+		$pdf->Cell(0, 5, $outputlangs->transnoentities('SigninSheetGeneratedElectronically'), 0, 1, 'L');
 		$pdf->SetXY($this->marge_gauche, -15);
-		$pdf->Cell(0, 5, "Référence : " . $object->ref, 0, 0, 'C');
+		$pdf->Cell(0, 5, $outputlangs->transnoentities('Reference') . ' : ' . $object->ref, 0, 0, 'C');
 		$pdf->SetXY($this->marge_gauche, -15);
-		$pdf->Cell(0, 5, "Page " . $pdf->PageNo(), 0, 0, 'R');
+		$pdf->Cell(0, 5, $outputlangs->transnoentities('Page') . ' ' . $pdf->PageNo(), 0, 0, 'R');
+	}
+
+	/**
+	 * Print the header row of the table of signatories, on the first page and again on each new page
+	 *
+	 * @param  TCPDF     $pdf         PDF being built
+	 * @param  Translate $outputlangs Lang object to use for output
+	 * @param  float     $posy        Y position of the row
+	 * @return float                  Y position under the row
+	 */
+	protected function printTableHeader(&$pdf, Translate $outputlangs, $posy)
+	{
+		$default_font_size = pdf_getPDFFontSize($outputlangs);
+
+		$pdf->SetXY($this->marge_gauche, $posy);
+		$pdf->SetFillColor(63, 114, 134);
+		$pdf->SetTextColor(255, 255, 255);
+		$pdf->SetFont('', 'B', $default_font_size);
+		$pdf->Cell(15, 10, $outputlangs->transnoentities('Ref'), 1, 0, 'C', 1);
+		$pdf->Cell(35, 10, $outputlangs->transnoentities('Lastname'), 1, 0, 'C', 1);
+		$pdf->Cell(35, 10, $outputlangs->transnoentities('Firstname'), 1, 0, 'C', 1);
+		$pdf->Cell(30, 10, $outputlangs->transnoentities('Attendance'), 1, 0, 'C', 1);
+		$pdf->Cell(40, 10, $outputlangs->transnoentities('Signature'), 1, 0, 'C', 1);
+		$pdf->Cell(35, 10, $outputlangs->transnoentities('SignatureDate'), 1, 1, 'C', 1);
+
+		$pdf->SetTextColor(0, 0, 0);
+		$pdf->SetFont('', '', $default_font_size);
+
+		return $pdf->GetY();
 	}
 }
