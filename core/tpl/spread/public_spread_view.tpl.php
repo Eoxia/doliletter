@@ -391,6 +391,18 @@ body {
     background: white;
 }
 
+/* Single-person view (?sign= link), whatever the object: these rules used to live in the prevention plan
+   template only. Without a CSS size, the canvas showed at the size of its bitmap, which Saturne sets to
+   its width times the pixel ratio: three times the screen on a phone, and the strokes landed off it */
+.pp-single-person { margin-top: 16px; }
+.pp-inline-signature { margin: 12px 0; padding: 14px; background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; }
+.pp-inline-signature__title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
+.pp-inline-signature__title i { color: #3b82f6; }
+.pp-inline-signature .signature-element { position: relative; display: block; }
+.pp-inline-canvas { display: block; box-sizing: border-box; width: 100%; height: 200px; touch-action: none; }
+.pp-inline-signature__actions { margin-top: 10px; text-align: right; }
+.pp-invalid-link { display: flex; align-items: center; gap: 8px; margin: 16px 0; padding: 14px; font-size: 14px; font-weight: 600; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; }
+
 .signature-erase {
     position: absolute;
     top: 8px;
@@ -1744,7 +1756,9 @@ function getResponseMessage(response, id) {
 function validateSignature() {
     if (currentUserIndex !== null && !isCanvasEmpty()) {
 
-        var signature = window.saturne.signature.canvas.toDataURL();
+        // Framed on the stroke: the whole canvas kept wide empty margins around it in the attendance sheet
+        var signatureCanvas = window.saturne.signature.canvas;
+        var signature       = typeof window.saturne.signature.getTrimmedDataURL === 'function' ? window.saturne.signature.getTrimmedDataURL(signatureCanvas) : signatureCanvas.toDataURL();
 
         // Risks read on the page: without a ?sign= link nothing could be recorded while the visitor
         // was ticking them, so they travel with the signature and are saved just before it
