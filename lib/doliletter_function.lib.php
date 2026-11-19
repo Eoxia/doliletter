@@ -113,11 +113,13 @@ function selectForm($objecttype, $htmlname = 'form[]', $htmlid ='', $notid = arr
 		$notid = array();
 	}
 	//print '<div> debug  ';
-	if ($htmlid == '' && preg_match( '/\[]/', $htmlname))
-		$htmlid == substr($htmlname, 0, -2);
+	// The combobox is attached by id: "#element_id[]", built from the name, is not a valid jQuery selector
+	if ($htmlid == '') {
+		$htmlid = preg_replace('/\[]$/', '', $htmlname);
+	}
 	$records =fetchAllAny($objecttype);
 
-	$str .=('<select class="minwidth200" data-select2-id="'.$htmlname.'" name="' . $htmlname . '">');
+	$str .=('<select class="minwidth200" id="' . $htmlid . '" name="' . $htmlname . '">');
 	foreach ($records as $line) {
 		if (!in_array($line->id, $notid)) {
 			$str .= '<option data-select2-id="'.$line->id.$line->ref.'" value="' . $line->id . '">' . $line->ref . '</option>';
@@ -125,7 +127,7 @@ function selectForm($objecttype, $htmlname = 'form[]', $htmlid ='', $notid = arr
 	}
 	$str .= '</select>';
 	include_once DOL_DOCUMENT_ROOT.'/core/lib/ajax.lib.php';
-	$str .= ajax_combobox($htmlname);
+	$str .= ajax_combobox($htmlid);
 	return $str;
 }
 
