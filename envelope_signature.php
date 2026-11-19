@@ -156,9 +156,9 @@ if ($action == 'addSignature') {
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 			header("Location: " . $urltogo);
 			if ($role == 'E_SENDER') {
-				$object->setStatusCommon($user, 1);
+				$object->setStatusCommon($user, 1, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 			} else if ($role == 'E_RECEIVER') {
-				$object->setStatusCommon($user, 5);
+				$object->setStatusCommon($user, 5, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 			}
 			$object->call_trigger('ENVELOPE_SIGN', $user);
 			exit;

@@ -320,7 +320,7 @@ if ($action == 'addSignature') {
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 			header("Location: " . $urltogo);
-			$object->setStatusCommon($user, 1);
+			$object->setStatusCommon($user, 1, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 			$object->call_trigger('ENVELOPE_SIGN', $user);
 			exit;
 		}

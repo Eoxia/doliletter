@@ -270,7 +270,7 @@ if (empty($reshook)) {
 			$result = $object->update($user, false);
 			if ($result > 0) {
 				$signatory->deleteSignatoriesSignatures($object->id, 0);
-				$object->setStatusCommon($user, 0);
+				$object->setStatusCommon($user, 0, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: " . $urltogo);
@@ -288,7 +288,7 @@ if (empty($reshook)) {
 
 	if ($action == 'confirm_delete' && GETPOST("confirm") == "yes")
 	{
-		$object->setStatusCommon($user, -1);
+		$object->setStatusCommon($user, -1, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 		$urltogo = dol_buildpath('/doliletter/envelope_list.php', 1);
 		header("Location: " . $urltogo);
 		exit;
@@ -313,7 +313,7 @@ if (empty($reshook)) {
 				setEventMessages($langs->trans('AddAttendantMessage') . ' ' . $contact->firstname . ' ' . $contact->lastname, array());
 				$object->call_trigger('ENVELOPE_LOCK', $user);
 				// Creation attendant OK
-				$object->setStatusCommon($user, 2);
+				$object->setStatusCommon($user, 2, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: " . $urltogo);
@@ -754,7 +754,7 @@ if (empty($reshook)) {
 								if ($error) {
 									setEventMessages($object->error, $object->errors, 'errors');
 								} else {
-									$object->setStatusCommon($user, 4);
+									$object->setStatusCommon($user, 4, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 									$signatory->fetchSignatory('E_RECEIVER', $id);
 									$signatory->last_email_sent_date = dol_now();
 									$signatory->update($user);
@@ -829,7 +829,7 @@ if (empty($reshook)) {
 		$result = $letter->create($user);
 
 		if ($result > 0) {
-			$object->setStatusCommon($user, 3);
+			$object->setStatusCommon($user, 3, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 			$object->call_trigger('ENVELOPE_LETTER', $user);
 
 			// Submit file
@@ -987,7 +987,7 @@ if (empty($reshook)) {
 
 					$forcebuilddoc = true;
 					$object->call_trigger('ENVELOPE_ACKNOWLEDGEMENT_RECEIPT', $user);
-					$object->setStatusCommon($user, 6);
+					$object->setStatusCommon($user, 6, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 
 					if ($forcebuilddoc)    // If there is no default value for supplier invoice, we do not generate file, even if modelpdf was set by a manual generation
 					{

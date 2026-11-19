@@ -301,7 +301,7 @@ class Envelope extends CommonObject
 	 * @return int             <0 if KO, >0 if OK
 	 */
 	public function delete(User $user, $notrigger = false) {
-		$this->setStatusCommon($user, 0);
+		$this->setStatusCommon($user, 0, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 		$this->call_trigger('ENVELOPE_DELETE', $user);
 	}
 
