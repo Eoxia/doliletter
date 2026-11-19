@@ -341,8 +341,10 @@ if ((empty($action) || ($action != 'create' && $action != 'edit'))) {
 	//Master builder -- Maitre Oeuvre
 	$element = $signatory->fetchSignatory('E_SENDER', $id);
 
-	if ($element > 0) {
-		$element = array_shift($element);
+	// A draft envelope has no sender yet: fetchAll() gives an empty array, which "> 0" let through
+	// (an array is always greater than a number). Signing creates the sender, the template handles null.
+	$element = (is_array($element) && !empty($element)) ? array_shift($element) : null;
+	if (!empty($element->element_id)) {
 		$usertmp->fetch($element->element_id);
 	}
 
@@ -394,8 +396,8 @@ if ((empty($action) || ($action != 'create' && $action != 'edit'))) {
 		//uniquement si le courrier a été envoyé par mail
 		print load_fiche_titre($langs->trans("SignatureReceiver"), '', '');
 		$element = $signatory->fetchSignatory('E_RECEIVER', $id);
-		if ($element > 0) {
-			$element = array_shift($element);
+		$element = (is_array($element) && !empty($element)) ? array_shift($element) : null;
+		if (!empty($element->element_id)) {
 			$usertmp->fetch($element->element_id);
 		}
 		print '<div class="signatures-container receiver-signature">';
@@ -423,7 +425,7 @@ if ((empty($action) || ($action != 'create' && $action != 'edit'))) {
 		//print '</td><td class="center">';
 		//print $element->getLibStatut(5);
 		print '</td>';
-		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id='.$element->signature_url.'&type=envelope';
+		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id='.($element->signature_url ?? '').'&type=envelope';
 		print '<td class="center"><a href="'. $signature_url .'">';
 		print $signature_url;
 		print '</a></td>';
