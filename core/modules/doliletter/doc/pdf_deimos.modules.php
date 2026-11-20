@@ -507,38 +507,27 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 						$bottomlasttab = $this->page_hauteur - $heightforfooter - $heightforfooter + 1;
 					}
 				}
-				if ($conf->global->DOLILETTER_DELETE_PUBLIC_DOWNLOAD_LINKS_AFTER_SIGNATURE) {
+				// The option is absent from llx_const until it is switched on once in the setup page
+				if (getDolGlobalInt('DOLILETTER_DELETE_PUBLIC_DOWNLOAD_LINKS_AFTER_SIGNATURE')) {
 					global $db;
 					require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmdirectory.class.php';
 					require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
 					$ecmfile = new EcmFiles($db);
 
-					//Delete envelope shared link
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/';
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = $filelist[0]['name'];
+					// Delete the shared links of the envelope, of the sending proof and of the acknowledgement receipt. A folder
+					// may hold no file: no sending proof for an envelope sent by mail, receipt not written yet at its first generation
+					foreach (array('', 'sendingproof/', 'acknowledgementreceipt/') as $subdir) {
+						$filedir  = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref.'/'.$subdir;
+						$filelist = dol_dir_list($filedir, 'files');
+						if (empty($filelist[0]['name'])) {
+							continue;
+						}
 
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $object->id);
-					$ecmfile->share = '';
-					$ecmfile->update($user);
-
-					//Delete sending proof shared link
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/sendingproof/';
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = $filelist[0]['name'];
-
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/sendingproof/'.$filename, '', '', 'doliletter_envelope', $object->id);
-					$ecmfile->share = '';
-					$ecmfile->update($user);
-
-					//Delete acknowledgement receipt shared link
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/acknowledgementreceipt/';
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = $filelist[0]['name'];
-
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename, '', '', 'doliletter_envelope', $object->id);
-					$ecmfile->share = '';
-					$ecmfile->update($user);
+						if ($ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$subdir.$filelist[0]['name'], '', '', 'doliletter_envelope', $object->id) > 0) {
+							$ecmfile->share = '';
+							$ecmfile->update($user);
+						}
+					}
 				}
 
 				$this->_pagefoot($pdf, $object, $outputlangs);
