@@ -372,9 +372,10 @@ window.eoxiaJS.signature.createSignature = function() {
 			// Nothing was saved: say so and what to do (an expired session or token is the usual cause), the HTTP
 			// status for the administrator. The signature stays drawn in the modal, to be validated again
 			let message = (errorMessage || jqXHR.statusText) + (jqXHR.status ? ' (HTTP ' + jqXHR.status + ')' : '');
-			if (typeof $.jnotify === 'function') {
+			if (elementZone == 'private' && typeof $.jnotify === 'function') {
 				$.jnotify(message, 'error', true);
 			} else {
+				// Public pages have no Dolibarr theme: its notification would be cut off on a phone
 				alert(message);
 			}
 		}
