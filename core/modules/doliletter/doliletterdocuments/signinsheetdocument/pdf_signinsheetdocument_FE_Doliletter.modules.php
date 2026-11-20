@@ -378,8 +378,9 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 			}
 		}
 
-		// Title
-		$pdf->SetXY(80, $this->marge_haute + 5);
+		// Title, centred on the page: the cell started at 80 mm, past the logo, and the text was centred on
+		// what was left on the right. The logo, 40 mm wide on the left, stays clear of the centred text.
+		$pdf->SetXY($this->marge_gauche, $this->marge_haute + 5);
 		$pdf->SetFont('', 'B', 18);
 		$pdf->SetTextColor(31, 56, 100);
 		$pdf->Cell(0, 10, "FEUILLE D'ÉMARGEMENT", 0, 1, 'C');
