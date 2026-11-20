@@ -77,7 +77,6 @@ $projecttemp    = new Project($db);
 $tickettemp     = new Ticket($db);
 $producttemp    = new Product($db);
 $propaltemp     = new Propal($db);
-$refEnvelopeMod = new $conf->global->DOLILETTER_ENVELOPE_ADDON();
 $extrafields    = new ExtraFields($db);
 
 $object->fetch($id);
