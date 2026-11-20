@@ -294,6 +294,21 @@ if (!empty($sign)) {
 if ($action == 'add_spread_user') {
     $type = GETPOST('type', 'aZ09');
 
+    // One person at a time: the add buttons are greyed out while someone has not signed yet, and the
+    // server holds to it as well (a double click or a second tab added several people at once)
+    if ($attendanceSheet->id > 0) {
+        // Signatories grouped by role
+        $spreadSignatories = $signatory->fetchSignatory('', $attendanceSheet->id, $attendanceSheet->element);
+        foreach ((is_array($spreadSignatories) ? $spreadSignatories : []) as $roleSignatories) {
+            foreach ($roleSignatories as $spreadSignatory) {
+                if (empty($spreadSignatory->signature)) {
+                    echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('SpreadValidatePendingSignatureFirst')) . '">';
+                    exit;
+                }
+            }
+        }
+    }
+
     $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
     if ($type === 'external') {
         $tmpSignatory->element_id   = 0;
