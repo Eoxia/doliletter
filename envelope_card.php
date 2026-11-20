@@ -563,7 +563,7 @@ if (empty($reshook)) {
 			}
 
 			if (!empty($conf->global->MAIN_MAIL_ENABLED_USER_DEST_SELECT)) {
-				$receiveruser = GETPOST('receiveruser', 'alphawithlgt');
+				$receiveruser = GETPOST('receiveruser', 'array');
 				if (is_array($receiveruser) && count($receiveruser) > 0) {
 					$fuserdest = new User($db);
 					foreach ($receiveruser as $key => $val) {
@@ -604,7 +604,7 @@ if (empty($reshook)) {
 				}
 			}
 			if (!empty($conf->global->MAIN_MAIL_ENABLED_USER_DEST_SELECT)) {
-				$receiverccuser = GETPOST('receiverccuser', 'alphawithlgt');
+				$receiverccuser = GETPOST('receiverccuser', 'array');
 
 				if (is_array($receiverccuser) && count($receiverccuser) > 0) {
 					$fuserdest = new User($db);
