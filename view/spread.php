@@ -184,6 +184,13 @@ print '<td class="center">' . $langs->trans('Attendance') . '</td>';
 print '<td class="center">' . $langs->trans('SpreadIndividualLink') . '</td>';
 print '</tr>';
 
+// Presence of a signatory: the same three states as the PDF and ODT attendance sheets, a late person is not reported absent
+$presences = [
+    SaturneSignature::ATTENDANCE_PRESENT => ['icon' => 'fa-check', 'css' => 'present', 'label' => 'Present'],
+    SaturneSignature::ATTENDANCE_DELAY   => ['icon' => 'fa-clock', 'css' => 'delay', 'label' => 'Delay'],
+    SaturneSignature::ATTENDANCE_ABSENT  => ['icon' => 'fa-times', 'css' => 'absent', 'label' => 'Absent'],
+];
+
 foreach ($signatories as $signatory) {
     $isExternalSignatory = ($signatory->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
     // Rows with neither a user nor a public registration are placeholders waiting for a user to be picked
@@ -215,12 +222,9 @@ foreach ($signatories as $signatory) {
         print '<td class="center"><span class="badge badge-status1 badge-status" title="' . dol_escape_htmltag($langs->trans('SpreadSignatoryPending')) . '">' . $langs->trans('SpreadStatusPending') . '</span></td>';
     }
 
+    $presence = $presences[(int) $signatory->attendance] ?? $presences[SaturneSignature::ATTENDANCE_ABSENT];
     print '<td class="center">';
-    if (!$signatory->attendance) {
-        print '<span class="fas fa-check doliletter-presence doliletter-presence--present" title="' . $langs->trans('Present') . '"></span>';
-    } else {
-        print '<span class="fas fa-times doliletter-presence doliletter-presence--absent" title="' . $langs->trans('Absent') . '"></span>';
-    }
+    print '<span class="fas ' . $presence['icon'] . ' doliletter-presence doliletter-presence--' . $presence['css'] . '" title="' . dol_escape_htmltag($langs->trans($presence['label'])) . '"></span>';
     print '</td>';
 
     // Direct link to this signatory's own public page (signature + certification photos)
