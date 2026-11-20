@@ -1948,7 +1948,7 @@ function sendMail() {
         contentType: 'application/json charset=utf-8',
         success: function (resp) {
 
-            let message = "Erreur inconnue";
+            let message = '<?php echo dol_escape_js($langs->transnoentities('ErrorUnknown')); ?>';
             let isError = true;
             if (typeof resp === "string") {
                 const matchSuccess = resp.match(/id="success"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="success"/i);
@@ -1962,7 +1962,7 @@ function sendMail() {
                     message = resp.substring(0, 100);
                 }
             } else {
-                message = "Type non g�r�: " + (typeof resp);
+                message = '<?php echo dol_escape_js($langs->transnoentities('SpreadResponseTypeNotHandled')); ?> ' + (typeof resp);
             }
 
             if (isError) {
@@ -2019,7 +2019,7 @@ function sendQuickSignEmail() {
         processData: false,
         contentType: 'application/json; charset=utf-8',
         success: function (resp) {
-            let message = "Erreur inconnue";
+            let message = '<?php echo dol_escape_js($langs->transnoentities('ErrorUnknown')); ?>';
             let isError = true;
             if (typeof resp === "string") {
                 const matchSuccess = resp.match(/id="success"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="success"/i);
@@ -2033,7 +2033,7 @@ function sendQuickSignEmail() {
                     message = resp.substring(0, 100);
                 }
             } else {
-                message = "Type non g�r�: " + (typeof resp);
+                message = '<?php echo dol_escape_js($langs->transnoentities('SpreadResponseTypeNotHandled')); ?> ' + (typeof resp);
             }
 
             if (isError) {

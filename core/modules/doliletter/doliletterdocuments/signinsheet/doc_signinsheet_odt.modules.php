@@ -107,6 +107,10 @@ class doc_signinsheet_odt extends SaturneDocumentModel
 		$moreParam['tmparray']         = $tmpArray;
 		$moreParam['hideTemplateName'] = 1;
 
+		// Domains of the {lang_...} labels of the template that Saturne does not load itself: company
+		// block (companies) and attendance values (Saturne signatures)
+		$outputLangs->loadLangs(['companies', 'signature@saturne']);
+
 		return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
 	}
 
@@ -175,7 +179,9 @@ class doc_signinsheet_odt extends SaturneDocumentModel
 				$tmpArray['sessiontrainer_number']     = $k;
 				$tmpArray['sessiontrainer_lastname']   = $signatory->lastname;
 				$tmpArray['sessiontrainer_firstname']  = $signatory->firstname;
-				$tmpArray['sessiontrainer_attendance'] = $signatory->attendance == 0 ? $langs->trans('Present') : $langs->trans('Absent');
+				// Same values as the PDF model: a late person is no longer reported absent
+				$attendanceKeys = [SaturneSignature::ATTENDANCE_PRESENT => 'Present', SaturneSignature::ATTENDANCE_DELAY => 'Delay', SaturneSignature::ATTENDANCE_ABSENT => 'Absent'];
+				$tmpArray['sessiontrainer_attendance'] = $outputLangs->transnoentities($attendanceKeys[(int) $signatory->attendance] ?? 'Absent');
 				$tmpArray['sessiontrainer_signature_date'] = !empty($signatory->signature_date) ? dol_print_date($signatory->signature_date, 'dayhour', 'tzuserrel') : $langs->trans('NoSignature');
 
                 static::setTmpArrayVars($tmpArray, $listLines, $outputLangs);
