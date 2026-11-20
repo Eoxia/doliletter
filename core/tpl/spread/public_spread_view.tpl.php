@@ -1297,7 +1297,19 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                         $newSignatoryRows[]            = $newSignatoryRow;
                     }
 
-                    foreach (array_merge($newSignatoryRows, $signatories) as $signatoryItem) {
+                    // One person signs at a time: the manager adds someone, has them sign, then adds the
+                    // next one. Several people waiting (a safety talk adds all its attendees at once) gave
+                    // as many sign buttons, here and at the bottom of the page. Only the first one waiting
+                    // shows here; the others stay in the list of signatories below and come up in turn.
+                    $currentSignatories = [];
+                    foreach ($signatories as $signatoryItem) {
+                        if (empty($signatoryItem->signature)) {
+                            $currentSignatories[] = $signatoryItem;
+                            break;
+                        }
+                    }
+
+                    foreach (array_merge($newSignatoryRows, $currentSignatories) as $signatoryItem) {
                         $isNewSignatory = empty($signatoryItem->id);
                         // A signatory registered from the public page carries their own identity, no Dolibarr user behind it
                         $isExternalSignatory = ($signatoryItem->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
@@ -1632,7 +1644,8 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
 <script>
 function updateBottomSignBtn() {
     $('#bottomSignBtnPlaceholder').empty();
-    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn');
+    // A single button, for the person signing now: cloning every sign button of the page gave one per person waiting
+    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn').first();
     if ($topSignBtn.length > 0) {
         let $bottomBtn = $topSignBtn.clone();
         $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities('ValidateSignature')); ?>');
@@ -1821,6 +1834,9 @@ function addUser() {
     $('.user-signatures-list').prepend($($('#spread-new-signatory-' + type).html()));
 }
 
+// A signatory being created: no second request until the first one has come back
+let isCreatingSignatory = false;
+
 /**
  * Create the signature of a new row, now that its person is known, and put the saved row in its place.
  *
@@ -1830,6 +1846,12 @@ function addUser() {
  * @return {void}
  */
 function createSignatory($row, type, fields) {
+    // A double click on the validate button created the same person twice
+    if (isCreatingSignatory) {
+        return;
+    }
+    isCreatingSignatory = true;
+
     let token    = window.saturne.toolbox.getToken();
     let knownIds = $('.user-signatures-list .user-signature-item').map(function () {
         return String($(this).data('user-index'));
@@ -1840,6 +1862,9 @@ function createSignatory($row, type, fields) {
         url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=add_spread_user&type=' + type + '&token=' + token,
         data: $.param(fields),
         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+        complete: function () {
+            isCreatingSignatory = false;
+        },
         success: function (resp) {
             const error = getResponseMessage(resp, 'error');
             if (error.length) {
