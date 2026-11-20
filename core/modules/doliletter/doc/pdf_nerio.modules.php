@@ -32,6 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/modules/contract/modules_contract.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 
 require_once __DIR__ . '/../modules_trackingnumber.php';
@@ -609,6 +610,7 @@ class pdf_nerio extends ModelePDFTrackingNumber
 	 * @param   int         $tab_top        tab height position
 	 * @param   int         $tab_height     tab height
 	 * @param   Translate   $outputlangs    Object language for output
+	 * @param   Envelope    $object         Envelope
 	 * @return void
 	 */
 	protected function tabSignature(&$pdf, $tab_top, $tab_height, $outputlangs, $object)
@@ -616,23 +618,18 @@ class pdf_nerio extends ModelePDFTrackingNumber
 		global $conf;
 
 		$signatory = new EnvelopeSignature($this->db);
-		$receiver    = array_shift($signatory->fetchSignatory('E_RECEIVER', $object->id));
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', $object->id);
+		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 
-//		$recipient = array_shift($signatory->fetchSignatory('E_SOCIETY', $object->id));
-		if (dol_strlen($receiver->signature) > 0) {
-			$tempdir = $conf->doliletter->multidir_output[isset($object->entity) ? $object->entity : 1] . '/temp/';
-
-			//Signatures
-			if (!empty($receiver) && $receiver > 0) {
-				$encoded_image = explode(",",  $receiver->signature)[1];
-				$decoded_image = base64_decode($encoded_image);
-				file_put_contents($tempdir."signature.png", $decoded_image);
-				$test = $tempdir."signature.png";
-			}
+		// Data URL or bare base64: no image once the signature is replaced by DocumentGenerated, the frame stays empty
+		$signatureFile = '';
+		if (is_object($receiver)) {
+			$tempdir       = $conf->doliletter->multidir_output[$object->entity ?? 1] . '/temp/';
+			$signatureFile = DoliletterSignature::writeSignatureImage($receiver->signature, $tempdir . 'signature.png');
 		}
 
 		$file_list = dol_dir_list(DOL_DATA_ROOT . '/doliletter/' . $object->element . '/' . $object->ref, 'files');
-		if ( is_array($file_list[0]) ) {
+		if (!empty($file_list[0])) {
 			$filename = $file_list[0]['relativename'];
 		}
 
@@ -647,7 +644,11 @@ class pdf_nerio extends ModelePDFTrackingNumber
 //		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 5,  $outputlangs->transnoentities('TrackingNumberTextMail', $receiver->firstname . ' ' . $receiver->lastname, preg_replace('/AR_/', '', $filename), 'mail', dol_print_date($receiver->signature_date), $receiver->ip ), 0, 'L', 0);
 
 		$pdf->SetXY($this->marge_gauche, $posy + 10);
-		$pdf->Image($test, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
+		if ($signatureFile !== '') {
+			$pdf->Image($signatureFile, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
+			// TCPDF has read the image: the signature is not kept on disk, as it is not kept in database
+			dol_delete_file($signatureFile);
+		}
 		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 30, '', 1);
 
 //		$pdf->SetXY($posmiddle + 5, $posy);

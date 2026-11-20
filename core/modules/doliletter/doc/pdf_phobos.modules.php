@@ -32,6 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/modules/contract/modules_contract.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 
 require_once __DIR__ . '/../modules_envelope.php';
@@ -581,6 +582,7 @@ class pdf_phobos extends ModelePDFEnvelope
 	 * @param   int         $tab_top        tab height position
 	 * @param   int         $tab_height     tab height
 	 * @param   Translate   $outputlangs    Object language for output
+	 * @param   Envelope    $object         Envelope
 	 * @return void
 	 */
 	protected function tabSignature(&$pdf, $tab_top, $tab_height, $outputlangs, $object)
@@ -588,28 +590,15 @@ class pdf_phobos extends ModelePDFEnvelope
 		global $conf;
 
 		$signatory = new EnvelopeSignature($this->db);
-		$sender    = array_shift($signatory->fetchSignatory('E_SENDER', $object->id));
+		$senders   = $signatory->fetchSignatory('E_SENDER', $object->id);
+		$sender    = (is_array($senders) && !empty($senders)) ? array_shift($senders) : null;
 
-//		$recipient = array_shift($signatory->fetchSignatory('E_SOCIETY', $object->id));
-		if (dol_strlen($sender->signature) > 0) {
-			$tempdir = $conf->doliletter->multidir_output[isset($object->entity) ? $object->entity : 1] . '/temp/';
-
-			//Signatures
-			if (!empty($sender) && $sender > 0) {
-				$encoded_image = explode(",",  $sender->signature)[1];
-				$decoded_image = base64_decode($encoded_image);
-				file_put_contents($tempdir."signature.png", $decoded_image);
-				$test = $tempdir."signature.png";
-			}
-
-//			if (!empty($recipient) && $recipient > 0) {
-//				$encoded_image = explode(",",  $recipient->signature)[1];
-//				$decoded_image = base64_decode($encoded_image);
-//				file_put_contents($tempdir."signature2.png", $decoded_image);
-//				$test = $tempdir."signature2.png";
-//			}
+		// Data URL or bare base64: no image once the signature is replaced by DocumentGenerated, the frame stays empty
+		$signatureFile = '';
+		if (is_object($sender)) {
+			$tempdir       = $conf->doliletter->multidir_output[$object->entity ?? 1] . '/temp/';
+			$signatureFile = DoliletterSignature::writeSignatureImage($sender->signature, $tempdir . 'signature.png');
 		}
-
 
 		$pdf->SetDrawColor(128, 128, 128);
 		$posmiddle = $this->marge_gauche + round(($this->page_largeur - $this->marge_gauche - $this->marge_droite) / 2);
@@ -619,10 +608,14 @@ class pdf_phobos extends ModelePDFEnvelope
 		$contact->fetch($object->fk_contact);
 
 		$pdf->SetXY($this->marge_gauche, $posy);
-		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 5,  $sender->firstname . ' ' . $sender->lastname . ' ' . $outputlangs->trans('The') . ' ' . dol_print_date($sender->signature_date, '', 'tzuserrel', $outputlangs), 0, 'L', 0);
+		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 5,  ($sender->firstname ?? '') . ' ' . ($sender->lastname ?? '') . ' ' . $outputlangs->trans('The') . ' ' . dol_print_date($sender->signature_date ?? '', '', 'tzuserrel', $outputlangs), 0, 'L', 0);
 
 		$pdf->SetXY($this->marge_gauche, $posy + 5);
-		$pdf->Image($test, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
+		if ($signatureFile !== '') {
+			$pdf->Image($signatureFile, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
+			// TCPDF has read the image: the signature is not kept on disk, as it is not kept in database
+			dol_delete_file($signatureFile);
+		}
 		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 30, '', 1);
 
 //		$pdf->SetXY($posmiddle + 5, $posy);
