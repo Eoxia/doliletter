@@ -334,6 +334,8 @@ window.eoxiaJS.signature.createSignature = function() {
 	let elementSignatory = $(this).attr('value');
 	let elementRedirect  = $(this).closest('.digirisk-signature-container').find('#redirectURL').attr('value');
 	let elementZone  = $(this).find('#zone' + elementSignatory).attr('value');
+	// Translated by doliletter_signature_view.tpl.php: this script is served as is, without PHP
+	let errorMessage = $(this).attr('data-error-message');
     let actionContainerSuccess = $('.noticeSignatureSuccess');
 	var signatoryIDPost = '';
 	if (elementSignatory !== 0) {
@@ -366,8 +368,15 @@ window.eoxiaJS.signature.createSignature = function() {
                 window.location.replace(elementRedirect);
             }
 		},
-		error: function ( ) {
-		    alert('Error')
+		error: function ( jqXHR ) {
+			// Nothing was saved: say so and what to do (an expired session or token is the usual cause), the HTTP
+			// status for the administrator. The signature stays drawn in the modal, to be validated again
+			let message = (errorMessage || jqXHR.statusText) + (jqXHR.status ? ' (HTTP ' + jqXHR.status + ')' : '');
+			if (typeof $.jnotify === 'function') {
+				$.jnotify(message, 'error', true);
+			} else {
+				alert(message);
+			}
 		}
 	});
 };
