@@ -783,16 +783,29 @@ if (empty($reshook)) {
 						exit;
 					} else {
 						$langs->load("other");
-						$mesg = '<div class="error">';
-						if ($mailfile->error) {
-							$mesg .= $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto));
-							$mesg .= '<br>'.$mailfile->error;
+						$mesg  = '<div class="error">';
+						$mesg .= $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto));
+						// What happened and what to do first. The link to the setup and the raw error of the mail server, in English and
+						// left in CMailFile::$errors only by some sending modes, are for the administrator, who can act on them
+						$langs->load('saturne@saturne');
+						if (getDolGlobalString('MAIN_DISABLE_ALL_MAILS')) {
+							// Sending is switched off in the email setup (tests, demos): named with the label of that option
+							$langs->load('admin');
+							$mesg .= '<br>' . dol_escape_htmltag($langs->transnoentities('ErrorMailSendingDisabled', $langs->transnoentities('MAIN_DISABLE_ALL_MAILS')));
+							if (!empty($user->admin)) {
+								$mesg .= '<br><a href="' . DOL_URL_ROOT . '/admin/mails.php" target="_blank">' . $langs->trans('ConfigEmail') . '</a>';
+							}
 						} else {
-							$mesg .= $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto));
-							if (!empty($conf->global->MAIN_DISABLE_ALL_MAILS)) {
-								$mesg .= '<br>Feature is disabled by option MAIN_DISABLE_ALL_MAILS';
-							} else {
-								$mesg .= '<br>Unkown Error, please refers to your administrator';
+							dol_include_once('/saturne/lib/saturne_functions.lib.php');
+							$failure = saturne_get_mail_failure($mailfile, $sendto);
+							$mesg   .= '<br>' . dol_escape_htmltag($failure['reason']);
+							if (!empty($user->admin)) {
+								if ($failure['cause'] != 'recipient') {
+									$mesg .= '<br><a href="' . DOL_URL_ROOT . '/admin/mails.php" target="_blank">' . $langs->trans('ConfigEmail') . '</a>';
+								}
+								if (dol_strlen($failure['detail'])) {
+									$mesg .= '<br><span class="opacitymedium">' . dol_escape_htmltag($langs->transnoentities('MailFailureTechnicalDetail', $failure['detail'])) . '</span>';
+								}
 							}
 						}
 						$mesg .= '</div>';

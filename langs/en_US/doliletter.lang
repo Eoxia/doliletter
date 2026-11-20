@@ -219,6 +219,7 @@ DoliLetterAbout = About DoliLetter
 ErrorInvalidSignatureLink = This signature link is no longer valid or has expired.
 ErrorNotAllowed = Action not allowed
 ErrorSendingEmail = The email could not be sent.
+ErrorMailSendingDisabled = No email was sent: sending is switched off in the email setup ("%s").
 ErrorUserNotFound = User not found, please contact your administrator.
 PleaseEnterValidEmail = Please enter a valid email
 EmailSentSuccessfully = Email sent successfully

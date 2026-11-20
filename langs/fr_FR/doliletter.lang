@@ -246,6 +246,7 @@ ConnectForMoreInfo              = <a href="%s">Connectez-vous</a> pour avoir d'a
 ErrorInvalidSignatureLink       = Ce lien de signature n'est plus valide ou a expiré.
 ErrorNotAllowed                 = Action non autorisée
 ErrorSendingEmail               = L'email n'a pas pu être envoyé.
+ErrorMailSendingDisabled        = Aucun email n'est parti : les envois sont coupés dans la configuration des emails (« %s »).
 
 # Messages d'erreur situes : code, sujet, script et ligne, puis la raison brute, pour qu'un retour
 # utilisateur suffise a retrouver le point de defaillance sans reproduire le probleme
