@@ -670,6 +670,11 @@ if ($action == 'validate_signature') {
 
             // The PDF attendance sheet follows the signatures: a failure is logged, the signature stays
             doliletter_spread_generate_signin_sheet($attendanceSheet, $user, $langs);
+
+            // The module of the spread object can follow the signatures too: Digirisk prints the people
+            // who signed in the document of a prevention plan or a fire permit and generates it again
+            $attendanceSheet->context = ['user' => doliletter_spread_get_signatory_name($signatory), 'signatory_id' => $signatory->id];
+            $attendanceSheet->call_trigger('SPREAD_SIGN', $user);
         }
     }
     $action = '';
