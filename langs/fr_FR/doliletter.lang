@@ -234,6 +234,7 @@ Doliletter_attendance_sheet     = Diffusion
 
 
 SignatureValidatedSuccessfully  = Signature validée
+ErrorSignatureNotSaved          = La signature n'a pas été enregistrée : rechargez la page, puis signez de nouveau. Si l'erreur persiste, prévenez votre administrateur.
 
 QuickSignature                  = Signature rapide
 SpreadQuickSignatureInfo        = Rentrez votre mail pour recevoir un lien de signature

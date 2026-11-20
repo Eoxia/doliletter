@@ -32,7 +32,7 @@ elseif (!empty($element->signature) && $element->signature != $langs->trans("Doc
 				<div class="wpeo-button button-grey modal-close">
 					<span><?php echo $langs->trans('Cancel'); ?></span>
 				</div>
-				<div class="signature-validate wpeo-button button-primary" value="<?php echo ($element->id ?? '') ?>">
+				<div class="signature-validate wpeo-button button-primary" value="<?php echo ($element->id ?? '') ?>" data-error-message="<?php echo dol_escape_htmltag($langs->transnoentities('ErrorSignatureNotSaved')) ?>">
 					<input type="hidden" id="redirect<?php echo ($element->id ?? '') ?>" value="<?php echo $url ?>">
 					<input type="hidden" id="zone<?php echo ($element->id ?? '') ?>" value="<?php echo $zone ?>">
 					<span><?php echo $langs->trans('Validate'); ?></span>

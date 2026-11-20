@@ -189,6 +189,7 @@ ObjectType = Object type
 Doliletter_attendance_sheetList = List of spreads
 Doliletter_attendance_sheet = Spread
 SignatureValidatedSuccessfully = Signature validated
+ErrorSignatureNotSaved = The signature was not saved: reload the page, then sign again. If the error persists, tell your administrator.
 DocumentTemplateSigninSheetDocument = Attendance sheet template
 DocumentTemplateFE_Doliletter = FE_Doliletter
 DocModelFE_DoliletterDesc = The standard attendance sheet in PDF format
