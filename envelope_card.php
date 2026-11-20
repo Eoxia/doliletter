@@ -567,7 +567,7 @@ if (empty($reshook)) {
 				if (is_array($receiveruser) && count($receiveruser) > 0) {
 					$fuserdest = new User($db);
 					foreach ($receiveruser as $key => $val) {
-						$tmparray[] = $fuserdest->user_get_property($val, 'email');
+						$tmparray[] = $fuserdest->user_get_property((int) $val, 'email');
 						$sendtouserid[] = $val;
 					}
 				}
@@ -609,7 +609,7 @@ if (empty($reshook)) {
 				if (is_array($receiverccuser) && count($receiverccuser) > 0) {
 					$fuserdest = new User($db);
 					foreach ($receiverccuser as $key => $val) {
-						$tmparray[] = $fuserdest->user_get_property($val, 'email');
+						$tmparray[] = $fuserdest->user_get_property((int) $val, 'email');
 						$sendtoccuserid[] = $val;
 					}
 				}
