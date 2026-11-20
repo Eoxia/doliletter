@@ -57,7 +57,7 @@ require_once DOL_DOCUMENT_ROOT. '/product/class/product.class.php';
 global $db, $conf, $langs, $user, $hookmanager;
 
 // Load translation files required by the page
-$langs->loadLangs(array("doliletter@doliletter", "other"));
+$langs->loadLangs(array("doliletter@doliletter", "other", "contracts", "bills", "orders", "products", "propal", "ticket"));
 
 // Get parameters
 $id          = GETPOST('id', 'int');
@@ -67,6 +67,7 @@ $confirm     = GETPOST('confirm', 'alpha');
 $cancel      = GETPOST('cancel', 'aZ09');
 $contextpage = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'riskcard'; // To manage different context of search
 $backtopage  = GETPOST('backtopage', 'alpha');
+$lineid      = GETPOSTINT('lineid');
 
 // Initialize technical objects
 $object         = new Envelope($db);
@@ -108,7 +109,7 @@ $permissiontoread = $user->rights->doliletter->envelope->read;
 $permissiontoadd = $user->rights->doliletter->envelope->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->doliletter->envelope->delete || ($permissiontoadd && isset($object->status));
 $permissionnote = $user->rights->doliletter->envelope->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->envelope->letter->write; // Used by the include of actions_dellink.inc.php
+$permissiondellink = $user->rights->doliletter->envelope->write; // Used by the include of actions_dellink.inc.php
 $upload_dir = $conf->doliletter->multidir_output[$conf->entity];
 $thirdparty = new Societe($db);
 $thirdparty->fetch($object->fk_soc);
@@ -261,18 +262,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print dol_get_fiche_end();
 
 
-	$titre = $langs->trans("CardProduct" . $product->type);
-	$reshook = $hookmanager->executeHooks('formObjectOptions', $parameters, $product, $action); // Note that $action and $object may have been modified by hook
+	// The hook receives the envelope: this block came from the product card, and passed an undefined $product
+	$reshook = $hookmanager->executeHooks('formObjectOptions', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
 	print $hookmanager->resPrint;
 	if ($reshook < 0) {
 		setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-	}
-
-	$linkback = '<a href="' . DOL_URL_ROOT . '/product/list.php?restore_lastsearch_values=1">' . $langs->trans("BackToList") . '</a>';
-
-	$shownav = 1;
-	if ($user->socid && !in_array('product', explode(',', $conf->global->MAIN_MODULES_FOR_EXTERNAL))) {
-		$shownav = 0;
 	}
 
 
@@ -292,189 +286,47 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 
 
-	//to do: trans file for titles
 	$object->fetchObjectLinked(null, '', null, 'doliletter_envelope');
 
-	// Contracts
-	print '<p>';
-	if (is_countable($object->linkedObjectsIds['contract'])) {
-		$nbcontract = count($object->linkedObjectsIds['contract']);
-	}else {
-		$nbcontract = 0;
-	}
-	print '<div class="titre inline-block"> Contrats <span class="opacitymedium colorblack paddingleft">'.$nbcontract.'</span></div><br>';
-	print '<table class="border tableforfield" width="100%">';
-	if (!empty($object->linkedObjectsIds['contract'])) {
-		foreach ($object->linkedObjectsIds['contract'] as $contractid) {
-			$contracttemp->fetch($contractid);
-			print $contracttemp->getNomUrl(1);
+	// Objects that can be linked to the envelope: link type (the one the core stores, "commande" for an
+	// order), title, and object used to show the linked ones and to select a new one. Without any link,
+	// linkedObjectsIds has no key for the type.
+	$linkableObjects = [
+		'contract' => ['title' => 'Contracts', 'object' => $contracttemp],
+		'facture'  => ['title' => 'Bills', 'object' => $invoicetemp],
+		'commande' => ['title' => 'Orders', 'object' => $commandetemp],
+		'product'  => ['title' => 'Products', 'object' => $producttemp],
+		'propal'   => ['title' => 'Proposals', 'object' => $propaltemp],
+		'ticket'   => ['title' => 'Tickets', 'object' => $tickettemp],
+	];
+
+	foreach ($linkableObjects as $linkType => $linkableObject) {
+		$linkedIds = $object->linkedObjectsIds[$linkType] ?? [];
+
+		print '<p>';
+		print '<div class="titre inline-block">' . $langs->trans($linkableObject['title']) . '<span class="opacitymedium colorblack paddingleft">' . count($linkedIds) . '</span></div><br>';
+		print '<table class="border tableforfield" width="100%">';
+		foreach ($linkedIds as $linkedId) {
+			$linkableObject['object']->fetch($linkedId);
+			print $linkableObject['object']->getNomUrl(1);
 			print '<br>';
 		}
-	}
-	print '<br></table>';
+		print '<br></table>';
 
-	print '<div>';
-	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
-	print '<input type="hidden" name="token" value="' . newToken() . '">';
-	print '<input type="hidden" name="action" value="addLink">';
-	print '<input type="hidden" name="element_types" value="contract">';
+		print '<div>';
+		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
+		print '<input type="hidden" name="token" value="' . newToken() . '">';
+		print '<input type="hidden" name="action" value="addLink">';
+		print '<input type="hidden" name="element_types" value="' . $linkType . '">';
 
-	print selectForm( $contracttemp, 'element_id[]', 'element_id', $object->linkedObjectsIds['contract']);
+		print selectForm($linkableObject['object'], 'element_id[]', 'element_id_' . $linkType, $linkedIds);
 
-	print '<input type="submit" class="button" name="addLink" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
-	print '</div>';
-	print '</form>';
-
-	// Factures
-	print '</p><p>';
-	if (is_countable($object->linkedObjectsIds['facture'])) {
-		$nbfactures = count($object->linkedObjectsIds['facture']);
-	} else {
-		$nbfactures = 0;
-	}
-	print '<div class="titre inline-block">Factures<span class="opacitymedium colorblack paddingleft">' . $nbfactures . '</span></div><br>';
-	print '<table class="border tableforfield" width="100%">';
-	if (!empty($object->linkedObjectsIds['facture'])) {
-		foreach ($object->linkedObjectsIds['facture'] as $invoiceid) {
-			$invoicetemp->fetch($invoiceid);
-			print $invoicetemp->getNomUrl(1);
-			print '<br>';
-		}
-	}
-
-	print '<br></table>';
-	print '<div>';
-	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
-	print '<input type="hidden" name="token" value="' . newToken() . '">';
-	print '<input type="hidden" name="action" value="addLink">';
-	print '<input type="hidden" name="element_types" value="facture">';
-
-	print selectForm( $invoicetemp, 'element_id[]', 'element_id', $object->linkedObjectsIds['facture']);
-
-	print '<input type="submit" class="button" name="addLink" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
-	print '</div>';
-	print '</form>';
-
-
-	// Commandes
-	print '</p><p>';
-	if (is_countable($object->linkedObjectsIds['commande'])) {
-		$nbcommandes = count($object->linkedObjectsIds['commande']);
-	} else {
-		$nbcommandes = 0;
-	}
-	print '<div class="titre inline-block">Commandes<span class="opacitymedium colorblack paddingleft">' . $nbcommandes . '</span></div><br>';
-	print '<table class="border tableforfield" width="100%">';
-	if (!empty($object->linkedObjectsIds['commande'])) {
-		foreach ($object->linkedObjectsIds['commande'] as $commandeid) {
-			$commandetemp->fetch($commandeid);
-			print $commandetemp->getNomUrl(1);
-			print '<br>';
-		}
-	}
-	print '<br></table>';
-	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
-	print '<input type="hidden" name="token" value="' . newToken() . '">';
-	print '<input type="hidden" name="action" value="addLink">';
-	print '<input type="hidden" name="element_types" value="order">';
-
-	print selectForm( $commandetemp, 'element_id[]', 'element_id', $object->linkedObjectsIds['order']);
-
-	print '<input type="submit" class="button" name="addLink" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
-	print '</div>';
-	print '</form>';
-
-	// Product
-	print '</p><p>';
-	if (is_countable($object->linkedObjectsIds['product'])) {
-		$nbproducts = count($object->linkedObjectsIds['product']);
-	} else {
-		$nbproducts = 0;
-	}
-	print '<div class="titre inline-block">Produit<span class="opacitymedium colorblack paddingleft">' . $nbproducts . '</span></div><br>';
-	print '<table class="border tableforfield" width="100%">';
-	if (!empty($object->linkedObjectsIds['product'])) {
-		foreach ($object->linkedObjectsIds['product'] as $productid) {
-			$producttemp->fetch($productid);
-			print $producttemp->getNomUrl(1);
-			print '<br>';
-		}
-	}
-	print '<br></table>';
-	print '<div>';
-	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
-	print '<input type="hidden" name="token" value="' . newToken() . '">';
-	print '<input type="hidden" name="action" value="addLink">';
-	print '<input type="hidden" name="element_types" value="product">';
-
-	print selectForm( $producttemp, 'element_id[]', 'element_id', $object->linkedObjectsIds['product']);
-
-	print '<input type="submit" class="button" name="addLink" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
-	print '</div>';
-	print '</form>';
-
-
-	// Propositions commerciales
-	print '</p><p>';
-	if (is_countable($object->linkedObjectsIds['propal'])) {
-		$nbpropal = count($object->linkedObjectsIds['propal']);
-	}else {
-		$nbpropal = 0;
-	}
-	print '<div class="titre inline-block">Propositions commerciales<span class="opacitymedium colorblack paddingleft">'.$nbpropal.'</span></div><br>';
-	print '<table class="border tableforfield" width="100%">';
-	if (!empty($object->linkedObjectsIds['propal'])) {
-		foreach ($object->linkedObjectsIds['propal'] as $propalid) {
-			$propaltemp->fetch($propalid);
-			print $propaltemp->getNomUrl(1);
-			print '<br>';
-		}
-	}
-	print '<br></table>';
-print '<div>';
-	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
-	print '<input type="hidden" name="token" value="' . newToken() . '">';
-	print '<input type="hidden" name="action" value="addLink">';
-	print '<input type="hidden" name="element_types" value="propal">';
-
-	print selectForm( $propaltemp, 'element_id[]', 'element_id', $object->linkedObjectsIds['propal']);
-
-	print '<input type="submit" class="button" name="addLink" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
-	print '</div>';
-	print '</form>';
-}	// Tickets
-print '</p><p>';
-if (is_countable($object->linkedObjectsIds['ticket'])) {
-	$nbtickets = count($object->linkedObjectsIds['ticket']);
-}else {
-	$nbtickets = 0;
-}
-print '<div class="titre inline-block">Tickets<span class="opacitymedium colorblack paddingleft">'.$nbtickets.'</span></div><br>';
-print '<table class="border tableforfield" width="100%">';
-if (!empty($object->linkedObjectsIds['ticket'])) {
-	foreach ($object->linkedObjectsIds['ticket'] as $ticketid) {
-		$tickettemp->fetch($ticketid);
-		print $tickettemp->getNomUrl(1);
-		print '<br>';
+		print '<input type="submit" class="button" name="addLink" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
+		print '</form>';
+		print '</div>';
+		print '</p>';
 	}
 }
-print '<br></table>';
-print '<div>';
-print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
-print '<input type="hidden" name="token" value="' . newToken() . '">';
-print '<input type="hidden" name="action" value="addLink">';
-print '<input type="hidden" name="element_types" value="ticket">';
-
-print ajax_combobox('parent');
-print selectForm( $tickettemp, 'element_id[]', 'element_id', $object->linkedObjectsIds['ticket']);
-
-print '<input type="submit" class="button" name="addLink" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
-print '</div>';
-print '</form>';
-
-
-
-print '</p>';
 
 // End of page
 llxFooter();
