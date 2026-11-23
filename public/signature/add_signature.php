@@ -110,18 +110,21 @@ if ($action == 'addSignature') {
 			$object->call_trigger('ENVELOPE_RECIPIENT_SIGN', $user);
 			if (method_exists($object, 'generateDocument'))
 			{
-				$result = $object->generateDocument('deimos', $langs, $hidedetails, $hidedesc, $hideref);
+				// The public page has no display option of the card: details, description and reference are shown
+				$result = $object->generateDocument('deimos', $langs, 0, 0, 0);
 
 				if ($result < 0) {
 					dol_print_error($db, $object->error, $object->errors);
 					exit();
 				}
-				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+				// The option is absent from llx_const until it is switched on once in the setup page
+				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/acknowledgementreceipt';
 					$filelist = dol_dir_list($filedir, 'files');
 					$filename = $filelist[0]['name'];
 
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename, '', '', 'doliletter_envelope', $id);
+					// The page has no id parameter: the envelope comes from the track_id of its signatory
+					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename, '', '', 'doliletter_envelope', $object->id);
 					require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 					$ecmfile->share = getRandomPassword(true);
 					$ecmfile->update($user);
@@ -170,7 +173,7 @@ $zone = 'public';
 	<input hidden id="redirectURL" value="<?php echo $url ?>">
 	<div class="wpeo-gridlayout grid-2">
 		<div class="informations">
-			<?php if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) : ?>
+			<?php if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) : ?>
 				<div class="wpeo-gridlayout grid-2 file-generation">
 					<?php if ($type == 'envelope') : ?>
 						<?php $filelist = dol_dir_list($upload_dir . '/' . $object->element . '/' . $object->ref, 'files');
