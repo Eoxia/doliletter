@@ -210,7 +210,9 @@ if ($action == 'send') {
 			require_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
 
 			$from = $conf->global->MAIN_MAIL_EMAIL_FROM;
-			$url = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id='.$signatory->signature_url;
+			// Type and entity of the envelope: without the type the public page has no object to load, without the entity it
+			// looks for the signatory in the first one
+			$url = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id='.$signatory->signature_url.'&type=envelope&entity='.((int) ($object->entity ?: $conf->entity));
 
 			$message = $langs->trans('SignatureEmailMessage') . ' ' . $url;
 			$subject = $langs->trans('SignatureEmailSubject') . ' ' . $object->ref;
@@ -425,7 +427,7 @@ if ((empty($action) || ($action != 'create' && $action != 'edit'))) {
 		//print '</td><td class="center">';
 		//print $element->getLibStatut(5);
 		print '</td>';
-		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id='.($element->signature_url ?? '').'&type=envelope';
+		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id='.($element->signature_url ?? '').'&type=envelope&entity='.((int) ($object->entity ?: $conf->entity));
 		print '<td class="center"><a href="'. $signature_url .'">';
 		print $signature_url;
 		print '</a></td>';

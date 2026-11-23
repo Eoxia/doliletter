@@ -566,7 +566,7 @@ class Envelope extends CommonObject
 		dol_include_once('/saturne/lib/medias.lib.php');
 
 		$entity = !empty($this->entity) ? (int) $this->entity : (int) $conf->entity;
-		$dir    = ($conf->doliletter->multidir_output[$entity] ?? $conf->doliletter->dir_output) . '/' . $this->element . '/' . dol_sanitizeFileName($this->ref);
+		$dir    = $this->getOutputDir() . '/' . $this->element . '/' . dol_sanitizeFileName($this->ref);
 
 		// Mode 1 loads the date of each file
 		$files = array();
@@ -597,6 +597,62 @@ class Envelope extends CommonObject
 		}
 
 		return null;
+	}
+
+	/**
+	 * Output directory of DoliLetter for the entity of the envelope
+	 *
+	 * multidir_output only holds the current entity, Multicompany adds the others for shared elements only, while a public
+	 * page or a document model may handle an envelope of another entity: its directory is then worked out from the
+	 * documents root, as Dolibarr does it for the current entity
+	 *
+	 * @return string Absolute path, without trailing slash
+	 */
+	public function getOutputDir(): string
+	{
+		global $conf;
+
+		dol_include_once('/saturne/lib/medias.lib.php');
+
+		$entity = !empty($this->entity) ? (int) $this->entity : (int) $conf->entity;
+
+		return $conf->doliletter->multidir_output[$entity] ?? saturne_default_documents_dir('doliletter', $entity);
+	}
+
+	/**
+	 * Last document of a folder of the envelope, as its line of the documents index
+	 *
+	 * Read in the entity of the envelope: its folder from getOutputDir(), its line under the path the index keeps, from
+	 * DOL_DATA_ROOT, which holds the entity beyond the first one. The document is the last one in name order that is not a
+	 * specimen, the one the card shares
+	 *
+	 * @param  string        $subdir Folder under the one of the envelope (acknowledgementreceipt, sendingproof, trackingnumber),
+	 *                               empty for the letter
+	 * @return EcmFiles|null         Line of the index, null when the folder holds no document or the index misses it
+	 */
+	public function getLastDocumentIndex(string $subdir = ''): ?EcmFiles
+	{
+		global $conf;
+
+		require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+		require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+		dol_include_once('/saturne/lib/medias.lib.php');
+
+		$dir      = $this->getOutputDir() . '/' . $this->element . '/' . dol_sanitizeFileName($this->ref) . ($subdir !== '' ? '/' . $subdir : '');
+		$fullname = '';
+		foreach (dol_dir_list($dir, 'files') as $file) {
+			if (!preg_match('/specimen/', $file['name'])) {
+				$fullname = $file['fullname'];
+			}
+		}
+		if ($fullname === '') {
+			return null;
+		}
+
+		$entity  = !empty($this->entity) ? (int) $this->entity : (int) $conf->entity;
+		$ecmFile = new EcmFiles($this->db);
+
+		return $ecmFile->fetch(0, '', saturne_media_origin_path($fullname), '', '', $this->table_element, $this->id, $entity) > 0 ? $ecmFile : null;
 	}
 }
 

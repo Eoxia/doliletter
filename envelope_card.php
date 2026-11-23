@@ -54,6 +54,8 @@ require_once './core/modules/doliletter/mod_envelope_standard.php';
 require_once './lib/doliletter_envelope.lib.php';
 require_once './lib/doliletter.lib.php';
 require_once './lib/doliletter_function.lib.php';
+// saturne_media_origin_path(): path of a file in the documents index, which holds the entity beyond the first one
+dol_include_once('/saturne/lib/medias.lib.php');
 
 global $db, $conf, $langs, $user, $hookmanager;
 
@@ -432,7 +434,7 @@ if (empty($reshook)) {
 
 					// A draft only has its specimen: there is no document to share yet
 					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $id);
+						$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
 						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 						$ecmfile->share = getRandomPassword(true);
 						$ecmfile->update($user);
@@ -932,7 +934,7 @@ if (empty($reshook)) {
 						}
 						// Only specimens: no document to share, as in the generation of the card
 						if (dol_strlen($filename) > 0) {
-							$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/trackingnumber/'.$filename, '', '', 'doliletter_envelope', $id);
+							$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
 							require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 							$ecmfile->share = getRandomPassword(true);
 							$ecmfile->update($user);
@@ -1061,7 +1063,7 @@ if (empty($reshook)) {
 								}
 								// Only specimens: no document to share, as in the generation of the card
 								if (dol_strlen($filename) > 0) {
-									$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename, '', '', 'doliletter_envelope', $id);
+									$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
 									require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 									$ecmfile->share = getRandomPassword(true);
 									$ecmfile->update($user);
@@ -1141,7 +1143,7 @@ if (empty($reshook)) {
 								}
 								// Only specimens: no document to share, as in the generation of the card
 								if (dol_strlen($filename) > 0) {
-									$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/sendingproof/'.$filename, '', '', 'doliletter_envelope', $id);
+									$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
 									require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 									$ecmfile->share = getRandomPassword(true);
 									$ecmfile->update($user);
@@ -1459,7 +1461,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 	if ($object->status > 1) {
 		$signatory = $signatory->fetchSignatory('E_RECEIVER', $id);
 		$signatory = array_shift($signatory);
-		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $signatory->signature_url . '&type=envelope';
+		// The entity of the envelope: the public page has no session to take it from
+		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $signatory->signature_url . '&type=envelope&entity=' . ((int) ($object->entity ?: $conf->entity));
 	}
 
 	if ($object->status == 3 || $object->status == 6) {
@@ -1763,7 +1766,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					}
 					// Only specimens: no document to share, as in the generation of the card
 					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $id);
+						$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
 						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 						$ecmfile->share = getRandomPassword(true);
 						$ecmfile->update($user);
@@ -1849,7 +1852,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY).'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
 		$substitutionarray['__PERSONALIZED__'] = ''; // deprecated
 		$substitutionarray['__CONTACTCIVNAME__'] = '';
-		$substitutionarray['__SIGNATURE_LINK__'] = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id=' . $receiver->signature_url  . '&type=' . $object->element;
+		$substitutionarray['__SIGNATURE_LINK__'] = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id=' . $receiver->signature_url  . '&type=' . $object->element . '&entity=' . ((int) ($object->entity ?: $conf->entity));
 		$parameters = array(
 			'mode' => 'formemail'
 		);
@@ -1931,7 +1934,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					}
 					// Only specimens: no document to share, as in the generation of the card
 					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', 'doliletter/envelope/' . $object->ref . '/' . $filename, '', '', 'doliletter_envelope', $id);
+						$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
 						require_once DOL_DOCUMENT_ROOT . '/core/lib/security2.lib.php';
 						$ecmfile->share = getRandomPassword(true);
 						$ecmfile->update($user);
