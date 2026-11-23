@@ -69,7 +69,8 @@ $type         = GETPOST('type');
 $user = new User($db);
 
 // Load translation files required by the page
-$langs->loadLangs(array("doliletter@doliletter", "other", "errors"));
+// saturne@saturne holds SignaturePublicInterfaceForbidden, shown untranslated without it
+$langs->loadLangs(array("doliletter@doliletter", "saturne@saturne", "other", "errors"));
 
 switch ($type) {
 	case 'envelope':
