@@ -144,13 +144,9 @@ if ($action == 'addSignature') {
 			}
 			// The option is absent from llx_const until it is switched on once in the setup page
 			if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
-				// Folder and index of the entity of the envelope: the first entity ones held another envelope of the same ref
-				$receiptFile = $object->getLastDocumentIndex('acknowledgementreceipt');
-				if ($receiptFile !== null) {
-					require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-					$receiptFile->share = getRandomPassword(true);
-					$receiptFile->update($user);
-				}
+				// The receipt just generated, in the folder and index of the entity of the envelope: the first entity ones held
+				// another envelope of the same ref
+				$object->shareLastDocument($user, 'acknowledgementreceipt');
 			}
 			// Creation signature OK
 			exit;
