@@ -550,53 +550,27 @@ class Envelope extends CommonObject
 	/**
 	 * Letter of the envelope, the document the sending proof, the tracking number and the acknowledgement receipt are about
 	 *
-	 * The last PDF generated in the folder of the envelope: the email form attaches the most recent file of that folder, and
-	 * the card allows a single generation once the envelope is locked. Specimens, generated while the envelope is a draft,
-	 * and files added from the Linked files tab, which go to the same folder, are left aside
+	 * The last letter generated in the folder of the envelope, as getLastDocument() finds it: the email form attaches the
+	 * most recent file of that folder, and the card allows a single generation once the envelope is locked
 	 *
 	 * @return array{name: string, fullname: string, hash: string}|null File name, full path and MD5 of the content as the
 	 *                                                                   documents index holds it, null when the folder holds no letter
 	 */
 	public function getLetterFile(): ?array
 	{
-		global $conf;
-
-		require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-		require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
-		dol_include_once('/saturne/lib/medias.lib.php');
-
-		$entity = !empty($this->entity) ? (int) $this->entity : (int) $conf->entity;
-		$dir    = $this->getOutputDir() . '/' . $this->element . '/' . dol_sanitizeFileName($this->ref);
-
-		// Mode 1 loads the date of each file
-		$files = array();
-		foreach (dol_dir_list($dir, 'files', 0, '\.pdf$', '', 'name', SORT_ASC, 1) as $file) {
-			if (!preg_match('/specimen/i', $file['name'])) {
-				$files[] = $file;
-			}
-		}
-		// Most recent first, as dol_most_recent_file() for the email form: the name decides between files of the same second
-		usort($files, function ($a, $b) {
-			return ($b['date'] <=> $a['date']) ?: strnatcmp($b['name'], $a['name']);
-		});
-
-		foreach ($files as $file) {
-			// The index keeps the path from DOL_DATA_ROOT, which holds the entity beyond the first one
-			$ecmFile = new EcmFiles($this->db);
-			$indexed = $ecmFile->fetch(0, '', saturne_media_origin_path($file['fullname']), '', '', '', 0, $entity) > 0;
-			if ($indexed && $ecmFile->gen_or_uploaded == 'uploaded') {
-				continue;
-			}
-
-			// MD5 of the content, written by CommonObject::indexFile(): worked out the same way for a file the index misses
-			return array(
-				'name'     => $file['name'],
-				'fullname' => $file['fullname'],
-				'hash'     => $indexed && dol_strlen($ecmFile->label) ? $ecmFile->label : (string) md5_file(dol_osencode($file['fullname'])),
-			);
+		$document = $this->getLastDocument();
+		if ($document === null) {
+			return null;
 		}
 
-		return null;
+		$ecmFile = $document['index'];
+
+		// MD5 of the content, written by CommonObject::indexFile(): worked out the same way for a file the index misses
+		return array(
+			'name'     => $document['name'],
+			'fullname' => $document['fullname'],
+			'hash'     => $ecmFile !== null && dol_strlen($ecmFile->label) ? $ecmFile->label : (string) md5_file(dol_osencode($document['fullname'])),
+		);
 	}
 
 	/**
@@ -620,17 +594,24 @@ class Envelope extends CommonObject
 	}
 
 	/**
-	 * Last document of a folder of the envelope, as its line of the documents index
+	 * Last document generated in a folder of the envelope, with its line of the documents index
+	 *
+	 * The most recent PDF first, as dol_most_recent_file() for the email form, the name in natural order deciding between
+	 * files of the same second. The name order alone is not the order of generation: a document is named after its day and
+	 * a counter that starts again each day (_10 comes before _2), and the letter folder also holds the files added from the
+	 * Linked files tab (Annexe.pdf comes after 20261123_...). Specimens, generated while the envelope is a draft, and the
+	 * files the index marks as uploaded are left aside.
 	 *
 	 * Read in the entity of the envelope: its folder from getOutputDir(), its line under the path the index keeps, from
-	 * DOL_DATA_ROOT, which holds the entity beyond the first one. The document is the last one in name order that is not a
-	 * specimen, the one the card shares
+	 * DOL_DATA_ROOT, which holds the entity beyond the first one
 	 *
-	 * @param  string        $subdir Folder under the one of the envelope (acknowledgementreceipt, sendingproof, trackingnumber),
-	 *                               empty for the letter
-	 * @return EcmFiles|null         Line of the index, null when the folder holds no document or the index misses it
+	 * @param  string $subdir Folder under the one of the envelope (acknowledgementreceipt, sendingproof, trackingnumber),
+	 *                        empty for the letter
+	 * @return array{name: string, fullname: string, index: EcmFiles|null}|null File name, full path and line of the index
+	 *                                                                          (null when the index misses the file), null
+	 *                                                                          when the folder holds no document
 	 */
-	public function getLastDocumentIndex(string $subdir = ''): ?EcmFiles
+	private function getLastDocument(string $subdir = ''): ?array
 	{
 		global $conf;
 
@@ -638,21 +619,81 @@ class Envelope extends CommonObject
 		require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 		dol_include_once('/saturne/lib/medias.lib.php');
 
-		$dir      = $this->getOutputDir() . '/' . $this->element . '/' . dol_sanitizeFileName($this->ref) . ($subdir !== '' ? '/' . $subdir : '');
-		$fullname = '';
-		foreach (dol_dir_list($dir, 'files') as $file) {
-			if (!preg_match('/specimen/', $file['name'])) {
-				$fullname = $file['fullname'];
+		$entity = !empty($this->entity) ? (int) $this->entity : (int) $conf->entity;
+		$dir    = $this->getOutputDir() . '/' . $this->element . '/' . dol_sanitizeFileName($this->ref) . ($subdir !== '' ? '/' . $subdir : '');
+
+		// Mode 1 loads the date of each file
+		$files = array();
+		foreach (dol_dir_list($dir, 'files', 0, '\.pdf$', '', 'name', SORT_ASC, 1) as $file) {
+			if (!preg_match('/specimen/i', $file['name'])) {
+				$files[] = $file;
 			}
 		}
-		if ($fullname === '') {
-			return null;
+		usort($files, function ($a, $b) {
+			return ($b['date'] <=> $a['date']) ?: strnatcmp($b['name'], $a['name']);
+		});
+
+		foreach ($files as $file) {
+			$ecmFile = new EcmFiles($this->db);
+			$indexed = $ecmFile->fetch(0, '', saturne_media_origin_path($file['fullname']), '', '', '', 0, $entity) > 0;
+			if ($indexed && $ecmFile->gen_or_uploaded == 'uploaded') {
+				continue;
+			}
+
+			return array(
+				'name'     => $file['name'],
+				'fullname' => $file['fullname'],
+				'index'    => $indexed ? $ecmFile : null,
+			);
 		}
 
-		$entity  = !empty($this->entity) ? (int) $this->entity : (int) $conf->entity;
-		$ecmFile = new EcmFiles($this->db);
+		return null;
+	}
 
-		return $ecmFile->fetch(0, '', saturne_media_origin_path($fullname), '', '', $this->table_element, $this->id, $entity) > 0 ? $ecmFile : null;
+	/**
+	 * Last document generated in a folder of the envelope, as its line of the documents index
+	 *
+	 * The document getLastDocument() finds: the one the card shares and the public pages show
+	 *
+	 * @param  string        $subdir Folder under the one of the envelope (acknowledgementreceipt, sendingproof, trackingnumber),
+	 *                               empty for the letter
+	 * @return EcmFiles|null         Line of the index, null when the folder holds no document or the index misses it
+	 */
+	public function getLastDocumentIndex(string $subdir = ''): ?EcmFiles
+	{
+		$document = $this->getLastDocument($subdir);
+
+		return $document !== null ? $document['index'] : null;
+	}
+
+	/**
+	 * Share the last document generated in a folder of the envelope on the public interface
+	 *
+	 * A new link each time, on the document getLastDocumentIndex() finds: a specimen is never shared, and an envelope
+	 * without document shares nothing
+	 *
+	 * @param  User   $user   User sharing the document
+	 * @param  string $subdir Folder under the one of the envelope (acknowledgementreceipt, sendingproof, trackingnumber),
+	 *                        empty for the letter
+	 * @return int            1 when shared, 0 when there is no document to share, -1 on error
+	 */
+	public function shareLastDocument(User $user, string $subdir = ''): int
+	{
+		$ecmFile = $this->getLastDocumentIndex($subdir);
+		if ($ecmFile === null) {
+			return 0;
+		}
+
+		require_once DOL_DOCUMENT_ROOT . '/core/lib/security2.lib.php';
+
+		$ecmFile->share = getRandomPassword(true);
+		if ($ecmFile->update($user) < 0) {
+			$this->error  = $ecmFile->error;
+			$this->errors = $ecmFile->errors;
+			return -1;
+		}
+
+		return 1;
 	}
 }
 
