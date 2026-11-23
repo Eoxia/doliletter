@@ -851,7 +851,8 @@ if (empty($reshook)) {
 
 		$contact->fetch($receiver);
 
-		$letter->recipient_address = $contact->address;
+		// Not null in the table: a contact without address records an empty one, the letter goes all the same
+		$letter->recipient_address = (string) $contact->address;
 		$letter->contact_fullname = $contact->firstname . ' ' . $contact->lastname;
 		$letter->letter_code = $lettercode;
 		$result = $letter->create($user);
@@ -930,6 +931,9 @@ if (empty($reshook)) {
 				}
 			}
 
+		} else {
+			// Nothing was recorded and the status stays: say why instead of showing the card unchanged
+			setEventMessages($letter->error, $letter->errors, 'errors');
 		}
 		// The card is shown next: its hooks expect a string (formObjectOptions() of DoliSIRH stops on null)
 		$action = '';
