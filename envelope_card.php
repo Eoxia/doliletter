@@ -1461,7 +1461,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 	$morehtmlref .=  '</td><br>';
 
 	if ($object->status > 1) {
-		$receivers = $signatory->fetchSignatory('E_RECEIVER', $id);
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', (int) $id);
 		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 		// The entity of the envelope: the public page has no session to take it from. No receiver, no link to give
 		$signature_url = is_object($receiver) ? dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $receiver->signature_url . '&type=envelope&entity=' . ((int) ($object->entity ?: $conf->entity)) : '';
@@ -1847,7 +1847,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		//$arrayoffamiliestoexclude=array('system', 'mycompany', 'object', 'objectamount', 'date', 'user', ...);
 		if (!isset($arrayoffamiliestoexclude)) $arrayoffamiliestoexclude = null;
 
-		$receivers = $signatory->fetchSignatory('E_RECEIVER', $id);
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', (int) $id);
 		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 		// Make substitution in email content
 		$substitutionarray = getCommonSubstitutionArray($outputlangs, 0, $arrayoffamiliestoexclude, $object);
