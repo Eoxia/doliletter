@@ -546,6 +546,58 @@ class Envelope extends CommonObject
 
 		return $result;
 	}
+
+	/**
+	 * Letter of the envelope, the document the sending proof, the tracking number and the acknowledgement receipt are about
+	 *
+	 * The last PDF generated in the folder of the envelope: the email form attaches the most recent file of that folder, and
+	 * the card allows a single generation once the envelope is locked. Specimens, generated while the envelope is a draft,
+	 * and files added from the Linked files tab, which go to the same folder, are left aside
+	 *
+	 * @return array{name: string, fullname: string, hash: string}|null File name, full path and MD5 of the content as the
+	 *                                                                   documents index holds it, null when the folder holds no letter
+	 */
+	public function getLetterFile(): ?array
+	{
+		global $conf;
+
+		require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+		require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+		dol_include_once('/saturne/lib/medias.lib.php');
+
+		$entity = !empty($this->entity) ? (int) $this->entity : (int) $conf->entity;
+		$dir    = ($conf->doliletter->multidir_output[$entity] ?? $conf->doliletter->dir_output) . '/' . $this->element . '/' . dol_sanitizeFileName($this->ref);
+
+		// Mode 1 loads the date of each file
+		$files = array();
+		foreach (dol_dir_list($dir, 'files', 0, '\.pdf$', '', 'name', SORT_ASC, 1) as $file) {
+			if (!preg_match('/specimen/i', $file['name'])) {
+				$files[] = $file;
+			}
+		}
+		// Most recent first, as dol_most_recent_file() for the email form: the name decides between files of the same second
+		usort($files, function ($a, $b) {
+			return ($b['date'] <=> $a['date']) ?: strnatcmp($b['name'], $a['name']);
+		});
+
+		foreach ($files as $file) {
+			// The index keeps the path from DOL_DATA_ROOT, which holds the entity beyond the first one
+			$ecmFile = new EcmFiles($this->db);
+			$indexed = $ecmFile->fetch(0, '', saturne_media_origin_path($file['fullname']), '', '', '', 0, $entity) > 0;
+			if ($indexed && $ecmFile->gen_or_uploaded == 'uploaded') {
+				continue;
+			}
+
+			// MD5 of the content, written by CommonObject::indexFile(): worked out the same way for a file the index misses
+			return array(
+				'name'     => $file['name'],
+				'fullname' => $file['fullname'],
+				'hash'     => $indexed && dol_strlen($ecmFile->label) ? $ecmFile->label : (string) md5_file(dol_osencode($file['fullname'])),
+			);
+		}
+
+		return null;
+	}
 }
 
 class EnvelopeSignature extends DoliletterSignature

@@ -314,17 +314,13 @@ class pdf_ares extends ModelePDFSendingProof
 
 				$pdf->SetFont('', '', $default_font_size - 1);
 
-				require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmdirectory.class.php';
-				require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
-				$ecmfile = new EcmFiles($this->db);
-				$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/';
-				$filelist = dol_dir_list($filedir, 'files');
-				$filepath = preg_split('/documents\//',$filelist[0]['fullname'])[1];
-
-				$ecmfile->fetch(0, '', $filepath, '', '', 'doliletter_envelope', $object->id);
+				// Letter sent: the last one generated, not the first file of the folder (specimen, older letter, linked file).
+				// None once deleted from the Linked files tab: the proof says so instead of an empty hash
+				$letterFile = $object->getLetterFile();
+				$letterSha  = is_array($letterFile) ? $langs->trans('SentDocumentSignedSha', $letterFile['hash']) : $langs->trans('SentDocumentShaNotAvailable');
 
 				if ($object->status == 3) {
-					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('SendingProofTextLetter', $object->ref) . '<br>' . $langs->trans('SentDocumentSignedSha', $ecmfile->label), 0, 1);
+					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('SendingProofTextLetter', $object->ref) . '<br>' . $letterSha, 0, 1);
 				}
 
 				$nexY = $pdf->GetY();
@@ -617,11 +613,6 @@ class pdf_ares extends ModelePDFSendingProof
 		if (is_object($receiver)) {
 			$tempdir       = $conf->doliletter->multidir_output[$object->entity ?? 1] . '/temp/';
 			$signatureFile = DoliletterSignature::writeSignatureImage($receiver->signature, $tempdir . 'signature.png');
-		}
-
-		$file_list = dol_dir_list(DOL_DATA_ROOT . '/doliletter/' . $object->element . '/' . $object->ref, 'files');
-		if (!empty($file_list[0])) {
-			$filename = $file_list[0]['relativename'];
 		}
 
 		$pdf->SetDrawColor(128, 128, 128);
