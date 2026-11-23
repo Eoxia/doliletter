@@ -194,10 +194,10 @@ DeleteSignatureAfterReception = Supprimer le téléchargement public après réc
 DeleteSignatureAfterReceptionText = Désactive le téléchargement des documents depuis l'interface publique après génération de l'accusé de réception
 EnvelopeRecipientSignTrigger = Accusé de réception du courrier
 DocumentHasBeenSignedBy = Le document a été signé par %s
-ReceivedDocumentSignedSha = SHA du courrier reçu : %s
-SentDocumentSignedSha = SHA du courrier envoyé : %s
-ReceivedDocumentShaNotAvailable = SHA du courrier reçu : non disponible, aucun courrier généré dans les documents de l'enveloppe
-SentDocumentShaNotAvailable = SHA du courrier envoyé : non disponible, aucun courrier généré dans les documents de l'enveloppe
+ReceivedDocumentSignedSha = Empreinte MD5 du courrier reçu : %s
+SentDocumentSignedSha = Empreinte MD5 du courrier envoyé : %s
+ReceivedDocumentShaNotAvailable = Empreinte MD5 du courrier reçu : non disponible, aucun courrier généré dans les documents de l'enveloppe
+SentDocumentShaNotAvailable = Empreinte MD5 du courrier envoyé : non disponible, aucun courrier généré dans les documents de l'enveloppe
 
 #
 # Spread
