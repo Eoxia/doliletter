@@ -835,7 +835,10 @@ if (empty($reshook)) {
 
 	if ($action == 'lettersend') {
 		$error = 0;
-		$receiver = GETPOST('receiver');
+		$now   = dol_now();
+		// The form sends receiver[], the contact of the envelope: an id, not the array, goes to the record and to Contact::fetch()
+		$receivers  = GETPOST('receiver', 'array');
+		$receiver   = !empty($receivers) ? (int) reset($receivers) : (int) $object->fk_contact;
 		$lettercode = GETPOST('lettercode');
 
 		$letter->fk_envelope = $object->id;
@@ -848,7 +851,8 @@ if (empty($reshook)) {
 
 		$contact->fetch($receiver);
 
-		$letter->recipient_address = $contact->address;
+		// Not null in the table: a contact without address records an empty one, the letter goes all the same
+		$letter->recipient_address = (string) $contact->address;
 		$letter->contact_fullname = $contact->firstname . ' ' . $contact->lastname;
 		$letter->letter_code = $lettercode;
 		$result = $letter->create($user);
@@ -927,8 +931,12 @@ if (empty($reshook)) {
 				}
 			}
 
+		} else {
+			// Nothing was recorded and the status stays: say why instead of showing the card unchanged
+			setEventMessages($letter->error, $letter->errors, 'errors');
 		}
-		unset($action);
+		// The card is shown next: its hooks expect a string (formObjectOptions() of DoliSIRH stops on null)
+		$action = '';
 	}
 
 	if ($action == 'stockTmpFile') {

@@ -2863,12 +2863,6 @@ parameters:
 			path: envelope_card.php
 
 		-
-			message: '#^Variable \$now might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: envelope_card.php
-
-		-
 			message: '#^Variable \$paramname might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
