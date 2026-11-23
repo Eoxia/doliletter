@@ -123,8 +123,8 @@ if ($action == 'addSignature') {
 					$filelist = dol_dir_list($filedir, 'files');
 					$filename = $filelist[0]['name'];
 
-					// The page has no id parameter: the envelope comes from the track_id of its signatory
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename, '', '', 'doliletter_envelope', $object->id);
+					// The relative path identifies the file: the page has no id parameter, the envelope comes from the track_id
+					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename);
 					require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 					$ecmfile->share = getRandomPassword(true);
 					$ecmfile->update($user);

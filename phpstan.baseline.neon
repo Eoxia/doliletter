@@ -3487,33 +3487,9 @@ parameters:
 			path: public/signature/add_signature.php
 
 		-
-			message: '#^Variable \$hidedesc might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/signature/add_signature.php
-
-		-
-			message: '#^Variable \$hidedetails might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/signature/add_signature.php
-
-		-
-			message: '#^Variable \$hideref might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/signature/add_signature.php
-
-		-
 			message: '#^Variable \$hookmanager might not be defined\.$#'
 			identifier: variable.undefined
 			count: 3
-			path: public/signature/add_signature.php
-
-		-
-			message: '#^Variable \$id might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
 			path: public/signature/add_signature.php
 
 		-
