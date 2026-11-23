@@ -280,7 +280,8 @@ if (empty($reshook)) {
 		if (!$error) {
 			$result = $object->update($user, false);
 			if ($result > 0) {
-				$signatory->deleteSignatoriesSignatures($object->id, 0);
+				// The content changed: the signatures no longer stand for it, the envelope goes back to signature
+				$signatory->deleteSignatoriesSignatures((int) $object->id);
 				$object->setStatusCommon($user, 0, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation

@@ -533,34 +533,40 @@ class DoliletterSignature extends CommonObject
 	}
 
 	/**
-	 * Delete signatories signatures
+	 * Delete the signatures of the signatories of an object, once its content changes: they no longer stand for it
 	 *
-	 * @param $fk_object
-	 * @return int
+	 * Generating a document keeps them: a document generated again shows the same signatures
+	 *
+	 * @param  int $fk_object ID of the object linked
+	 * @return int            1 once the signatures are deleted, 0 when no signatory is found
 	 */
-	public function deleteSignatoriesSignatures($fk_object, $document_generated = 1) {
-		global $langs, $user;
+	public function deleteSignatoriesSignatures(int $fk_object): int
+	{
+		global $user;
 
 		$signatories = $this->fetchSignatories($fk_object);
-
-		if (!empty($signatories) && $signatories > 0) {
-			foreach ($signatories as $signatory) {
-				if (dol_strlen($signatory->signature)) {
-					$document_generated ? $signatory->signature = $langs->trans('DocumentGenerated') : $signatory->signature = '';
-					$signatory->update($user);
-				}
-			}
-			return 1;
+		if (!is_array($signatories) || empty($signatories)) {
+			return 0;
 		}
+
+		foreach ($signatories as $signatory) {
+			if (dol_strlen($signatory->signature)) {
+				$signatory->signature = '';
+				$signatory->update($user);
+			}
+		}
+
+		return 1;
 	}
 
 	/**
 	 * Get the image data of a stored signature
 	 *
 	 * The signature pad stores a data URL (data:image/png;base64,...), a row written by another tool may hold the bare
-	 * base64 string: both are read. Once a document is generated, deleteSignatoriesSignatures() leaves the text
-	 * DocumentGenerated in place of the image: that text, like any value that is not a PNG or JPEG image, gives an
-	 * empty string, so that a document model leaves the signature frame empty instead of drawing an invalid file
+	 * base64 string: both are read. Any value that is not a PNG or JPEG image gives an empty string, so that a document
+	 * model leaves the signature frame empty instead of drawing an invalid file, and a page shows no broken image. Such
+	 * as the translated text DocumentGenerated ("Document g&eacute;n&eacute;r&eacute;" in French) that older versions
+	 * wrote in place of the image once a document was generated: that image is lost, the row stays as it is
 	 *
 	 * @param  string|null $signature Stored signature
 	 * @return string                 Binary content of the image, empty string when the value holds no image
@@ -579,6 +585,27 @@ class DoliletterSignature extends CommonObject
 		}
 
 		return $imageData;
+	}
+
+	/**
+	 * Get a stored signature as a data URL, to show it in a page
+	 *
+	 * Built from the decoded image: the value printed as an image source is always a PNG or JPEG data URL, whether the
+	 * signature is stored with its prefix or as bare base64
+	 *
+	 * @param  string|null $signature Stored signature
+	 * @return string                 Data URL of the image, empty string when the value holds no image
+	 */
+	public static function getSignatureDataUrl(?string $signature): string
+	{
+		$imageData = self::getSignatureImageData($signature);
+		if ($imageData === '') {
+			return '';
+		}
+
+		$mimeType = strpos($imageData, "\x89PNG") === 0 ? 'image/png' : 'image/jpeg';
+
+		return 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
 	}
 
 	/**

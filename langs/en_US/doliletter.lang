@@ -154,7 +154,6 @@ YourAcknowledgementReceipt = Your acknowledgement of receipt:
 AcknowledgementReceiptTextLetter = Please find below the acknowledgement of receipt of the letter %s received by post.
 AcknowledgementReceiptTextMail = I, the undersigned %s, received the document %s by email on %s.
 TrackingNumberTextLetter = Please find below the tracking number of the letter %s: %s
-DocumentGenerated = Document generated
 DocumentHasAlreadyBeenGenerated = The document has already been generated
 CompleteName = Full name
 ValidatePendingSignature = Validated (awaiting signature)

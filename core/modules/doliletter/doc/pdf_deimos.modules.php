@@ -558,9 +558,6 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 					@chmod($file, octdec($conf->global->MAIN_UMASK));
 
 				$this->result = array('fullpath'=>$file);
-				$signatory = new EnvelopeSignature($this->db);
-				$signatory->deleteSignatoriesSignatures($object->id);
-
 				return 1;
 			} else {
 				$this->error = $langs->trans("ErrorCanNotCreateDir", $dir);
@@ -637,7 +634,8 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 		$receivers = $signatory->fetchSignatory('E_RECEIVER', $object->id);
 		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 
-		// Data URL or bare base64: no image once the signature is replaced by DocumentGenerated, the frame stays empty
+		// Data URL or bare base64: the frame stays empty for a row that holds no image, such as the text DocumentGenerated
+		// that older versions wrote in place of the signature once a document was generated
 		$signatureFile = '';
 		if (is_object($receiver)) {
 			$tempdir       = $conf->doliletter->multidir_output[$object->entity ?? 1] . '/temp/';
@@ -662,7 +660,7 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 		$pdf->SetXY($this->marge_gauche, $posy + 10);
 		if ($signatureFile !== '') {
 			$pdf->Image($signatureFile, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
-			// TCPDF has read the image: the signature is not kept on disk, as it is not kept in database
+			// TCPDF has read the image: the temporary file goes, the signature stays in database for the next generation
 			dol_delete_file($signatureFile);
 		}
 		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 30, '', 1);
