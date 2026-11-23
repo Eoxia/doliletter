@@ -835,7 +835,10 @@ if (empty($reshook)) {
 
 	if ($action == 'lettersend') {
 		$error = 0;
-		$receiver = GETPOST('receiver');
+		$now   = dol_now();
+		// The form sends receiver[], the contact of the envelope: an id, not the array, goes to the record and to Contact::fetch()
+		$receivers  = GETPOST('receiver', 'array');
+		$receiver   = !empty($receivers) ? (int) reset($receivers) : (int) $object->fk_contact;
 		$lettercode = GETPOST('lettercode');
 
 		$letter->fk_envelope = $object->id;
@@ -928,7 +931,8 @@ if (empty($reshook)) {
 			}
 
 		}
-		unset($action);
+		// The card is shown next: its hooks expect a string (formObjectOptions() of DoliSIRH stops on null)
+		$action = '';
 	}
 
 	if ($action == 'stockTmpFile') {
