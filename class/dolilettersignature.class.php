@@ -478,7 +478,7 @@ class DoliletterSignature extends CommonObject
 	 * @param int $fk_object ID of object linked
 	 * @return array|int
 	 */
-	function fetchSignatory($role = "", $fk_object)
+	function fetchSignatory($role, $fk_object)
 	{
 		$filter = array('customsql' => 'fk_object=' . $fk_object . ' AND status!=0');
 
@@ -609,7 +609,7 @@ class DoliletterSignature extends CommonObject
 	 * @param string $role Role of resource
 	 * @param int $fk_object ID of object linked
 	 */
-	function deletePreviousSignatories($role = "", $fk_object)
+	function deletePreviousSignatories($role, $fk_object)
 	{
 		global $user;
 		$filter = array('customsql' => ' role="' . $role . '" AND fk_object=' . $fk_object);
