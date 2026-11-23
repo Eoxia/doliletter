@@ -3307,96 +3307,6 @@ parameters:
 			path: lib/doliletter_spread.lib.php
 
 		-
-			message: '#^Class mod_ticket_simple does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Function show_category_image not found\.$#'
-			identifier: function.notFound
-			count: 4
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Negated boolean expression is always true\.$#'
-			identifier: booleanNot.alwaysTrue
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Parameter \#2 \$notrigger of method DoliletterSignature\:\:setSigned\(\) expects int, false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Parameter \#2 \$ticket of method mod_ticket_simple\:\:getNextValue\(\) expects Ticket, Envelope given\.$#'
-			identifier: argument.type
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$backtopage might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$backtopageforcancel might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$conf might not be defined\.$#'
-			identifier: variable.undefined
-			count: 7
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$element might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$error might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$hookmanager might not be defined\.$#'
-			identifier: variable.undefined
-			count: 4
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$php_self might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$thirdparty might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$title_edit might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
-			message: '#^Variable \$user might not be defined\.$#'
-			identifier: variable.undefined
-			count: 6
-			path: public/acknowledgementreceipt/send_ar.php
-
-		-
 			message: '#^Cannot access property \$element on class\-string\|object\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -3803,12 +3713,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: envelope_signature.php
-
-		-
-			message: '#^Parameter \#1 \$id of method Categorie\:\:fetch\(\) expects int, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: public/acknowledgementreceipt/send_ar.php
 
 		-
 			message: '#^Parameter \#3 \$objectid of method Link\:\:fetchAll\(\) expects int, string given\.$#'
