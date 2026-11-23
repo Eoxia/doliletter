@@ -851,8 +851,18 @@ if (empty($reshook)) {
 
 		$contact->fetch($receiver);
 
-		// Not null in the table: a contact without address records an empty one, the letter goes all the same
-		$letter->recipient_address = (string) $contact->address;
+		// A contact without address: the letter goes to its thirdparty, the one of the envelope when the contact has none.
+		// Not null in the table: an empty address only when neither has one, the letter goes all the same
+		$recipientAddress = (string) $contact->address;
+		if (trim($recipientAddress) === '') {
+			$recipientThirdparty = $thirdparty;
+			if ($contact->socid > 0 && $contact->socid != $thirdparty->id) {
+				$recipientThirdparty = new Societe($db);
+				$recipientThirdparty->fetch($contact->socid);
+			}
+			$recipientAddress = (string) $recipientThirdparty->address;
+		}
+		$letter->recipient_address = $recipientAddress;
 		$letter->contact_fullname = $contact->firstname . ' ' . $contact->lastname;
 		$letter->letter_code = $lettercode;
 		$result = $letter->create($user);
