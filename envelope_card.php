@@ -763,11 +763,9 @@ if (empty($reshook)) {
 						$mesg = $langs->trans('MailSuccessfulySent', $mailfile->getValidAddress($from, 2), $mailfile->getValidAddress($sendto, 2));
 						setEventMessages($mesg, null, 'mesgs');
 
-						$moreparam = '';
-						if (isset($paramname2) || isset($paramval2)) {
-							$moreparam .= '&'.($paramname2 ? $paramname2 : 'mid').'='.$paramval2;
-						}
-						header('Location: '.$_SERVER["PHP_SELF"].'?'.($paramname ? $paramname : 'id').'='.(is_object($object) ? $object->id : '').$moreparam);
+						// Back to the card of the envelope. The core include this code comes from takes the name of the
+						// parameter from its caller ($paramname, $paramname2): this page never set them
+						header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . ((int) $object->id));
 						exit;
 					} else {
 						$langs->load("other");
