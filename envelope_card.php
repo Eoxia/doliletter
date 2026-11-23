@@ -54,8 +54,6 @@ require_once './core/modules/doliletter/mod_envelope_standard.php';
 require_once './lib/doliletter_envelope.lib.php';
 require_once './lib/doliletter.lib.php';
 require_once './lib/doliletter_function.lib.php';
-// saturne_media_origin_path(): path of a file in the documents index, which holds the entity beyond the first one
-dol_include_once('/saturne/lib/medias.lib.php');
 
 global $db, $conf, $langs, $user, $hookmanager;
 
@@ -87,7 +85,6 @@ $signatory      = new EnvelopeSignature($db);
 $extrafields    = new ExtraFields($db);
 $usertmp        = new User($db);
 $letter         = new LetterSending($db);
-$ecmfile        = new EcmFiles($db);
 $thirdparty     = new Societe($db);
 
 // Numbering module of the envelopes. Only the standard one is loaded above: a missing or unknown
@@ -420,25 +417,9 @@ if (empty($reshook)) {
 				$action = '';
 			} else {
 				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref;
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = '';
-					if (!empty($filelist)) {
-						foreach ($filelist as $file) {
-							if (!preg_match('/specimen/', $file['name'])) {
-								$fileurl = $file['fullname'];
-								$filename = $file['name'];
-							}
-						}
-					}
-
+					// The letter just generated, not the last file by name: a file of the Linked files tab sorts after it.
 					// A draft only has its specimen: there is no document to share yet
-					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
-						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-						$ecmfile->share = getRandomPassword(true);
-						$ecmfile->update($user);
-					}
+					$object->shareLastDocument($user);
 				}
 				if (empty($donotredirect)) {	// This is set when include is done by bulk action "Bill Orders"
 					setEventMessages($langs->trans("FileGenerated"), null);
@@ -782,11 +763,9 @@ if (empty($reshook)) {
 						$mesg = $langs->trans('MailSuccessfulySent', $mailfile->getValidAddress($from, 2), $mailfile->getValidAddress($sendto, 2));
 						setEventMessages($mesg, null, 'mesgs');
 
-						$moreparam = '';
-						if (isset($paramname2) || isset($paramval2)) {
-							$moreparam .= '&'.($paramname2 ? $paramname2 : 'mid').'='.$paramval2;
-						}
-						header('Location: '.$_SERVER["PHP_SELF"].'?'.($paramname ? $paramname : 'id').'='.(is_object($object) ? $object->id : '').$moreparam);
+						// Back to the card of the envelope. The core include this code comes from takes the name of the
+						// parameter from its caller ($paramname, $paramname2): this page never set them
+						header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . ((int) $object->id));
 						exit;
 					} else {
 						$langs->load("other");
@@ -921,24 +900,8 @@ if (empty($reshook)) {
 						exit();
 					}
 					if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
-						$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/trackingnumber';
-						$filelist = dol_dir_list($filedir, 'files');
-						$filename = '';
-						if (!empty($filelist)) {
-							foreach ($filelist as $file) {
-								if (!preg_match('/specimen/', $file['name'])) {
-									$fileurl = $file['fullname'];
-									$filename = $file['name'];
-								}
-							}
-						}
-						// Only specimens: no document to share, as in the generation of the card
-						if (dol_strlen($filename) > 0) {
-							$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
-							require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-							$ecmfile->share = getRandomPassword(true);
-							$ecmfile->update($user);
-						}
+						// The tracking number just generated, as in the generation of the card
+						$object->shareLastDocument($user, 'trackingnumber');
 					}
 				}
 			}
@@ -1050,24 +1013,9 @@ if (empty($reshook)) {
 								exit();
 							}
 							if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
-								$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/acknowledgementreceipt';
-								$filelist = dol_dir_list($filedir, 'files');
-								$filename = '';
-								if (!empty($filelist)) {
-									foreach ($filelist as $file) {
-										if (!preg_match('/specimen/', $file['name'])) {
-											$fileurl = $file['fullname'];
-											$filename = $file['name'];
-										}
-									}
-								}
-								// Only specimens: no document to share, as in the generation of the card
-								if (dol_strlen($filename) > 0) {
-									$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
-									require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-									$ecmfile->share = getRandomPassword(true);
-									$ecmfile->update($user);
-								}
+								// The receipt just generated, as in the generation of the card. $filedir is left
+								// as it is: the next scan of the loop still goes to uploaded_file/
+								$object->shareLastDocument($user, 'acknowledgementreceipt');
 							}
 						}
 					}
@@ -1129,25 +1077,9 @@ if (empty($reshook)) {
 							}
 
 							if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
-								$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/sendingproof';
-
-								$filelist = dol_dir_list($filedir, 'files');
-								$filename = '';
-								if (!empty($filelist)) {
-									foreach ($filelist as $file) {
-										if (!preg_match('/specimen/', $file['name'])) {
-											$fileurl = $file['fullname'];
-											$filename = $file['name'];
-										}
-									}
-								}
-								// Only specimens: no document to share, as in the generation of the card
-								if (dol_strlen($filename) > 0) {
-									$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
-									require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-									$ecmfile->share = getRandomPassword(true);
-									$ecmfile->update($user);
-								}
+								// The sending proof just generated, as in the generation of the card. $filedir is
+								// left as it is: the next scan of the loop still goes to uploaded_file/
+								$object->shareLastDocument($user, 'sendingproof');
 							}
 						}
 					}
@@ -1698,13 +1630,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 
 		$object->fetch_projet();
 
-		if (!in_array($object->element, array('societe', 'user', 'member')))
-		{
-			$ref = dol_sanitizeFileName($object->ref);
-			include_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-			$fileparams = dol_most_recent_file($diroutput.'/'.$ref, '');
-			$file = is_array($fileparams) ? $fileparams['fullname'] : '';
-		}
+		// The letter of the envelope, not the most recent file of its folder: the files of the Linked files tab go to the same
+		// folder, and one of them was attached instead of the letter
+		$letterFile = $object->getLetterFile();
+		$file       = $letterFile !== null ? $letterFile['fullname'] : '';
 
 		// Define output language
 		$outputlangs = $langs;
@@ -1733,16 +1662,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 			$topicmail = $outputlangs->trans($defaulttopic, '__REF__ (__REFCLIENT__)');
 		}
 
-		// Build document if it not exists
-		$allspecimen = true;
-		$fileslist = (is_array($fileparams) ? dol_dir_list($fileparams['path']) : array());
-			foreach($fileslist as $item) {
-				if (!preg_match('/specimen/', $item['name'])){
-					$allspecimen = false;
-				}
-			}
-
-		$needcreate = empty($file) || $allspecimen;
+		// Build the letter if the envelope has none yet: a file of the Linked files tab, alone in the folder, kept it from being
+		// generated
+		$needcreate = $letterFile === null;
 
 		$forcebuilddoc = true;
 		if ($forcebuilddoc)    // If there is no default value for supplier invoice, we do not generate file, even if modelpdf was set by a manual generation
@@ -1755,27 +1677,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					exit();
 				}
 				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/';
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = '';
-					if (!empty($filelist)) {
-						foreach ($filelist as $file) {
-							if (!preg_match('/specimen/', $file['name'])) {
-								$fileurl = $file['fullname'];
-								$filename = $file['name'];
-							}
-						}
-					}
-					// Only specimens: no document to share, as in the generation of the card
-					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
-						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-						$ecmfile->share = getRandomPassword(true);
-						$ecmfile->update($user);
-					}
+					// The letter just generated, as in the generation of the card
+					$object->shareLastDocument($user);
 				}
-				$fileparams = dol_most_recent_file($diroutput.'/'.$ref, preg_quote($ref, '/').'[^\-]+');
-				$file = is_array($fileparams) ? $fileparams['fullname'] : '';
+				// The letter just generated
+				$letterFile = $object->getLetterFile();
+				$file       = $letterFile !== null ? $letterFile['fullname'] : '';
 			}
 		}
 
@@ -1895,22 +1802,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 
 	if ($action == 'letterpresend') {
 
-		// Build document if it not exists
-		$diroutput = $upload_dir . '/' . $object->element;
+		// Build the letter if the envelope has none yet, as the email form does: a file of the Linked files tab, alone in the
+		// folder, kept it from being generated
 		$outputlangs = $langs;
 
-		$fileparams = dol_most_recent_file($diroutput . '/' . $object->ref, '');
-		$file = is_array($fileparams) ? $fileparams['fullname'] : '';
-
-		$allspecimen = true;
-		$fileslist = (is_array($fileparams) ? dol_dir_list($fileparams['path']) : array());
-		foreach ($fileslist as $item) {
-			if (!preg_match('/specimen/', $item['name'])) {
-				$allspecimen = false;
-			}
-		}
-
-		$needcreate = empty($file) || $allspecimen;
+		$letterFile = $object->getLetterFile();
+		$file       = $letterFile !== null ? $letterFile['fullname'] : '';
+		$needcreate = $letterFile === null;
 
 		$forcebuilddoc = true;
 		if ($forcebuilddoc)    // If there is no default value for supplier invoice, we do not generate file, even if modelpdf was set by a manual generation
@@ -1923,24 +1821,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					exit();
 				}
 				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
-					$filedir = $conf->doliletter->dir_output . '/' . $object->element . '/' . $object->ref;
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = '';
-					if (!empty($filelist)) {
-						foreach ($filelist as $file) {
-							if (!preg_match('/specimen/', $file['name'])) {
-								$fileurl = $file['fullname'];
-								$filename = $file['name'];
-							}
-						}
-					}
-					// Only specimens: no document to share, as in the generation of the card
-					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
-						require_once DOL_DOCUMENT_ROOT . '/core/lib/security2.lib.php';
-						$ecmfile->share = getRandomPassword(true);
-						$ecmfile->update($user);
-					}
+					// The letter just generated, as in the generation of the card
+					$object->shareLastDocument($user);
 				}
 			}
 		}
