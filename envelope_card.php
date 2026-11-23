@@ -1190,8 +1190,10 @@ if (is_array($lettersending)) {
 } else {
 	$lettersending = new LetterSending($db);
 }
-$signatory = $signatory->fetchSignatory('E_SENDER', $id);
-if (is_array($signatory)) $signatory = array_shift($signatory);
+// Sender and receiver in variables of their own: $signatory stays the object the view asks for the signatories, an envelope
+// without one gave null in its place and the next fetchSignatory() call stopped the page
+$senders = $signatory->fetchSignatory('E_SENDER', $id);
+$sender  = (is_array($senders) && !empty($senders)) ? array_shift($senders) : null;
 $title        = $langs->trans("Envelope");
 $title_create = $langs->trans("NewEnvelope");
 $title_edit   = $langs->trans("ModifyEnvelope");
@@ -1396,7 +1398,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$formquestion = array(
 			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("ConfirmLockEnvelope") . '</span>'),
 			array('type' => 'other', 'name' => 'OK', 'label' => '', 'value' => $img, 'moreattr' => 'readonly'),
-			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("LockDescription", dol_print_date($object->date_creation), dol_print_date(!empty($signatory->signature_date) ? $signatory->signature_date : '', '', 'tzuserrel')) . '</span>'),
+			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("LockDescription", dol_print_date($object->date_creation), dol_print_date(!empty($sender->signature_date) ? $sender->signature_date : '', '', 'tzuserrel')) . '</span>'),
 		);
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockEnvelope'),'', 'confirm_setLocked', $formquestion, 'yes', 'actionButtonLock', 400, 550);
@@ -1459,10 +1461,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 	$morehtmlref .=  '</td><br>';
 
 	if ($object->status > 1) {
-		$signatory = $signatory->fetchSignatory('E_RECEIVER', $id);
-		$signatory = array_shift($signatory);
-		// The entity of the envelope: the public page has no session to take it from
-		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $signatory->signature_url . '&type=envelope&entity=' . ((int) ($object->entity ?: $conf->entity));
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', $id);
+		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
+		// The entity of the envelope: the public page has no session to take it from. No receiver, no link to give
+		$signature_url = is_object($receiver) ? dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $receiver->signature_url . '&type=envelope&entity=' . ((int) ($object->entity ?: $conf->entity)) : '';
 	}
 
 	if ($object->status == 3 || $object->status == 6) {
@@ -1471,7 +1473,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$morehtmlref .= '</td></tr>';
 	}
 
-	if ($object->status == 4 || $object->status == 5) {
+	if (($object->status == 4 || $object->status == 5) && !empty($signature_url)) {
 
 		$morehtmlref .=  '<tr><td>';
 		$morehtmlref .=  '<input hidden class="signature-link" value="'. $_SERVER['HTTP_HOST'] . $signature_url .'">';
@@ -1845,14 +1847,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		//$arrayoffamiliestoexclude=array('system', 'mycompany', 'object', 'objectamount', 'date', 'user', ...);
 		if (!isset($arrayoffamiliestoexclude)) $arrayoffamiliestoexclude = null;
 
-		$receiver = $signatory->fetchSignatory('E_RECEIVER', $id);
-		$receiver = array_shift($receiver);
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', $id);
+		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 		// Make substitution in email content
 		$substitutionarray = getCommonSubstitutionArray($outputlangs, 0, $arrayoffamiliestoexclude, $object);
 		$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode(getDolGlobalString('MAILING_EMAIL_UNSUBSCRIBE_KEY')).'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
 		$substitutionarray['__PERSONALIZED__'] = ''; // deprecated
 		$substitutionarray['__CONTACTCIVNAME__'] = '';
-		$substitutionarray['__SIGNATURE_LINK__'] = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id=' . $receiver->signature_url  . '&type=' . $object->element . '&entity=' . ((int) ($object->entity ?: $conf->entity));
+		$substitutionarray['__SIGNATURE_LINK__'] = is_object($receiver) ? dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id=' . $receiver->signature_url . '&type=' . $object->element . '&entity=' . ((int) ($object->entity ?: $conf->entity)) : '';
 		$parameters = array(
 			'mode' => 'formemail'
 		);

@@ -224,10 +224,6 @@ class pdf_ares extends ModelePDFSendingProof
 			}
 			if (file_exists($dir))
 			{
-				$signatory = new EnvelopeSignature($this->db);
-				$signatory = $signatory->fetchSignatory('E_RECEIVER', $object->id);
-				$receiver    = array_shift($signatory);
-
 				// Add pdfgeneration hook
 				if (!is_object($hookmanager))
 				{
