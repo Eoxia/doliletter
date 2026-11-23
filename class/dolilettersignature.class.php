@@ -555,6 +555,55 @@ class DoliletterSignature extends CommonObject
 	}
 
 	/**
+	 * Get the image data of a stored signature
+	 *
+	 * The signature pad stores a data URL (data:image/png;base64,...), a row written by another tool may hold the bare
+	 * base64 string: both are read. Once a document is generated, deleteSignatoriesSignatures() leaves the text
+	 * DocumentGenerated in place of the image: that text, like any value that is not a PNG or JPEG image, gives an
+	 * empty string, so that a document model leaves the signature frame empty instead of drawing an invalid file
+	 *
+	 * @param  string|null $signature Stored signature
+	 * @return string                 Binary content of the image, empty string when the value holds no image
+	 */
+	public static function getSignatureImageData(?string $signature): string
+	{
+		$signature = trim((string) $signature);
+		if (preg_match('/^data:image\/[\w.+-]+;base64,/i', $signature, $matches)) {
+			$signature = substr($signature, strlen($matches[0]));
+		}
+
+		$imageData = base64_decode($signature, true);
+		// Magic bytes of PNG and JPEG, the formats of the signature pad: getimagesizefromstring() raises a notice on short data
+		if ($imageData === false || (strpos($imageData, "\x89PNG\r\n\x1a\n") !== 0 && strpos($imageData, "\xFF\xD8\xFF") !== 0)) {
+			return '';
+		}
+
+		return $imageData;
+	}
+
+	/**
+	 * Write the image of a stored signature into a file, for a document model
+	 *
+	 * @param  string|null $signature Stored signature, data URL or bare base64
+	 * @param  string      $filePath  Full path of the image file to write
+	 * @return string                 $filePath once written, empty string when the signature holds no image (nothing is written)
+	 */
+	public static function writeSignatureImage(?string $signature, string $filePath): string
+	{
+		$imageData = self::getSignatureImageData($signature);
+		if ($imageData === '') {
+			return '';
+		}
+
+		dol_mkdir(dirname($filePath));
+		if (file_put_contents($filePath, $imageData) === false) {
+			return '';
+		}
+
+		return $filePath;
+	}
+
+	/**
 	 * Set previous signatories status to 0
 	 *
 	 * @param string $role Role of resource

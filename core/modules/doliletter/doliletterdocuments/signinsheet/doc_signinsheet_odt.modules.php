@@ -28,6 +28,8 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/doc.lib.php';
 
 // Load saturne libraries
 dol_include_once('/saturne/core/modules/saturne/modules_saturne.php');
+// Reading of the stored signatures
+dol_include_once('/doliletter/class/dolilettersignature.class.php');
 
 /**
  *	Class to build documents using ODF templates generator
@@ -168,14 +170,9 @@ class doc_signinsheet_odt extends SaturneDocumentModel
 					continue;
 				}
 
-				if (!empty($signatory->signature)) {
-					$encoded_image = explode(",", $signatory->signature)[1];
-					$decoded_image = base64_decode($encoded_image);
-					file_put_contents($tempdir . "signature" . $k . ".png", $decoded_image);
-					$tmpArray['sessiontrainer_signature'] = $tempdir . "signature" . $k . ".png";
-				} else {
-					$tmpArray['sessiontrainer_signature'] = $langs->trans('NoSignature');
-				}
+				// Data URL or bare base64: a value that holds no image reads as no signature, not as an invalid file
+				$signatureFile = DoliletterSignature::writeSignatureImage($signatory->signature, $tempdir . 'signature' . $k . '.png');
+				$tmpArray['sessiontrainer_signature'] = $signatureFile !== '' ? $signatureFile : $langs->trans('NoSignature');
 				$tmpArray['sessiontrainer_number']     = $k;
 				$tmpArray['sessiontrainer_lastname']   = $signatory->lastname;
 				$tmpArray['sessiontrainer_firstname']  = $signatory->firstname;
