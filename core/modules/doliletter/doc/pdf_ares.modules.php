@@ -197,7 +197,7 @@ class pdf_ares extends ModelePDFSendingProof
 				$file = $dir."/SPECIMEN.pdf";
 			} else {
 				$objectref = dol_sanitizeFileName($object->ref);
-				$dir = $conf->doliletter->multidir_output[$conf->entity]."/envelope/".$objectref .'/sendingproof';
+				$dir = $object->getOutputDir() . '/envelope/' . $objectref . '/sendingproof';
 			}
 			if (!file_exists($dir))
 			{
@@ -611,7 +611,7 @@ class pdf_ares extends ModelePDFSendingProof
 		// that older versions wrote in place of the signature once a document was generated
 		$signatureFile = '';
 		if (is_object($receiver)) {
-			$tempdir       = $conf->doliletter->multidir_output[$object->entity ?? 1] . '/temp/';
+			$tempdir       = $object->getOutputDir() . '/temp/';
 			$signatureFile = DoliletterSignature::writeSignatureImage($receiver->signature, $tempdir . 'signature.png');
 		}
 
@@ -843,7 +843,7 @@ class pdf_ares extends ModelePDFSendingProof
 		$MAX_WIDTH 	= 800;
 		$MAX_HEIGHT = 500;
 
-		$upload_dir 	= $conf->doliletter->multidir_output[$conf->entity ?: $conf->entity] . '/envelope/' . $object->ref . '/sendingproof/uploaded_file';
+		$upload_dir 	= $object->getOutputDir() . '/envelope/' . $object->ref . '/sendingproof/uploaded_file';
 		$arrayoffiles 	= dol_dir_list($upload_dir);
 
 		if ( !empty( $arrayoffiles ) ) {

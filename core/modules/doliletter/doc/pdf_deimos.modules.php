@@ -198,7 +198,8 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 				$file = $dir."/SPECIMEN.pdf";
 			} else {
 				$objectref = dol_sanitizeFileName($object->ref);
-				$dir = $conf->doliletter->multidir_output[$conf->entity]."/envelope/".$objectref .'/acknowledgementreceipt';
+				// Folder of the entity of the envelope: the receipt is written by the public signature page, not in a session
+				$dir = $object->getOutputDir() . '/envelope/' . $objectref . '/acknowledgementreceipt';
 			}
 			if (!file_exists($dir))
 			{
@@ -506,21 +507,12 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 				}
 				// The option is absent from llx_const until it is switched on once in the setup page
 				if (getDolGlobalInt('DOLILETTER_DELETE_PUBLIC_DOWNLOAD_LINKS_AFTER_SIGNATURE')) {
-					global $db;
-					require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmdirectory.class.php';
-					require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
-					$ecmfile = new EcmFiles($db);
-
-					// Delete the shared links of the envelope, of the sending proof and of the acknowledgement receipt. A folder
-					// may hold no file: no sending proof for an envelope sent by mail, receipt not written yet at its first generation
-					foreach (array('', 'sendingproof/', 'acknowledgementreceipt/') as $subdir) {
-						$filedir  = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref.'/'.$subdir;
-						$filelist = dol_dir_list($filedir, 'files');
-						if (empty($filelist[0]['name'])) {
-							continue;
-						}
-
-						if ($ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$subdir.$filelist[0]['name'], '', '', 'doliletter_envelope', $object->id) > 0) {
+					// Delete the shared links of the envelope, of the sending proof and of the acknowledgement receipt: the
+					// documents the card shares, in the entity of the envelope. A folder may hold no file: no sending proof for an
+					// envelope sent by mail, receipt not written yet at its first generation
+					foreach (array('', 'sendingproof', 'acknowledgementreceipt') as $subdir) {
+						$ecmfile = $object->getLastDocumentIndex($subdir);
+						if ($ecmfile !== null) {
 							$ecmfile->share = '';
 							$ecmfile->update($user);
 						}
@@ -634,7 +626,7 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 		// that older versions wrote in place of the signature once a document was generated
 		$signatureFile = '';
 		if (is_object($receiver)) {
-			$tempdir       = $conf->doliletter->multidir_output[$object->entity ?? 1] . '/temp/';
+			$tempdir       = $object->getOutputDir() . '/temp/';
 			$signatureFile = DoliletterSignature::writeSignatureImage($receiver->signature, $tempdir . 'signature.png');
 		}
 
@@ -866,7 +858,7 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 		$MAX_WIDTH 	= 800;
 		$MAX_HEIGHT = 500;
 
-		$upload_dir 	= $conf->doliletter->multidir_output[$conf->entity ?: $conf->entity] . '/envelope/' . $object->ref . '/acknowledgementreceipt/uploaded_file';
+		$upload_dir 	= $object->getOutputDir() . '/envelope/' . $object->ref . '/acknowledgementreceipt/uploaded_file';
 		$arrayoffiles 	= dol_dir_list($upload_dir);
 
 		if ( !empty( $arrayoffiles ) ) {

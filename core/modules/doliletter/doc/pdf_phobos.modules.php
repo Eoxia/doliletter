@@ -197,7 +197,7 @@ class pdf_phobos extends ModelePDFEnvelope
 				$file = $dir."/SPECIMEN.pdf";
 			} else {
 				$objectref = dol_sanitizeFileName($object->ref);
-				$dir = $conf->doliletter->multidir_output[$conf->entity]."/envelope/".$objectref;
+				$dir = $object->getOutputDir() . '/envelope/' . $objectref;
 			}
 			if (!file_exists($dir))
 			{
@@ -592,7 +592,7 @@ class pdf_phobos extends ModelePDFEnvelope
 		// that older versions wrote in place of the signature once a document was generated
 		$signatureFile = '';
 		if (is_object($sender)) {
-			$tempdir       = $conf->doliletter->multidir_output[$object->entity ?? 1] . '/temp/';
+			$tempdir       = $object->getOutputDir() . '/temp/';
 			$signatureFile = DoliletterSignature::writeSignatureImage($sender->signature, $tempdir . 'signature.png');
 		}
 

@@ -29,6 +29,11 @@ if ( ! defined('NOLOGIN'))        define("NOLOGIN", 1); // This means this outpu
 if ( ! defined('NOCSRFCHECK'))    define("NOCSRFCHECK", 1); // We accept to go on this page from external web site.
 if ( ! defined('NOIPCHECK'))		define('NOIPCHECK', '1'); // Do not check IP defined into conf $dolibarr_main_restrict_ip
 if ( ! defined('NOBROWSERNOTIF')) define('NOBROWSERNOTIF', '1');
+// Entity of the envelope, carried by the link: a visitor has no session to take it from. Defined before main.inc.php, which
+// reads it, as the public pages of Dolibarr do: GETPOST() is not loaded yet
+if (!defined('DOLENTITY')) {
+	define('DOLENTITY', !empty($_GET['entity']) ? (int) $_GET['entity'] : (!empty($_POST['entity']) ? (int) $_POST['entity'] : 1));
+}
 
 // Load Dolibarr environment
 $res = 0;
@@ -57,26 +62,27 @@ require_once '../../class/envelope.class.php';
 global $conf, $langs, $db, $user;
 
 $documentName = GETPOST('document_name');
-$id           = GETPOST('id');
+$track_id     = GETPOST('track_id', 'alpha');
 $type         = GETPOST('type');
 
-$ecmfile = new EcmFiles($db);
 // NOREQUIREUSER leaves $user unset, while the footer asks it for its rights
 $user = new User($db);
 
-$upload_dir = $conf->doliletter->multidir_output[isset($object->entity) ? $object->entity : 1];
-
 // Load translation files required by the page
-$langs->loadLangs(array("doliletter@doliletter", "other", "errors"));
+// saturne@saturne holds SignaturePublicInterfaceForbidden, shown untranslated without it
+$langs->loadLangs(array("doliletter@doliletter", "saturne@saturne", "other", "errors"));
 
 switch ($type) {
 	case 'envelope':
 		$object         = new Envelope($db);
 		$signatory      = new EnvelopeSignature($db);
+		// The envelope of the link, as the signature page finds it, and only once its recipient signed: by an id in the URL,
+		// the page listed the documents of any envelope
+		if (dol_strlen($track_id) > 0 && $signatory->fetch(0, '', " AND signature_url = '" . $db->escape($track_id) . "'") > 0 && $signatory->status == EnvelopeSignature::STATUS_SIGNED) {
+			$object->fetch($signatory->fk_object);
+		}
 		break;
 }
-
-$object->fetch($id);
 
 /*
  * View
@@ -99,37 +105,10 @@ llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
 		<table class="wpeo-gridlayout grid-2 file-generation">
 			<?php if ($type == 'envelope') : ?>
 				<?php
-				$envelope_filelist               = dol_dir_list($upload_dir . '/' . $object->element . '/' . $object->ref, 'files');
-				$envelope_filename               = '';
-				$envelope_file                   = null;
-				$acknowledgementreceipt_filename = '';
-				$acknowledgementreceipt_file     = null;
-
-				if (!empty($envelope_filelist)) {
-					foreach ($envelope_filelist as $file) {
-						if (!preg_match('/specimen/', $file['name'])) {
-							$envelope_filename = $file['name'];
-						}
-					}
-					if (dol_strlen($envelope_filename) > 0) {
-						$envelope_file = new EcmFiles($db);
-						$envelope_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$envelope_filename, '', '', 'doliletter_envelope', $object->id);
-					}
-				}
-
-				$acknowledgementreceipt_filelist = dol_dir_list($upload_dir . '/' . $object->element . '/' . $object->ref . '/acknowledgementreceipt', 'files');
-
-				if (!empty($acknowledgementreceipt_filelist)) {
-					foreach ($acknowledgementreceipt_filelist as $file) {
-						if (!preg_match('/specimen/', $file['name'])) {
-							$acknowledgementreceipt_filename = $file['name'];
-						}
-					}
-					if (dol_strlen($acknowledgementreceipt_filename) > 0) {
-						$acknowledgementreceipt_file = new EcmFiles($db);
-						$acknowledgementreceipt_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$acknowledgementreceipt_filename, '', '', 'doliletter_envelope', $object->id);
-					}
-				}
+				// Folder and index of the entity of the envelope, read once it is loaded: the first entity ones held another
+				// envelope of the same ref
+				$envelope_file               = $object->id > 0 ? $object->getLastDocumentIndex() : null;
+				$acknowledgementreceipt_file = $object->id > 0 ? $object->getLastDocumentIndex('acknowledgementreceipt') : null;
 				if (is_object($envelope_file) && dol_strlen($envelope_file->share) > 0) : ?>
 					<tr>
 						<td>

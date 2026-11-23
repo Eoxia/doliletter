@@ -197,7 +197,7 @@ class pdf_nerio extends ModelePDFTrackingNumber
 				$file = $dir."/SPECIMEN.pdf";
 			} else {
 				$objectref = dol_sanitizeFileName($object->ref);
-				$dir = $conf->doliletter->multidir_output[$conf->entity]."/envelope/".$objectref .'/trackingnumber';
+				$dir = $object->getOutputDir() . '/envelope/' . $objectref . '/trackingnumber';
 			}
 			if (!file_exists($dir))
 			{
@@ -619,7 +619,7 @@ class pdf_nerio extends ModelePDFTrackingNumber
 		// that older versions wrote in place of the signature once a document was generated
 		$signatureFile = '';
 		if (is_object($receiver)) {
-			$tempdir       = $conf->doliletter->multidir_output[$object->entity ?? 1] . '/temp/';
+			$tempdir       = $object->getOutputDir() . '/temp/';
 			$signatureFile = DoliletterSignature::writeSignatureImage($receiver->signature, $tempdir . 'signature.png');
 		}
 
@@ -851,7 +851,7 @@ class pdf_nerio extends ModelePDFTrackingNumber
 		$MAX_WIDTH 	= 800;
 		$MAX_HEIGHT = 500;
 
-		$upload_dir 	= $conf->doliletter->multidir_output[$conf->entity ?: $conf->entity] . '/envelope/' . $object->ref . '/trackingnumber/uploaded_file';
+		$upload_dir 	= $object->getOutputDir() . '/envelope/' . $object->ref . '/trackingnumber/uploaded_file';
 		$arrayoffiles 	= dol_dir_list($upload_dir);
 
 		if ( !empty( $arrayoffiles ) ) {
