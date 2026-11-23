@@ -51,6 +51,21 @@ if (file_exists('../../../saturne/saturne.main.inc.php')) {
     die('Include of saturne main fails');
 }
 
+// A visitor of this page is not logged in, so the session lacks the timezone of their browser that the login
+// stores: dates printed with 'tzuserrel' would fall back to MAIN_DOLIBARR_USER_TIMEZONE, else UTC. The page
+// script posts it once (window.saturne.utils.ensureTimezoneInSession) then reloads. An unknown name is kept
+// empty, which still ends the reloads
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && GETPOSTISSET('tz')) {
+    $browserTimezone = GETPOST('tz', 'alphanohtml');
+    try {
+        new DateTimeZone($browserTimezone);
+    } catch (Exception $e) {
+        $browserTimezone = '';
+    }
+    $_SESSION['dol_tz_string'] = $browserTimezone;
+    exit;
+}
+
 // Get module parameters
 // The Saturne media block posts its own module_name with the photo and document uploads; it must
 // not be taken as this page's module context (the upload handlers read it into their own variable).
@@ -278,6 +293,21 @@ if (!empty($sign)) {
 // as "Unknown" in the list of signatories and stayed there when the addition was given up.
 if ($action == 'add_spread_user') {
     $type = GETPOST('type', 'aZ09');
+
+    // One person at a time: the add buttons are greyed out while someone has not signed yet, and the
+    // server holds to it as well (a double click or a second tab added several people at once)
+    if ($attendanceSheet->id > 0) {
+        // Signatories grouped by role
+        $spreadSignatories = $signatory->fetchSignatory('', $attendanceSheet->id, $attendanceSheet->element);
+        foreach ((is_array($spreadSignatories) ? $spreadSignatories : []) as $roleSignatories) {
+            foreach ($roleSignatories as $spreadSignatory) {
+                if (empty($spreadSignatory->signature)) {
+                    echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('SpreadValidatePendingSignatureFirst')) . '">';
+                    exit;
+                }
+            }
+        }
+    }
 
     $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
     if ($type === 'external') {
@@ -640,6 +670,11 @@ if ($action == 'validate_signature') {
 
             // The PDF attendance sheet follows the signatures: a failure is logged, the signature stays
             doliletter_spread_generate_signin_sheet($attendanceSheet, $user, $langs);
+
+            // The module of the spread object can follow the signatures too: Digirisk prints the people
+            // who signed in the document of a prevention plan or a fire permit and generates it again
+            $attendanceSheet->context = ['user' => doliletter_spread_get_signatory_name($signatory), 'signatory_id' => $signatory->id];
+            $attendanceSheet->call_trigger('SPREAD_SIGN', $user);
         }
     }
     $action = '';
@@ -1046,7 +1081,7 @@ if (!empty($spreadStepsMode)) {
     }
 
     if ($stepSigned) {
-        $stepSignStatus = $langs->transnoentities('SpreadStepSignedOn', dol_print_date($signSignatory->signature_date, 'dayhour'));
+        $stepSignStatus = $langs->transnoentities('SpreadStepSignedOn', dol_print_date($signSignatory->signature_date, 'dayhour', 'tzuserrel'));
     } else {
         $stepSignStatus = ($stepStates['sign'] == 'current') ? $langs->transnoentities('SpreadStepToSign') : '';
     }
@@ -1081,8 +1116,17 @@ $moreJS = ['/saturne/js/includes/signature-pad.min.js'];
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(0, '', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card');
+saturne_header(0, '', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card'); ?>
 
+<script>
+    // The dates of the page follow the timezone of the visitor's browser: posted once, see the top of the page
+    $(document).ready(function() {
+        window.saturne.utils.timezoneDefined = <?php echo isset($_SESSION['dol_tz_string']) ? 'true' : 'false'; ?>;
+        window.saturne.utils.ensureTimezoneInSession();
+    });
+</script>
+
+<?php
 require_once __DIR__ . '/../../core/tpl/spread/public_spread_view.tpl.php';
 
 // Photo editor modal required by the Saturne media blocks (mediaBlock.js -> saturne.photoEditor.openFile)

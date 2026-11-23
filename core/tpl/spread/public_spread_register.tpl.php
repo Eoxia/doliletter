@@ -82,7 +82,7 @@
         );
         
         print '<div class="pp-signatory-media-row" style="margin-bottom: 20px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">';
-        print '<div class="pp-signatory-media-row__label" style="font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;"><i class="fas fa-id-badge"></i> ' . ($langs->transnoentitiesnoconv('SpreadRequestedElements') ?: 'Éléments demandés') . '</div>';
+        print '<div class="pp-signatory-media-row__label" style="font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;"><i class="fas fa-id-badge"></i> ' . $langs->trans('SpreadRequestedElements') . '</div>';
         
         $certSignatoryId = $tmpCertSignatoryId;
         require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';

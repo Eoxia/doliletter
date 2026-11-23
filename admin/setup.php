@@ -204,7 +204,7 @@ print $langs->trans('ConfigSpreadExtFieldsDesc');
 
 print '<table class="noborder centpercent" style="margin-top: 10px;">';
 print '<tr class="liste_titre">';
-print '<td>Champ</td>';
+print '<td>' . $langs->trans('Field') . '</td>';
 print '<td class="center">' . $langs->trans('ConfigSpreadExtVisible') . '</td>';
 print '<td class="center">' . $langs->trans('ConfigSpreadExtMandatory') . '</td>';
 print '</tr>';

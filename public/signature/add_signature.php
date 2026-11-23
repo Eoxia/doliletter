@@ -29,6 +29,11 @@ if ( ! defined('NOLOGIN'))        define("NOLOGIN", 1);           // This means 
 if ( ! defined('NOCSRFCHECK'))    define("NOCSRFCHECK", 1);       // We accept to go on this page from external web site.
 if ( ! defined('NOIPCHECK'))		define('NOIPCHECK', '1');      // Do not check IP defined into conf $dolibarr_main_restrict_ip
 if ( ! defined('NOBROWSERNOTIF')) define('NOBROWSERNOTIF', '1');
+// Entity of the envelope, carried by the link: a visitor has no session to take it from. Defined before main.inc.php, which
+// reads it, as the public pages of Dolibarr do: GETPOST() is not loaded yet
+if (!defined('DOLENTITY')) {
+	define('DOLENTITY', !empty($_GET['entity']) ? (int) $_GET['entity'] : (!empty($_POST['entity']) ? (int) $_POST['entity'] : 1));
+}
 
 // Load Dolibarr environment
 $res = 0;
@@ -56,18 +61,19 @@ require_once '../../lib/doliletter_function.lib.php';
 
 global $conf, $langs, $user, $db;
 // Load translation files required by the page
-$langs->loadLangs(array("doliletter@doliletter", "other", "errors"));
+// saturne@saturne holds SignaturePublicInterfaceForbidden, shown untranslated without it
+$langs->loadLangs(array("doliletter@doliletter", "saturne@saturne", "other", "errors"));
 
 // Get parameters
 $track_id = GETPOST('track_id', 'alpha');
 $action   = GETPOST('action', 'aZ09');
 $url      = dirname($_SERVER['PHP_SELF']) . '/signature_success.php';
 $source   = GETPOST('source', 'aZ09');
-$type     = GETPOST('type', 'aZ09');
+// The links the Signature tab sent by email carried no type: envelope, the only one this page handles
+$type     = GETPOST('type', 'aZ09') ?: 'envelope';
 
 // Initialize technical objects
 $user = new User($db);
-$ecmfile = new EcmFiles($db);
 
 switch ($type) {
 	case 'envelope':
@@ -76,10 +82,30 @@ switch ($type) {
 		break;
 }
 
-$signatory->fetch('', '', " AND signature_url =" . "'" . $track_id . "'");
-$object->fetch($signatory->fk_object);
+if (dol_strlen($track_id) > 0) {
+	$signatory->fetch('', '', " AND signature_url = '" . $db->escape($track_id) . "'");
+}
+// A link sent before it carried the entity opens the page in the first entity, where the signatory of an envelope of another
+// entity is not found: back to the link, in the entity of its signatory
+if (empty($signatory->id) && dol_strlen($track_id) > 0 && !GETPOSTISSET('entity')) {
+	$resql = $db->query('SELECT entity FROM ' . MAIN_DB_PREFIX . $signatory->table_element . " WHERE signature_url = '" . $db->escape($track_id) . "'");
+	$obj   = $resql ? $db->fetch_object($resql) : null;
+	if (is_object($obj) && (int) $obj->entity != (int) $conf->entity) {
+		header('Location: ' . dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . urlencode($track_id) . '&type=' . urlencode($type) . '&entity=' . ((int) $obj->entity));
+		exit;
+	}
+}
+// Unknown link, or opened in a session of another entity: the session wins over the entity of the link
+if (empty($signatory->id) || $object->fetch($signatory->fk_object) <= 0) {
+	print $langs->trans('ErrorRecordNotFound');
+	exit;
+}
 
-$upload_dir = $conf->doliletter->multidir_output[isset($object->entity) ? $object->entity : 1];
+// Before the actions: with the interface switched off, signing through the action stayed possible
+if (empty($conf->global->DOLILETTER_SIGNATURE_ENABLE_PUBLIC_INTERFACE)) {
+	print $langs->trans('SignaturePublicInterfaceForbidden');
+	exit;
+}
 
 /*
  * Actions
@@ -91,40 +117,39 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 
 // Action to add record
 if ($action == 'addSignature') {
-	$signatoryID  = GETPOST('signatoryID');
 	$request_body = file_get_contents('php://input');
 	$client_ip = $_SERVER['REMOTE_ADDR'];
 
-	$signatory->fetch($signatoryID);
+	// The signatory of the link and its envelope, loaded above: the signatoryID the script sends is not trusted, it let a
+	// visitor sign for any signatory
 	$signatory->signature      = $request_body;
 	$signatory->signature_date = dol_now();
 	$signatory->ip = $client_ip;
-
-	$object->fetch($signatory->fk_object);
 
 	if ( ! $error) {
 		$result = $signatory->update($user, false);
 		if ($result > 0) {
 			$signatory->setSigned($user, false);
-			$object->setStatusCommon($user, 5);
+			$object->setStatusCommon($user, 5, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 			$object->call_trigger('ENVELOPE_RECIPIENT_SIGN', $user);
 			if (method_exists($object, 'generateDocument'))
 			{
-				$result = $object->generateDocument('deimos', $langs, $hidedetails, $hidedesc, $hideref);
+				// The public page has no display option of the card: details, description and reference are shown
+				$result = $object->generateDocument('deimos', $langs, 0, 0, 0);
 
 				if ($result < 0) {
 					dol_print_error($db, $object->error, $object->errors);
 					exit();
 				}
-				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/acknowledgementreceipt';
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = $filelist[0]['name'];
-
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename, '', '', 'doliletter_envelope', $id);
+			}
+			// The option is absent from llx_const until it is switched on once in the setup page
+			if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
+				// Folder and index of the entity of the envelope: the first entity ones held another envelope of the same ref
+				$receiptFile = $object->getLastDocumentIndex('acknowledgementreceipt');
+				if ($receiptFile !== null) {
 					require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-					$ecmfile->share = getRandomPassword(true);
-					$ecmfile->update($user);
+					$receiptFile->share = getRandomPassword(true);
+					$receiptFile->update($user);
 				}
 			}
 			// Creation signature OK
@@ -143,14 +168,10 @@ if ($action == 'addSignature') {
 
 $form = new Form($db);
 
-if (empty($conf->global->DOLILETTER_SIGNATURE_ENABLE_PUBLIC_INTERFACE)) {
-	print $langs->trans('SignaturePublicInterfaceForbidden');
-	exit;
-}
-
 $element = $signatory->fetchSignatory($signatory->role, $signatory->fk_object, $type);
 $element = array_shift($element);
-$url = dol_buildpath('/doliletter/public/signature/signature_success.php', 1) . '?document_name=' .  $object->ref . '-' . $object->label . '&id=' . $object->id . '&type=' . $type;
+// The success page finds the envelope from the link, as this page: by its id, it showed the documents of any envelope
+$url = dol_buildpath('/doliletter/public/signature/signature_success.php', 1) . '?document_name=' .  $object->ref . '-' . $object->label . '&track_id=' . urlencode($track_id) . '&type=' . $type . '&entity=' . ((int) ($object->entity ?: $conf->entity));
 
 if (dol_strlen($element->signature)) {
 	header("Location: ".$url);
@@ -170,25 +191,11 @@ $zone = 'public';
 	<input hidden id="redirectURL" value="<?php echo $url ?>">
 	<div class="wpeo-gridlayout grid-2">
 		<div class="informations">
-			<?php if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) : ?>
+			<?php if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) : ?>
 				<div class="wpeo-gridlayout grid-2 file-generation">
 					<?php if ($type == 'envelope') : ?>
-						<?php $filelist = dol_dir_list($upload_dir . '/' . $object->element . '/' . $object->ref, 'files');
-						$envelope_file = null;
-						$filename      = '';
-						if (!empty($filelist)) {
-							foreach ($filelist as $file) {
-								if (!preg_match('/specimen/', $file['name'])) {
-									$fileurl = $file['fullname'];
-									$filename = $file['name'];
-								}
-							}
-							// A draft only has its specimen: there is no document to share yet
-							if (dol_strlen($filename) > 0) {
-								$envelope_file = $ecmfile;
-								$envelope_file->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $object->id);
-							}
-						}
+						<?php // A draft only has its specimen: there is no document to share yet
+						$envelope_file = $object->getLastDocumentIndex();
 						?>
 						<?php if (is_object($envelope_file) && dol_strlen($envelope_file->share)) : ?>
 							<strong class="grid-align-middle"><?php echo $langs->trans("LinkedDocument"); ?></strong>

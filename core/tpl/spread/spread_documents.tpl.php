@@ -85,7 +85,7 @@ if ($canAddDocuments) {
                         echo ' ' . dolGetBadge($langs->trans('SpreadDocumentGenerated'), '', 'secondary');
                     } ?>
                 </td>
-                <td class="center nowraponall"><?php echo dol_print_date($spreadDocument['date'], 'dayhour'); ?></td>
+                <td class="center nowraponall"><?php echo dol_print_date($spreadDocument['date'], 'dayhour', 'tzuserrel'); ?></td>
                 <td class="center">
                     <form class="spread-document-mode" method="POST" action="<?php echo $documentsFormUrl; ?>">
                         <input type="hidden" name="token" value="<?php echo newToken(); ?>">

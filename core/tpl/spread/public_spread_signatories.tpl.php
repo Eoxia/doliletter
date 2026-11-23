@@ -52,7 +52,7 @@ foreach ($listedSignatories as $signatoryItem) {
             <?php } ?>
             <?php if (!empty($isSignedPreventionPlan) && isset($registerUrl)) { ?>
             <a href="<?php echo $registerUrl; ?>" style="font-size: 13px; padding: 6px 12px; background: #3b82f6; color: white; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(59,130,246,0.2);">
-                <i class="fas fa-user-plus" style="margin-right: 6px;"></i> Ajouter un nouvel intervenant
+                <i class="fas fa-user-plus" style="margin-right: 6px;"></i> <?php echo $langs->trans('SpreadAddNewAttendee'); ?>
             </a>
             <?php } ?>
         </div>
@@ -132,7 +132,7 @@ foreach ($listedSignatories as $signatoryItem) {
             
             <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; white-space: nowrap; font-size: 13px; color: #6b7280;">
                 <span class="spread-signatories__status" style="margin-right: 5px;">
-                    <?php echo $hasSigned ? dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M') : $langs->trans('SpreadSignatoryPending'); ?>
+                    <?php echo $hasSigned ? dol_print_date($signatoryItem->signature_date, '%d/%m/%Y %H:%M', 'tzuserrel') : $langs->trans('SpreadSignatoryPending'); ?>
                 </span>
                 <i class="fas <?php echo $hasSigned ? 'fa-check-circle' : 'fa-hourglass-half'; ?>" style="color: <?php echo $hasSigned ? '#10b981' : '#9ca3af'; ?>; min-width: 16px; text-align: center; font-size: 1.1em;"></i>
             </div>

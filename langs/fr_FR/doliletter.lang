@@ -181,7 +181,6 @@ YourAcknowledgementReceipt = Votre accusé de réception :
 AcknowledgementReceiptTextLetter = Veuillez trouver ci-après l'accusé de réception du courrier %s reçu par voie postale.
 AcknowledgementReceiptTextMail = Je soussigné %s avoir reçu le document %s par mail le %s.
 TrackingNumberTextLetter = Veuillez trouver ci-après le numéro de suivi du courrier %s : %s
-DocumentGenerated = Document généré
 DocumentHasAlreadyBeenGenerated = Le document a déjà été généré
 CompleteName = Nom et prénom
 ValidatePendingSignature = Validé (en attente de signature)
@@ -195,8 +194,10 @@ DeleteSignatureAfterReception = Supprimer le téléchargement public après réc
 DeleteSignatureAfterReceptionText = Désactive le téléchargement des documents depuis l'interface publique après génération de l'accusé de réception
 EnvelopeRecipientSignTrigger = Accusé de réception du courrier
 DocumentHasBeenSignedBy = Le document a été signé par %s
-ReceivedDocumentSignedSha = SHA du courrier reçu : %s
-SentDocumentSignedSha = SHA du courrier envoyé : %s
+ReceivedDocumentSignedSha = Empreinte MD5 du courrier reçu : %s
+SentDocumentSignedSha = Empreinte MD5 du courrier envoyé : %s
+ReceivedDocumentShaNotAvailable = Empreinte MD5 du courrier reçu : non disponible, aucun courrier généré dans les documents de l'enveloppe
+SentDocumentShaNotAvailable = Empreinte MD5 du courrier envoyé : non disponible, aucun courrier généré dans les documents de l'enveloppe
 
 #
 # Spread
@@ -234,6 +235,7 @@ Doliletter_attendance_sheet     = Diffusion
 
 
 SignatureValidatedSuccessfully  = Signature validée
+ErrorSignatureNotSaved          = La signature n'a pas été enregistrée : rechargez la page, puis signez de nouveau. Si l'erreur persiste, prévenez votre administrateur.
 
 QuickSignature                  = Signature rapide
 SpreadQuickSignatureInfo        = Rentrez votre mail pour recevoir un lien de signature
@@ -246,6 +248,7 @@ ConnectForMoreInfo              = <a href="%s">Connectez-vous</a> pour avoir d'a
 ErrorInvalidSignatureLink       = Ce lien de signature n'est plus valide ou a expiré.
 ErrorNotAllowed                 = Action non autorisée
 ErrorSendingEmail               = L'email n'a pas pu être envoyé.
+ErrorMailSendingDisabled        = Aucun email n'est parti : les envois sont coupés dans la configuration des emails (« %s »).
 
 # Messages d'erreur situes : code, sujet, script et ligne, puis la raison brute, pour qu'un retour
 # utilisateur suffise a retrouver le point de defaillance sans reproduire le probleme
@@ -387,8 +390,8 @@ SpreadRisksToRead                     = Afin que vous puissiez le signer il faut
 SpreadWorkTypesToRead                 = Afin que vous puissiez le signer il faut prendre connaissance des %s types de travaux notés ci-dessous.
 SpreadRisksRemaining                  = Risques restants :
 SpreadWorkTypesRemaining              = Travaux restants :
-SpreadRegisteredOnObject              = Vous venez de vous inscrire en tant qu'intervenant sur ce %s :
-SpreadViewingObject                   = Vous consultez ce %s :
+SpreadRegisteredOnObject              = Vous venez de vous inscrire en tant qu'intervenant sur l'élément suivant (%s) :
+SpreadViewingObject                   = Vous consultez l'élément suivant (%s) :
 SpreadObjectSignedTitle               = %s signé !
 SpreadObjectSignedText                = L'intervenant a signé le %s en validant l'analyse des risques et en ayant transmis tous les éléments demandés.
 SpreadSeeObject                       = Voir le %s
@@ -413,3 +416,33 @@ SpreadStepWorkTypesRead               = %s / %s travaux lus
 SpreadStepWorkTypesToRead             = %s travaux à lire
 SpreadStepToSign                      = À signer
 SpreadStepSignedOn                    = Signé le %s
+
+# Page publique de la diffusion : écran de succès, accueil du lien individuel, boutons (textes autrefois en dur)
+SpreadSuccessReference                = Référence
+SpreadSuccessAttendee                 = Intervenant
+SpreadSuccessStatus                   = Statut
+SpreadDateAtHour                      = %s à %s
+SpreadNextStepsTitle                  = Étapes suivantes
+SpreadNextStepInformOthers            = Informer les<br>autres intervenants
+SpreadNextStepApplyMeasures           = Appliquer les<br>mesures de prévention
+SpreadNextStepCarryOutActions         = Réaliser et suivre<br>les actions
+SpreadAddNewAttendee                  = Ajouter un nouvel intervenant
+SpreadHello                           = Bonjour,
+SpreadYouSignedOn                     = Vous avez signé ce document le %s.
+SpreadValidatePendingSignatureFirst   = Veuillez d'abord valider la signature en attente
+SpreadAddInternalSignatory            = Signataire interne
+SpreadAddExternalSignatory            = Signataire externe
+SpreadSendRequestedElements           = Envoyer les éléments demandés
+SpreadEmailPlaceholder                = votre.email@exemple.com
+SpreadVideoNotSupported               = Votre navigateur ne sait pas lire cette vidéo.
+
+# Back-office : onglet Diffusion, feuille d'émargement PDF et ODT, messages de la page publique (textes autrefois en dur)
+SpreadSignatoryAddedOn                = Date d'ajout
+SpreadIndividualLink                  = Lien individuel
+SpreadStatusSigned                    = Signé
+SpreadStatusPending                   = En attente
+SpreadResponseTypeNotHandled          = Type de réponse non géré :
+SigninSheetPurpose                    = Motif de l'émargement :
+SigninSheetAttendeesList              = Liste des personnes présentes
+SigninSheetPublicNote                 = Note publique
+SigninSheetGeneratedElectronically    = Document généré électroniquement
