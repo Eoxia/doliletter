@@ -1153,12 +1153,6 @@ parameters:
 			path: core/modules/doliletter/doc/pdf_ares.modules.php
 
 		-
-			message: '#^Variable \$pagenb might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: core/modules/doliletter/doc/pdf_ares.modules.php
-
-		-
 			message: '#^Variable \$test might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -1597,12 +1591,6 @@ parameters:
 			path: core/modules/doliletter/doc/pdf_deimos.modules.php
 
 		-
-			message: '#^Variable \$pagenb might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: core/modules/doliletter/doc/pdf_deimos.modules.php
-
-		-
 			message: '#^Variable \$test might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -2032,12 +2020,6 @@ parameters:
 			message: '#^Ternary operator condition is always false\.$#'
 			identifier: ternary.alwaysFalse
 			count: 1
-			path: core/modules/doliletter/doc/pdf_nerio.modules.php
-
-		-
-			message: '#^Variable \$pagenb might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
 			path: core/modules/doliletter/doc/pdf_nerio.modules.php
 
 		-

@@ -884,7 +884,6 @@ class pdf_nerio extends ModelePDFTrackingNumber
 					$height = round($scale * $height * $MM_IN_INCH / $DPI);
 
 					$pdf->AddPage($portrait ? 'P' : 'L');
-					$pagenb++;
 					$pdf->SetXY($this->marge_gauche, $this->marge_haute);
 
 					if (!$portrait) {
@@ -915,7 +914,6 @@ class pdf_nerio extends ModelePDFTrackingNumber
 						$portrait = $size['h'] > $size['w'] ? true : false;
 
 						$pdf->AddPage($portrait ? 'P' : 'L');
-						$pagenb++;
 						$pdf->SetXY($this->marge_gauche - 5, $this->marge_haute - 5);
 						$pdf->Cell(100, 0, $proofFilename, 1, 1, 'C', $pdf->useTemplate($templateIdx));
 					}
