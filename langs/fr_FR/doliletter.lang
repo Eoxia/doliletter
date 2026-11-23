@@ -196,6 +196,8 @@ EnvelopeRecipientSignTrigger = Accusé de réception du courrier
 DocumentHasBeenSignedBy = Le document a été signé par %s
 ReceivedDocumentSignedSha = SHA du courrier reçu : %s
 SentDocumentSignedSha = SHA du courrier envoyé : %s
+ReceivedDocumentShaNotAvailable = SHA du courrier reçu : non disponible, aucun courrier généré dans les documents de l'enveloppe
+SentDocumentShaNotAvailable = SHA du courrier envoyé : non disponible, aucun courrier généré dans les documents de l'enveloppe
 
 #
 # Spread
