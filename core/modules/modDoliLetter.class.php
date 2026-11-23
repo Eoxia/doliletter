@@ -32,7 +32,7 @@ class modDoliLetter extends DolibarrModules {
 	/**
 	 * @var int[] Minimum version of Saturne required by module, same format as need_dolibarr_version: checked by init() and by the Saturne index page
 	 */
-	public $need_saturne_version = array(23, 8, 0);
+	public $need_saturne_version = array(23, 9, 0);
 
 	/**
 	 * Constructor. Define names, constants, directories, boxes, permissions
@@ -61,7 +61,7 @@ class modDoliLetter extends DolibarrModules {
 		$this->descriptionlong = $langs->trans('DoliLetterDescriptionLong');
 		$this->editor_name     = 'Eoxia';
 		$this->editor_url      = 'https://eoxia.com/';
-		$this->version         = '23.2.0';
+		$this->version         = '23.3.0';
 		$this->const_name      = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto           = 'doliletter256px@doliletter';
 
