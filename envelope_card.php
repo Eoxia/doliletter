@@ -417,7 +417,7 @@ if (empty($reshook)) {
 				setEventMessages($object->error, $object->errors, 'errors');
 				$action = '';
 			} else {
-				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref;
 					$filelist = dol_dir_list($filedir, 'files');
 					$filename = '';
@@ -904,7 +904,7 @@ if (empty($reshook)) {
 						dol_print_error($db, $object->error, $object->errors);
 						exit();
 					}
-					if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+					if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 						$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/trackingnumber';
 						$filelist = dol_dir_list($filedir, 'files');
 						$filename = '';
@@ -1029,7 +1029,7 @@ if (empty($reshook)) {
 								dol_print_error($db, $object->error, $object->errors);
 								exit();
 							}
-							if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+							if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 								$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/acknowledgementreceipt';
 								$filelist = dol_dir_list($filedir, 'files');
 								$filename = '';
@@ -1108,7 +1108,7 @@ if (empty($reshook)) {
 								exit();
 							}
 
-							if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+							if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 								$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/sendingproof';
 
 								$filelist = dol_dir_list($filedir, 'files');
@@ -1731,7 +1731,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					dol_print_error($db, $object->error, $object->errors);
 					exit();
 				}
-				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/';
 					$filelist = dol_dir_list($filedir, 'files');
 					$filename = '';
@@ -1899,7 +1899,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					dol_print_error($db, $object->error, $object->errors);
 					exit();
 				}
-				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 					$filedir = $conf->doliletter->dir_output . '/' . $object->element . '/' . $object->ref;
 					$filelist = dol_dir_list($filedir, 'files');
 					$filename = '';

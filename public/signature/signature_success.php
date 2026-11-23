@@ -95,7 +95,7 @@ llxHeaderSignature($langs->trans("Signature"), "", 0, 0, $morejs, $morecss);
 ?>
 <div class="digirisk-signature-container">
 	<p class="center"><?php echo $langs->trans("AcknowledgementReceiptSigned", $documentName); ?> </p>
-	<?php if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) : ?>
+	<?php if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) : ?>
 		<table class="wpeo-gridlayout grid-2 file-generation">
 			<?php if ($type == 'envelope') : ?>
 				<?php
