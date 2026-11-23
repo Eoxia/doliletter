@@ -80,6 +80,10 @@ switch ($type) {
 		$object         = new Envelope($db);
 		$signatory      = new EnvelopeSignature($db);
 		break;
+	default:
+		// Any other type left $signatory and $object unset: the next fetch() stopped the public page on a fatal
+		print $langs->trans('ErrorRecordNotFound');
+		exit;
 }
 
 if (dol_strlen($track_id) > 0) {
@@ -165,7 +169,12 @@ if ($action == 'addSignature') {
 $form = new Form($db);
 
 $element = $signatory->fetchSignatory($signatory->role, $signatory->fk_object, $type);
-$element = array_shift($element);
+// fetchSignatory() gives an int when fetchAll() fails, and array_shift() on it was a fatal
+$element = (is_array($element) && !empty($element)) ? array_shift($element) : null;
+if (!is_object($element)) {
+	print $langs->trans('ErrorRecordNotFound');
+	exit;
+}
 // The success page finds the envelope from the link, as this page: by its id, it showed the documents of any envelope
 $url = dol_buildpath('/doliletter/public/signature/signature_success.php', 1) . '?document_name=' .  $object->ref . '-' . $object->label . '&track_id=' . urlencode($track_id) . '&type=' . $type . '&entity=' . ((int) ($object->entity ?: $conf->entity));
 
