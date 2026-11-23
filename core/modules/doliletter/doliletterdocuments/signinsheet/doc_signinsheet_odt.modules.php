@@ -28,6 +28,8 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/doc.lib.php';
 
 // Load saturne libraries
 dol_include_once('/saturne/core/modules/saturne/modules_saturne.php');
+// Reading of the stored signatures
+dol_include_once('/doliletter/class/dolilettersignature.class.php');
 
 /**
  *	Class to build documents using ODF templates generator
@@ -107,6 +109,10 @@ class doc_signinsheet_odt extends SaturneDocumentModel
 		$moreParam['tmparray']         = $tmpArray;
 		$moreParam['hideTemplateName'] = 1;
 
+		// Domains of the {lang_...} labels of the template that Saturne does not load itself: company
+		// block (companies) and attendance values (Saturne signatures)
+		$outputLangs->loadLangs(['companies', 'signature@saturne']);
+
 		return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
 	}
 
@@ -150,27 +156,30 @@ class doc_signinsheet_odt extends SaturneDocumentModel
                 return 0;
             }
 
-			$tempdir = $conf->digiriskdolibarr->multidir_output[$object->entity ?? 1] . '/temp/';
+			// Temp dir of this module: Saturne empties it once the document is written (it was the one of Digirisk,
+			// which does not exist without Digirisk and is never emptied by this generation)
+			$multidirOutput = $conf->doliletter->multidir_output;
+			$tempdir        = ($multidirOutput[$object->entity ?? $conf->entity] ?? $multidirOutput[$conf->entity] ?? '') . '/temp/';
+			dol_mkdir($tempdir);
 
             foreach ($signatories as $k => $signatory) {
 
-				if ($signatory->element_id == 0) {
+				// Skip the rows still waiting for a user to be picked, as the Diffusion tab does. A person registered
+				// from the public link has no user either, but signs like the others
+				if (empty($signatory->element_id) && $signatory->element_type != DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE) {
 					continue;
 				}
 
-				if (!empty($signatory->signature)) {
-					$encoded_image = explode(",", $signatory->signature)[1];
-					$decoded_image = base64_decode($encoded_image);
-					file_put_contents($tempdir . "signature" . $k . ".png", $decoded_image);
-					$tmpArray['sessiontrainer_signature'] = $tempdir . "signature" . $k . ".png";
-				} else {
-					$tmpArray['sessiontrainer_signature'] = $langs->trans('NoSignature');
-				}
+				// Data URL or bare base64: a value that holds no image reads as no signature, not as an invalid file
+				$signatureFile = DoliletterSignature::writeSignatureImage($signatory->signature, $tempdir . 'signature' . $k . '.png');
+				$tmpArray['sessiontrainer_signature'] = $signatureFile !== '' ? $signatureFile : $langs->trans('NoSignature');
 				$tmpArray['sessiontrainer_number']     = $k;
 				$tmpArray['sessiontrainer_lastname']   = $signatory->lastname;
 				$tmpArray['sessiontrainer_firstname']  = $signatory->firstname;
-				$tmpArray['sessiontrainer_attendance'] = $signatory->attendance == 0 ? $langs->trans('Present') : $langs->trans('Absent');
-				$tmpArray['sessiontrainer_signature_date'] = !empty($signatory->signature_date) ? dol_print_date($signatory->signature_date, 'dayhour') : $langs->trans('NoSignature');
+				// Same values as the PDF model: a late person is no longer reported absent
+				$attendanceKeys = [SaturneSignature::ATTENDANCE_PRESENT => 'Present', SaturneSignature::ATTENDANCE_DELAY => 'Delay', SaturneSignature::ATTENDANCE_ABSENT => 'Absent'];
+				$tmpArray['sessiontrainer_attendance'] = $outputLangs->transnoentities($attendanceKeys[(int) $signatory->attendance] ?? 'Absent');
+				$tmpArray['sessiontrainer_signature_date'] = !empty($signatory->signature_date) ? dol_print_date($signatory->signature_date, 'dayhour', 'tzuserrel') : $langs->trans('NoSignature');
 
                 static::setTmpArrayVars($tmpArray, $listLines, $outputLangs);
             }

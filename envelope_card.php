@@ -54,6 +54,8 @@ require_once './core/modules/doliletter/mod_envelope_standard.php';
 require_once './lib/doliletter_envelope.lib.php';
 require_once './lib/doliletter.lib.php';
 require_once './lib/doliletter_function.lib.php';
+// saturne_media_origin_path(): path of a file in the documents index, which holds the entity beyond the first one
+dol_include_once('/saturne/lib/medias.lib.php');
 
 global $db, $conf, $langs, $user, $hookmanager;
 
@@ -72,18 +74,29 @@ $backtopage  = GETPOST('backtopage', 'alpha');
 // Lues plus bas dans les formulaires sans avoir jamais ete initialisees
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $ref                 = GETPOST('ref', 'alpha');
+// Options of the document models, read by every generation of the page: nothing hidden, as when they were left undefined
+$hidedetails = 0;
+$hidedesc    = 0;
+$hideref     = 0;
 
 // Initialize technical objects
 $object         = new Envelope($db);
 $contact        = new Contact($db);
 $project        = new Project($db);
 $signatory      = new EnvelopeSignature($db);
-$refEnvelopeMod = new $conf->global->DOLILETTER_ENVELOPE_ADDON();
 $extrafields    = new ExtraFields($db);
 $usertmp        = new User($db);
 $letter         = new LetterSending($db);
 $ecmfile        = new EcmFiles($db);
 $thirdparty     = new Societe($db);
+
+// Numbering module of the envelopes. Only the standard one is loaded above: a missing or unknown
+// constant falls back on it instead of a fatal "new ''"
+$refEnvelopeModName = getDolGlobalString('DOLILETTER_ENVELOPE_ADDON', 'mod_envelope_standard');
+if (!class_exists($refEnvelopeModName)) {
+	$refEnvelopeModName = 'mod_envelope_standard';
+}
+$refEnvelopeMod = new $refEnvelopeModName();
 
 $object->fetch($id);
 if ($object->fk_contact > 0) {
@@ -114,11 +127,11 @@ $upload_dir = $conf->doliletter->multidir_output[$conf->entity ?: $conf->entity]
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
-$permissiontoread = $user->rights->doliletter->envelope->read;
-$permissiontoadd = $user->rights->doliletter->envelope->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
-$permissiontodelete = $user->rights->doliletter->envelope->delete || ($permissiontoadd && isset($object->status));
-$permissionnote = $user->rights->doliletter->envelope->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->doliletter->envelope->write; // Used by the include of actions_dellink.inc.php
+$permissiontoread = $user->hasRight('doliletter', 'envelope', 'read');
+$permissiontoadd = $user->hasRight('doliletter', 'envelope', 'write'); // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+$permissiontodelete = $user->hasRight('doliletter', 'envelope', 'delete') || ($permissiontoadd && isset($object->status));
+$permissionnote = $user->hasRight('doliletter', 'envelope', 'write'); // Used by the include of actions_setnotes.inc.php
+$permissiondellink = $user->hasRight('doliletter', 'envelope', 'write'); // Used by the include of actions_dellink.inc.php
 $upload_dir = $conf->doliletter->multidir_output[$conf->entity];
 $thirdparty->fetch($object->fk_soc);
 
@@ -269,8 +282,9 @@ if (empty($reshook)) {
 		if (!$error) {
 			$result = $object->update($user, false);
 			if ($result > 0) {
-				$signatory->deleteSignatoriesSignatures($object->id, 0);
-				$object->setStatusCommon($user, 0);
+				// The content changed: the signatures no longer stand for it, the envelope goes back to signature
+				$signatory->deleteSignatoriesSignatures((int) $object->id);
+				$object->setStatusCommon($user, 0, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: " . $urltogo);
@@ -288,7 +302,7 @@ if (empty($reshook)) {
 
 	if ($action == 'confirm_delete' && GETPOST("confirm") == "yes")
 	{
-		$object->setStatusCommon($user, -1);
+		$object->setStatusCommon($user, -1, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 		$urltogo = dol_buildpath('/doliletter/envelope_list.php', 1);
 		header("Location: " . $urltogo);
 		exit;
@@ -313,7 +327,7 @@ if (empty($reshook)) {
 				setEventMessages($langs->trans('AddAttendantMessage') . ' ' . $contact->firstname . ' ' . $contact->lastname, array());
 				$object->call_trigger('ENVELOPE_LOCK', $user);
 				// Creation attendant OK
-				$object->setStatusCommon($user, 2);
+				$object->setStatusCommon($user, 2, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: " . $urltogo);
@@ -405,7 +419,7 @@ if (empty($reshook)) {
 				setEventMessages($object->error, $object->errors, 'errors');
 				$action = '';
 			} else {
-				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref;
 					$filelist = dol_dir_list($filedir, 'files');
 					$filename = '';
@@ -420,7 +434,7 @@ if (empty($reshook)) {
 
 					// A draft only has its specimen: there is no document to share yet
 					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $id);
+						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
 						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 						$ecmfile->share = getRandomPassword(true);
 						$ecmfile->update($user);
@@ -448,7 +462,7 @@ if (empty($reshook)) {
 	/*
 	 * Send mail
 	 */
-	if (($action == 'send' || $action == 'relance') && !$_POST['addfile'] && !$_POST['removAll'] && !$_POST['removedfile'] && !$_POST['cancel'] && !$_POST['modelselected']) {
+	if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPOST('removAll') && !GETPOST('removedfile') && !GETPOST('cancel') && !GETPOST('modelselected')) {
 		if (empty($trackid)) {
 			$trackid = GETPOST('trackid', 'aZ09');
 		}
@@ -516,7 +530,7 @@ if (empty($reshook)) {
 			$sendtoccuserid = array();
 
 			// Define $sendto
-			$receiver = $_POST['receiver'];
+			$receiver = GETPOST('receiver', 'alphawithlgt');
 			if (!is_array($receiver)) {
 				if ($receiver == '-1') {
 					$receiver = array();
@@ -526,14 +540,14 @@ if (empty($reshook)) {
 			}
 
 			$tmparray = array();
-			if (trim($_POST['sendto'])) {
+			if (trim(GETPOST('sendto', 'alphawithlgt'))) {
 				// Recipients are provided into free text field
-				$tmparray[] = trim($_POST['sendto']);
+				$tmparray[] = trim(GETPOST('sendto', 'alphawithlgt'));
 			}
 
-			if (trim($_POST['tomail'])) {
+			if (trim(GETPOST('tomail', 'alphawithlgt'))) {
 				// Recipients are provided into free hidden text field
-				$tmparray[] = trim($_POST['tomail']);
+				$tmparray[] = trim(GETPOST('tomail', 'alphawithlgt'));
 			}
 
 			if (count($receiver) > 0) {
@@ -552,11 +566,11 @@ if (empty($reshook)) {
 			}
 
 			if (!empty($conf->global->MAIN_MAIL_ENABLED_USER_DEST_SELECT)) {
-				$receiveruser = $_POST['receiveruser'];
+				$receiveruser = GETPOST('receiveruser', 'array');
 				if (is_array($receiveruser) && count($receiveruser) > 0) {
 					$fuserdest = new User($db);
 					foreach ($receiveruser as $key => $val) {
-						$tmparray[] = $fuserdest->user_get_property($val, 'email');
+						$tmparray[] = $fuserdest->user_get_property((int) $val, 'email');
 						$sendtouserid[] = $val;
 					}
 				}
@@ -565,7 +579,7 @@ if (empty($reshook)) {
 			$sendto = implode(',', $tmparray);
 
 			// Define $sendtocc
-			$receivercc = $_POST['receivercc'];
+			$receivercc = GETPOST('receivercc', 'alphawithlgt');
 			if (!is_array($receivercc)) {
 				if ($receivercc == '-1') {
 					$receivercc = array();
@@ -574,8 +588,8 @@ if (empty($reshook)) {
 				}
 			}
 			$tmparray = array();
-			if (trim($_POST['sendtocc'])) {
-				$tmparray[] = trim($_POST['sendtocc']);
+			if (trim(GETPOST('sendtocc', 'alphawithlgt'))) {
+				$tmparray[] = trim(GETPOST('sendtocc', 'alphawithlgt'));
 			}
 			if (count($receivercc) > 0) {
 				foreach ($receivercc as $key => $val) {
@@ -593,12 +607,12 @@ if (empty($reshook)) {
 				}
 			}
 			if (!empty($conf->global->MAIN_MAIL_ENABLED_USER_DEST_SELECT)) {
-				$receiverccuser = $_POST['receiverccuser'];
+				$receiverccuser = GETPOST('receiverccuser', 'array');
 
 				if (is_array($receiverccuser) && count($receiverccuser) > 0) {
 					$fuserdest = new User($db);
 					foreach ($receiverccuser as $key => $val) {
-						$tmparray[] = $fuserdest->user_get_property($val, 'email');
+						$tmparray[] = $fuserdest->user_get_property((int) $val, 'email');
 						$sendtoccuserid[] = $val;
 					}
 				}
@@ -638,10 +652,10 @@ if (empty($reshook)) {
 						$from = dol_string_nospecial($obj->label, ' ', array(",")).' <'.$obj->email.'>';
 					}
 				} else {
-					$from = dol_string_nospecial($_POST['fromname'], ' ', array(",")).' <'.$_POST['frommail'].'>';
+					$from = dol_string_nospecial(GETPOST('fromname'), ' ', array(",")).' <'.GETPOST('frommail').'>';
 				}
 
-				$replyto = dol_string_nospecial($_POST['replytoname'], ' ', array(",")).' <'.$_POST['replytomail'].'>';
+				$replyto = dol_string_nospecial(GETPOST('replytoname'), ' ', array(",")).' <'.GETPOST('replytomail').'>';
 				$message = GETPOST('message', 'restricthtml');
 				$subject = GETPOST('subject', 'restricthtml');
 
@@ -658,7 +672,7 @@ if (empty($reshook)) {
 					$sendtobcc .= (empty($conf->global->$autocopy) ? '' : (($sendtobcc ? ", " : "").$conf->global->$autocopy));
 				}
 
-				$deliveryreceipt = $_POST['deliveryreceipt'];
+				$deliveryreceipt = GETPOSTINT('deliveryreceipt') ? 1 : 0;
 
 				if ($action == 'send' || $action == 'relance') {
 					$actionmsg2 = $langs->transnoentities('MailSentBy').' '.CMailFile::getValidAddress($from, 4, 0, 1).' '.$langs->transnoentities('To').' '.CMailFile::getValidAddress($sendto, 4, 0, 1);
@@ -687,7 +701,7 @@ if (empty($reshook)) {
 				// Make substitution in email content
 				$substitutionarray = getCommonSubstitutionArray($langs, 0, null, $object);
 				$substitutionarray['__EMAIL__'] = $sendto;
-				$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.urlencode($object->thirdparty->tag).'&securitykey='.urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY).'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
+				$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.urlencode($object->thirdparty->tag).'&securitykey='.urlencode(getDolGlobalString('MAILING_EMAIL_UNSUBSCRIBE_KEY')).'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
 
 				$parameters = array('mode'=>'formemail');
 				complete_substitutions_array($substitutionarray, $langs, $object, $parameters);
@@ -754,7 +768,7 @@ if (empty($reshook)) {
 								if ($error) {
 									setEventMessages($object->error, $object->errors, 'errors');
 								} else {
-									$object->setStatusCommon($user, 4);
+									$object->setStatusCommon($user, 4, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 									$signatory->fetchSignatory('E_RECEIVER', $id);
 									$signatory->last_email_sent_date = dol_now();
 									$signatory->update($user);
@@ -776,16 +790,29 @@ if (empty($reshook)) {
 						exit;
 					} else {
 						$langs->load("other");
-						$mesg = '<div class="error">';
-						if ($mailfile->error) {
-							$mesg .= $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto));
-							$mesg .= '<br>'.$mailfile->error;
+						$mesg  = '<div class="error">';
+						$mesg .= $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto));
+						// What happened and what to do first. The link to the setup and the raw error of the mail server, in English and
+						// left in CMailFile::$errors only by some sending modes, are for the administrator, who can act on them
+						$langs->load('saturne@saturne');
+						if (getDolGlobalString('MAIN_DISABLE_ALL_MAILS')) {
+							// Sending is switched off in the email setup (tests, demos): named with the label of that option
+							$langs->load('admin');
+							$mesg .= '<br>' . dol_escape_htmltag($langs->transnoentities('ErrorMailSendingDisabled', $langs->transnoentities('MAIN_DISABLE_ALL_MAILS')));
+							if (!empty($user->admin)) {
+								$mesg .= '<br><a href="' . DOL_URL_ROOT . '/admin/mails.php" target="_blank">' . $langs->trans('ConfigEmail') . '</a>';
+							}
 						} else {
-							$mesg .= $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($from), dol_escape_htmltag($sendto));
-							if (!empty($conf->global->MAIN_DISABLE_ALL_MAILS)) {
-								$mesg .= '<br>Feature is disabled by option MAIN_DISABLE_ALL_MAILS';
-							} else {
-								$mesg .= '<br>Unkown Error, please refers to your administrator';
+							dol_include_once('/saturne/lib/saturne_functions.lib.php');
+							$failure = saturne_get_mail_failure($mailfile, $sendto);
+							$mesg   .= '<br>' . dol_escape_htmltag($failure['reason']);
+							if (!empty($user->admin)) {
+								if ($failure['cause'] != 'recipient') {
+									$mesg .= '<br><a href="' . DOL_URL_ROOT . '/admin/mails.php" target="_blank">' . $langs->trans('ConfigEmail') . '</a>';
+								}
+								if (dol_strlen($failure['detail'])) {
+									$mesg .= '<br><span class="opacitymedium">' . dol_escape_htmltag($langs->transnoentities('MailFailureTechnicalDetail', $failure['detail'])) . '</span>';
+								}
 							}
 						}
 						$mesg .= '</div>';
@@ -810,7 +837,10 @@ if (empty($reshook)) {
 
 	if ($action == 'lettersend') {
 		$error = 0;
-		$receiver = GETPOST('receiver');
+		$now   = dol_now();
+		// The form sends receiver[], the contact of the envelope: an id, not the array, goes to the record and to Contact::fetch()
+		$receivers  = GETPOST('receiver', 'array');
+		$receiver   = !empty($receivers) ? (int) reset($receivers) : (int) $object->fk_contact;
 		$lettercode = GETPOST('lettercode');
 
 		$letter->fk_envelope = $object->id;
@@ -823,13 +853,24 @@ if (empty($reshook)) {
 
 		$contact->fetch($receiver);
 
-		$letter->recipient_address = $contact->address;
+		// A contact without address: the letter goes to its thirdparty, the one of the envelope when the contact has none.
+		// Not null in the table: an empty address only when neither has one, the letter goes all the same
+		$recipientAddress = (string) $contact->address;
+		if (trim($recipientAddress) === '') {
+			$recipientThirdparty = $thirdparty;
+			if ($contact->socid > 0 && $contact->socid != $thirdparty->id) {
+				$recipientThirdparty = new Societe($db);
+				$recipientThirdparty->fetch($contact->socid);
+			}
+			$recipientAddress = (string) $recipientThirdparty->address;
+		}
+		$letter->recipient_address = $recipientAddress;
 		$letter->contact_fullname = $contact->firstname . ' ' . $contact->lastname;
 		$letter->letter_code = $lettercode;
 		$result = $letter->create($user);
 
 		if ($result > 0) {
-			$object->setStatusCommon($user, 3);
+			$object->setStatusCommon($user, 3, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 			$object->call_trigger('ENVELOPE_LETTER', $user);
 
 			// Submit file
@@ -879,9 +920,10 @@ if (empty($reshook)) {
 						dol_print_error($db, $object->error, $object->errors);
 						exit();
 					}
-					if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+					if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 						$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/trackingnumber';
 						$filelist = dol_dir_list($filedir, 'files');
+						$filename = '';
 						if (!empty($filelist)) {
 							foreach ($filelist as $file) {
 								if (!preg_match('/specimen/', $file['name'])) {
@@ -890,16 +932,23 @@ if (empty($reshook)) {
 								}
 							}
 						}
-						$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/trackingnumber/'.$filename, '', '', 'doliletter_envelope', $id);
-						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-						$ecmfile->share = getRandomPassword(true);
-						$ecmfile->update($user);
+						// Only specimens: no document to share, as in the generation of the card
+						if (dol_strlen($filename) > 0) {
+							$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
+							require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
+							$ecmfile->share = getRandomPassword(true);
+							$ecmfile->update($user);
+						}
 					}
 				}
 			}
 
+		} else {
+			// Nothing was recorded and the status stays: say why instead of showing the card unchanged
+			setEventMessages($letter->error, $letter->errors, 'errors');
 		}
-		unset($action);
+		// The card is shown next: its hooks expect a string (formObjectOptions() of DoliSIRH stops on null)
+		$action = '';
 	}
 
 	if ($action == 'stockTmpFile') {
@@ -972,11 +1021,11 @@ if (empty($reshook)) {
 					$ref = dol_sanitizeFileName($object->ref);
 					include_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 					$fileparams = dol_most_recent_file($diroutput.'/'.$ref, '');
-					$file = $fileparams['fullname'];
+					$file = is_array($fileparams) ? $fileparams['fullname'] : '';
 
 					// Build document if it not exists
 					$allspecimen = true;
-					$fileslist = dol_dir_list($fileparams['path']);
+					$fileslist = (is_array($fileparams) ? dol_dir_list($fileparams['path']) : array());
 					foreach($fileslist as $item) {
 						if (!preg_match('/specimen/', $item['name'])){
 							$allspecimen = false;
@@ -987,7 +1036,7 @@ if (empty($reshook)) {
 
 					$forcebuilddoc = true;
 					$object->call_trigger('ENVELOPE_ACKNOWLEDGEMENT_RECEIPT', $user);
-					$object->setStatusCommon($user, 6);
+					$object->setStatusCommon($user, 6, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 
 					if ($forcebuilddoc)    // If there is no default value for supplier invoice, we do not generate file, even if modelpdf was set by a manual generation
 					{
@@ -1000,9 +1049,10 @@ if (empty($reshook)) {
 								dol_print_error($db, $object->error, $object->errors);
 								exit();
 							}
-							if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+							if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 								$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/acknowledgementreceipt';
 								$filelist = dol_dir_list($filedir, 'files');
+								$filename = '';
 								if (!empty($filelist)) {
 									foreach ($filelist as $file) {
 										if (!preg_match('/specimen/', $file['name'])) {
@@ -1011,10 +1061,13 @@ if (empty($reshook)) {
 										}
 									}
 								}
-								$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename, '', '', 'doliletter_envelope', $id);
-								require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-								$ecmfile->share = getRandomPassword(true);
-								$ecmfile->update($user);
+								// Only specimens: no document to share, as in the generation of the card
+								if (dol_strlen($filename) > 0) {
+									$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
+									require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
+									$ecmfile->share = getRandomPassword(true);
+									$ecmfile->update($user);
+								}
 							}
 						}
 					}
@@ -1048,11 +1101,11 @@ if (empty($reshook)) {
 					$ref = dol_sanitizeFileName($object->ref);
 					include_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 					$fileparams = dol_most_recent_file($diroutput.'/'.$ref, '');
-					$file = $fileparams['fullname'];
+					$file = is_array($fileparams) ? $fileparams['fullname'] : '';
 
 					// Build document if it not exists
 					$allspecimen = true;
-					$fileslist = dol_dir_list($fileparams['path']);
+					$fileslist = (is_array($fileparams) ? dol_dir_list($fileparams['path']) : array());
 					foreach($fileslist as $item) {
 						if (!preg_match('/specimen/', $item['name'])){
 							$allspecimen = false;
@@ -1075,10 +1128,11 @@ if (empty($reshook)) {
 								exit();
 							}
 
-							if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+							if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 								$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/sendingproof';
 
 								$filelist = dol_dir_list($filedir, 'files');
+								$filename = '';
 								if (!empty($filelist)) {
 									foreach ($filelist as $file) {
 										if (!preg_match('/specimen/', $file['name'])) {
@@ -1087,10 +1141,13 @@ if (empty($reshook)) {
 										}
 									}
 								}
-								$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/sendingproof/'.$filename, '', '', 'doliletter_envelope', $id);
-								require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-								$ecmfile->share = getRandomPassword(true);
-								$ecmfile->update($user);
+								// Only specimens: no document to share, as in the generation of the card
+								if (dol_strlen($filename) > 0) {
+									$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
+									require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
+									$ecmfile->share = getRandomPassword(true);
+									$ecmfile->update($user);
+								}
 							}
 						}
 					}
@@ -1133,8 +1190,10 @@ if (is_array($lettersending)) {
 } else {
 	$lettersending = new LetterSending($db);
 }
-$signatory = $signatory->fetchSignatory('E_SENDER', $id);
-if (is_array($signatory)) $signatory = array_shift($signatory);
+// Sender and receiver in variables of their own: $signatory stays the object the view asks for the signatories, an envelope
+// without one gave null in its place and the next fetchSignatory() call stopped the page
+$senders = $signatory->fetchSignatory('E_SENDER', $id);
+$sender  = (is_array($senders) && !empty($senders)) ? array_shift($senders) : null;
 $title        = $langs->trans("Envelope");
 $title_create = $langs->trans("NewEnvelope");
 $title_edit   = $langs->trans("ModifyEnvelope");
@@ -1339,7 +1398,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$formquestion = array(
 			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("ConfirmLockEnvelope") . '</span>'),
 			array('type' => 'other', 'name' => 'OK', 'label' => '', 'value' => $img, 'moreattr' => 'readonly'),
-			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("LockDescription", dol_print_date($object->date_creation), dol_print_date(!empty($signatory->signature_date) ? $signatory->signature_date : '')) . '</span>'),
+			array('type' => 'other', 'name' => 'lock_validation', 'label' => '<span class="">' . $langs->trans("LockDescription", dol_print_date($object->date_creation), dol_print_date(!empty($sender->signature_date) ? $sender->signature_date : '', '', 'tzuserrel')) . '</span>'),
 		);
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockEnvelope'),'', 'confirm_setLocked', $formquestion, 'yes', 'actionButtonLock', 400, 550);
@@ -1402,9 +1461,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 	$morehtmlref .=  '</td><br>';
 
 	if ($object->status > 1) {
-		$signatory = $signatory->fetchSignatory('E_RECEIVER', $id);
-		$signatory = array_shift($signatory);
-		$signature_url = dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $signatory->signature_url . '&type=envelope';
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', (int) $id);
+		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
+		// The entity of the envelope: the public page has no session to take it from. No receiver, no link to give
+		$signature_url = is_object($receiver) ? dol_buildpath('/doliletter/public/signature/add_signature.php', 1) . '?track_id=' . $receiver->signature_url . '&type=envelope&entity=' . ((int) ($object->entity ?: $conf->entity)) : '';
 	}
 
 	if ($object->status == 3 || $object->status == 6) {
@@ -1413,7 +1473,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$morehtmlref .= '</td></tr>';
 	}
 
-	if ($object->status == 4 || $object->status == 5) {
+	if (($object->status == 4 || $object->status == 5) && !empty($signature_url)) {
 
 		$morehtmlref .=  '<tr><td>';
 		$morehtmlref .=  '<input hidden class="signature-link" value="'. $_SERVER['HTTP_HOST'] . $signature_url .'">';
@@ -1643,17 +1703,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 			$ref = dol_sanitizeFileName($object->ref);
 			include_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 			$fileparams = dol_most_recent_file($diroutput.'/'.$ref, '');
-			$file = $fileparams['fullname'];
+			$file = is_array($fileparams) ? $fileparams['fullname'] : '';
 		}
 
 		// Define output language
 		$outputlangs = $langs;
 		$newlang = '';
-		if ($conf->global->MAIN_MULTILANGS && empty($newlang) && !empty($_REQUEST['lang_id']))
+		if (getDolGlobalInt('MAIN_MULTILANGS') && empty($newlang) && GETPOST('lang_id', 'aZ09'))
 		{
-			$newlang = $_REQUEST['lang_id'];
+			$newlang = GETPOST('lang_id', 'aZ09');
 		}
-		if ($conf->global->MAIN_MULTILANGS && empty($newlang))
+		if (getDolGlobalInt('MAIN_MULTILANGS') && empty($newlang))
 		{
 			$newlang = $object->thirdparty->default_lang;
 		}
@@ -1675,7 +1735,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 
 		// Build document if it not exists
 		$allspecimen = true;
-		$fileslist = dol_dir_list($fileparams['path']);
+		$fileslist = (is_array($fileparams) ? dol_dir_list($fileparams['path']) : array());
 			foreach($fileslist as $item) {
 				if (!preg_match('/specimen/', $item['name'])){
 					$allspecimen = false;
@@ -1694,9 +1754,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					dol_print_error($db, $object->error, $object->errors);
 					exit();
 				}
-				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/';
 					$filelist = dol_dir_list($filedir, 'files');
+					$filename = '';
 					if (!empty($filelist)) {
 						foreach ($filelist as $file) {
 							if (!preg_match('/specimen/', $file['name'])) {
@@ -1705,13 +1766,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 							}
 						}
 					}
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $id);
-					require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-					$ecmfile->share = getRandomPassword(true);
-					$ecmfile->update($user);
+					// Only specimens: no document to share, as in the generation of the card
+					if (dol_strlen($filename) > 0) {
+						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
+						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
+						$ecmfile->share = getRandomPassword(true);
+						$ecmfile->update($user);
+					}
 				}
 				$fileparams = dol_most_recent_file($diroutput.'/'.$ref, preg_quote($ref, '/').'[^\-]+');
-				$file = $fileparams['fullname'];
+				$file = is_array($fileparams) ? $fileparams['fullname'] : '';
 			}
 		}
 
@@ -1773,7 +1837,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$formmail->withto = $liste;
 		$formmail->withtofree = (GETPOSTISSET('sendto') ? (GETPOST('sendto', 'alphawithlgt') ? GETPOST('sendto', 'alphawithlgt') : '1') : '1');
 		$formmail->withtocc = $liste;
-		$formmail->withtoccc = $conf->global->MAIN_EMAIL_USECCC;
+		$formmail->withtoccc = getDolGlobalString('MAIN_EMAIL_USECCC');
 		$formmail->withtopic = $topicmail;
 		$formmail->withfile = 2;
 		$formmail->withbody = 1;
@@ -1783,14 +1847,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		//$arrayoffamiliestoexclude=array('system', 'mycompany', 'object', 'objectamount', 'date', 'user', ...);
 		if (!isset($arrayoffamiliestoexclude)) $arrayoffamiliestoexclude = null;
 
-		$receiver = $signatory->fetchSignatory('E_RECEIVER', $id);
-		$receiver = array_shift($receiver);
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', (int) $id);
+		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 		// Make substitution in email content
 		$substitutionarray = getCommonSubstitutionArray($outputlangs, 0, $arrayoffamiliestoexclude, $object);
-		$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY).'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
+		$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode(getDolGlobalString('MAILING_EMAIL_UNSUBSCRIBE_KEY')).'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
 		$substitutionarray['__PERSONALIZED__'] = ''; // deprecated
 		$substitutionarray['__CONTACTCIVNAME__'] = '';
-		$substitutionarray['__SIGNATURE_LINK__'] = dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id=' . $receiver->signature_url  . '&type=' . $object->element;
+		$substitutionarray['__SIGNATURE_LINK__'] = is_object($receiver) ? dol_buildpath('/doliletter/public/signature/add_signature.php', 3) . '?track_id=' . $receiver->signature_url . '&type=' . $object->element . '&entity=' . ((int) ($object->entity ?: $conf->entity)) : '';
 		$parameters = array(
 			'mode' => 'formemail'
 		);
@@ -1836,10 +1900,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 		$outputlangs = $langs;
 
 		$fileparams = dol_most_recent_file($diroutput . '/' . $object->ref, '');
-		$file = $fileparams['fullname'];
+		$file = is_array($fileparams) ? $fileparams['fullname'] : '';
 
 		$allspecimen = true;
-		$fileslist = dol_dir_list($fileparams['path']);
+		$fileslist = (is_array($fileparams) ? dol_dir_list($fileparams['path']) : array());
 		foreach ($fileslist as $item) {
 			if (!preg_match('/specimen/', $item['name'])) {
 				$allspecimen = false;
@@ -1858,9 +1922,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					dol_print_error($db, $object->error, $object->errors);
 					exit();
 				}
-				if ($conf->global->DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE) {
+				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
 					$filedir = $conf->doliletter->dir_output . '/' . $object->element . '/' . $object->ref;
 					$filelist = dol_dir_list($filedir, 'files');
+					$filename = '';
 					if (!empty($filelist)) {
 						foreach ($filelist as $file) {
 							if (!preg_match('/specimen/', $file['name'])) {
@@ -1869,10 +1934,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 							}
 						}
 					}
-					$ecmfile->fetch(0, '', 'doliletter/envelope/' . $object->ref . '/' . $filename, '', '', 'doliletter_envelope', $id);
-					require_once DOL_DOCUMENT_ROOT . '/core/lib/security2.lib.php';
-					$ecmfile->share = getRandomPassword(true);
-					$ecmfile->update($user);
+					// Only specimens: no document to share, as in the generation of the card
+					if (dol_strlen($filename) > 0) {
+						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
+						require_once DOL_DOCUMENT_ROOT . '/core/lib/security2.lib.php';
+						$ecmfile->share = getRandomPassword(true);
+						$ecmfile->update($user);
+					}
 				}
 			}
 		}

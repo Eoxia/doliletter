@@ -170,7 +170,7 @@ foreach ($linkedFilesFavorite as $file) {
 
     if ($fileMimeType == 'video/mp4') { ?>
         <video src="<?php echo $fileUrl; ?>" controls width="100%" height="600px">
-            Your browser does not support the video tag.
+            <?php echo $langs->trans('SpreadVideoNotSupported'); ?>
         </video>
     <?php } elseif (in_array($fileMimeType, ['application/pdf', 'text/plain']) || image_format_supported($file->filename) >= 0) {
         // L'URL d'un <object> se donne dans data : avec data-src le navigateur

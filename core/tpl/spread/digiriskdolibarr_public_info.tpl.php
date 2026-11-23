@@ -141,15 +141,8 @@ $ppReadLocked = !empty($spreadSteps) && $spreadSteps['steps']['who']['state'] !=
 .pp-mandatory-pending { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; padding: 12px 14px; font-size: 13px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; }
 .pp-mandatory-pending i { margin-top: 2px; }
 .pp-mandatory-pending__list { margin: 4px 0 0; padding-left: 18px; font-weight: 600; }
-.pp-single-person { margin-top: 16px; }
-.pp-inline-signature { margin: 12px 0; padding: 14px; background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; }
-.pp-inline-signature__title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
-.pp-inline-signature__title i { color: #3b82f6; }
-.pp-inline-signature .signature-element { position: relative; display: block; }
-.pp-inline-canvas { width: 100%; height: 200px; touch-action: none; }
-.pp-inline-signature__actions { margin-top: 10px; text-align: right; }
 .pp-signed-confirm { display: flex; align-items: center; gap: 8px; margin: 12px 0; padding: 14px; font-size: 14px; font-weight: 600; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; }
-.pp-invalid-link { display: flex; align-items: center; gap: 8px; margin: 16px 0; padding: 14px; font-size: 14px; font-weight: 600; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; }
+/* The single-person view and its signature panel are styled by public_spread_view.tpl.php, for every object */
 </style>
 
 <div class="pp-public-info spread-steps__read-content<?php echo $ppReadLocked ? ' spread-steps__read-content--locked' : ''; ?>">

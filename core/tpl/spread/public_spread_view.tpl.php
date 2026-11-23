@@ -391,6 +391,18 @@ body {
     background: white;
 }
 
+/* Single-person view (?sign= link), whatever the object: these rules used to live in the prevention plan
+   template only. Without a CSS size, the canvas showed at the size of its bitmap, which Saturne sets to
+   its width times the pixel ratio: three times the screen on a phone, and the strokes landed off it */
+.pp-single-person { margin-top: 16px; }
+.pp-inline-signature { margin: 12px 0; padding: 14px; background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; }
+.pp-inline-signature__title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
+.pp-inline-signature__title i { color: #3b82f6; }
+.pp-inline-signature .signature-element { position: relative; display: block; }
+.pp-inline-canvas { display: block; box-sizing: border-box; width: 100%; height: 200px; touch-action: none; }
+.pp-inline-signature__actions { margin-top: 10px; text-align: right; }
+.pp-invalid-link { display: flex; align-items: center; gap: 8px; margin: 16px 0; padding: 14px; font-size: 14px; font-weight: 600; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; }
+
 .signature-erase {
     position: absolute;
     top: 8px;
@@ -980,8 +992,17 @@ input.spread-phone--invalid,
 <?php
 $isSignedPreventionPlan = (!empty($isDigiriskRiskObject) && !empty($signSignatory) && $signSignatory->status == DoliletterSpreadSignature::STATUS_SIGNED);
 
-// Le libelle de l'objet suit ce qui est diffuse : plan de prevention ou permis de feu
-$spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->transnoentities($ppTexts['objectName'])) : '';
+// Le type de l'objet diffuse vient des metadonnees Saturne (tache, document unique...), qui chargent
+// aussi la langue de l'objet. Saturne remplit toujours 'langs', vide quand l'objet n'en declare pas :
+// la classe de l'objet prend alors le relais
+$spreadObjectType = $langs->transnoentities(!empty($objectsMetadata[$objectType]['langs']) ? $objectsMetadata[$objectType]['langs'] : ucfirst($objectsMetadata[$objectType]['object']->element));
+
+// Le libelle de l'objet suit ce qui est diffuse : plan de prevention ou permis de feu, sinon le type
+// de l'objet. Sans lui, les phrases d'accueil s'arretaient sur « ce : » pour tout autre objet
+$spreadObjectName = dol_strtolower(!empty($ppTexts['objectName']) ? $langs->transnoentities($ppTexts['objectName']) : $spreadObjectType);
+
+// Un objet sans libelle (le document unique n'en a pas) se nomme par sa reference
+$spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
 ?>
 <div class="public-card__container" data-public-interface="true">
 
@@ -996,7 +1017,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                 </div>
 
                 <span class="spread-brand__title">
-                    <?php echo $langs->transnoentities($objectsMetadata[$objectType]['langs'] ?? ucfirst($objectsMetadata[$objectType]['object']->element)); ?>
+                    <?php echo dol_escape_htmltag($spreadObjectType); ?>
                 </span>
 
                 <?php if (dol_strlen($spreadCardUrl) || dol_strlen($spreadMobileUrl)) { ?>
@@ -1076,7 +1097,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="fas fa-file-signature"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Référence</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><?php echo $langs->trans('SpreadSuccessReference'); ?></div>
                     <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo dol_escape_htmltag($objectRef); ?></div>
                 </div>
 
@@ -1085,7 +1106,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="fas fa-user"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Intervenant</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><?php echo $langs->trans('SpreadSuccessAttendee'); ?></div>
                     <div style="font-size: 15px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;"><?php echo dol_escape_htmltag($signSignatory->firstname . ' ' . $signSignatory->lastname); ?></div>
                 </div>
 
@@ -1094,8 +1115,8 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="far fa-calendar-alt"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Date de signature</div>
-                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo date('d/m/Y à H:i', $signSignatory->signature_date); ?></div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><?php echo $langs->trans('SignatureDate'); ?></div>
+                    <div style="font-size: 15px; color: #0f172a; font-weight: 600; white-space: nowrap;"><?php echo $langs->trans('SpreadDateAtHour', dol_print_date($signSignatory->signature_date, 'day', 'tzuserrel'), dol_print_date($signSignatory->signature_date, 'hour', 'tzuserrel')); ?></div>
                 </div>
 
                 <!-- 4: Statut -->
@@ -1103,8 +1124,8 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     <div style="width: 45px; height: 45px; background: #f0fdf4; border-radius: 50%; color: #16a34a; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                         <i class="fas fa-check-square"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Statut</div>
-                    <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i>Signé</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><?php echo $langs->trans('SpreadSuccessStatus'); ?></div>
+                    <div style="display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;"><i class="fas fa-check" style="margin-right:6px;"></i><?php echo $langs->trans('Signed'); ?></div>
                 </div>
 
             </div>
@@ -1115,14 +1136,14 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     <div style="width: 20px; height: 20px; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
                         <i class="fas fa-info"></i>
                     </div>
-                    Étapes suivantes
+                    <?php echo $langs->trans('SpreadNextStepsTitle'); ?>
                 </div>
                 
                 <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-radius: 10px; padding: 25px 20px; flex-wrap: wrap;">
                     
                     <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
                         <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-user-friends"></i></div>
-                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Informer les<br>autres intervenants</div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;"><?php echo $langs->trans('SpreadNextStepInformOthers'); ?></div>
                     </div>
                     <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
                     
@@ -1134,13 +1155,13 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     
                     <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
                         <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-shield-alt"></i></div>
-                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Appliquer les<br>mesures de prévention</div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;"><?php echo $langs->trans('SpreadNextStepApplyMeasures'); ?></div>
                     </div>
                     <div style="color: #0f172a; font-size: 16px; margin: 0 10px; font-weight: bold;"><i class="fas fa-chevron-right"></i></div>
                     
                     <div style="display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px; margin: 10px 0;">
                         <div style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #1e3a8a; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas fa-clipboard-check"></i></div>
-                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;">Réaliser et suivre<br>les actions</div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 500; line-height: 1.4;"><?php echo $langs->trans('SpreadNextStepCarryOutActions'); ?></div>
                     </div>
                 </div>
             </div>
@@ -1152,7 +1173,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                 </a>
                 
                 <a href="<?php echo $registerUrl; ?>" style="font-size: 15px; padding: 12px 28px; background: #0135b6; border: none; color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(1, 53, 182, 0.3);">
-                    <i class="fas fa-user-plus" style="margin-right: 10px; font-size: 18px;"></i> Ajouter un nouvel intervenant
+                    <i class="fas fa-user-plus" style="margin-right: 10px; font-size: 18px;"></i> <?php echo $langs->trans('SpreadAddNewAttendee'); ?>
                 </a>
             </div>
             <script>
@@ -1187,7 +1208,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                 <div class="quick-sign-email-group">
                     <div class="quick-sign-email-field">
                         <label for="quick-sign-email"><?php echo $langs->trans('Email'); ?></label>
-                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="votre.email@exemple.com" required>
+                        <input type="email" id="quick-sign-email" class="quick-sign-email-input" placeholder="<?php echo dol_escape_htmltag($langs->transnoentities('SpreadEmailPlaceholder')); ?>" required>
                     </div>
                     <button type="button" class="wpeo-button button-blue quick-sign-send-btn">
                         <i class="fas fa-paper-plane"></i>
@@ -1202,12 +1223,12 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
         <div class="pp-single-person-welcome" style="margin-bottom: 25px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
             <?php // Registered with an email or a phone only: greet them with it rather than with nothing
             $signSignatoryGreeting = doliletter_spread_get_signatory_name($signSignatory) ?: ($signSignatory->email ?: $signSignatory->phone); ?>
-            <p style="font-size: 16px; margin-bottom: 15px;">Bonjour, <strong><?php echo dol_escape_htmltag($signSignatoryGreeting); ?></strong></p>
+            <p style="font-size: 16px; margin-bottom: 15px;"><?php echo $langs->trans('SpreadHello'); ?> <strong><?php echo dol_escape_htmltag($signSignatoryGreeting); ?></strong></p>
             
             <?php if (empty($signSignatory->signature)) { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
                 <?php echo $langs->trans('SpreadRegisteredOnObject', $spreadObjectName); ?><br>
-                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+                <strong><?php echo dol_escape_htmltag($spreadObjectTitle); ?></strong>
             </p>
                 <?php if (!empty($ppRisks)) { ?>
                 <div class="pp-mandatory-pending pp-risks-pending <?php echo empty($ppPendingRisks) ? 'hidden' : ''; ?>" style="font-size: 15px; color: #b91c1c; background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 15px;">
@@ -1219,11 +1240,11 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
             <?php } else { ?>
             <p style="font-size: 15px; margin-bottom: 15px; line-height: 1.5;">
                 <?php echo $langs->trans('SpreadViewingObject', $spreadObjectName); ?><br>
-                <strong><?php echo dol_escape_htmltag($objectLabel); ?></strong>
+                <strong><?php echo dol_escape_htmltag($spreadObjectTitle); ?></strong>
             </p>
             <div style="font-size: 15px; color: #166534; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-top: 15px;">
                 <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-                Vous avez signé ce document le <?php echo dol_print_date($signSignatory->signature_date, '%d/%m/%Y  %H:%M'); ?>.
+                <?php echo $langs->trans('SpreadYouSignedOn', dol_print_date($signSignatory->signature_date, 'dayhour', 'tzuserrel')); ?>
             </div>
             <?php } ?>
         </div>
@@ -1239,14 +1260,14 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     }
                 }
                 $addBtnClass = $hasUnsigned ? "button-disable" : "";
-                $addBtnAttr = $hasUnsigned ? "disabled=\"disabled\" title=\"Veuillez d'abord valider la signature en attente\"" : "";
+                $addBtnAttr = $hasUnsigned ? 'disabled="disabled" title="' . dol_escape_htmltag($langs->transnoentities('SpreadValidatePendingSignatureFirst')) . '"' : '';
             ?>
                 <div class="add-user-section tabsAction" style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <button type="button" class="wpeo-button button-blue add-user-btn <?php echo $addBtnClass; ?>" data-type="internal" <?php echo $addBtnAttr; ?>>
-                        <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire interne'); ?>
+                        <i class="fas fa-plus"></i> <?php echo $langs->trans('SpreadAddInternalSignatory'); ?>
                     </button>
                     <button type="button" class="wpeo-button button-blue add-user-btn <?php echo $addBtnClass; ?>" data-type="external" <?php echo $addBtnAttr; ?>>
-                        <i class="fas fa-plus"></i> <?php echo $langs->trans('Signataire externe'); ?>
+                        <i class="fas fa-plus"></i> <?php echo $langs->trans('SpreadAddExternalSignatory'); ?>
                     </button>
                     <button type="button" class="wpeo-button button-blue copy-link-btn" style="padding: 8px 12px; font-size: 0.9em;" title="<?php echo dol_escape_htmltag($langs->trans('CopyLink')); ?>" onclick="navigator.clipboard.writeText(window.location.href).then(function() { $.jnotify('<?php echo dol_escape_js($langs->trans('LinkCopiedToClipboard')); ?>', 'success'); });">
                         <i class="fas fa-copy"></i>
@@ -1276,7 +1297,19 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                         $newSignatoryRows[]            = $newSignatoryRow;
                     }
 
-                    foreach (array_merge($newSignatoryRows, $signatories) as $signatoryItem) {
+                    // One person signs at a time: the manager adds someone, has them sign, then adds the
+                    // next one. Several people waiting (a safety talk adds all its attendees at once) gave
+                    // as many sign buttons, here and at the bottom of the page. Only the first one waiting
+                    // shows here; the others stay in the list of signatories below and come up in turn.
+                    $currentSignatories = [];
+                    foreach ($signatories as $signatoryItem) {
+                        if (empty($signatoryItem->signature)) {
+                            $currentSignatories[] = $signatoryItem;
+                            break;
+                        }
+                    }
+
+                    foreach (array_merge($newSignatoryRows, $currentSignatories) as $signatoryItem) {
                         $isNewSignatory = empty($signatoryItem->id);
                         // A signatory registered from the public page carries their own identity, no Dolibarr user behind it
                         $isExternalSignatory = ($signatoryItem->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE);
@@ -1368,7 +1401,7 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
                     // Prevention plan:                    // Prevention plan: one photo per required certification (document) for this signatory
                     if (!$isNewSignatory && !empty($isDigiriskRiskObject) && !empty($ppCertifications)) {
                         print '<div class="pp-signatory-media-row" style="border-top: 1px dashed #e5e5e5; margin-top: 10px; padding-top: 10px;">';
-                        print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> Envoyer les éléments demandés</div>';
+                        print '<div class="pp-signatory-media-row__label"><i class="fas fa-id-badge"></i> ' . $langs->trans('SpreadSendRequestedElements') . '</div>';
                         $certSignatoryId = $signatoryItem->id;
                         require __DIR__ . '/digiriskdolibarr_signatory_certs.tpl.php';
                         print '</div>';
@@ -1611,7 +1644,8 @@ $spreadObjectName = !empty($ppTexts['objectName']) ? dol_strtolower($langs->tran
 <script>
 function updateBottomSignBtn() {
     $('#bottomSignBtnPlaceholder').empty();
-    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn');
+    // A single button, for the person signing now: cloning every sign button of the page gave one per person waiting
+    let $topSignBtn = $('.user-signature-item.signature-not-validated .sign-btn').first();
     if ($topSignBtn.length > 0) {
         let $bottomBtn = $topSignBtn.clone();
         $bottomBtn.html('<i class="fas fa-signature"></i> <?php echo dol_escape_js($langs->transnoentities('ValidateSignature')); ?>');
@@ -1735,7 +1769,9 @@ function getResponseMessage(response, id) {
 function validateSignature() {
     if (currentUserIndex !== null && !isCanvasEmpty()) {
 
-        var signature = window.saturne.signature.canvas.toDataURL();
+        // Framed on the stroke: the whole canvas kept wide empty margins around it in the attendance sheet
+        var signatureCanvas = window.saturne.signature.canvas;
+        var signature       = typeof window.saturne.signature.getTrimmedDataURL === 'function' ? window.saturne.signature.getTrimmedDataURL(signatureCanvas) : signatureCanvas.toDataURL();
 
         // Risks read on the page: without a ?sign= link nothing could be recorded while the visitor
         // was ticking them, so they travel with the signature and are saved just before it
@@ -1798,6 +1834,9 @@ function addUser() {
     $('.user-signatures-list').prepend($($('#spread-new-signatory-' + type).html()));
 }
 
+// A signatory being created: no second request until the first one has come back
+let isCreatingSignatory = false;
+
 /**
  * Create the signature of a new row, now that its person is known, and put the saved row in its place.
  *
@@ -1807,6 +1846,12 @@ function addUser() {
  * @return {void}
  */
 function createSignatory($row, type, fields) {
+    // A double click on the validate button created the same person twice
+    if (isCreatingSignatory) {
+        return;
+    }
+    isCreatingSignatory = true;
+
     let token    = window.saturne.toolbox.getToken();
     let knownIds = $('.user-signatures-list .user-signature-item').map(function () {
         return String($(this).data('user-index'));
@@ -1817,6 +1862,9 @@ function createSignatory($row, type, fields) {
         url: document.URL + window.saturne.toolbox.getQuerySeparator(document.URL) + 'action=add_spread_user&type=' + type + '&token=' + token,
         data: $.param(fields),
         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+        complete: function () {
+            isCreatingSignatory = false;
+        },
         success: function (resp) {
             const error = getResponseMessage(resp, 'error');
             if (error.length) {
@@ -1900,7 +1948,7 @@ function sendMail() {
         contentType: 'application/json charset=utf-8',
         success: function (resp) {
 
-            let message = "Erreur inconnue";
+            let message = '<?php echo dol_escape_js($langs->transnoentities('ErrorUnknown')); ?>';
             let isError = true;
             if (typeof resp === "string") {
                 const matchSuccess = resp.match(/id="success"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="success"/i);
@@ -1914,7 +1962,7 @@ function sendMail() {
                     message = resp.substring(0, 100);
                 }
             } else {
-                message = "Type non g�r�: " + (typeof resp);
+                message = '<?php echo dol_escape_js($langs->transnoentities('SpreadResponseTypeNotHandled')); ?> ' + (typeof resp);
             }
 
             if (isError) {
@@ -1971,7 +2019,7 @@ function sendQuickSignEmail() {
         processData: false,
         contentType: 'application/json; charset=utf-8',
         success: function (resp) {
-            let message = "Erreur inconnue";
+            let message = '<?php echo dol_escape_js($langs->transnoentities('ErrorUnknown')); ?>';
             let isError = true;
             if (typeof resp === "string") {
                 const matchSuccess = resp.match(/id="success"[^>]*value="([^"]+)"/i) || resp.match(/value="([^"]+)"[^>]*id="success"/i);
@@ -1985,7 +2033,7 @@ function sendQuickSignEmail() {
                     message = resp.substring(0, 100);
                 }
             } else {
-                message = "Type non g�r�: " + (typeof resp);
+                message = '<?php echo dol_escape_js($langs->transnoentities('SpreadResponseTypeNotHandled')); ?> ' + (typeof resp);
             }
 
             if (isError) {
@@ -2371,28 +2419,4 @@ $(document).ready(function () {
     <?php } ?>
 });
 
-</script>
-
-
-<script>
-(function() {
-    function formatDates() {
-        var dateEls = document.querySelectorAll('.local-date-formatter:not(.formatted)');
-        dateEls.forEach(function(el) {
-            var ts = parseInt(el.getAttribute('data-timestamp'), 10);
-            if (!isNaN(ts) && ts > 0) {
-                var d = new Date(ts * 1000);
-                var day = ("0" + d.getDate()).slice(-2);
-                var month = ("0" + (d.getMonth() + 1)).slice(-2);
-                var year = d.getFullYear();
-                var hours = ("0" + d.getHours()).slice(-2);
-                var minutes = ("0" + d.getMinutes()).slice(-2);
-                el.innerText = day + '/' + month + '/' + year + ' à ' + hours + ':' + minutes;
-                el.classList.add('formatted');
-            }
-        });
-    }
-    document.addEventListener("DOMContentLoaded", formatDates);
-    formatDates(); // run immediately in case DOM is already loaded
-})();
 </script>

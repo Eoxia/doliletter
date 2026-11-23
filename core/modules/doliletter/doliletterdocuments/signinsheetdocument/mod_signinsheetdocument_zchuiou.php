@@ -71,17 +71,6 @@ class mod_signinsheetdocument_zchuiou extends ModeleNumRefSaturne
 	}
 
 	/**
-	 * Return description of module
-	 *
-	 * @return string Description text
-	 */
-	public function info(): string
-	{
-		global $langs;
-		return $langs->trans('Renvoie une numérotation au format FEyymm-nnnn');
-	}
-
-	/**
 	 * Return an example of numbering
 	 *
 	 * @return string Example

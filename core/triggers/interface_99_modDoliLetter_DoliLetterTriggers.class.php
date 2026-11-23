@@ -52,7 +52,7 @@ class InterfaceDoliLetterTriggers extends DolibarrTriggers
 		$this->name = preg_replace('/^Interface/i', '', get_class($this));
 		$this->family = "demo";
 		$this->description = "Doliletter triggers.";
-		$this->version = '23.2.0';
+		$this->version = '23.3.0';
 		$this->picto = 'Doliletter@Doliletter';
 	}
 
@@ -296,10 +296,10 @@ class InterfaceDoliLetterTriggers extends DolibarrTriggers
 				$actioncomm->fk_element  = $object->id;
 				$actioncomm->userownerid = $user->id;
 				$actioncomm->percentage  = -1;
-				$signatory = $signatory->fetchSignatory('E_RECEIVER', $object->id);
-				$signatory = array_shift($signatory);
+				$receivers = $signatory->fetchSignatory('E_RECEIVER', $object->id);
+				$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 
-				$actioncomm->note  = $langs->trans('DocumentHasBeenSignedBy', $signatory->firstname . ' ' . $signatory->lastname);
+				$actioncomm->note  = $langs->trans('DocumentHasBeenSignedBy', trim(($receiver->firstname ?? '') . ' ' . ($receiver->lastname ?? '')));
 
 				$actioncomm->create($user);
 				break;

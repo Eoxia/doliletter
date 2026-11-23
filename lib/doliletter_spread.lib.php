@@ -792,7 +792,7 @@ function doliletter_spread_get_documents_version(array $documents): string
 {
     $versions = [];
     foreach ($documents as $document) {
-        $versions[] = $document['name'] . (!empty($document['date']) ? ' (' . dol_print_date($document['date'], 'dayhour') . ')' : '');
+        $versions[] = $document['name'] . (!empty($document['date']) ? ' (' . dol_print_date($document['date'], 'dayhour', 'tzuserrel') . ')' : '');
     }
 
     return implode(', ', $versions);

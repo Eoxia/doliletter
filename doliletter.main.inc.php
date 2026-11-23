@@ -33,3 +33,7 @@ if (file_exists(__DIR__ . '/../saturne/saturne.main.inc.php')) {
 } else {
     die('Include of saturne main fails');
 }
+
+// Module updated without being reactivated: the PDF attendance sheet is registered as the default model
+require_once __DIR__ . '/lib/doliletter.lib.php';
+doliletter_register_signin_sheet_model();

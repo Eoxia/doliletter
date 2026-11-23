@@ -32,6 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/modules/contract/modules_contract.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 
 require_once __DIR__ . '/../modules_trackingnumber.php';
@@ -196,7 +197,7 @@ class pdf_nerio extends ModelePDFTrackingNumber
 				$file = $dir."/SPECIMEN.pdf";
 			} else {
 				$objectref = dol_sanitizeFileName($object->ref);
-				$dir = $conf->doliletter->multidir_output[$conf->entity]."/envelope/".$objectref .'/trackingnumber';
+				$dir = $object->getOutputDir() . '/envelope/' . $objectref . '/trackingnumber';
 			}
 			if (!file_exists($dir))
 			{
@@ -223,10 +224,6 @@ class pdf_nerio extends ModelePDFTrackingNumber
 			}
 			if (file_exists($dir))
 			{
-				$signatory = new EnvelopeSignature($this->db);
-				$signatory = $signatory->fetchSignatory('E_RECEIVER', $object->id);
-				$receiver    = array_shift($signatory);
-
 				// Add pdfgeneration hook
 				if (!is_object($hookmanager))
 				{
@@ -313,14 +310,11 @@ class pdf_nerio extends ModelePDFTrackingNumber
 
 				$pdf->SetFont('', '', $default_font_size - 1);
 
-				require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmdirectory.class.php';
-				require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
-				$ecmfile = new EcmFiles($this->db);
-				$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/';
-				$filelist = dol_dir_list($filedir, 'files');
-				$filepath = preg_split('/documents\//',$filelist[0]['fullname'])[1];
+				// Letter sent: the last one generated, not the first file of the folder (specimen, older letter, linked file).
+				// None once deleted from the Linked files tab: the tracking number says so instead of an empty hash
+				$letterFile = $object->getLetterFile();
+				$letterSha  = is_array($letterFile) ? $langs->trans('SentDocumentSignedSha', $letterFile['hash']) : $langs->trans('SentDocumentShaNotAvailable');
 
-				$ecmfile->fetch(0, '', $filepath, '', '', 'doliletter_envelope', $object->id);
 				$letter = new LetterSending($this->db);
 				$lettersending = $letter->fetchAll('', '', 0, 0, array('customsql' => ' fk_envelope =' . $object->id));
 				if (is_array($lettersending)) {
@@ -330,7 +324,7 @@ class pdf_nerio extends ModelePDFTrackingNumber
 				}
 
 				if ($object->status == 3) {
-					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('TrackingNumberTextLetter', $object->ref, $lettersending->letter_code) . '<br>' . $langs->trans('SentDocumentSignedSha', $ecmfile->label), 0, 1);
+					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('TrackingNumberTextLetter', $object->ref, $lettersending->letter_code) . '<br>' . $letterSha, 0, 1);
 				}
 
 				$nexY = $pdf->GetY();
@@ -541,9 +535,6 @@ class pdf_nerio extends ModelePDFTrackingNumber
 					@chmod($file, octdec($conf->global->MAIN_UMASK));
 
 				$this->result = array('fullpath'=>$file);
-				$signatory = new EnvelopeSignature($this->db);
-				$signatory->deleteSignatoriesSignatures($object->id);
-
 				return 1;
 			} else {
 				$this->error = $langs->trans("ErrorCanNotCreateDir", $dir);
@@ -609,6 +600,7 @@ class pdf_nerio extends ModelePDFTrackingNumber
 	 * @param   int         $tab_top        tab height position
 	 * @param   int         $tab_height     tab height
 	 * @param   Translate   $outputlangs    Object language for output
+	 * @param   Envelope    $object         Envelope
 	 * @return void
 	 */
 	protected function tabSignature(&$pdf, $tab_top, $tab_height, $outputlangs, $object)
@@ -616,24 +608,15 @@ class pdf_nerio extends ModelePDFTrackingNumber
 		global $conf;
 
 		$signatory = new EnvelopeSignature($this->db);
-		$receiver    = array_shift($signatory->fetchSignatory('E_RECEIVER', $object->id));
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', $object->id);
+		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 
-//		$recipient = array_shift($signatory->fetchSignatory('E_SOCIETY', $object->id));
-		if (dol_strlen($receiver->signature) > 0) {
-			$tempdir = $conf->doliletter->multidir_output[isset($object->entity) ? $object->entity : 1] . '/temp/';
-
-			//Signatures
-			if (!empty($receiver) && $receiver > 0) {
-				$encoded_image = explode(",",  $receiver->signature)[1];
-				$decoded_image = base64_decode($encoded_image);
-				file_put_contents($tempdir."signature.png", $decoded_image);
-				$test = $tempdir."signature.png";
-			}
-		}
-
-		$file_list = dol_dir_list(DOL_DATA_ROOT . '/doliletter/' . $object->element . '/' . $object->ref, 'files');
-		if ( is_array($file_list[0]) ) {
-			$filename = $file_list[0]['relativename'];
+		// Data URL or bare base64: the frame stays empty for a row that holds no image, such as the text DocumentGenerated
+		// that older versions wrote in place of the signature once a document was generated
+		$signatureFile = '';
+		if (is_object($receiver)) {
+			$tempdir       = $object->getOutputDir() . '/temp/';
+			$signatureFile = DoliletterSignature::writeSignatureImage($receiver->signature, $tempdir . 'signature.png');
 		}
 
 		$pdf->SetDrawColor(128, 128, 128);
@@ -647,7 +630,11 @@ class pdf_nerio extends ModelePDFTrackingNumber
 //		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 5,  $outputlangs->transnoentities('TrackingNumberTextMail', $receiver->firstname . ' ' . $receiver->lastname, preg_replace('/AR_/', '', $filename), 'mail', dol_print_date($receiver->signature_date), $receiver->ip ), 0, 'L', 0);
 
 		$pdf->SetXY($this->marge_gauche, $posy + 10);
-		$pdf->Image($test, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
+		if ($signatureFile !== '') {
+			$pdf->Image($signatureFile, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
+			// TCPDF has read the image: the temporary file goes, the signature stays in database for the next generation
+			dol_delete_file($signatureFile);
+		}
 		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 30, '', 1);
 
 //		$pdf->SetXY($posmiddle + 5, $posy);
@@ -860,7 +847,7 @@ class pdf_nerio extends ModelePDFTrackingNumber
 		$MAX_WIDTH 	= 800;
 		$MAX_HEIGHT = 500;
 
-		$upload_dir 	= $conf->doliletter->multidir_output[$conf->entity ?: $conf->entity] . '/envelope/' . $object->ref . '/trackingnumber/uploaded_file';
+		$upload_dir 	= $object->getOutputDir() . '/envelope/' . $object->ref . '/trackingnumber/uploaded_file';
 		$arrayoffiles 	= dol_dir_list($upload_dir);
 
 		if ( !empty( $arrayoffiles ) ) {
@@ -885,7 +872,6 @@ class pdf_nerio extends ModelePDFTrackingNumber
 					$height = round($scale * $height * $MM_IN_INCH / $DPI);
 
 					$pdf->AddPage($portrait ? 'P' : 'L');
-					$pagenb++;
 					$pdf->SetXY($this->marge_gauche, $this->marge_haute);
 
 					if (!$portrait) {
@@ -916,7 +902,6 @@ class pdf_nerio extends ModelePDFTrackingNumber
 						$portrait = $size['h'] > $size['w'] ? true : false;
 
 						$pdf->AddPage($portrait ? 'P' : 'L');
-						$pagenb++;
 						$pdf->SetXY($this->marge_gauche - 5, $this->marge_haute - 5);
 						$pdf->Cell(100, 0, $proofFilename, 1, 1, 'C', $pdf->useTemplate($templateIdx));
 					}
