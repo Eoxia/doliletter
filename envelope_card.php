@@ -1632,13 +1632,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 
 		$object->fetch_projet();
 
-		if (!in_array($object->element, array('societe', 'user', 'member')))
-		{
-			$ref = dol_sanitizeFileName($object->ref);
-			include_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-			$fileparams = dol_most_recent_file($diroutput.'/'.$ref, '');
-			$file = is_array($fileparams) ? $fileparams['fullname'] : '';
-		}
+		// The letter of the envelope, not the most recent file of its folder: the files of the Linked files tab go to the same
+		// folder, and one of them was attached instead of the letter
+		$letterFile = $object->getLetterFile();
+		$file       = $letterFile !== null ? $letterFile['fullname'] : '';
 
 		// Define output language
 		$outputlangs = $langs;
@@ -1667,16 +1664,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 			$topicmail = $outputlangs->trans($defaulttopic, '__REF__ (__REFCLIENT__)');
 		}
 
-		// Build document if it not exists
-		$allspecimen = true;
-		$fileslist = (is_array($fileparams) ? dol_dir_list($fileparams['path']) : array());
-			foreach($fileslist as $item) {
-				if (!preg_match('/specimen/', $item['name'])){
-					$allspecimen = false;
-				}
-			}
-
-		$needcreate = empty($file) || $allspecimen;
+		// Build the letter if the envelope has none yet: a file of the Linked files tab, alone in the folder, kept it from being
+		// generated
+		$needcreate = $letterFile === null;
 
 		$forcebuilddoc = true;
 		if ($forcebuilddoc)    // If there is no default value for supplier invoice, we do not generate file, even if modelpdf was set by a manual generation
@@ -1692,8 +1682,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					// The letter just generated, as in the generation of the card
 					$object->shareLastDocument($user);
 				}
-				$fileparams = dol_most_recent_file($diroutput.'/'.$ref, preg_quote($ref, '/').'[^\-]+');
-				$file = is_array($fileparams) ? $fileparams['fullname'] : '';
+				// The letter just generated
+				$letterFile = $object->getLetterFile();
+				$file       = $letterFile !== null ? $letterFile['fullname'] : '';
 			}
 		}
 
@@ -1813,22 +1804,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 
 	if ($action == 'letterpresend') {
 
-		// Build document if it not exists
-		$diroutput = $upload_dir . '/' . $object->element;
+		// Build the letter if the envelope has none yet, as the email form does: a file of the Linked files tab, alone in the
+		// folder, kept it from being generated
 		$outputlangs = $langs;
 
-		$fileparams = dol_most_recent_file($diroutput . '/' . $object->ref, '');
-		$file = is_array($fileparams) ? $fileparams['fullname'] : '';
-
-		$allspecimen = true;
-		$fileslist = (is_array($fileparams) ? dol_dir_list($fileparams['path']) : array());
-		foreach ($fileslist as $item) {
-			if (!preg_match('/specimen/', $item['name'])) {
-				$allspecimen = false;
-			}
-		}
-
-		$needcreate = empty($file) || $allspecimen;
+		$letterFile = $object->getLetterFile();
+		$file       = $letterFile !== null ? $letterFile['fullname'] : '';
+		$needcreate = $letterFile === null;
 
 		$forcebuilddoc = true;
 		if ($forcebuilddoc)    // If there is no default value for supplier invoice, we do not generate file, even if modelpdf was set by a manual generation
