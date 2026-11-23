@@ -80,10 +80,14 @@ switch ($type) {
 		$object         = new Envelope($db);
 		$signatory      = new EnvelopeSignature($db);
 		break;
+	default:
+		// Any other type left $signatory and $object unset: the next fetch() stopped the public page on a fatal
+		print $langs->trans('ErrorRecordNotFound');
+		exit;
 }
 
 if (dol_strlen($track_id) > 0) {
-	$signatory->fetch('', '', " AND signature_url = '" . $db->escape($track_id) . "'");
+	$signatory->fetch(0, '', " AND signature_url = '" . $db->escape($track_id) . "'");
 }
 // A link sent before it carried the entity opens the page in the first entity, where the signatory of an envelope of another
 // entity is not found: back to the link, in the entity of its signatory
@@ -129,18 +133,14 @@ if ($action == 'addSignature') {
 	if ( ! $error) {
 		$result = $signatory->update($user, false);
 		if ($result > 0) {
-			$signatory->setSigned($user, false);
+			$signatory->setSigned($user, 0);
 			$object->setStatusCommon($user, 5, 1); // No trigger code to give: without notrigger, CommonObject calls an empty one
 			$object->call_trigger('ENVELOPE_RECIPIENT_SIGN', $user);
-			if (method_exists($object, 'generateDocument'))
-			{
-				// The public page has no display option of the card: details, description and reference are shown
-				$result = $object->generateDocument('deimos', $langs, 0, 0, 0);
-
-				if ($result < 0) {
-					dol_print_error($db, $object->error, $object->errors);
-					exit();
-				}
+			// The public page has no display option of the card: details, description and reference are shown
+			$result = $object->generateDocument('deimos', $langs, 0, 0, 0);
+			if ($result < 0) {
+				dol_print_error($db, $object->error, $object->errors);
+				exit();
 			}
 			// The option is absent from llx_const until it is switched on once in the setup page
 			if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
@@ -164,8 +164,13 @@ if ($action == 'addSignature') {
 
 $form = new Form($db);
 
-$element = $signatory->fetchSignatory($signatory->role, $signatory->fk_object, $type);
-$element = array_shift($element);
+$element = $signatory->fetchSignatory($signatory->role, $signatory->fk_object);
+// fetchSignatory() gives an int when fetchAll() fails, and array_shift() on it was a fatal
+$element = (is_array($element) && !empty($element)) ? array_shift($element) : null;
+if (!is_object($element)) {
+	print $langs->trans('ErrorRecordNotFound');
+	exit;
+}
 // The success page finds the envelope from the link, as this page: by its id, it showed the documents of any envelope
 $url = dol_buildpath('/doliletter/public/signature/signature_success.php', 1) . '?document_name=' .  $object->ref . '-' . $object->label . '&track_id=' . urlencode($track_id) . '&type=' . $type . '&entity=' . ((int) ($object->entity ?: $conf->entity));
 
@@ -189,14 +194,12 @@ $zone = 'public';
 		<div class="informations">
 			<?php if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) : ?>
 				<div class="wpeo-gridlayout grid-2 file-generation">
-					<?php if ($type == 'envelope') : ?>
-						<?php // A draft only has its specimen: there is no document to share yet
-						$envelope_file = $object->getLastDocumentIndex();
-						?>
-						<?php if (is_object($envelope_file) && dol_strlen($envelope_file->share)) : ?>
-							<strong class="grid-align-middle"><?php echo $langs->trans("LinkedDocument"); ?></strong>
+					<?php // A draft only has its specimen: there is no document to share yet (the page only handles envelopes)
+					$envelope_file = $object->getLastDocumentIndex();
+					?>
+					<?php if (is_object($envelope_file) && dol_strlen($envelope_file->share)) : ?>
+						<strong class="grid-align-middle"><?php echo $langs->trans("LinkedDocument"); ?></strong>
 
-						<?php endif; ?>
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>
