@@ -539,6 +539,12 @@ class modDoliLetter extends DolibarrModules {
 			$this->grantModuleReadRights();
 		}
 
+		// Files of the Saturne objects validated while they stayed under (PROVn) : moved back once the module is
+		// enabled, from Home > Modules as well (Saturne#1939). A Saturne without the function leaves them
+		if ($result > 0 && function_exists('saturne_recover_prov_directories')) {
+			saturne_recover_prov_directories($this->name);
+		}
+
 		// Replayed on a fresh descriptor, so that the constants written above are taken into account.
 		doliletter_sync_spread_objects();
 
