@@ -434,7 +434,7 @@ if (empty($reshook)) {
 
 					// A draft only has its specimen: there is no document to share yet
 					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
+						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
 						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 						$ecmfile->share = getRandomPassword(true);
 						$ecmfile->update($user);
@@ -934,7 +934,7 @@ if (empty($reshook)) {
 						}
 						// Only specimens: no document to share, as in the generation of the card
 						if (dol_strlen($filename) > 0) {
-							$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
+							$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
 							require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 							$ecmfile->share = getRandomPassword(true);
 							$ecmfile->update($user);
@@ -1063,7 +1063,7 @@ if (empty($reshook)) {
 								}
 								// Only specimens: no document to share, as in the generation of the card
 								if (dol_strlen($filename) > 0) {
-									$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
+									$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
 									require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 									$ecmfile->share = getRandomPassword(true);
 									$ecmfile->update($user);
@@ -1143,7 +1143,7 @@ if (empty($reshook)) {
 								}
 								// Only specimens: no document to share, as in the generation of the card
 								if (dol_strlen($filename) > 0) {
-									$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
+									$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
 									require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 									$ecmfile->share = getRandomPassword(true);
 									$ecmfile->update($user);
@@ -1766,7 +1766,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					}
 					// Only specimens: no document to share, as in the generation of the card
 					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
+						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
 						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 						$ecmfile->share = getRandomPassword(true);
 						$ecmfile->update($user);
@@ -1934,7 +1934,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 					}
 					// Only specimens: no document to share, as in the generation of the card
 					if (dol_strlen($filename) > 0) {
-						$ecmfile->fetch(0, '', saturne_media_origin_path($fileurl), '', '', 'doliletter_envelope', $id);
+						$ecmfile->fetch(0, '', saturne_media_origin_path($filedir . '/' . $filename), '', '', 'doliletter_envelope', $id);
 						require_once DOL_DOCUMENT_ROOT . '/core/lib/security2.lib.php';
 						$ecmfile->share = getRandomPassword(true);
 						$ecmfile->update($user);

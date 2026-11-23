@@ -76,16 +76,12 @@ switch ($type) {
 	case 'envelope':
 		$object         = new Envelope($db);
 		$signatory      = new EnvelopeSignature($db);
+		// The envelope of the link, as the signature page finds it, and only once its recipient signed: by an id in the URL,
+		// the page listed the documents of any envelope
+		if (dol_strlen($track_id) > 0 && $signatory->fetch(0, '', " AND signature_url = '" . $db->escape($track_id) . "'") > 0 && $signatory->status == EnvelopeSignature::STATUS_SIGNED) {
+			$object->fetch($signatory->fk_object);
+		}
 		break;
-}
-
-// The envelope of the link, as the signature page finds it, and only once its recipient signed: by an id in the URL, the
-// page listed the documents of any envelope
-if (dol_strlen($track_id) > 0) {
-	$signatory->fetch('', '', " AND signature_url = '" . $db->escape($track_id) . "'");
-}
-if (!empty($signatory->id) && $signatory->status == EnvelopeSignature::STATUS_SIGNED) {
-	$object->fetch($signatory->fk_object);
 }
 
 /*

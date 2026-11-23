@@ -69,7 +69,8 @@ $track_id = GETPOST('track_id', 'alpha');
 $action   = GETPOST('action', 'aZ09');
 $url      = dirname($_SERVER['PHP_SELF']) . '/signature_success.php';
 $source   = GETPOST('source', 'aZ09');
-$type     = GETPOST('type', 'aZ09');
+// The links the Signature tab sent by email carried no type: envelope, the only one this page handles
+$type     = GETPOST('type', 'aZ09') ?: 'envelope';
 
 // Initialize technical objects
 $user = new User($db);
@@ -140,15 +141,15 @@ if ($action == 'addSignature') {
 					dol_print_error($db, $object->error, $object->errors);
 					exit();
 				}
-				// The option is absent from llx_const until it is switched on once in the setup page
-				if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
-					// Folder and index of the entity of the envelope: the first entity ones held another envelope of the same ref
-					$receiptFile = $object->getLastDocumentIndex('acknowledgementreceipt');
-					if ($receiptFile !== null) {
-						require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
-						$receiptFile->share = getRandomPassword(true);
-						$receiptFile->update($user);
-					}
+			}
+			// The option is absent from llx_const until it is switched on once in the setup page
+			if (getDolGlobalInt('DOLILETTER_SHOW_DOCUMENTS_ON_PUBLIC_INTERFACE')) {
+				// Folder and index of the entity of the envelope: the first entity ones held another envelope of the same ref
+				$receiptFile = $object->getLastDocumentIndex('acknowledgementreceipt');
+				if ($receiptFile !== null) {
+					require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
+					$receiptFile->share = getRandomPassword(true);
+					$receiptFile->update($user);
 				}
 			}
 			// Creation signature OK
