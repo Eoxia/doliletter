@@ -227,7 +227,9 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 			if (file_exists($dir))
 			{
 				$signatory = new EnvelopeSignature($this->db);
-				$receiver    = array_shift($signatory->fetchSignatory('E_RECEIVER', $object->id));
+				$receivers = $signatory->fetchSignatory('E_RECEIVER', $object->id);
+				// No active receiver: the receipt is written all the same, without its name, date and IP
+				$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 
 				// Add pdfgeneration hook
 				if (!is_object($hookmanager))
@@ -323,7 +325,7 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 				if ($object->status == 6) {
 					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('AcknowledgementReceiptTextLetter', $object->ref) . '<br>' . $letterSha, 0, 1);
 				} elseif ($object->status == 5) {
-					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('AcknowledgementReceiptTextMail', $receiver->firstname . ' ' . $receiver->lastname, is_array($letterFile) ? $letterFile['name'] : $object->ref, dol_print_date($receiver->signature_date, '', 'tzuserrel', $langs)) . ' ' . 'IP : ' . $receiver->ip . '<br>' . $letterSha, 0, 1);
+					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('AcknowledgementReceiptTextMail', trim(($receiver->firstname ?? '') . ' ' . ($receiver->lastname ?? '')), is_array($letterFile) ? $letterFile['name'] : $object->ref, dol_print_date($receiver->signature_date ?? '', '', 'tzuserrel', $langs)) . ' ' . 'IP : ' . ($receiver->ip ?? '') . '<br>' . $letterSha, 0, 1);
 				}
 
 				$nexY = $pdf->GetY();
