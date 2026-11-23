@@ -80,7 +80,9 @@ switch ($type) {
 		break;
 }
 
-$signatory->fetch('', '', " AND signature_url = '" . $db->escape($track_id) . "'");
+if (dol_strlen($track_id) > 0) {
+	$signatory->fetch('', '', " AND signature_url = '" . $db->escape($track_id) . "'");
+}
 // A link sent before it carried the entity opens the page in the first entity, where the signatory of an envelope of another
 // entity is not found: back to the link, in the entity of its signatory
 if (empty($signatory->id) && dol_strlen($track_id) > 0 && !GETPOSTISSET('entity')) {
@@ -97,6 +99,12 @@ if (empty($signatory->id) || $object->fetch($signatory->fk_object) <= 0) {
 	exit;
 }
 
+// Before the actions: with the interface switched off, signing through the action stayed possible
+if (empty($conf->global->DOLILETTER_SIGNATURE_ENABLE_PUBLIC_INTERFACE)) {
+	print $langs->trans('SignaturePublicInterfaceForbidden');
+	exit;
+}
+
 /*
  * Actions
  */
@@ -107,16 +115,14 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 
 // Action to add record
 if ($action == 'addSignature') {
-	$signatoryID  = GETPOST('signatoryID');
 	$request_body = file_get_contents('php://input');
 	$client_ip = $_SERVER['REMOTE_ADDR'];
 
-	$signatory->fetch($signatoryID);
+	// The signatory of the link and its envelope, loaded above: the signatoryID the script sends is not trusted, it let a
+	// visitor sign for any signatory
 	$signatory->signature      = $request_body;
 	$signatory->signature_date = dol_now();
 	$signatory->ip = $client_ip;
-
-	$object->fetch($signatory->fk_object);
 
 	if ( ! $error) {
 		$result = $signatory->update($user, false);
@@ -160,14 +166,10 @@ if ($action == 'addSignature') {
 
 $form = new Form($db);
 
-if (empty($conf->global->DOLILETTER_SIGNATURE_ENABLE_PUBLIC_INTERFACE)) {
-	print $langs->trans('SignaturePublicInterfaceForbidden');
-	exit;
-}
-
 $element = $signatory->fetchSignatory($signatory->role, $signatory->fk_object, $type);
 $element = array_shift($element);
-$url = dol_buildpath('/doliletter/public/signature/signature_success.php', 1) . '?document_name=' .  $object->ref . '-' . $object->label . '&id=' . $object->id . '&type=' . $type . '&entity=' . ((int) ($object->entity ?: $conf->entity));
+// The success page finds the envelope from the link, as this page: by its id, it showed the documents of any envelope
+$url = dol_buildpath('/doliletter/public/signature/signature_success.php', 1) . '?document_name=' .  $object->ref . '-' . $object->label . '&track_id=' . urlencode($track_id) . '&type=' . $type . '&entity=' . ((int) ($object->entity ?: $conf->entity));
 
 if (dol_strlen($element->signature)) {
 	header("Location: ".$url);
