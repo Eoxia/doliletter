@@ -32,6 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/modules/contract/modules_contract.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
 
@@ -197,7 +198,8 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 				$file = $dir."/SPECIMEN.pdf";
 			} else {
 				$objectref = dol_sanitizeFileName($object->ref);
-				$dir = $conf->doliletter->multidir_output[$conf->entity]."/envelope/".$objectref .'/acknowledgementreceipt';
+				// Folder of the entity of the envelope: the receipt is written by the public signature page, not in a session
+				$dir = $object->getOutputDir() . '/envelope/' . $objectref . '/acknowledgementreceipt';
 			}
 			if (!file_exists($dir))
 			{
@@ -225,7 +227,9 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 			if (file_exists($dir))
 			{
 				$signatory = new EnvelopeSignature($this->db);
-				$receiver    = array_shift($signatory->fetchSignatory('E_RECEIVER', $object->id));
+				$receivers = $signatory->fetchSignatory('E_RECEIVER', $object->id);
+				// No active receiver: the receipt is written all the same, without its name, date and IP
+				$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 
 				// Add pdfgeneration hook
 				if (!is_object($hookmanager))
@@ -313,19 +317,15 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 
 				$pdf->SetFont('', '', $default_font_size - 1);
 
-				require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmdirectory.class.php';
-				require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
-				$ecmfile = new EcmFiles($this->db);
-				$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/';
-				$filelist = dol_dir_list($filedir, 'files');
-				$filepath = preg_split('/documents\//',$filelist[0]['fullname'])[1];
-
-				$ecmfile->fetch(0, '', $filepath, '', '', 'doliletter_envelope', $object->id);
+				// Letter received: the last one generated, not the first file of the folder (specimen, older letter, linked file).
+				// None once deleted from the Linked files tab: the receipt says so instead of an empty hash
+				$letterFile = $object->getLetterFile();
+				$letterSha  = is_array($letterFile) ? $langs->trans('ReceivedDocumentSignedSha', $letterFile['hash']) : $langs->trans('ReceivedDocumentShaNotAvailable');
 
 				if ($object->status == 6) {
-					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('AcknowledgementReceiptTextLetter', $object->ref) . '<br>' . $langs->trans('ReceivedDocumentSignedSha', $ecmfile->label), 0, 1);
+					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('AcknowledgementReceiptTextLetter', $object->ref) . '<br>' . $letterSha, 0, 1);
 				} elseif ($object->status == 5) {
-					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('AcknowledgementReceiptTextMail', $receiver->firstname . ' ' . $receiver->lastname, preg_replace('/AR_/', '', $filename), dol_print_date($receiver->signature_date)) . ' ' . 'IP : ' . $receiver->ip . '<br>' . $langs->trans('ReceivedDocumentSignedSha', $ecmfile->label), 0, 1);
+					$pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top - 1, $langs->trans('AcknowledgementReceiptTextMail', trim(($receiver->firstname ?? '') . ' ' . ($receiver->lastname ?? '')), is_array($letterFile) ? $letterFile['name'] : $object->ref, dol_print_date($receiver->signature_date ?? '', '', 'tzuserrel', $langs)) . ' ' . 'IP : ' . ($receiver->ip ?? '') . '<br>' . $letterSha, 0, 1);
 				}
 
 				$nexY = $pdf->GetY();
@@ -507,38 +507,18 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 						$bottomlasttab = $this->page_hauteur - $heightforfooter - $heightforfooter + 1;
 					}
 				}
-				if ($conf->global->DOLILETTER_DELETE_PUBLIC_DOWNLOAD_LINKS_AFTER_SIGNATURE) {
-					global $db;
-					require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmdirectory.class.php';
-					require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
-					$ecmfile = new EcmFiles($db);
-
-					//Delete envelope shared link
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/';
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = $filelist[0]['name'];
-
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/'.$filename, '', '', 'doliletter_envelope', $object->id);
-					$ecmfile->share = '';
-					$ecmfile->update($user);
-
-					//Delete sending proof shared link
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/sendingproof/';
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = $filelist[0]['name'];
-
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/sendingproof/'.$filename, '', '', 'doliletter_envelope', $object->id);
-					$ecmfile->share = '';
-					$ecmfile->update($user);
-
-					//Delete acknowledgement receipt shared link
-					$filedir = $conf->doliletter->dir_output.'/'.$object->element.'/'.$object->ref . '/acknowledgementreceipt/';
-					$filelist = dol_dir_list($filedir, 'files');
-					$filename = $filelist[0]['name'];
-
-					$ecmfile->fetch(0, '', 'doliletter/envelope/'.$object->ref.'/acknowledgementreceipt/'.$filename, '', '', 'doliletter_envelope', $object->id);
-					$ecmfile->share = '';
-					$ecmfile->update($user);
+				// The option is absent from llx_const until it is switched on once in the setup page
+				if (getDolGlobalInt('DOLILETTER_DELETE_PUBLIC_DOWNLOAD_LINKS_AFTER_SIGNATURE')) {
+					// Delete the shared links of the envelope, of the sending proof and of the acknowledgement receipt: the
+					// documents the card shares, in the entity of the envelope. A folder may hold no file: no sending proof for an
+					// envelope sent by mail, receipt not written yet at its first generation
+					foreach (array('', 'sendingproof', 'acknowledgementreceipt') as $subdir) {
+						$ecmfile = $object->getLastDocumentIndex($subdir);
+						if ($ecmfile !== null) {
+							$ecmfile->share = '';
+							$ecmfile->update($user);
+						}
+					}
 				}
 
 				$this->_pagefoot($pdf, $object, $outputlangs);
@@ -568,9 +548,6 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 					@chmod($file, octdec($conf->global->MAIN_UMASK));
 
 				$this->result = array('fullpath'=>$file);
-				$signatory = new EnvelopeSignature($this->db);
-				$signatory->deleteSignatoriesSignatures($object->id);
-
 				return 1;
 			} else {
 				$this->error = $langs->trans("ErrorCanNotCreateDir", $dir);
@@ -636,6 +613,7 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 	 * @param   int         $tab_top        tab height position
 	 * @param   int         $tab_height     tab height
 	 * @param   Translate   $outputlangs    Object language for output
+	 * @param   Envelope    $object         Envelope
 	 * @return void
 	 */
 	protected function tabSignature(&$pdf, $tab_top, $tab_height, $outputlangs, $object)
@@ -643,24 +621,15 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 		global $conf;
 
 		$signatory = new EnvelopeSignature($this->db);
-		$receiver    = array_shift($signatory->fetchSignatory('E_RECEIVER', $object->id));
+		$receivers = $signatory->fetchSignatory('E_RECEIVER', $object->id);
+		$receiver  = (is_array($receivers) && !empty($receivers)) ? array_shift($receivers) : null;
 
-//		$recipient = array_shift($signatory->fetchSignatory('E_SOCIETY', $object->id));
-		if (dol_strlen($receiver->signature) > 0) {
-			$tempdir = $conf->doliletter->multidir_output[isset($object->entity) ? $object->entity : 1] . '/temp/';
-
-			//Signatures
-			if (!empty($receiver) && $receiver > 0) {
-				$encoded_image = explode(",",  $receiver->signature)[1];
-				$decoded_image = base64_decode($encoded_image);
-				file_put_contents($tempdir."signature.png", $decoded_image);
-				$test = $tempdir."signature.png";
-			}
-		}
-
-		$file_list = dol_dir_list(DOL_DATA_ROOT . '/doliletter/' . $object->element . '/' . $object->ref, 'files');
-		if ( is_array($file_list[0]) ) {
-			$filename = $file_list[0]['relativename'];
+		// Data URL or bare base64: the frame stays empty for a row that holds no image, such as the text DocumentGenerated
+		// that older versions wrote in place of the signature once a document was generated
+		$signatureFile = '';
+		if (is_object($receiver)) {
+			$tempdir       = $object->getOutputDir() . '/temp/';
+			$signatureFile = DoliletterSignature::writeSignatureImage($receiver->signature, $tempdir . 'signature.png');
 		}
 
 		$pdf->SetDrawColor(128, 128, 128);
@@ -674,7 +643,11 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 //		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 5,  $outputlangs->transnoentities('AcknowledgementReceiptTextMail', $receiver->firstname . ' ' . $receiver->lastname, preg_replace('/AR_/', '', $filename), 'mail', dol_print_date($receiver->signature_date), $receiver->ip ), 0, 'L', 0);
 
 		$pdf->SetXY($this->marge_gauche, $posy + 10);
-		$pdf->Image($test, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
+		if ($signatureFile !== '') {
+			$pdf->Image($signatureFile, $this->marge_gauche, $posy - 5, 50, 50); // width=0 (auto)
+			// TCPDF has read the image: the temporary file goes, the signature stays in database for the next generation
+			dol_delete_file($signatureFile);
+		}
 		$pdf->MultiCell($posmiddle - $this->marge_gauche - 5, 30, '', 1);
 
 //		$pdf->SetXY($posmiddle + 5, $posy);
@@ -887,7 +860,7 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 		$MAX_WIDTH 	= 800;
 		$MAX_HEIGHT = 500;
 
-		$upload_dir 	= $conf->doliletter->multidir_output[$conf->entity ?: $conf->entity] . '/envelope/' . $object->ref . '/acknowledgementreceipt/uploaded_file';
+		$upload_dir 	= $object->getOutputDir() . '/envelope/' . $object->ref . '/acknowledgementreceipt/uploaded_file';
 		$arrayoffiles 	= dol_dir_list($upload_dir);
 
 		if ( !empty( $arrayoffiles ) ) {
@@ -912,7 +885,6 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 					$height = round($scale * $height * $MM_IN_INCH / $DPI);
 
 					$pdf->AddPage($portrait ? 'P' : 'L');
-					$pagenb++;
 					$pdf->SetXY($this->marge_gauche, $this->marge_haute);
 
 					if (!$portrait) {
@@ -943,7 +915,6 @@ class pdf_deimos extends ModelePDFAcknowledgementReceipt
 						$portrait = $size['h'] > $size['w'] ? true : false;
 
 						$pdf->AddPage($portrait ? 'P' : 'L');
-						$pagenb++;
 						$pdf->SetXY($this->marge_gauche - 5, $this->marge_haute - 5);
 						$pdf->Cell(100, 0, $proofFilename, 1, 1, 'C', $pdf->useTemplate($templateIdx));
 					}

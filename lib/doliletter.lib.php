@@ -22,6 +22,48 @@
  */
 
 /**
+ * Register the PDF attendance sheet, the standard model of DoliLetter, on an instance updated without
+ * reactivating the module: only the activation registers the document models and sets their default, so
+ * the model stayed disabled in the Documents setup and was missing from the models of the Diffusion tab.
+ *
+ * Done once: nothing happens as soon as the default model constants are set, so a model the user
+ * disabled or replaced since is left as it is.
+ *
+ * @return void
+ */
+function doliletter_register_signin_sheet_model()
+{
+	global $conf, $db;
+
+	$model    = 'signinsheetdocument_FE_Doliletter';
+	$defaults = [
+		// Models of the attendance sheet in the Documents setup tab
+		'signinsheetdocument' => ['const' => 'DOLILETTER_SIGNINSHEETDOCUMENT_DEFAULT_MODEL', 'label' => ''],
+		// Models offered in the Diffusion tab of an object
+		'signinsheet'         => ['const' => 'DOLILETTER_SIGNINSHEET_DEFAULT_MODEL', 'label' => 'SigninSheetDocument'],
+	];
+
+	foreach ($defaults as $type => $default) {
+		if (getDolGlobalString($default['const']) !== '') {
+			continue;
+		}
+
+		require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
+
+		$sql   = 'SELECT rowid FROM ' . MAIN_DB_PREFIX . "document_model WHERE nom = '" . $db->escape($model) . "' AND type = '" . $db->escape($type) . "' AND entity = " . ((int) $conf->entity);
+		$resql = $db->query($sql);
+		if (!$resql) {
+			continue;
+		}
+		if ($db->num_rows($resql) == 0 && addDocumentModel($model, $type, $default['label'], '') <= 0) {
+			continue;
+		}
+
+		dolibarr_set_const($db, $default['const'], $model, 'chaine', 0, '', $conf->entity);
+	}
+}
+
+/**
  * Prepare admin pages header
  *
  * @return array
@@ -31,6 +73,9 @@ function doliletter_admin_prepare_head()
 	global $langs, $conf;
 
 	$langs->load("doliletter@doliletter");
+
+	// The Documents setup page lists the models right after this header
+	doliletter_register_signin_sheet_model();
 
 	$h = 0;
 	$head = array();
