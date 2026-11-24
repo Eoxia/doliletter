@@ -21,6 +21,7 @@
  * \brief   Documents featured on the spread public page (the document of the object to read), shown
  *          in full in the page. First part of the reading step, under the success screen once signed.
  *          A file the browser cannot show (text document, spreadsheet…) gets a card to download it.
+ *          A PDF on a phone or a tablet gets a card opening it in the reader of the device.
  *          Expects: $linkedFilesFavorite, files on the disk only (doliletter_spread_ecm_file_is_on_disk()).
  */
 
@@ -131,6 +132,9 @@ $featuredFileKinds = [
 
 <div class="spread-featured-documents">
 <?php
+// Telephone ou tablette, d'apres le navigateur (main.inc.php)
+$featuredOnTouchDevice = !empty($conf->browser->layout) && in_array($conf->browser->layout, ['phone', 'tablet']);
+
 foreach ($linkedFilesFavorite as $file) {
     $fileMimeType = dol_mimetype($file->filename);
     $fileUrl      = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share);
@@ -158,12 +162,13 @@ foreach ($linkedFilesFavorite as $file) {
         }
     }
 
-    $fileCard  = '<div class="spread-featured-file">';
-    $fileCard .= '<span class="spread-featured-file__icon spread-featured-file__icon--' . $fileKind . '"><i class="fas ' . $featuredFileKinds[$fileKind]['icon'] . '"></i></span>';
-    $fileCard .= '<span class="spread-featured-file__info">';
-    $fileCard .= '<span class="spread-featured-file__name">' . dol_escape_htmltag($file->filename) . '</span>';
-    $fileCard .= '<span class="spread-featured-file__meta">' . dol_escape_htmltag(implode(' · ', $fileMeta)) . '</span>';
-    $fileCard .= '</span>';
+    $fileCardInfo  = '<span class="spread-featured-file__icon spread-featured-file__icon--' . $fileKind . '"><i class="fas ' . $featuredFileKinds[$fileKind]['icon'] . '"></i></span>';
+    $fileCardInfo .= '<span class="spread-featured-file__info">';
+    $fileCardInfo .= '<span class="spread-featured-file__name">' . dol_escape_htmltag($file->filename) . '</span>';
+    $fileCardInfo .= '<span class="spread-featured-file__meta">' . dol_escape_htmltag(implode(' · ', $fileMeta)) . '</span>';
+    $fileCardInfo .= '</span>';
+
+    $fileCard  = '<div class="spread-featured-file">' . $fileCardInfo;
     $fileCard .= '<a class="spread-featured-file__download" href="' . $fileUrl . '" download><i class="fas fa-download"></i>' . dol_escape_htmltag($langs->transnoentities('Download')) . '</a>';
     $fileCard .= '</div>';
 
@@ -171,7 +176,16 @@ foreach ($linkedFilesFavorite as $file) {
         <video src="<?php echo $fileUrl; ?>" controls width="100%" height="600px">
             <?php echo $langs->trans('SpreadVideoNotSupported'); ?>
         </video>
-    <?php } elseif (in_array($fileMimeType, ['application/pdf', 'text/plain']) || image_format_supported($file->filename) >= 0) {
+    <?php } elseif ($fileMimeType == 'application/pdf' && $featuredOnTouchDevice) {
+        // Sur telephone et tablette, un PDF dans un <object> ne s'affiche pas : Chrome Android n'a pas de
+        // lecteur integre (seule la carte de repli apparaissait) et Safari iOS n'en montre que la premiere
+        // page. La carte l'ouvre donc dans le lecteur de l'appareil, toutes les pages, dans un nouvel
+        // onglet pour garder la page de diffusion. attachment=0 : voir le cadre ci-dessous.
+        echo '<div class="spread-featured-file">' . $fileCardInfo;
+        echo '<a class="spread-featured-file__download" href="' . $fileUrl . '&attachment=0" target="_blank" rel="noopener">';
+        echo '<i class="fas fa-book-open"></i>' . dol_escape_htmltag($langs->transnoentities('SpreadReadDocument')) . '</a>';
+        echo '</div>';
+    } elseif (in_array($fileMimeType, ['application/pdf', 'text/plain']) || image_format_supported($file->filename) >= 0) {
         // L'URL d'un <object> se donne dans data : avec data-src le navigateur
         // n'appelle jamais le document et le cadre reste vide.
         // attachment=0 : sans lui document.php repond Content-Disposition: attachment

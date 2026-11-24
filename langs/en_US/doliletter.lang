@@ -281,6 +281,7 @@ SpreadFileKindSheet = Spreadsheet
 SpreadFileKindSlides = Presentation
 SpreadFileKindArchive = Archive
 SpreadFileKindOther = File
+SpreadReadDocument = Read the document
 
 # Spread signatories
 SpreadSignatoriesTitle = Spread signatories

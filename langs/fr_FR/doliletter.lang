@@ -291,6 +291,7 @@ SpreadFileKindSheet             = Tableur
 SpreadFileKindSlides            = Présentation
 SpreadFileKindArchive           = Archive
 SpreadFileKindOther             = Fichier
+SpreadReadDocument              = Lire le document
 
 # Signataires de la diffusion
 SpreadSignatoriesTitle          = Signataires de la diffusion
