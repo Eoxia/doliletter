@@ -168,6 +168,7 @@ $ppRecapProtections   = [];
 $certificationOptions = [];
 $ppCertBaseDir        = '';
 $ppCertSubDir         = '';
+$ppUploadBase         = '';
 $ppTexts              = [];
 if ($isDigiriskRiskObject) {
     saturne_load_langs(['digiriskdolibarr@digiriskdolibarr']);
@@ -280,18 +281,28 @@ if ($isDigiriskRiskObject) {
     $ppCertBaseDir = $ppUploadBase . '/' . $ppCertSubDir;
 }
 
-// Signatory the ?sign= token points to, resolved before the actions so a visitor can only answer for themselves
+// Signatory the ?sign= token points to, resolved before the actions so a visitor can only answer for themselves.
+// Looked for among the people of this spread only: the signatures of every Saturne module share one table
 $signTokenSignatoryId = 0;
-if (!empty($sign)) {
+if (!empty($sign) && $attendanceSheet->id > 0) {
     $tokenSignatory = new SaturneSignature($db);
-    $tokenSignatory->fetch(0, '', ' AND t.signature_url = "' . $db->escape($sign) . '"');
-    $signTokenSignatoryId = ($tokenSignatory->id > 0) ? $tokenSignatory->id : 0;
+    $tokenSignatory->fetch(0, '', ' AND t.signature_url = "' . $db->escape($sign) . '" AND t.object_type = "' . $db->escape($attendanceSheet->element) . '" AND t.fk_object = ' . ((int) $attendanceSheet->id));
+    $signTokenSignatoryId = ($tokenSignatory->id > 0) ? (int) $tokenSignatory->id : 0;
 }
+
+// A user managing the spread adds, changes and removes its people, and has them sign from the attendee table
+$isSpreadManager = $isLogged && $permissiontoadd;
 
 // The signature is only created once the person is known: the user chosen for an internal signatory,
 // the identity filled in for an external one. Created at the first click, an empty signature showed
 // as "Unknown" in the list of signatories and stayed there when the addition was given up.
 if ($action == 'add_spread_user') {
+    // Offered by the attendee table only, which the page shows to the users managing the spread
+    if (!$isSpreadManager) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorNotAllowed')) . '">';
+        exit;
+    }
+
     $type = GETPOST('type', 'aZ09');
 
     // One person at a time: the add buttons are greyed out while someone has not signed yet, and the
@@ -394,7 +405,12 @@ if ($action == 'register_public_signatory') {
     $lastname  = dol_string_nohtmltag(trim($data['lastname'] ?? ''));
     $email     = dol_string_nohtmltag(trim($data['email'] ?? ''));
     $phone     = dol_string_nohtmltag(trim($data['phone'] ?? ''));
-    $tmpSignatoryId = $data['tmp_signatory_id'] ?? null;
+    // Random id of the uploads made before registering ('tmp_' . uniqid()): it names a folder moved below,
+    // anything else is ignored
+    $tmpSignatoryId = (string) ($data['tmp_signatory_id'] ?? '');
+    if (!preg_match('/^tmp_[A-Za-z0-9_]+$/', $tmpSignatoryId)) {
+        $tmpSignatoryId = '';
+    }
     $notConcernedCodes = $data['not_concerned_codes'] ?? [];
 
     $extFieldsConfig = doliletter_spread_get_ext_fields_config();
@@ -444,6 +460,12 @@ if ($action == 'register_public_signatory') {
     }
     if (is_array($alreadyRegistered) && !empty($alreadyRegistered)) {
         $tmpSignatory = current($alreadyRegistered);
+        // An email alone does not prove who is typing it: the link of someone who already signed, which
+        // shows their answers and documents, is not handed out again
+        if (!empty($tmpSignatory->signature)) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('SpreadEmailAlreadySigned')) . '">';
+            exit;
+        }
     } else {
         $tmpSignatory->element_id    = 0;
         $tmpSignatory->element_type  = DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE;
@@ -503,11 +525,13 @@ if ($action == 'register_public_signatory') {
     exit;
 }
 
+// The three actions below are offered by the attendee table only, which the page shows to the users managing
+// the spread, and on people who have not signed yet: a given signature is never removed or renamed from here
 if ($action == 'remove_spread_user') {
     $signatory_id = GETPOSTINT('signatory_id');
 
     $signatory->fetch($signatory_id);
-    if ($signatory->id > 0) {
+    if ($isSpreadManager && doliletter_spread_signatory_belongs($signatory, $attendanceSheet) && empty($signatory->signature)) {
         $result = $signatory->delete($user);
     }
     $action = '';
@@ -516,9 +540,8 @@ if ($action == 'remove_spread_user') {
 if ($action == 'update_spread_user') {
     $signatory_id = GETPOSTINT('signatory_id');
     $signatory->fetch($signatory_id);
-    if ($signatory->id > 0) {
-        $tmpUser = new User($db);
-        $tmpUser->fetch(GETPOSTINT('user_id'));
+    $tmpUser = new User($db);
+    if ($isSpreadManager && doliletter_spread_signatory_belongs($signatory, $attendanceSheet) && empty($signatory->signature) && $tmpUser->fetch(GETPOSTINT('user_id')) > 0) {
         $attendanceSheet->context = [
             'user' => $tmpUser->firstname . ' ' . $tmpUser->lastname,
             'old_user' => $signatory->element_id ? $signatory->firstname . ' ' . $signatory->lastname : ''
@@ -539,7 +562,7 @@ if ($action == 'update_spread_user') {
 if ($action == 'update_spread_user_external') {
     $signatory_id = GETPOSTINT('signatory_id');
     $signatory->fetch($signatory_id);
-    if ($signatory->id > 0 && $signatory->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE) {
+    if ($isSpreadManager && doliletter_spread_signatory_belongs($signatory, $attendanceSheet) && empty($signatory->signature) && $signatory->element_type == DOLILETTER_SPREAD_EXTERNAL_ELEMENT_TYPE) {
         $signatory->firstname = GETPOST('first_name', 'alphanohtml');
         $signatory->lastname = GETPOST('last_name', 'alphanohtml');
         $signatory->email = GETPOST('email', 'alphanohtml');
@@ -562,11 +585,8 @@ if ($action == 'set_cert_not_concerned') {
     $tmpSignatory = new DoliletterSpreadSignature($db);
     $tmpSignatory->fetch($signatoryId);
 
-    $belongsToSpread = $tmpSignatory->id > 0 && $tmpSignatory->fk_object == $attendanceSheet->id && $tmpSignatory->object_type == $attendanceSheet->element;
     // Without a session the ?sign= token is the only proof of identity: answer for yourself only
-    $isOwnAnswer = $isLogged || ($signTokenSignatoryId > 0 && $signTokenSignatoryId == $tmpSignatory->id);
-
-    if (!$belongsToSpread || !$isOwnAnswer || dol_strlen($certCode) == 0) {
+    if (!doliletter_spread_can_answer_for($tmpSignatory, $attendanceSheet, $isSpreadManager, $signTokenSignatoryId) || dol_strlen($certCode) == 0) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
         exit;
     }
@@ -590,12 +610,10 @@ if ($action == 'acknowledge_risk') {
     $tmpSignatory = new DoliletterSpreadSignature($db);
     $tmpSignatory->fetch($signatoryId);
 
-    $belongsToSpread = $tmpSignatory->id > 0 && $tmpSignatory->fk_object == $attendanceSheet->id && $tmpSignatory->object_type == $attendanceSheet->element;
     // Without a session the ?sign= token is the only proof of identity: answer for yourself only
-    $isOwnAnswer = $isLogged || ($signTokenSignatoryId > 0 && $signTokenSignatoryId == $tmpSignatory->id);
     $isKnownRisk = in_array($riskCategory, array_map('intval', array_column($ppRisks, 'category')), true);
 
-    if (!$belongsToSpread || !$isOwnAnswer || !$isKnownRisk) {
+    if (!doliletter_spread_can_answer_for($tmpSignatory, $attendanceSheet, $isSpreadManager, $signTokenSignatoryId) || !$isKnownRisk) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
         exit;
     }
@@ -612,6 +630,19 @@ if ($action == 'acknowledge_risk') {
 if ($action == 'validate_signature') {
     $signatory_id = GETPOSTINT('signatory_id');
     $signatory->fetch($signatory_id);
+
+    // The person of the ?sign= link signs for themselves; without a link, only the attendee table signs, on
+    // the device of a user managing the spread. Never another spread's signatory, or another module's
+    if (!doliletter_spread_can_answer_for($signatory, $attendanceSheet, $isSpreadManager, $signTokenSignatoryId)) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorNotAllowed')) . '">';
+        exit;
+    }
+    // A signature is final: signing again would replace it, and the proof taken with it
+    if (!empty($signatory->signature) || $signatory->status == $signatory::STATUS_SIGNED) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('SpreadSignatoryAlreadySigned')) . '">';
+        exit;
+    }
+
     if ($signatory->id > 0) {
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -681,7 +712,8 @@ if ($action == 'validate_signature') {
 }
 
 if ($action == 'save_public_note') {
-    if ($attendanceSheet->id > 0) {
+    // The note of the attendance sheet is the managers' one: the page only shows its editor to them
+    if ($isSpreadManager && $attendanceSheet->id > 0) {
         $data = json_decode(file_get_contents('php://input'), true);
         $note = $data['note_public'] ?? '';
 
@@ -701,13 +733,12 @@ if (($action == 'uploadPhoto' || $subaction == 'uploadPhoto') && !empty($conf->g
     $mediaModuleName = dol_strtolower(GETPOST('module_name', 'alpha'));
     $mediaSubDir     = GETPOST('sub_dir', 'alpha');
 
-    if (!empty($mediaModuleName) && strpos($mediaSubDir, '..') === false) {
-        $uploadDir = !empty($conf->$mediaModuleName->dir_output)
-            ? $conf->$mediaModuleName->dir_output
-            : $conf->ecm->dir_output . '/' . $mediaModuleName;
-        if (!empty($mediaSubDir)) {
-            $uploadDir .= '/' . $mediaSubDir;
-        }
+    // The only photos this page takes are those of a certification asked to a person of the object spread
+    // here (Digirisk media block), by that person or a user managing the spread: no other module or folder
+    $photoSignatory = ($mediaModuleName === 'digiriskdolibarr' && !empty($ppCertSubDir)) ? doliletter_spread_get_cert_folder_signatory($mediaSubDir, $ppCertSubDir, false) : '';
+
+    if (doliletter_spread_can_write_cert_folder($db, $photoSignatory, $attendanceSheet, $isSpreadManager, $signTokenSignatoryId)) {
+        $uploadDir = $ppUploadBase . '/' . $mediaSubDir;
 
         if (!dol_is_dir($uploadDir)) {
             dol_mkdir($uploadDir);
@@ -745,12 +776,12 @@ if (($action == 'uploadPhoto' || $subaction == 'uploadPhoto') && !empty($conf->g
 if (($action == 'uploadFile' || $action == 'deleteFile') && !empty($ppCertSubDir)) {
     require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
-    // <signatory id or tmp_ id of a registration in progress>/<certification code>/documents
-    $docSubDir    = GETPOST('sub_dir', 'alpha');
-    $docSubPrefix = $ppCertSubDir . '/';
-    $docMatches   = [];
-    if (strpos($docSubDir, $docSubPrefix) === 0 && strpos($docSubDir, '..') === false
-        && preg_match('/^(\d+|tmp_[A-Za-z0-9_]+)\/[^\/]+\/' . DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR . '$/', substr($docSubDir, strlen($docSubPrefix)), $docMatches)) {
+    // <signatory id or tmp_ id of a registration in progress>/<certification code>/documents, written by that
+    // person or a user managing the spread only
+    $docSubDir       = GETPOST('sub_dir', 'alpha');
+    $docSubPrefix    = $ppCertSubDir . '/';
+    $docSignatory    = doliletter_spread_get_cert_folder_signatory($docSubDir, $ppCertSubDir, true);
+    if (doliletter_spread_can_write_cert_folder($db, $docSignatory, $attendanceSheet, $isSpreadManager, $signTokenSignatoryId)) {
         $docDir = $ppCertBaseDir . '/' . substr($docSubDir, strlen($docSubPrefix));
 
         if ($action == 'uploadFile' && getDolGlobalInt('MAIN_UPLOAD_DOC')) {
@@ -780,20 +811,17 @@ if (($action == 'uploadFile' || $action == 'deleteFile') && !empty($ppCertSubDir
                 dol_add_file_process($docDir, 0, 1, 'userfile', '', null, '', 0);
             }
         } elseif ($action == 'deleteFile') {
-            // Removing is kept to the person answering: a logged in user, the signatory of the ?sign=
-            // link, or a registration still in progress in this browser
-            $docSignatory = $docMatches[1];
-            if ($isLogged || strpos($docSignatory, 'tmp_') === 0 || ($signTokenSignatoryId > 0 && (int) $docSignatory === (int) $signTokenSignatoryId)) {
-                $docName = dol_sanitizeFileName(GETPOST('filename', 'alphanohtml'));
-                if (dol_strlen($docName) && dol_is_file($docDir . '/' . $docName)) {
-                    dol_delete_file($docDir . '/' . $docName);
-                }
+            $docName = dol_sanitizeFileName(GETPOST('filename', 'alphanohtml'));
+            if (dol_strlen($docName) && dol_is_file($docDir . '/' . $docName)) {
+                dol_delete_file($docDir . '/' . $docName);
             }
         }
     }
     $action = '';
 }
 
+// Signature the quick signature hands to send_email below, the only one it may mail without a manager
+$quickSignSignatoryId = 0;
 if ($action == 'send_quick_sign_email') {
     if (empty($conf->global->DOLILETTER_SPREAD_QUICK_SIGN)) {
         echo '<input type="hidden" id="error" value="' . $langs->transnoentities('ErrorNotAllowed') . '">';
@@ -813,34 +841,58 @@ if ($action == 'send_quick_sign_email') {
         exit;
     }
 
-    $tmpSignatory = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
-    $tmpSignatory->element_id     = $tmpUser->id;
-    $tmpSignatory->firstname      = $tmpUser->firstname;
-    $tmpSignatory->lastname       = $tmpUser->lastname;
-    $tmpSignatory->element_type   = 'user';
-    $tmpSignatory->role           = '';
-    $tmpSignatory->object_type    = $attendanceSheet->element;
-    $tmpSignatory->fk_object      = $attendanceSheet->id;
-    $tmpSignatory->module_name    = $moduleNameLowerCase;
-    $tmpSignatory->status         = $tmpSignatory::STATUS_PENDING_SIGNATURE;
-    $tmpSignatory->signature_url  = generate_random_id();
-
-    $result = $tmpSignatory->create($user);
+    // The signature goes on the attendance sheet of the spread, which a first quick signature creates: without
+    // it the signature belonged to no spread
+    $result = doliletter_spread_ensure_attendance_sheet($attendanceSheet, $objectsMetadata, $objectType, (int) $id, $user);
     if ($result < 0) {
-        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-03', 'ErrorSpreadSubjectQuickSign', doliletter_spread_get_object_error($tmpSignatory, $langs), __FILE__, __LINE__, $langs)) . '">';
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-03', 'ErrorSpreadSubjectQuickSign', doliletter_spread_get_object_error($attendanceSheet, $langs), __FILE__, __LINE__, $langs)) . '">';
         exit;
     }
-    $signatory_id = $result;
+
+    // Asked again, the link of the same signature is sent again: one signature per user, and no mail once signed
+    $tmpSignatory   = new SaturneSignature($db, $moduleNameLowerCase, $attendanceSheet->element);
+    $userSignatures = $tmpSignatory->fetchAll('', '', 1, 0, ['customsql' => 'fk_object = ' . ((int) $attendanceSheet->id) . ' AND object_type = "' . $db->escape($attendanceSheet->element) . '" AND element_type = "user" AND element_id = ' . ((int) $tmpUser->id)]);
+    if (is_array($userSignatures) && !empty($userSignatures)) {
+        $tmpSignatory = current($userSignatures);
+        if (!empty($tmpSignatory->signature)) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('SpreadEmailAlreadySigned')) . '">';
+            exit;
+        }
+        $quickSignSignatoryId = (int) $tmpSignatory->id;
+    } else {
+        $tmpSignatory->element_id     = $tmpUser->id;
+        $tmpSignatory->firstname      = $tmpUser->firstname;
+        $tmpSignatory->lastname       = $tmpUser->lastname;
+        $tmpSignatory->element_type   = 'user';
+        $tmpSignatory->role           = '';
+        $tmpSignatory->object_type    = $attendanceSheet->element;
+        $tmpSignatory->fk_object      = $attendanceSheet->id;
+        $tmpSignatory->module_name    = $moduleNameLowerCase;
+        $tmpSignatory->status         = $tmpSignatory::STATUS_PENDING_SIGNATURE;
+        $tmpSignatory->signature_url  = generate_random_id();
+
+        $result = $tmpSignatory->create($user);
+        if ($result < 0) {
+            echo '<input type="hidden" id="error" value="' . dol_escape_htmltag(doliletter_spread_public_error('DLS-03', 'ErrorSpreadSubjectQuickSign', doliletter_spread_get_object_error($tmpSignatory, $langs), __FILE__, __LINE__, $langs)) . '">';
+            exit;
+        }
+        $quickSignSignatoryId = $result;
+    }
 
     $action = 'send_email';
 }
 
 if ($action == 'send_email') {
-    if (empty($signatory_id)) {
-        $signatory_id = GETPOSTINT('signatory_id');
+    // A link goes to the address of its own person only, who has not signed yet (sending it puts the signature
+    // back to pending). Asked from the attendee table by a user managing the spread, or by the quick signature
+    // above for the signature it found or created for the user who typed their address
+    $signatory_id = $quickSignSignatoryId > 0 ? $quickSignSignatoryId : GETPOSTINT('signatory_id');
+    $signatory->fetch($signatory_id);
+    if (!($isSpreadManager || $quickSignSignatoryId > 0) || !doliletter_spread_signatory_belongs($signatory, $attendanceSheet) || !empty($signatory->signature)) {
+        echo '<input type="hidden" id="error" value="' . dol_escape_htmltag($langs->transnoentities('ErrorNotAllowed')) . '">';
+        exit;
     }
 
-    $signatory->fetch($signatory_id);
     if ($signatory->id > 0) {
         require_once DOL_DOCUMENT_ROOT . '/core/class/CMailFile.class.php';
 
@@ -965,10 +1017,12 @@ $linkedLinks = array_filter($linkedLinks, function ($linkedItem) {
 });
 
 
-$signSignatory = null;
-if (!empty($sign)) {
+$signSignatory     = null;
+$directSignatoryId = 0;
+if (!empty($sign) && $signTokenSignatoryId > 0) {
+    // Same signature as the one resolved before the actions: a person of this spread only
     $tmpSignatory = new DoliletterSpreadSignature($db);
-    $directSignatoryId = $tmpSignatory->fetch(0, '', ' AND t.signature_url = "' . $db->escape($sign) . '"');
+    $directSignatoryId = $tmpSignatory->fetch($signTokenSignatoryId);
     if ($tmpSignatory->id > 0) {
         $signSignatory = $tmpSignatory; // Single-person view: only this signatory's signature + certification photos
     }

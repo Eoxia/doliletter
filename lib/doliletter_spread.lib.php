@@ -565,6 +565,96 @@ function doliletter_spread_signatory_has_identity(SaturneSignature $signatory): 
 }
 
 /**
+ * Whether a signature is one of the people of the spread shown.
+ *
+ * The signatures of every Saturne module share one table: an ID or a link alone may designate the
+ * signatory of another spread, of a meeting, of a timesheet... The public page only acts on its own.
+ *
+ * @param  SaturneSignature          $signatory       Signature, fetched
+ * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet of the spread shown, fetched
+ * @return bool                                       True if the signature belongs to this attendance sheet
+ */
+function doliletter_spread_signatory_belongs(SaturneSignature $signatory, DoliletterAttendanceSheet $attendanceSheet): bool
+{
+    return $signatory->id > 0 && $attendanceSheet->id > 0
+        && (int) $signatory->fk_object === (int) $attendanceSheet->id
+        && $signatory->object_type === $attendanceSheet->element;
+}
+
+/**
+ * Whether the visitor of the public page may answer, sign or receive a link for a person of the spread.
+ *
+ * Two cases only: the person of the ?sign= link answers for themselves, and a user managing the spread
+ * (logged in, allowed to write spreads) answers for any of its people from the attendee table, the tablet
+ * handed round on site.
+ *
+ * @param  SaturneSignature          $signatory            Signature, fetched
+ * @param  DoliletterAttendanceSheet $attendanceSheet      Attendance sheet of the spread shown, fetched
+ * @param  bool                      $isSpreadManager      True for a logged in user allowed to write spreads
+ * @param  int                       $signTokenSignatoryId Signature of the ?sign= link of the request, 0 without one
+ * @return bool                                            True if the visitor may answer for this person
+ */
+function doliletter_spread_can_answer_for(SaturneSignature $signatory, DoliletterAttendanceSheet $attendanceSheet, bool $isSpreadManager, int $signTokenSignatoryId): bool
+{
+    if (!doliletter_spread_signatory_belongs($signatory, $attendanceSheet)) {
+        return false;
+    }
+
+    return $isSpreadManager || ($signTokenSignatoryId > 0 && $signTokenSignatoryId === (int) $signatory->id);
+}
+
+/**
+ * Person a certification folder posted by the Saturne media block of the public page belongs to.
+ *
+ * The page only stores the photos and documents asked to the people of the object spread:
+ * <certifications folder>/<signature ID, or tmp_ id of a registration in progress>/<certification code>,
+ * plus its documents sub folder. Any other folder, of this module or another, gives an empty string.
+ *
+ * @param  string $subDir        Folder posted, relative to the documents of the module of the object
+ * @param  string $certSubDir    Certifications folder of the object spread, relative to the same root
+ * @param  bool   $documentsPart True for the documents sub folder of a certification, false for its photos
+ * @return string                Signature ID or tmp_ id, empty when the folder is not a certification one
+ */
+function doliletter_spread_get_cert_folder_signatory(string $subDir, string $certSubDir, bool $documentsPart): string
+{
+    if (dol_strlen($certSubDir) == 0 || strpos($subDir, '..') !== false) {
+        return '';
+    }
+
+    $pattern = '/^' . preg_quote($certSubDir . '/', '/') . '(\d+|tmp_[A-Za-z0-9_]+)\/[A-Za-z0-9_.-]+' . ($documentsPart ? '\/' . DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR : '') . '$/';
+
+    return preg_match($pattern, $subDir, $matches) ? $matches[1] : '';
+}
+
+/**
+ * Whether the visitor may add or remove files in a certification folder of the public page.
+ *
+ * Same rule as answering for the person (doliletter_spread_can_answer_for()). A registration still in
+ * progress has no signature yet: its folder carries a random id of the visitor's browser, open to it.
+ *
+ * @param  DoliDB                    $db                   Database handler
+ * @param  string                    $folderSignatory      From doliletter_spread_get_cert_folder_signatory()
+ * @param  DoliletterAttendanceSheet $attendanceSheet      Attendance sheet of the spread shown, fetched
+ * @param  bool                      $isSpreadManager      True for a logged in user allowed to write spreads
+ * @param  int                       $signTokenSignatoryId Signature of the ?sign= link of the request, 0 without one
+ * @return bool                                            True if the folder may be written
+ */
+function doliletter_spread_can_write_cert_folder(DoliDB $db, string $folderSignatory, DoliletterAttendanceSheet $attendanceSheet, bool $isSpreadManager, int $signTokenSignatoryId): bool
+{
+    if ($folderSignatory === '') {
+        return false;
+    }
+    if (strpos($folderSignatory, 'tmp_') === 0) {
+        return true;
+    }
+
+    $folderOwner = new SaturneSignature($db);
+    $folderOwner->fetch((int) $folderSignatory);
+
+    return doliletter_spread_can_answer_for($folderOwner, $attendanceSheet, $isSpreadManager, $signTokenSignatoryId);
+}
+
+/**
  * Visible and mandatory state of the identity fields of an external signatory, from the module setup.
  *
  * A field nobody configured yet is shown and mandatory: with every field optional, a person could
@@ -860,10 +950,10 @@ function doliletter_spread_get_documents_version(array $documents): string
  *
  * Must stay aligned with the sub directory given to saturne_render_media_block().
  *
- * @param  string $certBaseDir Certifications directory of the prevention plan
- * @param  int    $signatoryId ID of the signatory
- * @param  string $certCode    Certification code
- * @return string              Absolute directory path
+ * @param  string     $certBaseDir Certifications directory of the prevention plan
+ * @param  int|string $signatoryId ID of the signatory, or tmp_ id of a registration in progress
+ * @param  string     $certCode    Certification code
+ * @return string                  Absolute directory path
  */
 function doliletter_spread_get_certification_dir(string $certBaseDir, $signatoryId, string $certCode): string
 {

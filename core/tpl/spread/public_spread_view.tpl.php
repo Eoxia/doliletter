@@ -1617,14 +1617,15 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
 
                 <?php
     $hidePublicNote = getDolGlobalInt('DIGIRISKDOLIBARR_SPREAD_HIDE_PUBLIC_NOTE', 1);
-    if (!empty($isLogged) && empty($hidePublicNote)) { ?>
+    // Editor of the note of the attendance sheet: the users managing the spread only, as its saving
+    if (!empty($isSpreadManager) && empty($hidePublicNote)) { ?>
     <!-- Public Note Section moved to bottom -->
     <div class="public-note-section">
         <div class="public-note-header">
             <i class="fas fa-comment-dots"></i>
         </div>
         <div class="public-note-content">
-            <textarea class="public-note-textarea" placeholder="<?php echo $langs->trans('EnterNotePublicHere'); ?>"><?php echo $attendanceSheet->note_public ?? ''; ?></textarea>
+            <textarea class="public-note-textarea" placeholder="<?php echo $langs->trans('EnterNotePublicHere'); ?>"><?php echo htmlspecialchars((string) ($attendanceSheet->note_public ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
             <div class="public-note-actions tabsAction">
                 <button type="button" class="wpeo-button button-grey save-public-note-btn">
                     <i class="fas fa-save"></i>
