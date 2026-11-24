@@ -22,6 +22,7 @@
  */
 
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 
 /**
  * Element type carried by a signatory registered from the public page.
@@ -222,6 +223,39 @@ function doliletter_spread_get_file_icon(string $extension): string
     ];
 
     return $icons[$extension] ?? 'fas fa-file text-muted';
+}
+
+/**
+ * Absolute path of the file of an ECM index entry.
+ *
+ * @param  EcmFilesLine $ecmFile ECM index entry: its filepath is relative to DOL_DATA_ROOT, entity included
+ * @return string                Absolute path of the file
+ */
+function doliletter_spread_get_ecm_file_path(EcmFilesLine $ecmFile): string
+{
+    return DOL_DATA_ROOT . '/' . $ecmFile->filepath . '/' . $ecmFile->filename;
+}
+
+/**
+ * Tell if the file of a shared ECM index entry is on the disk, so that the public page may offer it.
+ *
+ * Whatever the page offers for a file (preview, video, download card or button) goes through document.php,
+ * which answers for a missing file an error message giving its inner path. Such an entry (file deleted
+ * outside Dolibarr, partial restore) is left out of the page, and traced in the log for the administrator.
+ *
+ * @param  EcmFilesLine $ecmFile ECM index entry of a shared file
+ * @return bool                  True if the file is on the disk
+ */
+function doliletter_spread_ecm_file_is_on_disk(EcmFilesLine $ecmFile): bool
+{
+    $filePath = doliletter_spread_get_ecm_file_path($ecmFile);
+    if (dol_is_file($filePath)) {
+        return true;
+    }
+
+    dol_syslog('Spread shared file missing on disk: ' . $filePath, LOG_WARNING);
+
+    return false;
 }
 
 /**
@@ -531,6 +565,96 @@ function doliletter_spread_signatory_has_identity(SaturneSignature $signatory): 
 }
 
 /**
+ * Whether a signature is one of the people of the spread shown.
+ *
+ * The signatures of every Saturne module share one table: an ID or a link alone may designate the
+ * signatory of another spread, of a meeting, of a timesheet... The public page only acts on its own.
+ *
+ * @param  SaturneSignature          $signatory       Signature, fetched
+ * @param  DoliletterAttendanceSheet $attendanceSheet Attendance sheet of the spread shown, fetched
+ * @return bool                                       True if the signature belongs to this attendance sheet
+ */
+function doliletter_spread_signatory_belongs(SaturneSignature $signatory, DoliletterAttendanceSheet $attendanceSheet): bool
+{
+    return $signatory->id > 0 && $attendanceSheet->id > 0
+        && (int) $signatory->fk_object === (int) $attendanceSheet->id
+        && $signatory->object_type === $attendanceSheet->element;
+}
+
+/**
+ * Whether the visitor of the public page may answer, sign or receive a link for a person of the spread.
+ *
+ * Two cases only: the person of the ?sign= link answers for themselves, and a user managing the spread
+ * (logged in, allowed to write spreads) answers for any of its people from the attendee table, the tablet
+ * handed round on site.
+ *
+ * @param  SaturneSignature          $signatory            Signature, fetched
+ * @param  DoliletterAttendanceSheet $attendanceSheet      Attendance sheet of the spread shown, fetched
+ * @param  bool                      $isSpreadManager      True for a logged in user allowed to write spreads
+ * @param  int                       $signTokenSignatoryId Signature of the ?sign= link of the request, 0 without one
+ * @return bool                                            True if the visitor may answer for this person
+ */
+function doliletter_spread_can_answer_for(SaturneSignature $signatory, DoliletterAttendanceSheet $attendanceSheet, bool $isSpreadManager, int $signTokenSignatoryId): bool
+{
+    if (!doliletter_spread_signatory_belongs($signatory, $attendanceSheet)) {
+        return false;
+    }
+
+    return $isSpreadManager || ($signTokenSignatoryId > 0 && $signTokenSignatoryId === (int) $signatory->id);
+}
+
+/**
+ * Person a certification folder posted by the Saturne media block of the public page belongs to.
+ *
+ * The page only stores the photos and documents asked to the people of the object spread:
+ * <certifications folder>/<signature ID, or tmp_ id of a registration in progress>/<certification code>,
+ * plus its documents sub folder. Any other folder, of this module or another, gives an empty string.
+ *
+ * @param  string $subDir        Folder posted, relative to the documents of the module of the object
+ * @param  string $certSubDir    Certifications folder of the object spread, relative to the same root
+ * @param  bool   $documentsPart True for the documents sub folder of a certification, false for its photos
+ * @return string                Signature ID or tmp_ id, empty when the folder is not a certification one
+ */
+function doliletter_spread_get_cert_folder_signatory(string $subDir, string $certSubDir, bool $documentsPart): string
+{
+    if (dol_strlen($certSubDir) == 0 || strpos($subDir, '..') !== false) {
+        return '';
+    }
+
+    $pattern = '/^' . preg_quote($certSubDir . '/', '/') . '(\d+|tmp_[A-Za-z0-9_]+)\/[A-Za-z0-9_.-]+' . ($documentsPart ? '\/' . DOLILETTER_SPREAD_CERT_DOCUMENTS_DIR : '') . '$/';
+
+    return preg_match($pattern, $subDir, $matches) ? $matches[1] : '';
+}
+
+/**
+ * Whether the visitor may add or remove files in a certification folder of the public page.
+ *
+ * Same rule as answering for the person (doliletter_spread_can_answer_for()). A registration still in
+ * progress has no signature yet: its folder carries a random id of the visitor's browser, open to it.
+ *
+ * @param  DoliDB                    $db                   Database handler
+ * @param  string                    $folderSignatory      From doliletter_spread_get_cert_folder_signatory()
+ * @param  DoliletterAttendanceSheet $attendanceSheet      Attendance sheet of the spread shown, fetched
+ * @param  bool                      $isSpreadManager      True for a logged in user allowed to write spreads
+ * @param  int                       $signTokenSignatoryId Signature of the ?sign= link of the request, 0 without one
+ * @return bool                                            True if the folder may be written
+ */
+function doliletter_spread_can_write_cert_folder(DoliDB $db, string $folderSignatory, DoliletterAttendanceSheet $attendanceSheet, bool $isSpreadManager, int $signTokenSignatoryId): bool
+{
+    if ($folderSignatory === '') {
+        return false;
+    }
+    if (strpos($folderSignatory, 'tmp_') === 0) {
+        return true;
+    }
+
+    $folderOwner = new SaturneSignature($db);
+    $folderOwner->fetch((int) $folderSignatory);
+
+    return doliletter_spread_can_answer_for($folderOwner, $attendanceSheet, $isSpreadManager, $signTokenSignatoryId);
+}
+
+/**
  * Visible and mandatory state of the identity fields of an external signatory, from the module setup.
  *
  * A field nobody configured yet is shown and mandatory: with every field optional, a person could
@@ -696,11 +820,12 @@ function doliletter_spread_get_pending_risks(array $risks, array $acknowledged):
  * @param  DoliDB $db           Database handler
  * @param  string $tableElement Table of the spread object
  * @param  int    $objectId     ID of the spread object
- * @return array                One entry per document: name, date (timestamp of its generation)
+ * @return array                One entry per document: name, date (timestamp of its generation) and on_disk,
+ *                              false for an index entry whose file is missing (doliletter_spread_ecm_file_is_on_disk())
  */
 function doliletter_spread_get_featured_documents(DoliDB $db, string $tableElement, int $objectId): array
 {
-    $sql  = 'SELECT t.filename, t.date_c FROM ' . MAIN_DB_PREFIX . 'ecm_files as t';
+    $sql  = 'SELECT t.filename, t.filepath, t.date_c FROM ' . MAIN_DB_PREFIX . 'ecm_files as t';
     $sql .= ' INNER JOIN ' . MAIN_DB_PREFIX . 'ecm_files_extrafields as ef ON ef.fk_object = t.rowid';
     $sql .= ' WHERE t.share IS NOT NULL';
     $sql .= " AND t.src_object_type = '" . $db->escape($tableElement) . "'";
@@ -711,7 +836,12 @@ function doliletter_spread_get_featured_documents(DoliDB $db, string $tableEleme
     $documents = [];
     $resql     = $db->query($sql);
     while ($resql && ($obj = $db->fetch_object($resql))) {
-        $documents[] = ['name' => $obj->filename, 'date' => $db->jdate($obj->date_c)];
+        // Same check as the lists of the page (add_spread.php), which do not show a file missing on the disk
+        $ecmFile           = new EcmFilesLine($db);
+        $ecmFile->filepath = $obj->filepath;
+        $ecmFile->filename = $obj->filename;
+
+        $documents[] = ['name' => $obj->filename, 'date' => $db->jdate($obj->date_c), 'on_disk' => doliletter_spread_ecm_file_is_on_disk($ecmFile)];
     }
 
     return $documents;
@@ -739,6 +869,10 @@ function doliletter_spread_get_certification_answer(array $certificationState): 
  * Taken at the signature and kept as is: the document of a prevention plan is generated again at
  * each change, and its risks may change after the signature.
  *
+ * A document put forward whose file is missing on the disk is not shown by the page, so it is not a version
+ * the signatory signed: it is left out of 'documents' and kept apart in 'documents_missing', so that the proof
+ * still says a document was put forward and could not be read when signing.
+ *
  * @param  array  $documents           Documents put forward, from doliletter_spread_get_featured_documents()
  * @param  array  $risks               Blocks of the object, each holding a 'category' and a 'name'
  * @param  int[]  $acknowledged        Danger category positions taken note of
@@ -760,12 +894,25 @@ function doliletter_spread_build_signature_proof(array $documents, array $risks,
         $certifications[] = ['label' => $certificationState['label'], 'answer' => doliletter_spread_get_certification_answer($certificationState)];
     }
 
+    // Name and date only, as in the proofs taken before: the versions of two signatures stay comparable
+    $documentsShown   = [];
+    $documentsMissing = [];
+    foreach ($documents as $document) {
+        $version = ['name' => $document['name'], 'date' => $document['date']];
+        if (isset($document['on_disk']) && !$document['on_disk']) {
+            $documentsMissing[] = $version;
+        } else {
+            $documentsShown[] = $version;
+        }
+    }
+
     return [
-        'documents'      => $documents,
-        'blocks'         => $blocksKey,
-        'blocks_total'   => count($risks),
-        'blocks_read'    => $blocksRead,
-        'certifications' => $certifications,
+        'documents'         => $documentsShown,
+        'documents_missing' => $documentsMissing,
+        'blocks'            => $blocksKey,
+        'blocks_total'      => count($risks),
+        'blocks_read'       => $blocksRead,
+        'certifications'    => $certifications,
     ];
 }
 
@@ -799,14 +946,37 @@ function doliletter_spread_get_documents_version(array $documents): string
 }
 
 /**
+ * Line saying which documents put forward were missing on the disk when the person signed.
+ *
+ * doliletter_spread_build_signature_proof() keeps them apart in 'documents_missing': they were not in
+ * front of the signatory, so they are not a signed version, but the proof still says they were planned.
+ * Printed by the attendance sheet and by the details of the signatories, with the same words.
+ *
+ * @param  array     $proof Proof of a signature, from doliletter_spread_get_signature_proof()
+ * @param  Translate $langs Language to write the line in
+ * @return string           Line, empty when no document was missing, as in every proof taken before 'documents_missing'
+ */
+function doliletter_spread_get_missing_documents_line(array $proof, Translate $langs): string
+{
+    $documentsMissing = $proof['documents_missing'] ?? [];
+    if (!is_array($documentsMissing) || empty($documentsMissing)) {
+        return '';
+    }
+
+    $lineKey = count($documentsMissing) > 1 ? 'SpreadDocumentsMissingAtSignature' : 'SpreadDocumentMissingAtSignature';
+
+    return $langs->transnoentities($lineKey, doliletter_spread_get_documents_version($documentsMissing));
+}
+
+/**
  * Directory holding the photos uploaded for one certification of one signatory.
  *
  * Must stay aligned with the sub directory given to saturne_render_media_block().
  *
- * @param  string $certBaseDir Certifications directory of the prevention plan
- * @param  int    $signatoryId ID of the signatory
- * @param  string $certCode    Certification code
- * @return string              Absolute directory path
+ * @param  string     $certBaseDir Certifications directory of the prevention plan
+ * @param  int|string $signatoryId ID of the signatory, or tmp_ id of a registration in progress
+ * @param  string     $certCode    Certification code
+ * @return string                  Absolute directory path
  */
 function doliletter_spread_get_certification_dir(string $certBaseDir, $signatoryId, string $certCode): string
 {

@@ -1,45 +1,52 @@
-# [DoliLetter] [23.3.1] - La bonne lettre partagée et envoyée, même avec des annexes
+# [DoliLetter] [23.3.2] - Page publique de diffusion plus sûre - Feuille d'émargement plus juste
 
-Description : quand une enveloppe a des annexes dans ses fichiers joints, le lien de partage public, la page du destinataire après sa signature et l'envoi par e-mail ou par courrier utilisent toujours la dernière lettre générée, et plus une annexe.
+Description : la page publique de diffusion contrôle désormais qui agit sur quelle personne. La feuille d'émargement dit la vérité quand un document prévu manquait au moment de la signature, et l'écran de fin de signature s'affiche correctement sur téléphone. **Mise à jour recommandée pour toutes les instances.**
 
 **Cette version demande Saturne 23.9.1 ou supérieur.**
 
 ## Améliorations & corrections
 
-### Partage public : le lien va à la dernière lettre générée
+### Page publique de diffusion : contrôles renforcés
 
-* Le document partagé par une enveloppe était le dernier fichier **par ordre alphabétique**, pas le dernier généré :
-  * une annexe téléversée dans l'onglet Fichiers joints (par exemple `Annexe_contrat.pdf`) recevait le lien de partage à la place de la lettre, et la page publique affichée au destinataire après sa signature lui proposait l'annexe ;
-  * à partir de la onzième génération d'un même jour, c'est l'avant-dernier document qui était repartagé (`_10` se range avant `_2`).
-* Toutes les actions qui partagent un document (génération depuis la fiche, accusé de réception, preuve de dépôt, numéro de suivi, envoi par e-mail ou par courrier) et la page publique de signature partagent désormais la **dernière lettre générée** de l'enveloppe, sans spécimen ni fichier téléversé.
-* Quand plusieurs scans sont joints d'un coup à l'accusé de réception ou à la preuve de dépôt, le deuxième n'est plus rangé dans le dossier des documents générés.
+* Chaque action sur une personne de la diffusion (signer, répondre, déposer un document, recevoir son lien) vérifie maintenant deux choses :
+  * la personne fait bien partie de la diffusion affichée ;
+  * le visiteur est le titulaire du lien de signature, ou un gestionnaire connecté.
+* Une signature déjà enregistrée ne peut plus être remplacée.
+* Une personne qui a signé ne peut plus être retirée ni modifiée.
+* Les photos et documents déposés vont uniquement dans les dossiers des documents demandés de la diffusion.
+* La note publique de la diffusion ne se modifie plus que par un gestionnaire, et elle est affichée échappée.
+* Une adresse e-mail qui a déjà signé ne peut plus se réinscrire pour récupérer un nouveau lien.
+* Les usages prévus ne changent pas : signature par lien, inscription publique, et gestion des participants par un utilisateur connecté.
 
-### Envoi par e-mail et par courrier : la lettre est jointe, pas l'annexe
+### Preuve de signature et feuille d'émargement
 
-* Le formulaire d'envoi par e-mail joignait le fichier le plus récent du dossier de l'enveloppe : **une annexe téléversée après la lettre partait à sa place**.
-* Avec une annexe et aucune lettre générée, ni l'envoi par e-mail ni l'envoi par courrier ne générait la lettre : l'e-mail partait avec l'annexe seule.
-* Les deux formulaires joignent désormais la dernière lettre générée de l'enveloppe, et la génèrent si elle n'existe pas encore. Une annexe reste ajoutable à la main dans le formulaire.
-* Après l'envoi d'un e-mail, retour à la fiche de l'enveloppe sans avertissement PHP « Undefined variable $paramname ».
+* Un document mis en avant qui manquait sur le disque au moment de la signature n'est plus enregistré comme « version signée ».
+* La feuille d'émargement et le détail des signataires indiquent alors « Document prévu absent au moment de la signature », avec son nom.
+* Les signatures enregistrées avant cette version s'affichent comme avant.
 
-### Activation
+### Documents absents du disque
 
-* À l'activation du module, les documents de DoliLetter restés dans un dossier « (PROVn) » rejoignent celui de leur référence définitive (avec Saturne 23.9.1).
+* La page publique de diffusion ne propose plus un document mis en avant ou un fichier joint absent du disque. Avant, la carte affichée menait à un message d'erreur qui montrait le chemin interne du fichier, et un avertissement PHP s'imprimait dans la page.
 
-### Pages publiques et onglets
+### Affichage sur téléphone
 
-* La page publique de signature ne s'arrête plus sur une erreur fatale quand son lien porte un type d'objet inconnu ou vise un signataire introuvable : elle répond comme pour un lien inconnu.
-* Les onglets Contacts et Notes d'une enveloppe vérifient le bon droit pour retirer un lien, et ne laissent plus d'avertissements PHP à chaque affichage.
+* L'écran « signé » de la page publique de diffusion ne déborde plus de l'écran d'un téléphone (390 px). La coche passe au-dessus du titre sur un petit écran.
+
+### Paquet du module
+
+* Un fichier de travail versionné par erreur (`temp_block.txt`) est retiré du module.
 
 ## Testez les nouveautés maintenant
 
-**Allez tester l'envoi d'une enveloppe avec une annexe sur la démo : [https://demodoli.digirisk.com/](https://demodoli.digirisk.com/)**
+**Allez tester la diffusion d'un document sur la démo : [https://demodoli.digirisk.com/](https://demodoli.digirisk.com/)**
 
-## Comparaison des versions [23.3.0](https://github.com/Eoxia/doliletter/compare/23.3.0...23.3.1) et 23.3.1
+## Comparaison des versions [23.3.1](https://github.com/Eoxia/doliletter/compare/23.3.1...23.3.2) et 23.3.2
 
-* [#711] [Envelope] fix: droit de retrait de lien des onglets Contacts et Notes [`2d73a3a4`](https://github.com/Eoxia/doliletter/commit/2d73a3a4)
-* [#709] [Signature] fix: erreurs PHPStan révélées par le type désormais connu de la page [`24f01035`](https://github.com/Eoxia/doliletter/commit/24f01035)
-* [#709] [Signature] fix: page publique de signature sans fatale pour un type inconnu ou un signataire introuvable [`c1cae7f0`](https://github.com/Eoxia/doliletter/commit/c1cae7f0)
-* [#702] [Mod] fix: fichiers des objets validés restés sous (PROVn) repris à l'activation depuis Accueil > Modules [`9e76e9d1`](https://github.com/Eoxia/doliletter/commit/9e76e9d1)
-* [#705] [Envelope] fix: plus de « Undefined variable $paramname » à chaque envoi par mail d'une enveloppe [`f0facf16`](https://github.com/Eoxia/doliletter/commit/f0facf16)
-* [#704] [Envelope] fix: le formulaire d'envoi par mail joint la lettre, plus le fichier le plus récent du dossier [`e3af4fe8`](https://github.com/Eoxia/doliletter/commit/e3af4fe8)
-* [#701] [Envelope] fix: le lien de partage public va au dernier document généré, plus au dernier fichier par ordre du nom [`020f9503`](https://github.com/Eoxia/doliletter/commit/020f9503)
+* [Spread] fix: contrôle du signataire sur la page publique [`5e5396d2`](https://github.com/Eoxia/doliletter/commit/5e5396d2)
+* [#726] [Spread] fix: document prévu absent au moment de la signature, affiché sur la feuille d'émargement et dans le détail des signataires [`bffacf46`](https://github.com/Eoxia/doliletter/commit/bffacf46)
+* [#724] [Spread] fix: document mis en avant absent du disque, plus inscrit comme version signée [`7736639e`](https://github.com/Eoxia/doliletter/commit/7736639e)
+* [#722] [Spread] fix: type des lignes ECM resserré avant le contrôle du disque (PHPStan) [`a695d73c`](https://github.com/Eoxia/doliletter/commit/a695d73c)
+* [#722] [Spread] fix: fichiers joints absents du disque retirés de la page publique, comme les documents mis en avant [`4f2190f4`](https://github.com/Eoxia/doliletter/commit/4f2190f4)
+* [#719] [Mod] chore: retrait de temp_block.txt, versionné par erreur [`9e5d05e1`](https://github.com/Eoxia/doliletter/commit/9e5d05e1)
+* [#718] [Spread] fix: document mis en avant absent du disque, ni avertissement ni accès cassé [`4bd4b7f9`](https://github.com/Eoxia/doliletter/commit/4bd4b7f9)
+* [#716] [Spread] fix: écran de succès signé lisible sur téléphone [`1984e750`](https://github.com/Eoxia/doliletter/commit/1984e750)

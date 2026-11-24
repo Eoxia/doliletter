@@ -280,65 +280,72 @@ class pdf_signinsheetdocument_FE_Doliletter extends SaturneDocumentModel
 		return 1;
 	}
 
-	/**
-	 * Proof printed under the line of a person who signed: the version of the document they signed and
-	 * the boxes they ticked (blocks taken note of, answers to the requested documents).
-	 *
-	 * @param  DoliletterSpreadSignature $sig              Signatory
-	 * @param  array                     $documentVersions Version => index, as numbered in the versions block
-	 * @param  DoliletterAttendanceSheet $object           Attendance sheet
-	 * @param  Translate                 $outputlangs      Lang object to use for output
-	 * @return string                                      Proof, empty for a person who did not sign
-	 */
-	protected function signatureProof($sig, array $documentVersions, $object, Translate $outputlangs): string
-	{
-		if (empty($sig->signature)) {
-			return '';
-		}
+    /**
+     * Proof printed under the line of a person who signed: the version of the document they signed, the
+     * documents put forward that were missing on the disk at that time, and the boxes they ticked (blocks
+     * taken note of, answers to the requested documents).
+     *
+     * @param  DoliletterSpreadSignature $sig              Signatory
+     * @param  array                     $documentVersions Version => index, as numbered in the versions block
+     * @param  DoliletterAttendanceSheet $object           Attendance sheet
+     * @param  Translate                 $outputlangs      Lang object to use for output
+     * @return string                                      Proof, empty for a person who did not sign
+     */
+    protected function signatureProof($sig, array $documentVersions, $object, Translate $outputlangs): string
+    {
+        if (empty($sig->signature)) {
+            return '';
+        }
 
-		$proofLines = [];
-		$proof      = doliletter_spread_get_signature_proof($sig);
+        $proofLines = [];
+        $proof      = doliletter_spread_get_signature_proof($sig);
 
-		// Signed before the proof was recorded: only the number of blocks ticked is known. A person who
-		// answered nothing signed a spread with nothing to tick (a ticket...): there is nothing to say.
-		if (empty($proof)) {
-			if (empty(doliletter_spread_get_signatory_data($sig))) {
-				return '';
-			}
+        // Signed before the proof was recorded: only the number of blocks ticked is known. A person who
+        // answered nothing signed a spread with nothing to tick (a ticket...): there is nothing to say.
+        if (empty($proof)) {
+            if (empty(doliletter_spread_get_signatory_data($sig))) {
+                return '';
+            }
 
-			$proofLines[] = $outputlangs->transnoentities('SigninSheetVersionNotRecorded');
+            $proofLines[] = $outputlangs->transnoentities('SigninSheetVersionNotRecorded');
 
-			$acknowledged = doliletter_spread_get_acknowledged_risks($sig);
-			if (!empty($acknowledged)) {
-				$blocksKey    = ($object->object_type === 'digiriskdolibarr_firepermit') ? 'MobileFPWorkTypes' : 'MobilePPRisks';
-				$proofLines[] = $outputlangs->transnoentities('SigninSheetBlocksReadCount', $outputlangs->transnoentities($blocksKey), (string) count($acknowledged));
-			}
+            $acknowledged = doliletter_spread_get_acknowledged_risks($sig);
+            if (!empty($acknowledged)) {
+                $blocksKey    = ($object->object_type === 'digiriskdolibarr_firepermit') ? 'MobileFPWorkTypes' : 'MobilePPRisks';
+                $proofLines[] = $outputlangs->transnoentities('SigninSheetBlocksReadCount', $outputlangs->transnoentities($blocksKey), (string) count($acknowledged));
+            }
 
-			return implode("\n", $proofLines);
-		}
+            return implode("\n", $proofLines);
+        }
 
-		$version = doliletter_spread_get_documents_version($proof['documents'] ?? []);
-		if (count($documentVersions) > 1 && isset($documentVersions[$version])) {
-			$proofLines[] = $outputlangs->transnoentities('SigninSheetSignedVersion', (string) ($documentVersions[$version] + 1));
-		}
+        $version = doliletter_spread_get_documents_version($proof['documents'] ?? []);
+        if (count($documentVersions) > 1 && isset($documentVersions[$version])) {
+            $proofLines[] = $outputlangs->transnoentities('SigninSheetSignedVersion', (string) ($documentVersions[$version] + 1));
+        }
 
-		if (!empty($proof['blocks_total'])) {
-			$blocksRead   = (array) ($proof['blocks_read'] ?? []);
-			$proofLines[] = $outputlangs->transnoentities('SpreadSignatoryBlocksRead', $outputlangs->transnoentities($proof['blocks'] ?? ''), (string) count($blocksRead), (string) $proof['blocks_total'])
-				. (!empty($blocksRead) ? ' (' . implode(', ', $blocksRead) . ')' : '');
-		}
+        // Document put forward but missing on the disk when signing: not a signed version, said apart
+        $missingLine = doliletter_spread_get_missing_documents_line($proof, $outputlangs);
+        if (dol_strlen($missingLine)) {
+            $proofLines[] = $missingLine;
+        }
 
-		$answerLabels   = ['not_concerned' => 'SpreadNotConcerned', 'provided' => 'SpreadCertProvided', 'not_provided' => 'SpreadCertNotProvided'];
-		$certifications = [];
-		foreach ((array) ($proof['certifications'] ?? []) as $certification) {
-			$certifications[] = $certification['label'] . ' (' . $outputlangs->transnoentities($answerLabels[$certification['answer']] ?? $certification['answer']) . ')';
-		}
-		if (!empty($certifications)) {
-			$proofLines[] = $outputlangs->transnoentities('SigninSheetRequestedDocuments', implode(', ', $certifications));
-		}
+        if (!empty($proof['blocks_total'])) {
+            $blocksRead   = (array) ($proof['blocks_read'] ?? []);
+            $proofLines[] = $outputlangs->transnoentities('SpreadSignatoryBlocksRead', $outputlangs->transnoentities($proof['blocks'] ?? ''), (string) count($blocksRead), (string) $proof['blocks_total'])
+                . (!empty($blocksRead) ? ' (' . implode(', ', $blocksRead) . ')' : '');
+        }
 
-		return implode("\n", $proofLines);
-	}
+        $answerLabels   = ['not_concerned' => 'SpreadNotConcerned', 'provided' => 'SpreadCertProvided', 'not_provided' => 'SpreadCertNotProvided'];
+        $certifications = [];
+        foreach ((array) ($proof['certifications'] ?? []) as $certification) {
+            $certifications[] = $certification['label'] . ' (' . $outputlangs->transnoentities($answerLabels[$certification['answer']] ?? $certification['answer']) . ')';
+        }
+        if (!empty($certifications)) {
+            $proofLines[] = $outputlangs->transnoentities('SigninSheetRequestedDocuments', implode(', ', $certifications));
+        }
+
+        return implode("\n", $proofLines);
+    }
 
 	protected function _pagehead(&$pdf, $object, $outputlangs)
 	{
