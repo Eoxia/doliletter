@@ -705,6 +705,87 @@ input.spread-phone--invalid,
     }
 }
 
+/* Ecran de succes d'un plan de prevention ou d'un permis de feu signe : la grande coche a gauche, le titre
+   et l'objet a droite. Le texte peut retrecir (min-width: 0) et couper un mot trop long : sans cela, la
+   colonne garde la largeur de son plus long mot et sort de la carte */
+.success-screen {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    padding: 50px 40px;
+    margin-top: 40px;
+    border: 1px solid #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.success-screen__header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.success-screen__icon {
+    position: relative;
+    flex-shrink: 0;
+    margin-right: 30px;
+    margin-left: 10px;
+}
+
+.success-screen__text {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+
+.success-screen__title {
+    font-size: 32px;
+    color: #0f172a;
+    margin: 0 0 12px 0;
+    font-weight: 700;
+    font-family: inherit;
+}
+
+.success-screen__object {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    color: #475569;
+    margin-bottom: 12px;
+}
+
+/* Sur telephone, 100 px de coche et 40 px de marges a cote du titre ne laissent qu'environ 150 px au texte :
+   la coche passe au-dessus, le titre et l'objet se centrent dessous, la carte se resserre */
+@media (max-width: 600px) {
+    .success-screen {
+        padding: 30px 20px;
+        margin-top: 24px;
+    }
+
+    .success-screen__header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .success-screen__icon {
+        margin: 0 0 20px 0;
+    }
+
+    .success-screen__text {
+        text-align: center;
+    }
+
+    .success-screen__title {
+        font-size: 24px;
+    }
+
+    .success-screen__object {
+        justify-content: center;
+        font-size: 16px;
+    }
+}
+
 .spread-brand__logo {
     flex-shrink: 0;
     max-height: 44px;
@@ -1060,12 +1141,12 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
             <?php $registerUrl = dol_buildpath('/doliletter/public/spread/add_spread.php', 1) . '?id=' . $id . '&object_type=' . $objectType; ?>
             <?php if ($isSignedPreventionPlan && empty(GETPOST('hide_success'))) { ?>
         <!-- SUCCESS SCREEN -->
-        <div class="success-screen" style="position: relative; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 50px 40px; margin-top: 40px; border: 1px solid #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <div class="success-screen">
             <a href="javascript:void(0)" onclick="window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'hide_success=1'; return false;" style="position: absolute; top: 20px; right: 25px; color: #64748b; font-size: 20px; text-decoration: none;"><i class="fas fa-times"></i></a>
-            
-            <div style="display: flex; align-items: flex-start; margin-bottom: 30px;">
+
+            <div class="success-screen__header">
                 <!-- Huge Check Icon on the left -->
-                <div style="margin-right: 30px; position: relative; margin-left: 10px;">
+                <div class="success-screen__icon">
                     <div style="display: inline-flex; align-items: center; justify-content: center; width: 100px; height: 100px; background-color: #22c55e; border-radius: 50%; color: white; font-size: 50px; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);">
                         <i class="fas fa-check"></i>
                     </div>
@@ -1077,9 +1158,9 @@ $spreadObjectTitle = !empty($objectLabel) ? $objectLabel : $objectRef;
                 </div>
                 
                 <!-- Title and Desc on the right -->
-                <div style="text-align: left; flex: 1;">
-                    <h1 style="font-size: 32px; color: #0f172a; margin: 0 0 12px 0; font-weight: 700; font-family: inherit;"><?php echo $langs->trans('SpreadObjectSignedTitle', dol_ucfirst($spreadObjectName)); ?></h1>
-                    <div style="font-size: 18px; color: #475569; margin-bottom: 12px; display: flex; align-items: center;">
+                <div class="success-screen__text">
+                    <h1 class="success-screen__title"><?php echo $langs->trans('SpreadObjectSignedTitle', dol_ucfirst($spreadObjectName)); ?></h1>
+                    <div class="success-screen__object">
                         <i class="far fa-file-alt" style="margin-right: 12px; font-size: 22px; color: #94a3b8;"></i>
                         <?php echo dol_escape_htmltag($objectRef . (!empty($objectLabel) ? ' - ' . $objectLabel : '')); ?>
                     </div>
