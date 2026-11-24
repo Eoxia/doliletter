@@ -909,6 +909,7 @@ if ($action == 'send_email') {
         $substitutionarray['__REF__']                   = $objectsMetadata[$objectType]['object']->ref;
         $signatoryLink                                  = dol_buildpath('/doliletter/public/spread/add_spread.php', 3) . '?sign=' . $signatory->signature_url . '&id=' . $objectsMetadata[$objectType]['object']->id . '&object_type=' . $objectType;
         $substitutionarray['__SATURNE_SIGNATORY_URL__'] = '<a href=' . $signatoryLink . ' target="_blank">' . $langs->transnoentities('SignatureEmailURL') . '</a>';
+        $parameters                                     = ['mode' => 'formemail'];
         complete_substitutions_array($substitutionarray, $langs, $objectsMetadata[$objectType]['object'], $parameters);
 
         $result  = $saturneMail->fetch(getDolGlobalInt('DOLILETTER_EMAIL_TEMPLATE_SPREAD'));
