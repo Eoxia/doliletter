@@ -22,6 +22,7 @@
  */
 
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 
 /**
  * Element type carried by a signatory registered from the public page.
@@ -729,11 +730,12 @@ function doliletter_spread_get_pending_risks(array $risks, array $acknowledged):
  * @param  DoliDB $db           Database handler
  * @param  string $tableElement Table of the spread object
  * @param  int    $objectId     ID of the spread object
- * @return array                One entry per document: name, date (timestamp of its generation)
+ * @return array                One entry per document: name, date (timestamp of its generation) and on_disk,
+ *                              false for an index entry whose file is missing (doliletter_spread_ecm_file_is_on_disk())
  */
 function doliletter_spread_get_featured_documents(DoliDB $db, string $tableElement, int $objectId): array
 {
-    $sql  = 'SELECT t.filename, t.date_c FROM ' . MAIN_DB_PREFIX . 'ecm_files as t';
+    $sql  = 'SELECT t.filename, t.filepath, t.date_c FROM ' . MAIN_DB_PREFIX . 'ecm_files as t';
     $sql .= ' INNER JOIN ' . MAIN_DB_PREFIX . 'ecm_files_extrafields as ef ON ef.fk_object = t.rowid';
     $sql .= ' WHERE t.share IS NOT NULL';
     $sql .= " AND t.src_object_type = '" . $db->escape($tableElement) . "'";
@@ -744,7 +746,12 @@ function doliletter_spread_get_featured_documents(DoliDB $db, string $tableEleme
     $documents = [];
     $resql     = $db->query($sql);
     while ($resql && ($obj = $db->fetch_object($resql))) {
-        $documents[] = ['name' => $obj->filename, 'date' => $db->jdate($obj->date_c)];
+        // Same check as the lists of the page (add_spread.php), which do not show a file missing on the disk
+        $ecmFile           = new EcmFilesLine($db);
+        $ecmFile->filepath = $obj->filepath;
+        $ecmFile->filename = $obj->filename;
+
+        $documents[] = ['name' => $obj->filename, 'date' => $db->jdate($obj->date_c), 'on_disk' => doliletter_spread_ecm_file_is_on_disk($ecmFile)];
     }
 
     return $documents;
@@ -772,6 +779,10 @@ function doliletter_spread_get_certification_answer(array $certificationState): 
  * Taken at the signature and kept as is: the document of a prevention plan is generated again at
  * each change, and its risks may change after the signature.
  *
+ * A document put forward whose file is missing on the disk is not shown by the page, so it is not a version
+ * the signatory signed: it is left out of 'documents' and kept apart in 'documents_missing', so that the proof
+ * still says a document was put forward and could not be read when signing.
+ *
  * @param  array  $documents           Documents put forward, from doliletter_spread_get_featured_documents()
  * @param  array  $risks               Blocks of the object, each holding a 'category' and a 'name'
  * @param  int[]  $acknowledged        Danger category positions taken note of
@@ -793,12 +804,25 @@ function doliletter_spread_build_signature_proof(array $documents, array $risks,
         $certifications[] = ['label' => $certificationState['label'], 'answer' => doliletter_spread_get_certification_answer($certificationState)];
     }
 
+    // Name and date only, as in the proofs taken before: the versions of two signatures stay comparable
+    $documentsShown   = [];
+    $documentsMissing = [];
+    foreach ($documents as $document) {
+        $version = ['name' => $document['name'], 'date' => $document['date']];
+        if (isset($document['on_disk']) && !$document['on_disk']) {
+            $documentsMissing[] = $version;
+        } else {
+            $documentsShown[] = $version;
+        }
+    }
+
     return [
-        'documents'      => $documents,
-        'blocks'         => $blocksKey,
-        'blocks_total'   => count($risks),
-        'blocks_read'    => $blocksRead,
-        'certifications' => $certifications,
+        'documents'         => $documentsShown,
+        'documents_missing' => $documentsMissing,
+        'blocks'            => $blocksKey,
+        'blocks_total'      => count($risks),
+        'blocks_read'       => $blocksRead,
+        'certifications'    => $certifications,
     ];
 }
 
