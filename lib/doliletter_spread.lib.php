@@ -225,6 +225,39 @@ function doliletter_spread_get_file_icon(string $extension): string
 }
 
 /**
+ * Absolute path of the file of an ECM index entry.
+ *
+ * @param  EcmFilesLine $ecmFile ECM index entry: its filepath is relative to DOL_DATA_ROOT, entity included
+ * @return string                Absolute path of the file
+ */
+function doliletter_spread_get_ecm_file_path(EcmFilesLine $ecmFile): string
+{
+    return DOL_DATA_ROOT . '/' . $ecmFile->filepath . '/' . $ecmFile->filename;
+}
+
+/**
+ * Tell if the file of a shared ECM index entry is on the disk, so that the public page may offer it.
+ *
+ * Whatever the page offers for a file (preview, video, download card or button) goes through document.php,
+ * which answers for a missing file an error message giving its inner path. Such an entry (file deleted
+ * outside Dolibarr, partial restore) is left out of the page, and traced in the log for the administrator.
+ *
+ * @param  EcmFilesLine $ecmFile ECM index entry of a shared file
+ * @return bool                  True if the file is on the disk
+ */
+function doliletter_spread_ecm_file_is_on_disk(EcmFilesLine $ecmFile): bool
+{
+    $filePath = doliletter_spread_get_ecm_file_path($ecmFile);
+    if (dol_is_file($filePath)) {
+        return true;
+    }
+
+    dol_syslog('Spread shared file missing on disk: ' . $filePath, LOG_WARNING);
+
+    return false;
+}
+
+/**
  * Directory a document added from the documents tab of a spread is saved in: the one of the attached
  * files tab of the diffused object, so that the document is found there too.
  *

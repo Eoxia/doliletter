@@ -21,7 +21,7 @@
  * \brief   Documents featured on the spread public page (the document of the object to read), shown
  *          in full in the page. First part of the reading step, under the success screen once signed.
  *          A file the browser cannot show (text document, spreadsheet…) gets a card to download it.
- *          Expects: $linkedFilesFavorite.
+ *          Expects: $linkedFilesFavorite, files on the disk only (doliletter_spread_ecm_file_is_on_disk()).
  */
 
 // Type of a file shown as a card, from its extension: icon, colour (modifier class) and label
@@ -132,17 +132,6 @@ $featuredFileKinds = [
 <div class="spread-featured-documents">
 <?php
 foreach ($linkedFilesFavorite as $file) {
-    // Chemin de l'index ECM relatif a DOL_DATA_ROOT, entite comprise
-    $filePath = DOL_DATA_ROOT . '/' . $file->filepath . '/' . $file->filename;
-
-    // Entree ECM dont le fichier manque sur le disque (supprime hors Dolibarr, restauration partielle) :
-    // apercu, video et carte passent tous par document.php, qui ne renverrait qu'un message d'erreur
-    // avec le chemin interne. Rien a montrer au visiteur, la trace reste dans le journal
-    if (!dol_is_file($filePath)) {
-        dol_syslog('Spread featured document missing on disk: ' . $filePath, LOG_WARNING);
-        continue;
-    }
-
     $fileMimeType = dol_mimetype($file->filename);
     $fileUrl      = DOL_URL_ROOT . '/document.php?hashp=' . urlencode($file->share);
 
@@ -160,7 +149,7 @@ foreach ($linkedFilesFavorite as $file) {
     if ($fileExtension != '') {
         $fileMeta[] = strtoupper($fileExtension);
     }
-    $fileSize = dol_filesize($filePath);
+    $fileSize = dol_filesize(doliletter_spread_get_ecm_file_path($file));
     if ($fileSize > 0) {
         if ($fileSize < 1048576) {
             $fileMeta[] = max(1, round($fileSize / 1024)) . ' ' . $langs->transnoentities('Kb');
