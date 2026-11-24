@@ -308,6 +308,8 @@ ErrorSpreadSigninSheetNotGenerated = La feuille d'émargement n'a pas pu être g
 ErrorSpreadSignatoryIdentityMissing = Renseignez au moins un champ pour identifier la personne
 ErrorSpreadBadPhone             = Numéro de téléphone invalide : 8 à 15 chiffres, éventuellement précédés d'un + et séparés par des espaces, points ou tirets
 SpreadSignatorySignedVersion    = Version du document signé : %s
+SpreadDocumentMissingAtSignature  = Document prévu absent au moment de la signature : %s
+SpreadDocumentsMissingAtSignature = Documents prévus absents au moment de la signature : %s
 
 # Feuille d'émargement : preuve de chaque signature
 SigninSheetSignedDocumentVersion  = Version du document signé
