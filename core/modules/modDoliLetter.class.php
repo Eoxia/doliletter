@@ -61,7 +61,7 @@ class modDoliLetter extends DolibarrModules {
 		$this->descriptionlong = $langs->trans('DoliLetterDescriptionLong');
 		$this->editor_name     = 'Eoxia';
 		$this->editor_url      = 'https://eoxia.com/';
-		$this->version         = '23.3.1';
+		$this->version         = '23.3.2';
 		$this->const_name      = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto           = 'doliletter256px@doliletter';
 

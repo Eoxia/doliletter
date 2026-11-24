@@ -38,6 +38,8 @@ $detailsRisksRead   = count(array_intersect(array_column($ppRisks, 'category'), 
 // Version of the document the person had in front of them when signing, recorded with the signature
 $detailsProof       = !empty($signatoryItem->signature) ? doliletter_spread_get_signature_proof($signatoryItem) : [];
 $detailsVersion     = doliletter_spread_get_documents_version($detailsProof['documents'] ?? []);
+// Document put forward but missing on the disk when the person signed: not a signed version, said apart
+$detailsMissing     = doliletter_spread_get_missing_documents_line($detailsProof, $langs);
 ?>
 <details class="spread-signatory-details">
     <summary class="spread-signatory-details__toggle">
@@ -62,6 +64,12 @@ $detailsVersion     = doliletter_spread_get_documents_version($detailsProof['doc
         <?php if (dol_strlen($detailsVersion)) { ?>
         <div class="spread-signatory-details__line">
             <span><i class="fas fa-file-signature"></i> <?php echo dol_escape_htmltag($langs->transnoentities('SpreadSignatorySignedVersion', $detailsVersion)); ?></span>
+        </div>
+        <?php } ?>
+
+        <?php if (dol_strlen($detailsMissing)) { ?>
+        <div class="spread-signatory-details__line">
+            <span><i class="fas fa-exclamation-triangle"></i> <?php echo dol_escape_htmltag($detailsMissing); ?></span>
         </div>
         <?php } ?>
 
@@ -116,7 +124,7 @@ $detailsVersion     = doliletter_spread_get_documents_version($detailsProof['doc
         </div>
         <?php } ?>
 
-        <?php if (!$detailsShowContact && !dol_strlen($detailsVersion) && empty($ppRisks) && empty($detailsCertStates)) { ?>
+        <?php if (!$detailsShowContact && !dol_strlen($detailsVersion) && !dol_strlen($detailsMissing) && empty($ppRisks) && empty($detailsCertStates)) { ?>
         <div class="spread-signatory-details__line"><?php echo $langs->trans('SpreadSignatoryNoDetails'); ?></div>
         <?php } ?>
     </div>
