@@ -856,6 +856,29 @@ function doliletter_spread_get_documents_version(array $documents): string
 }
 
 /**
+ * Line saying which documents put forward were missing on the disk when the person signed.
+ *
+ * doliletter_spread_build_signature_proof() keeps them apart in 'documents_missing': they were not in
+ * front of the signatory, so they are not a signed version, but the proof still says they were planned.
+ * Printed by the attendance sheet and by the details of the signatories, with the same words.
+ *
+ * @param  array     $proof Proof of a signature, from doliletter_spread_get_signature_proof()
+ * @param  Translate $langs Language to write the line in
+ * @return string           Line, empty when no document was missing, as in every proof taken before 'documents_missing'
+ */
+function doliletter_spread_get_missing_documents_line(array $proof, Translate $langs): string
+{
+    $documentsMissing = $proof['documents_missing'] ?? [];
+    if (!is_array($documentsMissing) || empty($documentsMissing)) {
+        return '';
+    }
+
+    $lineKey = count($documentsMissing) > 1 ? 'SpreadDocumentsMissingAtSignature' : 'SpreadDocumentMissingAtSignature';
+
+    return $langs->transnoentities($lineKey, doliletter_spread_get_documents_version($documentsMissing));
+}
+
+/**
  * Directory holding the photos uploaded for one certification of one signatory.
  *
  * Must stay aligned with the sub directory given to saturne_render_media_block().
