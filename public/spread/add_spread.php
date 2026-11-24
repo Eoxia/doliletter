@@ -935,8 +935,9 @@ if (dol_strlen($spreadTableElement) > 0 && $id > 0) {
     if (is_array($ecmFiles->lines)) {
         foreach ($ecmFiles->lines as $ecmFilesLine) {
             // A file missing on the disk is left out of both lists below, featured documents and other
-            // attached files: all they offer goes through document.php, which would only answer an error
-            if (!doliletter_spread_ecm_file_is_on_disk($ecmFilesLine)) {
+            // attached files: all they offer goes through document.php, which would only answer an error.
+            // fetchAll() only gives EcmFilesLine, which the core types as CommonObject|stdClass
+            if (!($ecmFilesLine instanceof EcmFilesLine) || !doliletter_spread_ecm_file_is_on_disk($ecmFilesLine)) {
                 continue;
             }
             $ecmFilesLine->table_element = $ecmFiles->table_element;
