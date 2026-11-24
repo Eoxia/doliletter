@@ -298,6 +298,8 @@ ErrorSpreadSigninSheetNotGenerated = The attendance sheet could not be generated
 ErrorSpreadSignatoryIdentityMissing = Fill in at least one field to identify the person
 ErrorSpreadBadPhone = Invalid phone number: 8 to 15 digits, optionally starting with + and split by spaces, dots or dashes
 SpreadSignatorySignedVersion = Version of the signed document: %s
+SpreadDocumentMissingAtSignature = Planned document missing at the time of signing: %s
+SpreadDocumentsMissingAtSignature = Planned documents missing at the time of signing: %s
 
 # Attendance sheet: proof of each signature
 SigninSheetDocument = Attendance sheet
@@ -415,6 +417,8 @@ SpreadAddNewAttendee = Add a new attendee
 SpreadHello = Hello,
 SpreadYouSignedOn = You signed this document on %s.
 SpreadValidatePendingSignatureFirst = Please validate the pending signature first
+SpreadSignatoryAlreadySigned = This person has already signed: their signature cannot be replaced
+SpreadEmailAlreadySigned = This email address has already signed this document
 SpreadAddInternalSignatory = Internal signatory
 SpreadAddExternalSignatory = External signatory
 SpreadSendRequestedElements = Send the requested elements
