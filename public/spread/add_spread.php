@@ -48,7 +48,7 @@ if (file_exists('../../../saturne/saturne.main.inc.php')) {
 } elseif (file_exists('../../../saturne.main.inc.php')) {
     require_once __DIR__ . '/../../../../saturne/saturne.main.inc.php';
 } else {
-    die('Include of saturne main fails');
+    die('Include of saturne main fails: install Saturne next to this module (same parent folder, usually custom/; if this module is a symbolic link, next to its target)');
 }
 
 // A visitor of this page is not logged in, so the session lacks the timezone of their browser that the login
