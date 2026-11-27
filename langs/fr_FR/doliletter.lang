@@ -92,6 +92,7 @@ Content = Contenu
 SendLetter = Envoyer courrier
 AlreadySigned = Le courrier a déjà été signé
 MustBeSignedBeforeSending = Ce courrier doit être signé et verrouillé avant d'être envoyé
+NoEmailForReceiverSendByLetter = Ni le contact ni le tiers n'ont d'adresse e-mail : envoyez ce courrier par la poste
 receivers = Destinataires
 EnvelopeSendbyLetterTrigger = Envoi Postal
 EnvelopeCreateTrigger = Création d'un courrier
