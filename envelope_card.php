@@ -309,10 +309,10 @@ if (empty($reshook)) {
 
 		$extintervenant_id  = $object->fk_contact;
 
-		//Check email of intervenants
-		$contact->fetch($extintervenant_id);
-		if (!dol_strlen($contact->email)) {
-			setEventMessages($langs->trans('ErrorNoEmailForExtIntervenant', $langs->transnoentitiesnoconv('ExtIntervenant')), null, 'errors');
+		// The receiver needs no email address: the letter can go by post, only the sending by email
+		// needs one. An envelope without a contact has no receiver to be locked for
+		if ($contact->fetch($extintervenant_id) <= 0) {
+			setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentitiesnoconv('Contact')), null, 'errors');
 			$error++;
 		}
 
