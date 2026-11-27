@@ -76,8 +76,8 @@ $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'do
 $backtopage = GETPOST('backtopage', 'alpha'); // Go back to a dedicated page
 $optioncss = GETPOST('optioncss', 'aZ'); // Option for the css output (always '' except when 'print')
 
-$fromtype = GETPOST('fromtype', 'alpha'); // element type
-$fromid = GETPOST('fromid', 'int'); //element id
+$fromtype = GETPOST('fromtype', 'aZ09'); // element type
+$fromid = GETPOSTINT('fromid'); //element id
 
 $id = GETPOST('id', 'int');
 
@@ -151,7 +151,14 @@ if (!empty($fromtype)) {
 			$objectLinked = new Contact($db);
 			$prehead = 'contact_prepare_head';
 			break;
+		default :
+			// Unknown element type: the whole list, rather than a fatal error on $objectLinked
+			$fromtype = '';
+			$fromid = 0;
+			break;
 	}
+}
+if (!empty($fromtype)) {
 	$objectLinked->fetch($fromid);
 	$head = $prehead($objectLinked);
 	$linkedObjectsArray = array('thirdparty', 'contact','project');
@@ -309,7 +316,7 @@ if (isset($extrafields->attributes[$object->table_element]['label']) && is_array
 	$sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 }
 if (dol_strlen($fromtype) > 0 && !in_array($fromtype, $linkedObjectsArray)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as e on (e.fk_source = ' .$fromid. ' AND e.sourcetype="' . $fromtype . '" AND e.targettype = "doliletter_envelope")';
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . "element_element as e on (e.fk_source = " . ((int) $fromid) . " AND e.sourcetype = '" . $db->escape($fromtype) . "' AND e.targettype = 'doliletter_envelope')";
 }
 // Add table from hooks
 $parameters = array();
@@ -416,7 +423,7 @@ llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss, '', 'saturne-theme
 
 if (!empty($fromtype)) {
 	print dol_get_fiche_head($head, 'envelopeList', $langs->trans("Envelope"), -1, $objectLinked->picto);
-	dol_banner_tab($objectLinked, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
+	dol_banner_tab($objectLinked, 'ref', '', 1, 'ref', 'ref');
 }
 
 if ($fromid) {
@@ -443,6 +450,10 @@ foreach ($search as $key => $val) {
 }
 if ($optioncss != '') {
 	$param .= '&optioncss='.urlencode($optioncss);
+}
+// Sorting and paging links stay on the envelopes of the linked object
+if (!empty($fromtype)) {
+	$param .= '&fromtype='.urlencode($fromtype).'&fromid='.((int) $fromid);
 }
 // Add $param from extra fields
 include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_param.tpl.php';
@@ -477,6 +488,11 @@ print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
 print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
 print '<input type="hidden" name="page" value="'.$page.'">';
 print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
+// The search form stays on the envelopes of the linked object too
+if (!empty($fromtype)) {
+	print '<input type="hidden" name="fromtype" value="'.dol_escape_htmltag($fromtype).'">';
+	print '<input type="hidden" name="fromid" value="'.((int) $fromid).'">';
+}
 
 $fromurl = '';
 if (!empty($fromtype)) {
