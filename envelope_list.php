@@ -162,8 +162,13 @@ $search_all = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alph
 $search = array();
 
 foreach ($object->fields as $key => $val) {
-	if (GETPOST($key, 'alpha') !== '') {
-		$search[$key] = GETPOST($key, 'alpha');
+	// Search inputs are named search_<field>, the thirdparty, contact and project selectors keep the bare field name
+	$searchValue = GETPOST('search_'.$key, 'alpha');
+	if ($searchValue === '') {
+		$searchValue = GETPOST($key, 'alpha');
+	}
+	if ($searchValue !== '') {
+		$search[$key] = $searchValue;
 	}
 	if (preg_match('/^(date|timestamp|datetime)/', $val['type'])) {
 		$search[$key.'_dtstart'] = dol_mktime(0, 0, 0, GETPOST('search_'.$key.'_dtstartmonth', 'int'), GETPOST('search_'.$key.'_dtstartday', 'int'), GETPOST('search_'.$key.'_dtstartyear', 'int'));
