@@ -274,6 +274,9 @@ if (!empty($fromType)) {
     $moreUrlParameters = '&fromtype=' . $fromType . '&fromid=' . $fromId . '&mode=' . $mode;
 }
 
+// A spread is created from the "Spread" tab of the object it spreads, there is no card to create one from the list
+$createUrl = false;
+
 
 require_once dol_buildpath('/saturne/core/tpl/list/objectfields_list_build_sql_select.tpl.php');
 require_once dol_buildpath('/saturne/core/tpl/list/objectfields_list_header.tpl.php');
