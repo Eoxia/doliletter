@@ -309,10 +309,10 @@ if (empty($reshook)) {
 
 		$extintervenant_id  = $object->fk_contact;
 
-		//Check email of intervenants
-		$contact->fetch($extintervenant_id);
-		if (!dol_strlen($contact->email)) {
-			setEventMessages($langs->trans('ErrorNoEmailForExtIntervenant', $langs->transnoentitiesnoconv('ExtIntervenant')), null, 'errors');
+		// The receiver needs no email address: the letter can go by post, only the sending by email
+		// needs one. An envelope without a contact has no receiver to be locked for
+		if ($contact->fetch($extintervenant_id) <= 0) {
+			setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentitiesnoconv('Contact')), null, 'errors');
 			$error++;
 		}
 
@@ -1486,7 +1486,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'conf
 			print ($object->status == 0 ?  $button_edit : ($object->status == 1 ? $button_edit_with_confirm : $button_edit_disabled));
 			print '<a class="'. ($object->status == 0 ? 'butAction" id="actionButtonSign" href="' . dol_buildpath('/doliletter/envelope_signature.php', 1) . '?id='.$object->id.'&mode=init&token='.newToken().'"' : 'butActionRefused classfortooltip" title="'. $langs->trans('AlreadySigned').'"')  .' >' . $langs->trans("Sign") . '</a>' . "\n";
 			print '<span class="' . ($object->status == 1 ? 'butAction"  id="actionButtonLock"' : 'butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans("EnvelopeMustBeSigned")) . '"') . '>' . $langs->trans("Lock") . '</span>';
-			print '<a class="'. ($object->status == 2 || $object->status == 4 ? 'butAction" id="actionButtonSendMail" href="' . $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&model='.$modelselected.'&token='.newToken().'"'  : 'butActionRefused classfortooltip" title="'. $langs->trans('MustBeSignedBeforeSending').'"') . ' >' . $langs->trans("SendMail") . '</a>' . "\n";
+			// Sending by email needs an address: with none for the contact nor for the third party, the letter goes by post
+			if (($object->status == 2 || $object->status == 4) && !dol_strlen($contact->email) && !dol_strlen($thirdparty->email)) {
+				print '<a class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('NoEmailForReceiverSendByLetter')) . '">' . $langs->trans('SendMail') . '</a>' . "\n";
+			} else {
+				print '<a class="'. ($object->status == 2 || $object->status == 4 ? 'butAction" id="actionButtonSendMail" href="' . $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&model='.$modelselected.'&token='.newToken().'"'  : 'butActionRefused classfortooltip" title="'. $langs->trans('MustBeSignedBeforeSending').'"') . ' >' . $langs->trans("SendMail") . '</a>' . "\n";
+			}
 			print '<a class="'. ($object->status == 2 ? 'butAction" id="actionButtonSendLetter" href="' . $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=letterpresend&mode=init&model='.$modelselected.'&token='.newToken().'"' : 'butActionRefused classfortooltip" title="'. $langs->trans('MustBeSignedBeforeSending').'"').' >' . $langs->trans("SendLetter") . '</a>' . "\n";
 			print '<a class="'. ($object->status == 3 ? 'butAction" id="actionSendingProof" href="' . $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=uploadSendingProof&token='.newToken() : 'butActionRefused classfortooltip" title="'. $langs->trans('MustBeSentBeforeSendingProof').'"').'">' . $langs->trans("UploadSendingProof") . '</a>' . "\n";
 			print '<a class="'. ($object->status == 3 ? 'butAction" id="actionButtonUploadReceiptAcknowledgement" href="' . $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=uploadAcknowledgementReceipt&token='.newToken() : 'butActionRefused classfortooltip" title="'. $langs->trans('MustBeSentBeforeAcknowledgementReceipt').'"').'">' . $langs->trans("UploadAcknowledgementReceipt") . '</a>' . "\n";

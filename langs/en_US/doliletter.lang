@@ -73,6 +73,7 @@ Content = Content
 SendLetter = Send the letter
 AlreadySigned = The letter has already been signed
 MustBeSignedBeforeSending = This letter must be signed and locked before being sent
+NoEmailForReceiverSendByLetter = Neither the contact nor the third party has an email address: send this letter by post
 receivers = Recipients
 EnvelopeSendbyLetterTrigger = Sent by post
 EnvelopeCreateTrigger = Letter created
